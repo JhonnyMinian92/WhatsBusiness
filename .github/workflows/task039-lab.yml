@@ -1,0 +1,45 @@
+name: TASK-039 Docker lab
+
+on:
+  push:
+    branches: [environment/local]
+    paths:
+      - "spike/task-039-lab/**"
+      - ".github/workflows/task039-lab.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  docker-lab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: spike/task-039-lab
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate shell scripts
+        run: bash -n scripts/run-lab.sh scripts/reset-lab.sh postgres/init/000-create-runtime-role.sh
+
+      - name: Configure synthetic-only credentials
+        run: cp .env.example .env
+
+      - name: Run reproducible infrastructure smoke tests
+        run: bash scripts/run-lab.sh
+
+      - name: Upload lab evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: task039-lab-evidence
+          path: spike/task-039-lab/results/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Stop lab services
+        if: always()
+        run: docker compose down --remove-orphans
