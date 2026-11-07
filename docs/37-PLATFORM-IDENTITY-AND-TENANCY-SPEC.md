@@ -1,7 +1,7 @@
 # 37 — Especificación funcional: identidad, organizaciones y tenancy
 
 **Relacionado:** TASK-001..005, TASK-034, US-001, US-002, US-024, US-025, PD-001, PD-016, PD-017.  
-**Estado:** baseline de diseño propuesta para revisión técnica; no implementada ni verificada.  
+**Estado:** baseline funcional vigente; slice inicial de Identity/Tenant implementado y validado automáticamente de forma parcial (TASK-001/TASK-002, 2026-11-07). RBAC/ABAC completo, partner/JIT grants, operaciones administrativas, auditoría/outbox, workers y revisión independiente siguen pendientes. La implementación y su evidencia están registradas en docs/58.  
 **Autoridad:** las decisiones PD-001/016/017 y los ADR aceptados prevalecen. Los nombres de roles y permisos aquí son un catálogo inicial extensible.
 
 ## 1. Propósito y límites
@@ -133,3 +133,13 @@ E2E: usuario multi-tenant, invitación, selección de tenant, agencia con grant,
 - El Product Owner debe aprobar umbrales monetarios y matriz final de aprobadores antes de operaciones sensibles en producción.
 
 No bloquean el diseño ni los tests sintéticos: nombres comerciales, tarifas finales, proveedor VPS y aprobación Meta.
+
+
+## 13. Estado real de implementación (2026-11-07)
+
+- TASK-001: modelo de Tenant, ownership Organization y lifecycle implementados en migraciones 0001–0002; pruebas PostgreSQL de invariantes y RLS pasan en CI.
+- TASK-002: tenant authorization predicate, contexto transaction-local, guard por propósito y authzVersion implementados en migration 0003 y backend NestJS; pruebas sintéticas y PostgreSQL pasan en Source CI.
+- PLT-003..005 permanecen como las únicas APIs de Identity habilitadas. PLT-005 conserva el contrato público; datos internos de autorización no se exponen.
+- El contexto autorizado no equivale a RBAC/ABAC completo. TASK-004 debe implementar decisión allow/deny por action/resource/asset/owner/purpose/state/consent/entitlement/capability.
+- TASK-003 (jobs/cache/files/telemetry isolation), TASK-005 (step-up/approval/audit), PartnerTenantGrant, PlatformGrant JIT y propagación a workers siguen pendientes.
+- No se han ejecutado pruebas con cuentas/datos reales ni se declara revisión independiente o aceptación del Product Owner. G0-PRODUCTION permanece bloqueado.
