@@ -74,3 +74,9 @@
 
 ## Estado
 La estructura documental y el sistema de instrucciones para agentes se encuentran establecidos en `environment/local`. Esto no significa que el producto esté implementado. El porcentaje de implementación debe calcularse contra requisitos y criterios con evidencia, no contra documentos creados.
+
+
+## Decisiones y arquitectura confirmadas
+29. [Decisiones del propietario](29-OWNER-DECISIONS.md) — baseline explícita, interpretación y preguntas abiertas.
+30. [Arquitectura recomendada](30-RECOMMENDED-ARCHITECTURE.md) — stack y límites propuestos.
+31. [Plan maestro por fases](31-MASTER-DELIVERY-PLAN.md) — fases, gates y paralelismo seguro.
