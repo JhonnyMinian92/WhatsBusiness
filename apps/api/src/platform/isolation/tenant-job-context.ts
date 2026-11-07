@@ -41,8 +41,9 @@ export class TenantJobContextResolver {
 
   async resolve(jobId: string): Promise<TenantJobContext> {
     assertUuid(jobId, "jobId");
-    const record = await this.records.findCommitted(jobId);
-    if (!record || record.persistenceState !== "committed" || record.jobId !== jobId) {
+    const canonicalJobId = jobId.toLowerCase();
+    const record = await this.records.findCommitted(canonicalJobId);
+    if (!record || record.persistenceState !== "committed" || record.jobId.toLowerCase() !== canonicalJobId) {
       throw new Error("A committed canonical tenant job record is required.");
     }
     assertUuid(record.tenantId, "tenantId");
