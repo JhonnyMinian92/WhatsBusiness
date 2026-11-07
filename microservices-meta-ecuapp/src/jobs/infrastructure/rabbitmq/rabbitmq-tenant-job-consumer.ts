@@ -9,6 +9,7 @@ export interface TenantJobConsumerErrorReporter {
 
 export class RabbitMqTenantJobConsumerAdapter {
   private consumerTag: string | null = null;
+  private readonly inFlight = new Set<Promise<void>>();
 
   constructor(
     private readonly channel: Channel,
@@ -31,7 +32,7 @@ export class RabbitMqTenantJobConsumerAdapter {
     const result = await this.channel.consume(
       this.queue,
       (message) => {
-        if (message) void this.process(message);
+        if (message) this.track(this.process(message));
       },
       { noAck: false },
     );
@@ -43,6 +44,14 @@ export class RabbitMqTenantJobConsumerAdapter {
     const tag = this.consumerTag;
     this.consumerTag = null;
     if (tag) await this.channel.cancel(tag);
+    // Stop intake first, then let active transactions finish before closing
+    // the channel. Any process crash still relies on lease expiry/recovery.
+    await Promise.all([...this.inFlight]);
+  }
+
+  private track(task: Promise<void>): void {
+    this.inFlight.add(task);
+    void task.finally(() => this.inFlight.delete(task)).catch(() => undefined);
   }
 
   private async process(message: ConsumeMessage): Promise<void> {
