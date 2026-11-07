@@ -1,0 +1,87 @@
+name: Source workspace validation
+
+on:
+  push:
+    branches: [environment/local]
+    paths:
+      - "apps/**"
+      - "libs/**"
+      - "package.json"
+      - "pnpm-workspace.yaml"
+      - "pnpm-lock.yaml"
+      - "nx.json"
+      - "angular.json"
+      - "tsconfig.base.json"
+      - ".node-version"
+      - ".npmrc"
+      - ".github/workflows/source-validation.yml"
+  pull_request:
+    branches: [environment/local]
+    paths:
+      - "apps/**"
+      - "libs/**"
+      - "package.json"
+      - "pnpm-workspace.yaml"
+      - "pnpm-lock.yaml"
+      - "nx.json"
+      - "angular.json"
+      - "tsconfig.base.json"
+      - ".node-version"
+      - ".npmrc"
+      - ".github/workflows/source-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.9
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: .node-version
+
+      - name: Install dependencies
+        id: install
+        shell: bash
+        run: |
+          if [[ -f pnpm-lock.yaml ]]; then
+            echo "lockfile_created=false" >> "$GITHUB_OUTPUT"
+            pnpm install --frozen-lockfile
+          else
+            pnpm install --no-frozen-lockfile
+            echo "lockfile_created=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build all applications
+        run: pnpm build
+
+      - name: Typecheck all applications
+        run: pnpm typecheck
+
+      - name: Run automated tests
+        run: pnpm test
+
+      - name: Commit first verified lockfile
+        if: github.event_name == 'push' && steps.install.outputs.lockfile_created == 'true'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pnpm-lock.yaml
+          git commit -m "build: commit CI-generated pnpm lockfile"
+          git push origin "HEAD:environment/local"
