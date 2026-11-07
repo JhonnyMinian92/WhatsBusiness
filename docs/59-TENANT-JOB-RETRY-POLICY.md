@@ -66,4 +66,4 @@ La política no publica mensajes, no adquiere leases, no recupera trabajos `proc
 - Código: `apps/api/src/platform/isolation/tenant-job-retry-policy.ts`.
 - Tests: `apps/api/src/platform/isolation/tenant-job-retry-policy.spec.ts`.
 - Registro de suite: `apps/api/project.json`.
-- Commits iniciales: implementación `c27a8578f56ef2e740a56d907e5fdc963a0a5b46`; tests `aa5c37273011ba354a1b574a8a519fd0d623960a`; registro suite `(commit reportado por GitHub en la actualización de project.json)`.
+- Commits iniciales: implementación `c27a8578f56ef2e740a56d907e5fdc963a0a5b46`; tests `aa5c37273011ba354a1b574a8a519fd0d623960a`; registro suite ``98c5b0fdf23416f1ca55ceffaed881b07827e237``.
