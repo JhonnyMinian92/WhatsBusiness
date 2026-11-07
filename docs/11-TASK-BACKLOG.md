@@ -23,6 +23,8 @@ Cada tarea requiere owner, prioridad, dependencias, DoR, entregables, criterios,
 
 **Handoff de ejecución (2026-11-07):** TASK-001 tiene estado `implemented` con validación automática CI PASS; permanece `in_progress` en el backlog global hasta revisión independiente de arquitectura/seguridad y aceptación del propietario. Migración `0002-tenant-lifecycle-invariants.sql`, runner de migraciones versionadas y pruebas PostgreSQL de ownership, transiciones, tombstone y RLS. Evidencia: commit `479a8234d2f6b78b0bb8e6474c39e4a388034c3a`, Source CI run [#15](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42379841071); idempotencia de migraciones confirmada en run [#16](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42380055974), commit `84bab54d78b5246174dab6a6a9eb9173d0149476`. TASK-002/004 siguen in_progress; TASK-005 sigue proposed. No se habilitaron operaciones de mutación HTTP ni se alteró el gate de producción.
 
+**Handoff TASK-002 (2026-11-07):** implementado y CI-verified en Source CI [#47](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42383524043), commit `74febd28056043cda15221f29c8c5b71290ca06c`. Incluye migración `0003-tenant-context-authorization.sql`, predicado DB de acceso tenant, guard por propósito, contexto inmutable por request, versionado y serialización de autorización, tests unit/integration y protección contra stale membership/grants. TASK-002 permanece `in_progress` globalmente hasta revisión independiente y aceptación del propietario. TASK-004 (RBAC/ABAC) y TASK-003 (jobs/cache/files/telemetry) continúan pendientes; no se habilitan mutaciones ni producción.
+
 ## EP-02 — Control Plane
 | Tarea | Historia | Entregable / alcance | Dependencias | QA y DoD | Control |
 |---|---|---|---|---|---|
