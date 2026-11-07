@@ -8959,7 +8959,6 @@ paths:
       x-implementation-allowed: false
       security: []
       x-authentication-contract: 'Provider-specific challenge/signature; freeze each product contract. Never use user Bearer auth.'
-      parameters:
       x-request-schema-pending: true
       x-response-schema-pending: true
       x-error-catalog-pending: true
@@ -8978,7 +8977,6 @@ paths:
       x-implementation-allowed: false
       security: []
       x-authentication-contract: 'Provider-specific challenge/signature; freeze each product contract. Never use user Bearer auth.'
-      parameters:
       x-request-schema-pending: true
       x-response-schema-pending: true
       x-error-catalog-pending: true
@@ -8997,7 +8995,6 @@ paths:
       x-implementation-allowed: false
       security: []
       x-authentication-contract: 'Provider-specific challenge/signature; freeze each product contract. Never use user Bearer auth.'
-      parameters:
       x-request-schema-pending: true
       x-response-schema-pending: true
       x-error-catalog-pending: true
@@ -9016,7 +9013,6 @@ paths:
       x-implementation-allowed: false
       security: []
       x-authentication-contract: 'Provider-specific challenge/signature; freeze each product contract. Never use user Bearer auth.'
-      parameters:
       x-request-schema-pending: true
       x-response-schema-pending: true
       x-error-catalog-pending: true
@@ -9035,7 +9031,6 @@ paths:
       x-implementation-allowed: false
       security: []
       x-authentication-contract: 'Provider-specific challenge/signature; freeze each product contract. Never use user Bearer auth.'
-      parameters:
       x-request-schema-pending: true
       x-response-schema-pending: true
       x-error-catalog-pending: true
@@ -9054,7 +9049,6 @@ paths:
       x-implementation-allowed: false
       security: []
       x-authentication-contract: 'Provider-specific challenge/signature; freeze each product contract. Never use user Bearer auth.'
-      parameters:
       x-request-schema-pending: true
       x-response-schema-pending: true
       x-error-catalog-pending: true
@@ -9073,7 +9067,6 @@ paths:
       x-implementation-allowed: false
       security: []
       x-authentication-contract: 'Provider-specific challenge/signature; freeze each product contract. Never use user Bearer auth.'
-      parameters:
       x-request-schema-pending: true
       x-response-schema-pending: true
       x-error-catalog-pending: true
