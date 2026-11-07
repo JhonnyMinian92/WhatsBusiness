@@ -58,7 +58,7 @@ CREATE POLICY tenant_job_records_tenant_update ON platform.tenant_job_records
 -- The worker will receive narrow state-transition functions when the dispatcher is introduced.
 GRANT INSERT (tenant_id, actor_user_id, purpose, correlation_id, job_type, idempotency_key, payload, request_sha256, max_attempts, available_at)
   ON platform.tenant_job_records TO whatsbusiness_app;
-GRANT SELECT (id, request_sha256) ON platform.tenant_job_records TO whatsbusiness_app;
+GRANT SELECT (id) ON platform.tenant_job_records TO whatsbusiness_app;
 
 -- A worker starts with only an opaque job UUID. This narrowly scoped function
 -- returns authorization metadata, never payload, and only for an existing row.
@@ -82,6 +82,33 @@ AS $function$
   LIMIT 1
 $function$;
 
+
+
+CREATE OR REPLACE FUNCTION platform.resolve_tenant_job_idempotency(
+  p_tenant_id uuid,
+  p_actor_user_id uuid,
+  p_job_type text,
+  p_idempotency_key text
+)
+RETURNS TABLE (job_id uuid, request_sha256 text)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = pg_catalog, platform
+AS $function$
+  SELECT job.id, job.request_sha256
+  FROM platform.tenant_job_records AS job
+  WHERE job.tenant_id = p_tenant_id
+    AND job.actor_user_id = p_actor_user_id
+    AND job.job_type = p_job_type
+    AND job.idempotency_key = p_idempotency_key
+    AND p_tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
+    AND p_actor_user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
+  LIMIT 1
+$function$;
+
+REVOKE ALL ON FUNCTION platform.resolve_tenant_job_idempotency(uuid, uuid, text, text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION platform.resolve_tenant_job_idempotency(uuid, uuid, text, text) TO whatsbusiness_app;
 
 CREATE OR REPLACE FUNCTION platform.enforce_tenant_job_transition()
 RETURNS trigger
