@@ -146,7 +146,7 @@ Los schemas de Meta deben validarse por producto, versión, login mode, permiso 
 | Canales lógicos | 69 |
 | Operaciones `publish` | 69 |
 | Operaciones `subscribe` | 69 |
-| operationIds únicos | 110 |
+| operationIds únicos | 138 |
 | Mensajes de canal únicos (referencias publish + subscribe) | 69 (138 referencias) |
 | Definiciones de payload JSON Schema | 69 |
 | Tipos de evento únicos | 69 |
@@ -157,27 +157,9 @@ Los 69 payloads componen el envelope JSON Schema draft 2020-12; cada tipo fija `
 
 El mensaje expone la correlación desde `$message.payload#/correlationId`. El routing key lógico es `<event-type>.v1`; las colas/topología física siguen siendo específicas por consumer.
 
-### 7.2 Propuestas de eventos todavía no reconciliadas
+### 7.2 Reconciliación de eventos CRM/Inbox
 
-docs/38 enumera nueve eventos CRM/Sales que no aparecen en el catálogo actual:
-- `crm.contact.updated`
-- `crm.identity.merge_requested`
-- `crm.identity.merge_reversed`
-- `crm.lead.created`
-- `crm.lead.disqualified`
-- `crm.lead.converted`
-- `crm.lead.assigned`
-- `crm.opportunity.lost`
-- `crm.activity.created`
-
-docs/39 enumera cinco eventos Inbox adicionales no incluidos:
-- `inbox.conversation.updated`
-- `inbox.message.accepted`
-- `inbox.message.failed`
-- `inbox.ownership.expired`
-- `inbox.handoff.requested`
-
-Los 14 eventos adicionales de docs/38 y docs/39 ya se incorporaron a AsyncAPI y JSON Schema v1.0.0, con productor/consumidores lógicos y TASK relacionadas en docs/47. Los payloads usan referencias UUID, timestamps, enums y reason codes; no incluyen PII ni contenido de mensajes. La revisión formal del owner y los contract tests continúan pendientes.
+Los 14 eventos adicionales de docs/38 y docs/39 se incorporaron a AsyncAPI y JSON Schema v1.0.0, con productor/consumidores lógicos y TASK relacionadas en docs/47. Se mantienen separados los hechos de solicitud, aceptación, resultado, expiración y reversión. La revisión formal del owner de dominio y los contract tests siguen pendientes.
 
 ### 7.3 Validación que falta
 
@@ -210,7 +192,7 @@ Se deben crear TEST IDs antes de implementar criterios nuevos y completar la cad
 ## 9. Bloqueos priorizados y siguiente orden de trabajo
 
 1. **P0 — Contratos de plataforma/identidad:** cerrar PLT-006..007, IAM y PAR con owner/reviewer, permisos, request/response y flujos de aprobación basados en docs/37. No congelar schemas solo por inferencia.
-2. **P0 — Ownership CRM/Sales e Inbox:** resolver el límite CRM/SALES y reconciliar los 14 eventos propuestos con docs/47, docs/19, docs/53 y AsyncAPI.
+2. **P0 — Ratificación de ownership CRM/Sales e Inbox:** obtener aprobación de los owners para el límite propuesto y revisar los 14 contratos añadidos con fixtures/contract tests; la documentación y el mapping ya están actualizados.
 3. **P0 — Contratos Inbox y webhook:** completar mensajes/discriminated unions, receipts, signatures, tenant mapping, dedupe y ACK durable por proveedor.
 4. **P1 — Meta adapters:** un producto/login mode/versión a la vez, fixtures nativos y evidencia oficial/account-tested.
 5. **P1 — Automation/AI/AGT:** schemas de workflow/tool, aprobación, cancelación y side-effect guard; no habilitar proveedores externos antes del gate de privacidad/coste.
