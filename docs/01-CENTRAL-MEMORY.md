@@ -133,6 +133,12 @@ Los ADR-011..020 están formalizados en docs/33-ARCHITECTURE-DECISION-RECORDS.md
 ## Agent readiness baseline — 2026-11-06
 
 - Especificaciones funcionales iniciales: docs/37..41; modelo de datos: docs/42; contratos: docs/43 + contracts/; threat model: docs/44; spike runbook: docs/45; work packets y gates: docs/46.
-- Autorizado: agentes de preparación, review read-only y ejecución de TASK-039 como prototipo desechable.
-- No se declara completado: TASK-039, benchmark TASK-060, restore/DR TASK-061, Meta account access/App Review, legal review LOPDP ni aprobación de costes/proveedor.
-- Scaffold definitivo y primer vertical slice quedan condicionados al gate G0 descrito en docs/46.
+- GO-CODE aprobado por instrucción expresa del propietario el 2026-11-07: workspace fuente y primer slice de foundation autorizados en environment/local; detalle y límites en docs/57.
+- TASK-039 tiene evidencia parcial reproducible: Docker lab run #5 PASS para pruebas sintéticas acotadas de PostgreSQL RLS básico, RabbitMQ durable/DLX, Valkey TTL/auth, Keycloak OIDC discovery/JWKS/login y pg_dump/restore dentro del mismo container. No es TASK-039 completo.
+- Continúan pendientes: pool Node real, outbox/consumer E2E, webhook HTTP firma/ACK, validación app authorization OIDC, clean-host restore/RPO/RTO, VPS footprint/benchmarks, Valkey hardening, SBOM/CVE y review independiente.
+- GO-PRODUCTION sigue NO-GO hasta evidencias técnicas/operativas, legal/privacy, Meta capability/account, revisión independiente y aprobación humana aplicable.
+
+
+## Kickoff GO-CODE — 2026-11-07
+
+La instrucción más reciente del propietario autoriza avanzar de inmediato con el código fuente y el primer vertical slice en `environment/local`. Esta autorización levanta el bloqueo histórico de scaffold para el trabajo de desarrollo, pero no cambia los controles de seguridad ni significa que el producto o TASK-039 estén aceptados. `GO-CODE` y `GO-PRODUCTION` son gates independientes; el segundo permanece cerrado según docs/57.
