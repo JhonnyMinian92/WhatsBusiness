@@ -1,12 +1,12 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "../dist/microservices-meta-ecuapp",
+    "outDir": "dist",
     "rootDir": "src",
     "types": ["node"],
     "declaration": true,
     "declarationMap": true,
-    "tsBuildInfoFile": "../dist/microservices-meta-ecuapp/tsconfig.tsbuildinfo"
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.spec.ts"]
