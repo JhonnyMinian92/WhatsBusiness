@@ -19,16 +19,22 @@ const MAX_PAYLOAD_BYTES = 256 * 1024;
 export class PostgresTenantJobRecordWriter implements TenantJobRecordWriter {
   async stage(client: PoolClient, input: StageTenantJobInput): Promise<string> {
     this.validate(input);
-    const payload = JSON.stringify(input.payload);
-    if (typeof payload !== "string") {
+    const serializedPayload = JSON.stringify(input.payload);
+    if (typeof serializedPayload !== "string") {
       throw new Error("Tenant job payload must serialize to a JSON object.");
     }
+    const payload = JSON.stringify(canonicalizeJson(JSON.parse(serializedPayload) as unknown));
     if (Buffer.byteLength(payload, "utf8") > MAX_PAYLOAD_BYTES) {
       throw new Error("Tenant job payload exceeds the 256 KiB limit.");
     }
 
-    const payloadSha256 = createHash("sha256").update(payload, "utf8").digest("hex");
-    const inserted = await client.query<{ id: string; payload_sha256: string }>(
+    const requestSha256 = createHash("sha256")
+      .update(JSON.stringify([
+        input.tenantId.toLowerCase(), input.actorUserId.toLowerCase(),
+        input.purpose, input.jobType, payload,
+      ]), "utf8")
+      .digest("hex");
+    const inserted = await client.query<{ id: string; request_sha256: string }>(
       [
         "INSERT INTO platform.tenant_job_records",
         "(tenant_id, actor_user_id, purpose, correlation_id, job_type, idempotency_key, payload, payload_sha256, max_attempts, available_at)",
@@ -44,7 +50,7 @@ export class PostgresTenantJobRecordWriter implements TenantJobRecordWriter {
         input.jobType,
         input.idempotencyKey,
         payload,
-        payloadSha256,
+        requestSha256,
         input.maxAttempts ?? 8,
         input.availableAt ?? new Date(),
       ],
@@ -81,6 +87,19 @@ export class PostgresTenantJobRecordWriter implements TenantJobRecordWriter {
       throw new Error("Tenant job record contains invalid metadata.");
     }
   }
+}
+
+function canonicalizeJson(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalizeJson);
+  if (value !== null && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    const canonical: Record<string, unknown> = {};
+    for (const key of Object.keys(record).sort()) {
+      canonical[key] = canonicalizeJson(record[key]);
+    }
+    return canonical;
+  }
+  return value;
 }
 
 function isPlainRecord(value: unknown): value is Readonly<Record<string, unknown>> {
