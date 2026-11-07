@@ -30,7 +30,6 @@ test("runs recovery before dispatch and stops cleanly on abort", async () => {
   const supervisor = new TenantJobRuntimeSupervisor(
     repository,
     dispatcher,
-    { now: () => new Date(0) },
     { recovered: () => calls.push("recovered"), failed: (code) => calls.push("failed:" + code) },
     {
       pollIntervalMs: 1,
@@ -52,7 +51,6 @@ test("rejects an unsafe dispatcher supervisor configuration", () => {
   assert.throws(() => new TenantJobRuntimeSupervisor(
     repository,
     dispatcher,
-    { now: () => new Date(0) },
     { recovered() {}, failed() {} },
     {
       pollIntervalMs: 0,
