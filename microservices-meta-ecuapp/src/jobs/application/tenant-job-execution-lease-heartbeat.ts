@@ -71,7 +71,9 @@ export class TenantJobExecutionLeaseHeartbeat {
 
       try {
         const expiry = await this.repository.renewExecutionLease(jobId, leaseToken, leaseSeconds);
-        if (!expiry || !Number.isFinite(expiry.getTime()) || expiry.getTime() <= Date.now()) {
+        // PostgreSQL performs the authoritative expiry check using its own clock.
+        // Do not compare the returned timestamp against the worker host clock. 
+        if (!expiry || !Number.isFinite(expiry.getTime())) {
           throw new TenantJobFailureError({
             code: "JOB_EXECUTION_LEASE_LOST",
             retryable: false,
