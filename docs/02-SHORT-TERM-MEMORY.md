@@ -291,3 +291,14 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Seis suites unitarias registradas en apps/api/project.json; CI aún pendiente de inspección.
 - Límites: sin adapters/wiring reales Valkey/S3/RabbitMQ; sin outbox/inbox/consumer durable, DLQ/replay; falta PostgreSQL pool A→B desde worker y adapter de secret manager y wiring del pseudonymizer HMAC; no se ha ejecutado suite en esta sesión.
 - TASK-003 está implemented a nivel de primitives, no verified/accepted. GO-PRODUCTION sigue NO-GO.
+
+
+## Handoff — TASK-003 registro durable de jobs (2026-11-07)
+
+- Rama activa `environment/local`; no se modificaron `master` ni `environment/develop`.
+- Añadida migración `0006-tenant-job-outbox.sql`: tabla `platform.tenant_job_records`, RLS FORCE, ownership tenant/actor, payload JSON, estado, intentos bounded e índices.
+- Función `platform.resolve_tenant_job_context(uuid)` concede al rol runtime solo metadata mínima de autorización; no retorna payload. `PostgresTenantJobRecordReader` implementa el puerto `TenantJobRecordReader` y `IsolationModule` registra reader/resolver/executor.
+- `DatabaseModule` exporta `DATABASE_POOL` para adapters de infraestructura; `AppModule` importa `IsolationModule`.
+- Añadida suite de adapter PostgreSQL; siete suites TASK-003 están registradas en `apps/api/project.json`.
+- No se afirma CI/test pass de esta iteración. Publisher transaccional, inbox/consumer, dedupe/retry/DLQ/replay, adapters reales Valkey/object storage/broker, pool A→B PostgreSQL, secret manager y wiring de telemetría siguen pendientes.
+- TASK-003 sigue `in_progress` (implementación parcial); GO-PRODUCTION continúa NO-GO.
