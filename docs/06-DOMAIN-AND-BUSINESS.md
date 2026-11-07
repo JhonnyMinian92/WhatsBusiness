@@ -98,3 +98,43 @@ Un comando se valida contra capabilities disponibles; no exponer operación que 
 - AI output is untrusted content. It cannot override system policy, authorization, consent or tenant boundaries.
 - AI suggestions are drafts by default. Sending, publishing, spend, deletion and permission changes require explicit human authorization.
 - AI provider calls enforce tenant budgets, data minimization, retention controls, timeout, fallback and kill switch.
+
+
+## 11. Modelo comercial y tenants adoptado (PD-012..PD-017)
+
+### Segmentación
+- ICP inicial propuesto: PYMES ecuatorianas de comercio y servicios que reciben consultas y gestionan ventas/soporte en canales Meta.
+- Segmento secundario: agencias que operan varios negocios.
+- Hipótesis de posicionamiento, no investigación cuantitativa. Validar entrevistas, pilotos, activación, retención y disposición a pagar antes de calcular mercado o fijar roadmap comercial.
+
+### Revenue model
+- Subscription per tenant para capacidades base.
+- Seats/usuarios como unidad adicional de valor/coste.
+- Metered usage para funcionalidades con coste variable o capacidad limitada.
+- Usage ledger, subscription ledger y Meta external-cost ledger separados.
+- Cargos Meta mostrados/conciliados como coste externo independiente; no mezclarlo con ingreso de plataforma. No aplicar markup/precio sin decisión comercial explícita.
+- Planes/entitlements configurables. Evitar if/else por nombre de plan; utilizar entitlements y feature limits versionados.
+
+### Agency/Partner
+- Agency es organización/partner con usuarios, no super-tenant con acceso automático.
+- Acceso a tenant cliente mediante grant con agencia, tenant, scopes/roles, assets, acciones, finalidad, expiración, aprobador, creación y revocación.
+- Denegar por defecto si grant expiró/revocó o no cubre operación/asset.
+- El cliente puede revocar el acceso; todo acceso se audita y se identifica la agencia de origen.
+- La relación comercial no autoriza usar datos de otro cliente.
+
+### Localization
+- Defaults: es-EC, USD, America/Guayaquil.
+- Tenant puede configurar locale, timezone IANA y moneda ISO-4217 permitida.
+- Persistir timestamps UTC y mostrar en zona del tenant.
+- Money amounts siempre con currency code y decimal rules; nunca float binario en ledger.
+- Fechas de facturación, obligaciones fiscales y comprobantes locales se implementan tras requisitos tributarios validados.
+
+## 12. Modelo de costes y billing
+Separar:
+1. Subscription ledger: plan, ciclo, invoice reference, credits/discounts si se aprueban.
+2. Seat ledger: usuarios facturables y periodo.
+3. Usage ledger: unidad, cantidad, tenant, recurso, timestamp, rate card interno y versión.
+4. Meta external-cost ledger: currency, market, product, category, rate source/version, estimate, max/upper bound, provider-reported actual, reconciled statement.
+5. Infrastructure cost ledger: coste real de compute, storage, broker, observability y backups.
+
+Conservar moneda original, vigencia y fuente de FX si hay conversión. Ningún estimate es invoice ni un max price es charge final.
