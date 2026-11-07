@@ -117,3 +117,14 @@ Los ADR-011..020 están formalizados en docs/33-ARCHITECTURE-DECISION-RECORDS.md
 - Winning/learning ad sets are protected by default; new creatives use a controlled test cell/ad set/campaign and approval. No LLM may invoke Ads write APIs directly.
 - Business Agent / Ads MCP interoperability is considered, but all actions route through the same tenant/policy/approval/audit gateway. OpenWA/WhatsApp Web automation is not permitted.
 - Stories US-029..032 and tasks TASK-067..080 define this scope; all are proposed.
+
+
+## Campaign Intelligence and AI platform memory
+- Current strategy: docs/34 (Meta Andromeda/GEM/Advantage+/Ads MCP/Business Agent), docs/35 (Chatwoot/Twilio/httpSMS/Android SMS Gateway/OpenWA benchmark), docs/36 (Campaign Intelligence and guarded scaling).
+- US-029..032 and TASK-067..080 extend the baseline; all tasks proposed until code/tests/evidence.
+- PD-024: owner-defined maximum +20% per automatic budget action and +20% cumulative over rolling 24h against the window-start budget baseline. This is a WhatsBusiness product guardrail, not a Meta universal rule.
+- Meta's learning documentation: learning at ad set level; approximately 50 optimization events in 7 days as contextual guidance; overlapping ad sets and significant edits can impede/reset learning. Revalidate per objective and current Meta guide.
+- Do not modify winning/learning ad sets by default; use separate controlled test cells for new creative variants.
+- Campaign system must learn from CRM/CAPI qualified leads, opportunities, sales, net revenue and margin as well as Meta Insights. Distinguish provider-attributed ROAS from incremental causal lift.
+- No direct Andromeda/GEM access, no LLM direct Ads API writes, no unapproved publish/spend.
+- Official Meta API only. OpenWA is a reference for plugin/MCP boundaries, not an allowed WhatsApp transport.
