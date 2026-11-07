@@ -106,7 +106,7 @@ Source CI declara PostgreSQL 18.6 y RabbitMQ 4.4 para pruebas de integración. A
 
 - [ ] Ejecutar y corregir Source CI hasta SUCCESS (frozen install, migrations/idempotence, build, typecheck, unit, PostgreSQL, RabbitMQ).
 - [ ] Probar pool reuse A→B en worker login y en DatabaseService boundary.
-- [ ] Agregar renew/heartbeat del execution lease para handlers largos; hoy se depende del lease bounded y la expiración/recovery.
+- [x] Implementar heartbeat/renew del execution lease mediante token de fencing y PostgreSQL; el worker cancela cooperativamente el handler si pierde el lease. La suite unitaria e integración quedan sujetas a Source CI.
 - [ ] Añadir límites/timeouts y cancelación cooperativa de handlers para que no ejecuten indefinidamente.
 - [ ] Implementar replay administrativo de DLQ/job dead-letter, con permission/approval/audit; no crear bypass SQL público.
 - [ ] Implementar lease/lock y replay seguro de broker DLQ, retención, acceso restringido y audit.
