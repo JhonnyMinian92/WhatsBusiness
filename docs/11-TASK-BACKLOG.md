@@ -262,3 +262,10 @@ La referencia maestra de rutas y operaciones es [docs/47-API-INVENTORY-AND-TASK-
 | TASK-074..075,080 | AGT, INB, CI | Meta agent interoperability, handoff and tool gateway |
 
 La matriz de docs/47 define la relación por US y por API ID. Esta tabla es un índice rápido, no sustituye las dependencias, acceptance criteria y evidence requeridas por la fila original de TASK.
+
+## Anexo — contratos, arquitectura y reutilización obligatoria
+
+- TASK-039, TASK-040 y TASK-043 conservan su estado real; crear documentos no implica ejecutar el spike, pasar G0 ni validar independientemente los contratos.
+- Para toda tarea de código aplica [docs/48](48-CODING-ARCHITECTURE-AND-REUSE-STANDARD.md): inspección previa de reutilización, un solo dueño de regla/dato, boundaries acíclicos y revisión anti-spaghetti.
+- API readiness se gobierna por [docs/49](49-API-CONTRACT-READINESS-AND-META-ADAPTER-GATES.md): los endpoints catalog-only no son implementables hasta completar schemas.
+- Eventos v1.0.0 están en [docs/50](50-EVENT-CATALOG-AND-VERSIONED-SCHEMAS.md) y contracts/asyncapi; sus producers/consumers y evidencia de ejecución siguen pendientes.
