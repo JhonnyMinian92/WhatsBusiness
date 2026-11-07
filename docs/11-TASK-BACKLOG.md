@@ -160,3 +160,14 @@ All tasks below are proposed until an implementation exists and evidence is atta
 - TASK-055 has an external date 2027-10-13 announced by Meta for sunset of marketing traffic on the legacy Cloud API route. Revalidate the official date and migration requirements at implementation and release.
 - TASK-062/063/064/065 are P1; sequence by dependency and observed customer value.
 - The task list is not a calendar commitment and does not imply the product is implemented.
+
+
+## TASK-066 — Validación de ICP y product-market evidence (P0 discovery)
+- **Historia:** US-028.
+- **Objetivo:** validar el foco sectorial en servicios/comercio y canal agencias antes de fijar precios, packaging o inversión comercial.
+- **Incluye:** desk research oficial INEC; entrevistas cualitativas; mapeo de workflows y alternativas; willingness-to-pay exploratoria; pilotos con métricas instrumentadas de activación, time-to-value, seats, uso por canal, retención y outcome.
+- **No incluye:** extrapolar entrevistas cualitativas como muestra estadística, declarar TAM/SAM/SOM sin criterio de elegibilidad, ni fijar tarifas/forecast solo con estadísticas macro.
+- **Dependencias:** PD-012, docs/32 MKT-OBS-001/002.
+- **Estado:** proposed.
+- **DoD:** investigación documentada, participantes segmentados y anonimizados, síntesis de patrones/contradicciones, falsación explícita de hipótesis, propuesta de ICP revisada y criterios de pricing basados en unit economics reales.
+- **Evidencia base:** INEC REEM 2025 provisional: 1.204.276 empresas totales; servicios 645,8k y comercio 388,9k; advertencias metodológicas en docs/32.
