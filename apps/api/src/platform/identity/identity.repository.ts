@@ -121,7 +121,9 @@ export class IdentityRepository {
           AND membership_role.tenant_id = membership.tenant_id
          LEFT JOIN platform.roles AS role
            ON role.id = membership_role.role_id AND role.tenant_id = membership_role.tenant_id
-         LEFT JOIN platform.role_permissions AS role_permission ON role_permission.role_id = role.id
+         LEFT JOIN platform.role_permissions AS role_permission
+           ON role_permission.role_id = role.id
+          AND role_permission.tenant_id = role.tenant_id
          WHERE tenant.id = $2
            AND membership.user_id = $1
            AND membership.status = 'active'
