@@ -1,44 +1,79 @@
 # WhatsBusiness
 
-Plataforma SaaS multi-tenant y plataforma interna EcuApp para integrar oficialmente los productos y APIs del ecosistema Meta. Incluye backend, panel web, CRM, Inbox omnicanal, automatizaciones y asistencia IA gobernada.
+Plataforma SaaS multi-tenant para integrar oficialmente los productos y APIs del ecosistema Meta: CRM, Inbox omnicanal, automatizaciones y asistencia IA gobernada.
 
-> **Estado:** greenfield. La documentación y los contratos iniciales están preparados. Los agentes pueden comenzar trabajo preparatorio y el Architecture Spike. El scaffold definitivo queda condicionado al gate G0 y a la ejecución verificable de TASK-039. No existe aún una implementación funcional.
+<badge>GO-CODE aprobado</badge> La rama `environment/local` ya contiene el workspace inicial NestJS + Angular. **GO-PRODUCTION continúa NO-GO**: no hay despliegue, datos de clientes, credenciales reales, mensajes reales, mutaciones Ads ni proveedores IA externos autorizados.
 
-## Entrada para agentes
+## Quick start
 
-1. Lee AGENTS.md, contrato obligatorio y límites de autorización.
-2. Sigue docs/README.md y docs/46-AGENT-START-AND-WORKPACKETS.md.
-3. Consulta docs/29-OWNER-DECISIONS.md, docs/30-RECOMMENDED-ARCHITECTURE.md y docs/31-MASTER-DELIVERY-PLAN.md.
-4. Para identidad, CRM, Inbox, automatizaciones e IA, usa docs/37..41; para datos, contratos, seguridad y spike, usa docs/42..45.
-5. Ejecuta únicamente el paquete de trabajo que te corresponda y conserva la rama autorizada.
+Requisitos: Node.js **26.13.0** y pnpm **10.34.9** (la versión exacta está declarada en `.node-version`, `package.json` y el lockfile).
 
-## Estado técnico actual
+```bash
+corepack enable
+corepack prepare pnpm@10.34.9 --activate
+pnpm install --frozen-lockfile
+pnpm build
+pnpm typecheck
+pnpm test
+```
 
-- Rama de trabajo: environment/local. No tocar master ni environment/develop sin autorización expresa.
-- No hay código de backend/frontend, migraciones, tests, Dockerfiles ni CI del producto en esta rama.
-- Stack adoptada como dirección: TypeScript/NestJS, Angular, Nx/pnpm, PostgreSQL, Redis, RabbitMQ, OIDC/Keycloak, Docker y OpenTelemetry.
-- TASK-039 (Architecture Spike) aún no está ejecutada; sus experimentos y criterios están definidos en docs/45.
-- Contratos de partida OpenAPI, AsyncAPI y JSON Schema están en contracts/. Son contratos, no endpoints implementados.
-- Sin pruebas de producto, benchmark de VPS, restore drill, revisión legal, permisos Meta o aceptación productiva acreditados.
+## Aplicaciones
 
-## Reglas fundamentales
+| Ruta | Responsabilidad | Estado |
+|---|---|---|
+| `apps/api` | NestJS modular; prefijo HTTP `/api`; health live/readiness | Foundation inicial |
+| `apps/web` | Angular standalone shell en español (es-EC) | Foundation inicial |
+| `contracts/openapi` | Contratos HTTP y API ID registry | 296 operaciones activas; solo el health foundation está autorizado |
+| `contracts/asyncapi` + `contracts/schemas` | Contratos versionados de eventos | 69 channels y 69 schemas; runtime publisher/consumer pendiente |
+| `spike/task-039-lab` | Laboratorio aislado de infraestructura con datos sintéticos | Run #5 PASS; evidencia parcial |
 
-- Solo APIs oficiales de Meta; no scraping, WhatsApp Web ni transporte no oficial.
-- Aislamiento multi-tenant y autorización server-side en cada trust boundary.
-- Secrets/tokens nunca en Git, prompts, tests o logs.
-- Webhooks son no confiables, duplicables y desordenados; persistencia durable, dedupe e idempotencia obligatorios.
-- AI output es contenido no confiable; la IA inicial sugiere y asiste, no ejecuta acciones sensibles.
-- No hay gasto publicitario, mensajería real, publicación, borrado irreversible ni despliegue productivo sin autorización explícita.
-- Implemented, verified y accepted son estados distintos. La aceptación final pertenece al propietario.
+### Endpoints iniciales
 
-## Fuentes de verdad
+- `GET /api/health/live`: liveness del proceso.
+- `GET /api/health/ready`: readiness fail-closed. Devuelve `503 application/problem+json` mientras PostgreSQL, RabbitMQ, Valkey y OIDC no estén configurados y verificados.
 
-- Producto/decisiones: docs/29-OWNER-DECISIONS.md.
-- Arquitectura y ADR: docs/30-RECOMMENDED-ARCHITECTURE.md y docs/33-ARCHITECTURE-DECISION-RECORDS.md.
-- Ejecución: docs/31-MASTER-DELIVERY-PLAN.md y docs/46-AGENT-START-AND-WORKPACKETS.md.
-- Integraciones Meta: docs/09-API-INTEGRATION-CATALOG.md y META_SERVICES.md; revalidar datos volátiles en fuentes oficiales.
+La shell Angular es un placeholder consciente: no ofrece selector de tenant ni autenticación hasta completar OIDC, membership y aislamiento tenant.
 
+## Comandos de desarrollo
 
-## API inventory
+```bash
+# API local
+pnpm exec tsx apps/api/src/main.ts
 
-El inventario maestro de APIs propias, webhooks, eventos internos, integraciones externas Meta y la correlación completa con las tareas está en [docs/47-API-INVENTORY-AND-TASK-MAP.md](docs/47-API-INVENTORY-AND-TASK-MAP.md).
+# Web local
+pnpm nx run web:serve
+
+# Compilación y verificaciones
+pnpm build
+pnpm typecheck
+pnpm test
+```
+
+API escucha en `http://localhost:3000`; Angular dev server en `http://localhost:4200`.
+
+## Validación CI
+
+- [Source workspace validation](https://github.com/JhonnyMinian92/WhatsBusiness/actions/workflows/source-validation.yml): install con lockfile, build, typecheck y tests.
+- [Contract validation](https://github.com/JhonnyMinian92/WhatsBusiness/actions/workflows/contracts-validation.yml): Redocly/OpenAPI, AsyncAPI, JSON Schema y fixtures.
+- [TASK-039 Docker lab](https://github.com/JhonnyMinian92/WhatsBusiness/actions/workflows/task039-lab.yml): smoke tests sintéticos de infraestructura.
+
+## Orden del primer vertical slice
+
+OIDC/JWKS → User/Identity/Tenant/Membership → PostgreSQL transaction-local tenant context + RLS mediante pool Node real → GET /v1/me y contexto de tenant → audit/outbox → Angular tenant selector → E2E y revisión independiente.
+
+## Reglas esenciales
+
+- Trabajar en `environment/local`; no modificar `master` ni `environment/develop`.
+- Aplicar `AGENTS.md` y [docs/48 — coding architecture and reuse standard](docs/48-CODING-ARCHITECTURE-AND-REUSE-STANDARD.md).
+- Autorización server-side y fail-closed en cada trust boundary; el tenant ID enviado por browser nunca concede acceso.
+- No almacenar secretos, tokens o datos reales en Git, tests, logs o prompts.
+- Usar exclusivamente APIs oficiales Meta. No WhatsApp Web/browser automation.
+- AI output es no confiable; no enviar automáticamente mensajes ni ejecutar efectos sensibles.
+- GO-CODE no equivale a GO-PRODUCTION; no gastar, publicar, enviar mensajes ni borrar datos reales sin approvals específicas.
+
+## Documentación de decisión
+
+- [docs/57 — GO-CODE / G0 decision and implementation kickoff](docs/57-IMPLEMENTATION-KICKOFF-AND-G0-DECISION.md)
+- [docs/56 — Architecture review and acceptance gates](docs/56-ARCHITECTURE-REVIEW-AND-ACCEPTANCE-GATES.md)
+- [docs/54 — TASK-039 execution evidence](docs/54-TASK-039-EXECUTION-AND-CONSISTENCY-REPORT.md)
+- [docs/46 — Agent work packets](docs/46-AGENT-START-AND-WORKPACKETS.md)
