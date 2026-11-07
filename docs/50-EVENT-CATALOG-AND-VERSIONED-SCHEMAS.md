@@ -5,15 +5,15 @@
 
 ## 1. Cobertura
 
-Se definen **55 tipos de evento internos** en AsyncAPI y JSON Schema. Son eventos de dominio/plataforma, no endpoints REST ni webhooks externos. Un evento puede tener varios consumers; la tabla de docs/47 describe productor/consumidor y TASK que lo implementa.
+Se definen **69 tipos de evento internos** en AsyncAPI y JSON Schema. Son eventos de dominio/plataforma, no endpoints REST ni webhooks externos. Un evento puede tener varios consumers; la tabla de docs/47 describe productor/consumidor y TASK que lo implementa.
 
 | Contexto | Tipos de eventos | Responsabilidad |
 |---|---|---|
 | Platform | platform.tenant.created, platform.tenant.suspended, platform.membership.changed, platform.grant.revoked | Lifecycle de tenant, membership y grants |
 | Meta control plane | meta.connection.created, meta.credentials.expiring, meta.connection.revoked, meta.assets.sync_requested, meta.assets.synced, meta.capability.changed, meta.webhook.received, meta.change.detected, meta.change.impact.analyzed | Conexiones, assets, capabilities, ingress y cambios externos |
 | WhatsApp | whatsapp.message.send_requested, whatsapp.message.delivery_updated, whatsapp.template.status_changed | Mensajes salientes/estado y templates |
-| Leads/CRM | lead.received, lead.deduplicated, lead.qualified, crm.contact.created, crm.identity.linked, crm.identity.merged, crm.opportunity.stage_changed, crm.opportunity.won | Captación, identidades y revenue lifecycle |
-| Inbox | inbox.conversation.created, inbox.message.received, inbox.message.send_requested, inbox.message.delivery_updated, inbox.assignment.changed, inbox.ownership.acquired, inbox.handoff.completed | Conversación, delivery, asignación y handoff |
+| Leads/CRM/Sales | lead.received, lead.deduplicated, lead.qualified, crm.contact.created/updated, crm.identity.linked/merged/merge_requested/merge_reversed, crm.lead.created/disqualified/converted/assigned, crm.activity.created, crm.opportunity.stage_changed/won/lost | Captación, identidad, timeline y ciclo comercial |
+| Inbox | inbox.conversation.created/updated, inbox.message.received/send_requested/accepted/delivery_updated/failed, inbox.assignment.changed, inbox.ownership.acquired/expired, inbox.handoff.requested/completed | Conversación, envío, delivery, asignación, lease y handoff |
 | Automation | automation.execution.requested, automation.step.completed, automation.dead_letter | Ejecución, step y dead-letter |
 | AI | ai.suggestion.requested, ai.suggestion.created, ai.feedback.received | Sugerencias/feedback, sin autorización de auto-envío |
 | Ads/Campaign Intelligence/Creative | ads.draft.created, ads.campaign.approval.requested, ads.budget.change.approved, ads.insights.snapshot.created, campaign.recommendation.created, campaign.recommendation.approved, campaign.recommendation.executed, creative.variant.created, creative.reviewed | Draft, approval, budget, insights, recommendation y revisión |
@@ -30,7 +30,7 @@ Todo evento incluye:
 - type: nombre estable, exacto y lowercase.
 - schemaVersion: SemVer del payload; versión inicial 1.0.0.
 - occurredAt: instante UTC de ocurrencia.
-- tenantId: UUID tenant no nulo en los 55 eventos actuales. Null queda reservado para eventos de plataforma que realmente sean globales y requerirán contrato nuevo/review.
+- tenantId: UUID tenant no nulo en los 69 eventos actuales. Null queda reservado para eventos de plataforma que realmente sean globales y requerirán contrato nuevo/review.
 - aggregate: type, id y version del agregado dueño del cambio.
 - source, correlationId, causationId.
 - data: payload mínimo tipado por evento y con campos adicionales cerrados.
@@ -83,17 +83,17 @@ La existencia del schema no marca TASK implementada/verified. El broker, storage
 
 ## 7. Operaciones AsyncAPI y reconciliación de propuestas
 
-El contrato `contracts/asyncapi/platform-events-v1.yaml` declara dos direcciones por canal lógico: `publish` para el productor y `subscribe` para el consumer group lógico. Los 55 mensajes referencian `correlationId` en `$message.payload#/correlationId`. Esta definición formaliza el contrato de ambos lados; no declara que los workers o las colas estén desplegados.
+El contrato `contracts/asyncapi/platform-events-v1.yaml` declara dos direcciones por canal lógico: `publish` para el productor y `subscribe` para el consumer group lógico. Los 69 mensajes referencian `correlationId` en `$message.payload#/correlationId`. Esta definición formaliza el contrato de ambos lados; no declara que los workers o las colas estén desplegados.
 
-### 7.1 Eventos mencionados en specs que aún no pertenecen a v1
+### 7.1 Reconciliación completada de eventos de CRM e Inbox
 
-Las especificaciones de CRM (docs/38 §9) e Inbox (docs/39 §9) proponen nombres adicionales que todavía no tienen mapping de TASK/owner/consumer en docs/47 y por eso no se publican como parte de esta versión:
+Las especificaciones de CRM (docs/38 §9) e Inbox (docs/39 §9) tenían 14 eventos adicionales sin mapping. Se han incorporado a AsyncAPI/JSON Schema y docs/47 con productor, consumidores lógicos y TASK asociadas:
 
 - CRM/Sales: `crm.contact.updated`, `crm.identity.merge_requested`, `crm.identity.merge_reversed`, `crm.lead.created`, `crm.lead.disqualified`, `crm.lead.converted`, `crm.lead.assigned`, `crm.opportunity.lost`, `crm.activity.created`.
 - Inbox: `inbox.conversation.updated`, `inbox.message.accepted`, `inbox.message.failed`, `inbox.ownership.expired`, `inbox.handoff.requested`.
 
-El owner de dominio debe resolver si cada nombre requiere un evento independiente o si está cubierto por un evento/estado existente (por ejemplo delivery update, cambio de ownership o handoff completado). La decisión registra productor, consumer(s), aggregate/version, payload mínimo, compatibilidad, privacidad, idempotencia, TASK/AC y tests. No emitir nombres no registrados ni fabricar payloads para cerrar una cuenta de eventos. La reconciliación CRM/Sales debe fijar primero el owner de Opportunity; ver docs/56.
+Los 14 nombres se incorporaron como contratos v1.0.0 porque representan hechos de dominio distintos en las máquinas de estado de docs/38 y docs/39: merge solicitado no equivale a merge ejecutado; message accepted no equivale a delivered; handoff requested no equivale a completed; ownership expired es un hecho temporal propio. Los schemas transportan solo IDs, enums, timestamps y reason codes. CRM posee Contact, ContactIdentity, Lead y Activity; Sales posee Opportunity/Pipeline. El namespace histórico `crm.opportunity.*` se conserva por compatibilidad con los dos eventos existentes; renombrarlo exige una versión mayor/migración coordinada. Ver decisión y límites en docs/56.
 
 ### 7.2 Comprobaciones de contrato y límite de validación
 
-Comprobación estructural actual: 55 canales; 55 `publish`; 55 `subscribe`; 110 operationIds únicos; 55 referencias de mensajes; 55 tipos y 55 definiciones de payload con correspondencia uno a uno. JSON Schemas parseables como JSON y referencias de payload coherentes. No equivale a lint/parse oficial AsyncAPI, validación JSON Schema con fixtures, contract tests, compatibilidad, broker ni prueba de productores/consumers runtime. Los resultados y bloqueos se registran en docs/56.
+Comprobación estructural actual: 69 canales; 69 `publish`; 69 `subscribe`; 138 operationIds únicos; 69 referencias de mensajes; 55 tipos y 69 definiciones de payload con correspondencia uno a uno. JSON Schemas parseables como JSON y referencias de payload coherentes. No equivale a lint/parse oficial AsyncAPI, validación JSON Schema con fixtures, contract tests, compatibilidad, broker ni prueba de productores/consumers runtime. Los resultados y bloqueos se registran en docs/56.
