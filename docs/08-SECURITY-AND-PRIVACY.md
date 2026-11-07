@@ -87,3 +87,11 @@ No liberar si hay vulnerabilidades críticas/altas sin mitigación aceptada, sec
 - No usar CAPI/CRM para enviar datos personales sin legal basis/consent/purpose y minimización; hash no equivale a anonimización.
 - Business Agent/MCP external connectors deben aplicar scopes mínimos y prevenir double replies, action replay y prompt injection.
 - OpenWA/WhatsApp Web/browser automation no forma parte del runtime autorizado.
+
+## Approval, step-up y audit stream — implementación sintética (2026-11-07)
+
+- Las aprobaciones se vinculan por SHA-256 a tenant/action/purpose/resource/snapshot; no autoaprobación; quorum de aprobadores distintos; expiración y consumo único. El payload de negocio original no se guarda en el registro de approval.
+- Step-up no acepta flags/client headers. Solo acepta `auth_time`, `acr`, `amr` presentes en JWT RS256/JWKS verificado, reciente y concordante con allowlist del IdP. ACR/AMR no se interpretan universalmente; confirmar la semántica del proveedor real antes de habilitarlo. Defaults vacíos bloquean la operación.
+- Audit y approval decision records están protegidos por triggers append-only y hash chain SHA-256 por tenant. Esto detecta alteraciones en el stream bajo el rol runtime; no sustituye backup independiente, monitoreo, segregación DBA ni anclaje externo y no protege contra un administrador privilegiado.
+- Source CI run #112 [42387272987](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42387272987) pasa pruebas PostgreSQL sintéticas. No se han validado cuentas/IdP reales, controles legales de retención, política de aprobadores de producción ni operación de consumidores externos.
+- Las rutas IAM-018..020 siguen catalog-only; ningún endpoint ni acción externa quedó habilitada por la implementación de estos primitives.
