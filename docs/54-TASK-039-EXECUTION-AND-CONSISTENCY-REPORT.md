@@ -143,3 +143,18 @@ Para desbloquear G0:
 - Se parsearon los dos JSON schemas como JSON y se comprobaron conteos, unicidad, required fields, cierre de payload y correspondencia channel/message/`$defs` mediante inspección estructural. No se ejecutó parser/linter oficial YAML, JSON Schema validator con fixtures ni contract tests.
 - docs/38 y docs/39 proponen 14 nombres de evento adicionales no mapeados a TASK/consumers en docs/47; quedan pendientes de decisión del owner, detallados en docs/50 y docs/56.
 - La revisión documental de ADR-011..025, ownership, límites de módulos, multi-tenancy, criterios de aceptación y veredicto GO/NO-GO se documenta en docs/56. No es review independiente ni cambia G0.
+
+
+## 10. Addendum de ejecución reproducible — 2026-11-07
+
+El informe del 2026-11-06 queda complementado por el laboratorio reproducible, sin reescribir el hecho histórico de que entonces no se ejecutó runtime.
+
+- **Run:** [TASK-039 Docker lab #5](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42344526870), commit `99b3fe6faf71cc662b9e7766195d9c65fd0c183f`, branch `environment/local`, conclusion `success`.
+- **Evidencia:** PostgreSQL 18.6 RLS básico/cross-tenant/no-context; dedupe de receipt; RabbitMQ durable publish/DLX; Valkey auth/TTL; Keycloak OIDC discovery/JWKS/login sintético; pg_dump y restore lógico a DB fresca en el mismo container.
+- **Artefacto:** `task039-lab-evidence.zip`, [artifact](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42344526870/artifacts/13562838303), SHA-256 `2ee9bc136e2234252b5f407a84f013a2fef813e5b70aa17be1316afbedfd8f5a`.
+
+**Limitaciones:** runner GitHub-hosted, no VPS; RLS usa psql, no pool Node; Rabbit es Management API sin outbox/consumer; webhook sin endpoint HTTP signature/ACK; Keycloak login no valida authorization de aplicación; restore no es clean-host y no mide RPO/RTO. SP-01 workspace/build, SP-07 VPS, SP-08 benchmarks, SP-09 ACL/TLS/failover y SP-10 SBOM/CVE/license/digests siguen pendientes. TASK-039 pasa a `partially_verified`, no `verified`/accepted.
+
+## 11. Decisión de inicio (2026-11-07)
+
+Por instrucción expresa del propietario, **G0-CODE / GO-CODE queda aprobado** para iniciar el workspace y el primer foundation slice en `environment/local`. G0-PRODUCTION permanece **NO-GO**. La decisión no certifica producción ni sustituye reviewers independientes ni aceptación final del propietario.
