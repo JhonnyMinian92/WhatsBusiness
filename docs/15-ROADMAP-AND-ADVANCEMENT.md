@@ -151,3 +151,11 @@ Estado actual:
 - TASK-001/002/004 siguen in_progress hasta workflows verdes de este slice y review independiente.
 - Siguiente dependencia: provisioning/membership lifecycle, RBAC/ABAC, audit/outbox y worker tenant context antes de habilitar mutaciones.
 - G0-PRODUCTION continúa NO-GO.
+
+## Actualización — Tenant Context / TASK-002 (2026-11-07)
+
+- TASK-001: implementada y CI-verified (migración 0002, ownership y lifecycle). Review independiente y acceptance pendientes.
+- TASK-002: implementada y CI-verified (migración 0003, autorización tenant fail-closed, guard por propósito, contexto inmutable, authzVersion y pruebas de revocación/concurrencia). Review independiente y acceptance pendientes.
+- Evidencia TASK-002: Source CI run #47 [42383524043](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42383524043), commit `74febd28056043cda15221f29c8c5b71290ca06c`.
+- Siguiente dependencia de autorización: TASK-004 RBAC/ABAC. TASK-003 debe cubrir jobs, cache, files y telemetry con namespaces tenant-safe. TASK-005 depende de TASK-004.
+- No calcular porcentaje global: la matriz completa de requisitos, criterios y evidencias aún no está reconciliada para todo el producto. G0-PRODUCTION permanece NO-GO.
