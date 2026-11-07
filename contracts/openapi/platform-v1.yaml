@@ -235,8 +235,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -279,8 +277,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -320,8 +316,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -361,8 +355,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -402,8 +394,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -446,8 +436,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -491,8 +479,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -536,8 +522,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -577,8 +561,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -622,8 +604,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -671,8 +651,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -720,8 +698,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -769,8 +745,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -817,8 +791,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -858,8 +830,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -902,8 +872,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -951,8 +919,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -983,8 +949,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1032,8 +996,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1073,8 +1035,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1117,8 +1077,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1166,8 +1124,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1198,8 +1154,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1238,8 +1192,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1270,8 +1222,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1315,8 +1265,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1364,8 +1312,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1413,8 +1359,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1458,8 +1402,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1499,8 +1441,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1544,8 +1484,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1576,8 +1514,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1621,8 +1557,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1666,8 +1600,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1707,8 +1639,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1756,8 +1686,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1805,8 +1733,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1850,8 +1776,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1899,8 +1823,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1940,8 +1862,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1985,8 +1905,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -2030,8 +1948,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -2075,8 +1991,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -2124,8 +2038,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -2165,8 +2077,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -2206,8 +2116,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -2251,8 +2159,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -2296,8 +2202,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -2336,8 +2240,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -2381,8 +2283,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -2426,8 +2326,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -2471,8 +2369,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -2520,8 +2416,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -2561,8 +2455,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -2602,8 +2494,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -2646,8 +2536,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -2691,8 +2579,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -2739,8 +2625,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -2787,8 +2671,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -2832,8 +2714,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -2881,8 +2761,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -2922,8 +2800,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -2966,8 +2842,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -3007,8 +2881,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -3051,8 +2923,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -3096,8 +2966,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -3145,8 +3013,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -3194,8 +3060,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -3243,8 +3107,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -3284,8 +3146,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '413': { $ref: '#/components/responses/PayloadTooLarge' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -3325,8 +3185,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -3366,8 +3224,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -3411,8 +3267,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -3456,8 +3310,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -3501,8 +3353,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -3542,8 +3392,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -3587,8 +3435,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -3628,8 +3474,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -3669,8 +3513,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -3714,8 +3556,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -3759,8 +3599,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -3807,8 +3645,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -3856,8 +3692,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -3904,8 +3738,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -3949,8 +3781,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -3998,8 +3828,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -4047,8 +3875,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -4092,8 +3918,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -4133,8 +3957,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -4178,8 +4000,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -4223,8 +4043,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -4268,8 +4086,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -4309,8 +4125,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -4354,8 +4168,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -4403,8 +4215,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -4452,8 +4262,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -4497,8 +4305,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -4542,8 +4348,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -4591,8 +4395,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -4640,8 +4442,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -4685,8 +4485,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -4726,8 +4524,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -4771,8 +4567,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -4812,8 +4606,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -4853,8 +4645,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -4898,8 +4688,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -4943,8 +4731,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -4988,8 +4774,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -5036,8 +4820,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -5081,8 +4863,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -5122,8 +4902,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -5167,8 +4945,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -5212,8 +4988,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -5257,8 +5031,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -5298,8 +5070,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -5343,8 +5113,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -5392,8 +5160,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -5441,8 +5207,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -5482,8 +5246,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '413': { $ref: '#/components/responses/PayloadTooLarge' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -5531,8 +5293,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -5579,8 +5339,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -5620,8 +5378,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -5665,8 +5421,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -5713,8 +5467,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -5758,8 +5510,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -5806,8 +5556,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -5855,8 +5603,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -5904,8 +5650,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -5953,8 +5697,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -5998,8 +5740,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6046,8 +5786,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6091,8 +5829,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6139,8 +5875,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6188,8 +5922,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6229,8 +5961,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6273,8 +6003,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6322,8 +6050,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6371,8 +6097,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6412,8 +6136,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6456,8 +6178,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6501,8 +6221,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6550,8 +6268,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6595,8 +6311,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6640,8 +6354,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6681,8 +6393,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6726,8 +6436,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6771,8 +6479,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6820,8 +6526,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6865,8 +6569,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6914,8 +6616,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6959,8 +6659,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -7000,8 +6698,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -7041,8 +6737,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -7085,8 +6779,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -7130,8 +6822,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -7178,8 +6868,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -7223,8 +6911,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -7271,8 +6957,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -7316,8 +7000,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -7361,8 +7043,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -7406,8 +7086,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -7455,8 +7133,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -7496,8 +7172,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -7540,8 +7214,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -7589,8 +7261,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -7630,8 +7300,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -7674,8 +7342,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -7719,8 +7385,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -7767,8 +7431,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -7808,8 +7470,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -7852,8 +7512,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -7901,8 +7559,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -7950,8 +7606,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -8003,8 +7657,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -8044,8 +7696,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -8088,8 +7738,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -8133,8 +7781,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -8181,8 +7827,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -8230,8 +7874,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -8271,8 +7913,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -8315,8 +7955,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -8364,8 +8002,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -8405,8 +8041,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -8450,8 +8084,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -8495,8 +8127,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -8543,8 +8173,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -8588,8 +8216,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -8637,8 +8263,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -8678,8 +8302,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -8722,8 +8344,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -8771,8 +8391,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -8820,8 +8438,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -8869,8 +8485,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -8918,8 +8532,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -8967,8 +8579,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -9016,8 +8626,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -9065,8 +8673,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -9106,8 +8712,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -9155,8 +8759,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -9196,8 +8798,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -9237,8 +8837,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -9281,8 +8879,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -9326,8 +8922,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -9374,8 +8968,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -9423,8 +9015,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -9472,8 +9062,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -9521,8 +9109,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -9570,8 +9156,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -9611,8 +9195,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -9656,8 +9238,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -9705,8 +9285,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -9754,8 +9332,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -9799,8 +9375,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -9844,8 +9418,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -9889,8 +9461,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -9934,8 +9504,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -9975,8 +9543,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -10016,8 +9582,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -10060,8 +9624,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -10109,8 +9671,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -10158,8 +9718,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -10199,8 +9757,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -10243,8 +9799,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -10292,8 +9846,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -10337,8 +9889,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -10382,8 +9932,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -10431,8 +9979,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -10480,8 +10026,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -10529,8 +10073,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -10570,8 +10112,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -10619,8 +10159,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -10660,8 +10198,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -10692,8 +10228,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -10724,8 +10258,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -10756,8 +10288,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -10801,8 +10331,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -10833,8 +10361,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -10865,8 +10391,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -10906,8 +10430,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -10938,8 +10460,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -10978,8 +10498,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -11023,8 +10541,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -11064,8 +10580,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -11105,8 +10619,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -11146,8 +10658,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -11187,8 +10697,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -11232,8 +10740,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -11264,8 +10770,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -11309,8 +10813,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -11350,8 +10852,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -11394,8 +10894,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -11443,8 +10941,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -11492,8 +10988,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -11533,8 +11027,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -11577,8 +11069,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -11626,8 +11116,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -11674,8 +11162,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -11719,8 +11205,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -11760,8 +11244,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -11809,8 +11291,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -11850,8 +11330,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -11895,8 +11373,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -11936,8 +11412,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -11977,8 +11451,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -12026,8 +11498,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -12075,8 +11545,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -12124,8 +11592,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -12173,8 +11639,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -12214,8 +11678,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -12258,8 +11720,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -12307,8 +11767,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -12356,8 +11814,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -12405,8 +11861,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -12446,8 +11900,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -12490,8 +11942,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -12539,8 +11989,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -12588,8 +12036,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -12629,8 +12075,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -12670,8 +12114,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -12715,8 +12157,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -12760,8 +12200,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -12809,8 +12247,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -12858,8 +12294,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -12899,8 +12333,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -12936,8 +12368,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '413': { $ref: '#/components/responses/PayloadTooLarge' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -12968,8 +12398,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '413': { $ref: '#/components/responses/PayloadTooLarge' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -13000,8 +12428,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '413': { $ref: '#/components/responses/PayloadTooLarge' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -13032,8 +12458,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '413': { $ref: '#/components/responses/PayloadTooLarge' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -13064,8 +12488,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '413': { $ref: '#/components/responses/PayloadTooLarge' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -13096,8 +12518,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '413': { $ref: '#/components/responses/PayloadTooLarge' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -13128,8 +12548,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '413': { $ref: '#/components/responses/PayloadTooLarge' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -13160,8 +12578,6 @@ paths:
       x-error-catalog-pending: true
       x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
-        default:
-          description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
         '413': { $ref: '#/components/responses/PayloadTooLarge' }
         '403': { $ref: '#/components/responses/Forbidden' }
