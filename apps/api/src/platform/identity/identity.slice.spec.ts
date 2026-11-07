@@ -289,6 +289,19 @@ test("PostgreSQL RLS isolates tenants and clears SET LOCAL context on a reused c
     );
 
     await adminPool.query(
+      "UPDATE platform.memberships SET status = 'revoked', revoked_at = now() WHERE id = $1",
+      [membershipAId],
+    );
+    await assert.rejects(
+      database.withTenantContext(userA, tenantA, (client) => client.query("SELECT id FROM platform.tenants")),
+      (error: unknown) => error instanceof NotFoundException,
+    );
+    await adminPool.query(
+      "UPDATE platform.memberships SET status = 'active', revoked_at = NULL WHERE id = $1",
+      [membershipAId],
+    );
+
+    await adminPool.query(
       "UPDATE platform.users SET status = 'disabled' WHERE id = $1",
       [userA],
     );
