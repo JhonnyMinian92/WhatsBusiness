@@ -143,3 +143,14 @@ TASK-046 y TASK-064 nombran “frontend foundation” sin ID ni entregable acept
 5. Migraciones/contract changes, compatibilidad, rollback y consumidores afectados.
 6. Riesgos, decisiones pendientes y estado propuesto.
 7. Confirmación de no merge protegido, deploy, gasto, mensaje real ni publicación sin autorización.
+
+### Handoff TASK-002 — 2026-11-07
+
+**Estado del código:** implemented y CI-verified. El estado global de TASK-002 no avanza a `verified`/`accepted` hasta revisión independiente y aceptación del Product Owner.
+
+- Migración: `apps/api/migrations/0003-tenant-context-authorization.sql`.
+- Paths principales: `apps/api/src/platform/database/database.module.ts`, `apps/api/src/platform/identity/identity.repository.ts`, `identity.service.ts`, `identity.controller.ts`, `identity.module.ts`, `tenant-access-context.ts`, `tenant-context.guard.ts`, `tenant-context.guard.spec.ts`, `identity.slice.spec.ts`.
+- Security: default-deny; membership/user/organization/tenant status; RLS context after predicate; purpose metadata; immutable request context; authorization versioning and transaction lock/revalidation.
+- API IDs: PLT-003..005 existing contracts only; no new catalog-only endpoint was implemented.
+- CI: Source workflow run #47 [42383524043](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42383524043), commit `74febd28056043cda15221f29c8c5b71290ca06c` — SUCCESS.
+- Remaining scope: TASK-004 permission matrix and action/asset ABAC; TASK-003 jobs/cache/files/telemetry; TASK-005 approvals/step-up/audit. Worker, partner and support JIT contexts remain outside this work packet.
