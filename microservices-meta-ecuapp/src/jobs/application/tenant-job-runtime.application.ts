@@ -1,4 +1,4 @@
-import type { Clock, RandomSource } from "./tenant-job-ports.js";
+import type { RandomSource } from "./tenant-job-ports.js";
 import { classifyTenantJobFailure } from "../domain/tenant-job-failure.js";
 
 export interface TenantJobRuntimeSession {
@@ -30,7 +30,6 @@ export class TenantJobRuntimeApplication {
 
   constructor(
     private readonly sessions: TenantJobRuntimeSessionFactory,
-    private readonly clock: Clock,
     private readonly random: RandomSource,
     private readonly logger: TenantJobRuntimeApplicationLogger,
     private readonly options: TenantJobRuntimeApplicationOptions,
