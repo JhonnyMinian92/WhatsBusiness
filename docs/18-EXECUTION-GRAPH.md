@@ -149,3 +149,16 @@ Todos TASK-053..065 permanecen proposed. El grafo es dependencia lógica, no cal
 
 
 TASK-066 market/ICP validation → pricing/packaging decision and commercial launch planning. TASK-066 may run in parallel with engineering spike and foundational product specifications; it is a gate before final pricing and commercial forecast, not a blocker for independent architecture/security work.
+
+
+## 8. Campaign Intelligence execution dependencies (2026-11-06)
+- TASK-024/025/056 (Ads adapters, execution policy and capability registry) + TASK-039 architecture spike → TASK-072 Insights ingestion/snapshots.
+- TASK-023/026/042/044/059 (Lead lifecycle, CAPI, CRM and privacy rights) → TASK-068 closed-loop business outcome signals.
+- TASK-072 + TASK-068 + TASK-070 experiments → TASK-067 Campaign Intelligence diagnostics/recommendations → TASK-071 guarded budget optimizer.
+- TASK-069 Creative Lab metadata/rights/brand → TASK-073 Meta Advantage+ creative/preview APIs → TASK-079 fatigue-to-new-variant pipeline → TASK-070 controlled experiment.
+- TASK-004 permissions/approval + TASK-024 Ads API + TASK-067 recommendations → TASK-074 Meta Ads MCP draft/approval connector.
+- TASK-036/045/047 Inbox + TASK-050/051 AI + TASK-058 partner grants → TASK-075 Meta Business Agent conversation ownership/handoff.
+- TASK-056/065 API and policy registry → TASK-076 policy/feature drift monitor → affected adapter tests/migration tasks.
+- TASK-026/068/070 → TASK-077 incrementality and attribution framework → TASK-078 dashboard/health reporting.
+
+TASK-067..080 remain proposed. No autonomous spend, publication, or live WhatsApp actions are authorized by this documentation change.
