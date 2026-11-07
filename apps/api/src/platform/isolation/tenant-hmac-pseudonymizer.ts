@@ -1,8 +1,5 @@
 import { createHmac } from "node:crypto";
-
-export interface TenantPseudonymizer {
-  pseudonymize(tenantId: string): string;
-}
+import type { TenantPseudonymizer } from "./tenant-pseudonymizer.js";
 
 /**
  * HMAC-SHA-256 pseudonymizer. The key must be injected from a secret manager;
