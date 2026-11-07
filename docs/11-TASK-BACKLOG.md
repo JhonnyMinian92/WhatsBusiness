@@ -59,8 +59,8 @@ Cada tarea requiere owner, prioridad, dependencias, DoR, entregables, criterios,
 | TASK-026 | US-013 | CAPI event gateway/dedupe/attribution | TASK-023,031 | event_id, consent, dedupe | CR-0015: política de attribution window |
 
 ## EP-06 — Reliability/Security
-|---|---|---|---|---|---|
 | Tarea | Historia | Entregable / alcance | Dependencias | QA y DoD | Control |
+|---|---|---|---|---|---|
 | TASK-027 | US-014 | Webhook gateway, verify, inbox | TASK-001,007 | signature, size, durable ack | BUG-0012: spoof/replay |
 | TASK-028 | US-014 | event bus, consumers, DLQ, replay | TASK-027 | at-least-once, idempotency | CR-0016: retención/replay policy |
 | TASK-029 | US-015 | tracing, metrics, logs y SLO | TASK-001 | redaction, cardinality, alerts | CR-0017: SLO/RPO/RTO |
