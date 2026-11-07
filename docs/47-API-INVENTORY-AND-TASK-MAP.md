@@ -654,10 +654,17 @@ Estas señales coordinan workers dentro del modular monolith. Los módulos produ
 | whatsapp.template.status_changed | Meta adapter → template registry | TASK-014,015 |
 | lead.received / lead.deduplicated / lead.qualified | Lead ingress → CRM | TASK-022,023,042 |
 | crm.contact.created / identity.linked / identity.merged | CRM → Inbox and campaigns | TASK-042,043,053 |
+| crm.contact.updated | CRM → CRM contact projections, Inbox, Campaign Intelligence | TASK-042,043 |
+| crm.identity.merge_requested / merge_reversed | CRM identity service → review/audit and projections | TASK-043,053 |
+| crm.lead.created / disqualified / converted / assigned | CRM Lead → routing, Sales and projections | TASK-023,042,044 |
+| crm.activity.created | CRM Activity → CRM timeline projections | TASK-042,044 |
+| crm.opportunity.lost | Sales → Campaign Intelligence and CAPI projections | TASK-044,068 |
 | crm.opportunity.stage_changed / opportunity.won | CRM → CAPI, Campaign Intelligence | TASK-044,068 |
 | inbox.conversation.created / message.received | Channel adapter → Inbox | TASK-045,046 |
+| inbox.conversation.updated | Inbox → conversation projections and routing | TASK-045,046 |
+| inbox.message.accepted / failed | Channel adapter processor → Inbox submission/delivery state | TASK-045 |
 | inbox.message.send_requested / delivery_updated | Inbox → channel worker | TASK-045 |
-| inbox.assignment.changed / ownership.acquired / handoff.completed | Inbox → agent presence, bot suppression | TASK-047,075 |
+| inbox.assignment.changed / ownership.acquired / ownership.expired / handoff.requested / handoff.completed | Inbox → agent presence, human routing and bot suppression | TASK-047,075 |
 | automation.execution.requested / step.completed / dead_letter | Workflow engine → scheduler/workers | TASK-048,049 |
 | ai.suggestion.requested / suggestion.created / feedback.received | Inbox → AI Gateway/analytics | TASK-050,051 |
 | ads.draft.created / campaign.approval.requested / budget.change.approved | Ads → approval/execution | TASK-024,025,071 |
