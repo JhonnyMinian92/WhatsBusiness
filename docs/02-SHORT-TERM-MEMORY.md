@@ -228,3 +228,15 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Source CI #42376234089 y Contract CI #42376234088 pasaron en commit 0e0927bdcae658d4e4b1ccae28a5c5f89cf4b183. Source: frozen install, migración, build, typecheck y suite OIDC/RLS; Contracts: OpenAPI, AsyncAPI y JSON Schema. El lockfile fue confirmado en commit d81593601101d97623684ea02f04539fd29f3e2f. TASK-001/002/004 siguen in_progress por revisión independiente pendiente; TASK-005 proposed.
 - Próximo bloque: provisioning/invitations, lifecycle de Tenant/Membership, RBAC/ABAC, audit/outbox, worker context y UI de selector de tenant.
 - GO-PRODUCTION sigue NO-GO. No usar datos/cuentas reales, Meta writes, mensajes, Ads, proveedor IA externo, gasto recurrente ni deploy.
+
+
+## Handoff — TASK-001 Tenant ownership y lifecycle (2026-11-07)
+
+- Rama de trabajo: `environment/local`; no se modificaron `master` ni `environment/develop`.
+- Implementada migración `apps/api/migrations/0002-tenant-lifecycle-invariants.sql`: tenant ownership inmutable, protección FK Organization→Tenant, transiciones válidas de lifecycle, timestamps de estado, tombstone deleted inmutable y RLS que oculta tenants borrados.
+- `scripts/migrate.mjs` ahora aplica todas las migraciones SQL versionadas en orden, con advisory lock y transacción por versión.
+- Suite PostgreSQL ampliada para transiciones válidas e inválidas, tombstone, reasignación de ownership, delete restrict y visibilidad RLS.
+- Source CI run #15 (42379841071) pasó en commit `479a8234d2f6b78b0bb8e6474c39e4a388034c3a`: frozen install, migrations, build, typecheck y unit/integration tests. Run #13 tuvo una aserción SQLSTATE errónea; corregida, runs #14 y #15 pasaron.
+- TASK-001: implemented y CI-verified. Sigue in_progress globalmente hasta review independiente de arquitectura/seguridad y aceptación del propietario. No declarar aceptación.
+- Siguiente tarea tras el gate de TASK-001: TASK-002 tenant context/authz; después TASK-004 RBAC/ABAC. TASK-005 continúa propuesto y depende de TASK-004.
+- No se añadieron APIs catalog-only, no se habilitó producción, no se usaron datos reales ni se ejecutaron escrituras Meta.
