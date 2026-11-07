@@ -21,6 +21,12 @@
       "options": {
         "command": "ng serve web"
       }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "ng build web --configuration development"
+      }
     }
   }
 }
