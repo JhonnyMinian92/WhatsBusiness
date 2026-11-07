@@ -117,3 +117,16 @@ For every non-trivial feature, assess Product/BA, domain/marketing, architecture
 - Operations: measure latency/traffic/errors/saturation and p50/p95/p99. SLO candidates are not SLAs; capacity requires benchmark. Single VPS/Compose is not high availability.
 - Work only on environment/local. Do not modify master/environment/develop, publish releases or deploy production without explicit owner approval. Real messaging blasts, ad spend, irreversible deletion and external publication remain gated.
 - Delegated technical autonomy does not authorize recurring spend, legal/privacy acceptance, high-impact security exceptions, vendor contracts or production actions.
+
+
+## Campaign and Meta agent safety (mandatory)
+- Read docs/34-META-ADS-AI-AND-PLATFORM-OUTLOOK.md, docs/35-REFERENCE-PROJECTS-TECHNICAL-BENCHMARK.md and docs/36-CAMPAIGN-INTELLIGENCE-AND-GUARDED-SCALING.md before changing campaign/agent/inbox architecture.
+- Never claim or imply direct control over Andromeda/GEM internal retrieval/ranking. Use official Ads API capabilities to configure eligible campaigns, creatives and signals; measure outcomes.
+- Enforce PD-024: no automatic budget increase >20% per operation and no cumulative >20% over rolling 24h from the window baseline. This is WhatsBusiness policy, not Meta's universal threshold. Apply server-side with serializable concurrency, account/campaign/adset caps, idempotency and fresh remote-state verification.
+- Never evade PD-024 by splitting one change across multiple agents/users/tasks or resetting the window. If the requested action exceeds the cap, reject or stage as a future recommendation; do not silently split.
+- Never mutate winning/learning ad sets as the default way of testing new creatives. Use an isolated experiment/test cell or supported Meta test mechanism; keep audience overlap and learning fragmentation in view.
+- AI-generated creatives remain draft/paused pending brand, policy, rights, render preview and human approval when provider feature requires it. Do not auto-publish or increase spend.
+- Meta Ads MCP and Social Technologies MCP are external tools, not policy authorities. Tool calls must route through the same tenant, capability, purpose, budget, approval, audit and idempotency checks.
+- Meta Business Agent interoperability requires conversation ownership/lease, loop prevention and human handoff. Never let multiple bot providers answer the same thread concurrently.
+- Use official Meta APIs only for WhatsApp, Messenger, Instagram, Ads, Leads and conversions. OpenWA is read-only architecture reference for plugins/MCP patterns; never ship or fall back to WhatsApp Web/browser automation or QR sessions.
+- Treat third-party SDK/repository code as reference; check license, security, current source and version before reuse. Do not assume README marketing claims are performance evidence.
