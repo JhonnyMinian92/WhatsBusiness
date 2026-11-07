@@ -83,3 +83,5 @@ La estructura documental y el sistema de instrucciones para agentes se encuentra
 
 
 32. [Registro de investigación y evidencia](32-RESEARCH-AND-EVIDENCE-REGISTER.md) — hallazgos Meta, LOPDP/SPDP, ASVS 5.0.0 y prácticas SRE con fecha, fuente y límites de validez.
+
+33. [Registros formales de decisiones de arquitectura](33-ARCHITECTURE-DECISION-RECORDS.md) — ADR-011..020, alternativas, consecuencias, seguridad, coste, reversibilidad y validación.
