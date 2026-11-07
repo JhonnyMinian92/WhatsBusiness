@@ -26,7 +26,7 @@
 **Estado real de esta iteración:** baseline de decisiones y documentos actualizada; spike, threat model formal, load tests, legal review y acceso real Meta siguen pendientes.
 
 ### Fase 1 — Fundaciones y developer experience
-Monorepo Nx/pnpm; NestJS API modular; Angular shell; PostgreSQL; migraciones; tenant context y RLS; OIDC/Keycloak + MFA; RBAC/ABAC; agency grants; audit; token vault interfaces; Redis; RabbitMQ; transactional outbox/inbox; object storage; OpenTelemetry; CI, lint, typecheck, build, unit/contract/security scans, SBOM, backup/restore.
+Monorepo Nx/pnpm; NestJS API modular; Angular shell; PostgreSQL; migraciones; tenant context y RLS; OIDC/Keycloak + MFA; RBAC/ABAC; agency grants; audit; token vault interfaces; Valkey; RabbitMQ; transactional outbox/inbox; object storage; OpenTelemetry; CI, lint, typecheck, build, unit/contract/security scans, SBOM, backup/restore.
 
 **Gate G1:** bootstrap reproducible desde cero; tenant-isolation suite pasa; restore test pasa; no secretos; pipelines verdes; métricas y alertas básicas.
 
@@ -159,3 +159,11 @@ Los agentes pueden comenzar trabajo de preparación, revisión de especificacion
 ### Primer slice tras G0
 
 Platform Identity/Tenant Context: NestJS API + Angular shell + CI mínimo; OIDC dev; User/Tenant/Membership; PostgreSQL + RLS; GET /v1/me; GET /v1/tenants/{tenantId}/context; audit/outbox; panel mínimo de selección de tenant y pruebas negativas cross-tenant. WhatsApp send, Ads spend y agentes con escritura no son el primer slice.
+
+## 9. Baseline tecnológica y protocolo revisados (2026-11-06)
+
+La Fase 1 utiliza TypeScript 6.0.x, Node.js 26 Active LTS, NestJS 12.x, Angular 22.x, Nx 24.x + pnpm, PostgreSQL 18.x, Valkey 9.1.x, RabbitMQ 4.4.x y OIDC/Keycloak 26.8.x como baseline recomendada. Traefik 3.7.x y Docker Compose 5.7.0 se limitan al edge/laboratorio/piloto según su soporte y riesgos de single-node. Ver docs/51.
+
+API síncrona: REST/JSON + OpenAPI. Comunicación entre módulos: use cases/ports locales. Trabajo/eventos: RabbitMQ/AsyncAPI. Realtime: SSE/WebSocket si el journey lo requiere. GraphQL y gRPC no se añaden al primer release sin evidencia; ver docs/52.
+
+Esta actualización no equivale a ejecución del spike: build, footprint, DB pooling/RLS, outbox, restore, sizing y comparación empírica quedan dentro de TASK-039/060/061.
