@@ -131,12 +131,19 @@ export class RabbitMqPostgresTenantJobRuntimeSessionFactory implements TenantJob
 }
 
 class RabbitMqPostgresTenantJobRuntimeSession implements TenantJobRuntimeSession {
+  private readonly disconnected: Promise<void>;
+
   constructor(
     private readonly channels: RabbitMqWorkerChannels,
     private readonly topology: RabbitMqJobTopology,
     private readonly consumer: RabbitMqTenantJobConsumerAdapter,
     private readonly supervisor: TenantJobRuntimeSupervisor,
-  ) {}
+  ) {
+    this.disconnected = new Promise((resolve) => {
+      this.channels.connection.once("close", () => resolve());
+      this.channels.connection.once("error", () => resolve());
+    });
+  }
 
   async start(): Promise<void> {
     await this.topology.initialize();
@@ -148,9 +155,7 @@ class RabbitMqPostgresTenantJobRuntimeSession implements TenantJobRuntimeSession
   }
 
   waitForDisconnect(): Promise<void> {
-    return new Promise((resolve) => {
-      this.channels.connection.once("close", () => resolve());
-    });
+    return this.disconnected;
   }
 
   async stop(): Promise<void> {
