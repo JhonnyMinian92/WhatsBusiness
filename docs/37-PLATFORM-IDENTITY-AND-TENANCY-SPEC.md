@@ -141,7 +141,7 @@ No bloquean el diseño ni los tests sintéticos: nombres comerciales, tarifas fi
 - TASK-002: tenant authorization predicate, contexto transaction-local, guard por propósito y authzVersion implementados en migration 0003 y backend NestJS; pruebas sintéticas y PostgreSQL pasan en Source CI.
 - PLT-003..005 permanecen como las únicas APIs de Identity habilitadas. PLT-005 conserva el contrato público; datos internos de autorización no se exponen.
 - El contexto autorizado no equivale a RBAC/ABAC completo. TASK-004 debe implementar decisión allow/deny por action/resource/asset/owner/purpose/state/consent/entitlement/capability.
-- TASK-003 (jobs/cache/files/telemetry isolation), TASK-005 (step-up/approval/audit), PartnerTenantGrant, PlatformGrant JIT y propagación a workers siguen pendientes.
+- TASK-003 (jobs/cache/files/telemetry isolation), assignments/mutaciones administrativas, PartnerTenantGrant, PlatformGrant JIT y propagación a workers siguen pendientes. El núcleo TASK-005 step-up/approval/audit ya está implementado y validado en CI (§15).
 - No se han ejecutado pruebas con cuentas/datos reales ni se declara revisión independiente o aceptación del Product Owner. G0-PRODUCTION permanece bloqueado.
 
 ## 14. Estado real RBAC/ABAC — TASK-004 (2026-11-07)
@@ -152,7 +152,7 @@ No bloquean el diseño ni los tests sintéticos: nombres comerciales, tarifas fi
 - `TenantRoleAssignmentPolicy` evita autoasignación y privilege escalation; solo tenant_owner puede asignar templates tenant, con aprobación independiente para roles.assign.
 - Las plantillas son definición de código, no assignments persistentes; no hay endpoint de mutación habilitado.
 - IAM-007..020 permanecen catalog-only hasta freeze completo de request/response/error, authorization, idempotency, audit y tests conforme a docs/49.
-- Denegaciones sensibles aún requieren append-only audit/outbox y workflow durable de aprobación/step-up: TASK-005. Los datos legales/de consentimiento y capabilities deben venir de adaptadores confiables, no del request del usuario.
+- Denegaciones sensibles/críticas de AuthorizationGuard quedan registradas en el audit stream TASK-005; el outbox/consumer y APIs HTTP de aprobación siguen pendientes. Los datos legales/de consentimiento y capabilities deben venir de adaptadores confiables, no del request del usuario.
 - Source CI run #67 [42385036275](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42385036275) pasó migrations/idempotency/build/typecheck/unit/integration. Revisión independiente y aceptación del Product Owner siguen pendientes.
 ## 15. Estado real de approvals / step-up / audit — TASK-005 (2026-11-07)
 
