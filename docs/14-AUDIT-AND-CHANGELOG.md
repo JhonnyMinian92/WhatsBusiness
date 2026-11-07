@@ -120,11 +120,18 @@ Los SHAs anteriores identifican commits que modificaron cada documento; no equiv
 No se han ejecutado builds, tests de producto, benchmarks, Meta account checks ni revisión legal durante estos cambios documentales.
 
 
-## 11. Final validation checkpoint (2026-11-06)
-- GitHub compare master → environment/local: status ahead, ahead_by 108, behind_by 0 at validation time.
-- GitHub compare environment/develop → environment/local: ahead_by 108, behind_by 0.
-- GitHub compare master → environment/develop: identical, ahead_by 0, behind_by 0.
+## 11. Final validation checkpoint (AUD-029; 2026-11-06)
+- GitHub compare master → environment/local: status ahead, behind_by 0 at validation checkpoint. Exact ahead count changes as documentation commits are appended; re-run compare before merge/release.
+- GitHub compare environment/develop → environment/local: status ahead, behind_by 0.
+- GitHub compare master → environment/develop: identical at checkpoint.
 - Read-after-write fetch confirmed current content for AGENTS.md, META_SERVICES.md, docs/00, 01, 02, 04, 05, 06, 08, 09, 10, 11, 12, 13, 14, 15, 18, 19, 28, 29, 30, 31, 32, 33 and docs/README.
 - Marker checks confirmed PD-023, ADR-020, US-027, TASK-065, Meta sunset, ASVS, candidate SLO and index links are present in their expected documents.
 - No product source exists in the inspected scope; no product build, unit/integration/E2E test, benchmark, pentest, restore drill, live Meta integration or deployment was executed.
 - This is a documentation consistency/readback checkpoint only, not a software release or product acceptance.
+
+
+## 12. Evidencia de mercado y discovery (2026-11-06)
+| ID | Evento | Resultado |
+|---|---|---|
+| AUD-030 | INEC REEM 2025 y validación ICP | docs/32 registra 1.204.276 empresas (base provisional 2025), desagregación sectorial y límites metodológicos; no se interpreta como TAM |
+| AUD-031 | US-028 / TASK-066 | Se creó trabajo de discovery cualitativo y pilotos antes de pricing/forecast; estado proposed |
