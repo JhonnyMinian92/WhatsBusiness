@@ -143,17 +143,17 @@ Los schemas de Meta deben validarse por producto, versión, login mode, permiso 
 
 | Verificación estática | Resultado |
 |---|---:|
-| Canales lógicos | 55 |
-| Operaciones `publish` | 55 |
-| Operaciones `subscribe` | 55 |
+| Canales lógicos | 69 |
+| Operaciones `publish` | 69 |
+| Operaciones `subscribe` | 69 |
 | operationIds únicos | 110 |
-| Mensajes de canal únicos (referencias publish + subscribe) | 55 (110 referencias) |
-| Definiciones de payload JSON Schema | 55 |
-| Tipos de evento únicos | 55 |
+| Mensajes de canal únicos (referencias publish + subscribe) | 69 (138 referencias) |
+| Definiciones de payload JSON Schema | 69 |
+| Tipos de evento únicos | 69 |
 | Correspondencias canal ↔ tipo ↔ definición | 69 / 69 |
-| Correlation ID declarado en mensajes | 55 |
+| Correlation ID declarado en mensajes | 69 |
 
-Los 69 payloads componen el envelope JSON Schema draft 2020-12; cada tipo fija `type`, `schemaVersion: 1.0.0`, `tenantId` UUID, agregado y datos específicos. Los objetos de payload y agregado se cierran frente a propiedades no declaradas. El envelope genérico permite tenantId null para eventos globales futuros, pero las 55 definiciones actuales lo hacen obligatorio y no nulo.
+Los 69 payloads componen el envelope JSON Schema draft 2020-12; cada tipo fija `type`, `schemaVersion: 1.0.0`, `tenantId` UUID, agregado y datos específicos. Los objetos de payload y agregado se cierran frente a propiedades no declaradas. El envelope genérico permite tenantId null para eventos globales futuros, pero las 69 definiciones actuales lo hacen obligatorio y no nulo.
 
 El mensaje expone la correlación desde `$message.payload#/correlationId`. El routing key lógico es `<event-type>.v1`; las colas/topología física siguen siendo específicas por consumer.
 
@@ -177,7 +177,7 @@ docs/39 enumera cinco eventos Inbox adicionales no incluidos:
 - `inbox.ownership.expired`
 - `inbox.handoff.requested`
 
-Estos 14 nombres son propuestas de las especificaciones funcionales, no tipos registrados en docs/47 ni payloads aprobados. El owner de cada dominio debe decidir cuáles necesitan evento independiente y cuáles son estados/cambios cubiertos por eventos actuales (por ejemplo delivery state, estado de lease o handoff completed). Después debe asignar TASK/API/event owner, consumidores, semántica temporal, payload mínimo, privacidad e idempotencia. Hasta entonces no se deben publicar ni consumir como eventos existentes.
+Los 14 eventos adicionales de docs/38 y docs/39 ya se incorporaron a AsyncAPI y JSON Schema v1.0.0, con productor/consumidores lógicos y TASK relacionadas en docs/47. Los payloads usan referencias UUID, timestamps, enums y reason codes; no incluyen PII ni contenido de mensajes. La revisión formal del owner y los contract tests continúan pendientes.
 
 ### 7.3 Validación que falta
 
