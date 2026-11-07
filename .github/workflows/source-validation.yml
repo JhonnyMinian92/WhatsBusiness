@@ -102,6 +102,8 @@ jobs:
           SQL
       - name: Apply versioned PostgreSQL migrations
         run: pnpm db:migrate
+      - name: Verify versioned migrations are idempotent
+        run: pnpm db:migrate
       - name: Build all applications
         run: pnpm build
       - name: Typecheck all applications
