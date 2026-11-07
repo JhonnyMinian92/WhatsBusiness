@@ -107,3 +107,38 @@ Source workspace validation #42376234089 y Contract validation #42376234088 fina
 - El guard es reusable; PLT-005 es la única ruta actual que lo consume. Las futuras rutas tenant-scoped deben declarar propósito y usar `withTenantContext` o `withTenantContextAtVersion` en el boundary transaccional.
 - TASK-002 no implementa la matriz RBAC/ABAC por acción/asset/purpose. El contexto proporciona los datos, pero las decisiones allow/deny corresponden a TASK-004.
 - No se habilitaron mutaciones HTTP de Tenant/Membership/Role, PartnerTenantGrant, PlatformGrant JIT, workers, cache/files/jobs ni endpoints catalog-only. TASK-003 y TASK-004/005 siguen pendientes.
+## 9. TASK-004 — RBAC/ABAC y catálogo de permisos (2026-11-07)
+
+**Estado:** núcleo de políticas implementado y CI-verified; asignación/persistencia de roles, auditoría durable, workflow de aprobación y revisión independiente siguen pendientes.
+
+### Catálogo y roles
+
+- `0004-authorization-permission-catalog.sql` inserta el vocabulario canónico en `platform.permissions` con `risk_class`; usa `ON CONFLICT DO NOTHING` y no concede permisos a usuarios ni crea memberships.
+- `authorization/permission-catalog.ts` define las claves TypeScript y metadata de riesgo y aprobación independiente. La prueba PostgreSQL compara todas las keys/risk_class de la base con el catálogo tipado.
+- `authorization/tenant-role-catalog.ts` define templates least-privilege para Tenant Owner, Tenant Admin, Integration Admin, Marketing Manager, Inbox Supervisor, Agent, Analyst, Compliance Auditor y Developer/API Integrator.
+- Los roles `platform_owner`, `platform_operations` y `support_jit` se mantienen separados y no están incluidos en el catálogo de roles tenant.
+- Los templates son definiciones versionadas; no se asignan automáticamente ni se materializan todavía en `platform.roles`/`platform.role_permissions`.
+
+### Motor de políticas
+
+- `TenantAuthorizationPolicyEvaluator` es una política pura intercambiable a través de `AuthorizationPolicyEvaluator`; no conoce NestJS, PostgreSQL ni SDKs externos.
+- La decisión combina membership activa, tenant, propósito declarado, permission key, entitlement, ownership, estado del recurso, asset grant, consentimiento ligado al propósito, aprobación independiente y frescura de capability externa.
+- El motor usa permission keys efectivas, nunca el nombre del rol como bypass. Ante evidencia obligatoria ausente, desconocida, revocada o desactualizada, deniega.
+- `AuthorizationService` es el boundary de aplicación. `AuthorizationGuard`, `@RequirePermission` y `@RequireTenantPermission` proporcionan enforcement en HTTP; el decorador compuesto incorpora TenantContextGuard + purpose + permission para no omitir una capa.
+- `TenantRoleAssignmentPolicy` exige tenant_owner, bloquea autoasignación, roles de plataforma, permisos que excedan los del actor y exige aprobación independiente para `roles.assign`.
+
+### Pruebas y evidencia
+
+- Matriz unitaria allow/deny: membership, tenant, purpose, permission, entitlement, ownership, estado, asset grant, consent, approval, self-approval y capability freshness.
+- Tests de catálogo: unicidad de templates, keys válidas, separación de roles de plataforma y privilegios de Agent.
+- Tests de asignación: aprobación independiente, autoasignación, actor no owner, tenant cruzado, rol de plataforma y escalamiento de privilegios.
+- PostgreSQL: el catálogo persistido y los risk_class deben coincidir exactamente con `PERMISSION_CATALOG`.
+- Source CI run [#67](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42385036275), commit `53e50dc00daccc7c64c7931e468e6ef0af132940` — SUCCESS: frozen install, migraciones versionadas, segunda ejecución idempotente, build, typecheck y tests.
+
+### Alcance pendiente y límites
+
+- No se implementan mutaciones ni rutas IAM-007..020: permanecen catalog-only y bloqueadas hasta congelar sus schemas y controles en docs/49.
+- El catálogo de roles no se asigna ni persiste automáticamente. Falta el caso de uso transaccional para crear/revocar membership_roles, concurrencia/idempotencia y reconciliación.
+- Los hechos ABAC de asset, consentimiento y capability deben ser resueltos por adapters/use cases confiables; no se aceptan como evidencia de confianza procedente directamente del cliente.
+- Las denegaciones sensibles todavía no generan un registro append-only durable. La auditoría, step-up/MFA, approvals workflow, doble control y outbox corresponden a TASK-005.
+- La política de rol/permiso es una baseline técnica inicial least-privilege derivada de docs/37 y PD-019; la matriz final y reglas operativas requieren revisión independiente y aceptación del propietario.
