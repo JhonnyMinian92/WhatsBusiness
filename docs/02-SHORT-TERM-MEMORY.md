@@ -206,3 +206,13 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Estado real: especificaciones/contracts creados; no hay código de producto, tests, build ni ejecución del spike acreditados. En el entorno de esta sesión Node.js v22.16.0 y npm 10.9.2 están presentes; pnpm y Docker/Compose no están instalados.
 - Próxima acción: asignar WP-039 y reviewers reales; ejecutar SP-01..07 en un entorno con Docker y hardware documentable. En paralelo, realizar review independiente de docs/37..44 y completar la matriz REQ/US/AC/TASK/contract/test.
 - No afirmar asignación de agentes, review independiente, G0 aprobado, permisos Meta o coste de VPS.
+
+
+## Handoff — GO-CODE y primer scaffold autorizado (2026-11-07)
+
+- El propietario pidió completar readiness y comenzar código fuente sin más demoras; se registra GO-CODE explícito para workspace y foundation slice en `environment/local`.
+- El repositorio era greenfield y no tenía apps, package.json ni pnpm-lock al inicio de este handoff.
+- TASK-039 Docker lab run #5 (ID `42344526870`) pasó en GitHub Actions. La evidencia es parcial y sintética; no sustituye SP-01..10 ni revisión independiente.
+- El conflicto de ruta/API ID LEAD-010 vs SALES-014 se corrigió: Sales conserva la operación; LEAD-010 se retira como alias histórico.
+- Siguiente desarrollo: Identity/OIDC → tenant/membership → PostgreSQL transaction-local RLS con pool Node real → tenant context/audit/outbox → UI de tenant.
+- GO-PRODUCTION permanece NO-GO. No usar cuentas, credenciales, datos reales, Meta writes, mensajes, Ads spend ni proveedores IA externos.
