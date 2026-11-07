@@ -10,6 +10,8 @@ export interface ApprovalActionPolicy {
   readonly requiresStepUp: true;
 }
 
+export const APPROVAL_POLICY_RESOLVER = Symbol("APPROVAL_POLICY_RESOLVER");
+
 export interface ApprovalPolicyResolver {
   resolve(actionKey: PermissionKey): ApprovalActionPolicy | null;
 }
