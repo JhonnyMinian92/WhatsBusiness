@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { Injectable } from "@nestjs/common";
 import type { PoolClient } from "pg";
 import type {
@@ -26,12 +27,14 @@ export class PostgresTenantJobRecordWriter implements TenantJobRecordWriter {
       throw new Error("Tenant job payload exceeds the 256 KiB limit.");
     }
 
-    const result = await client.query<{ id: string }>(
+    const payloadSha256 = createHash("sha256").update(payload, "utf8").digest("hex");
+    const inserted = await client.query<{ id: string; payload_sha256: string }>(
       [
         "INSERT INTO platform.tenant_job_records",
-        "(tenant_id, actor_user_id, purpose, correlation_id, job_type, payload, max_attempts, available_at)",
-        "VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7, $8)",
-        "RETURNING id::text",
+        "(tenant_id, actor_user_id, purpose, correlation_id, job_type, idempotency_key, payload, payload_sha256, max_attempts, available_at)",
+        "VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8, $9, $10)",
+        "ON CONFLICT (tenant_id, job_type, idempotency_key) DO NOTHING",
+        "RETURNING id::text, payload_sha256",
       ].join(" "),
       [
         input.tenantId,
@@ -39,14 +42,25 @@ export class PostgresTenantJobRecordWriter implements TenantJobRecordWriter {
         input.purpose,
         input.correlationId,
         input.jobType,
+        input.idempotencyKey,
         payload,
+        payloadSha256,
         input.maxAttempts ?? 8,
         input.availableAt ?? new Date(),
       ],
     );
-    const id = result.rows[0]?.id;
-    if (!id) throw new Error("Tenant job record was not persisted.");
-    return id;
+    if (inserted.rows[0]) return inserted.rows[0].id;
+
+    const existing = await client.query<{ id: string; payload_sha256: string }>(
+      "SELECT id::text, payload_sha256 FROM platform.tenant_job_records WHERE tenant_id = $1 AND job_type = $2 AND idempotency_key = $3",
+      [input.tenantId, input.jobType, input.idempotencyKey],
+    );
+    const row = existing.rows[0];
+    if (!row) throw new Error("Tenant job idempotency record could not be resolved.");
+    if (row.payload_sha256 !== payloadSha256) {
+      throw new Error("Tenant job idempotency key was reused with a different payload.");
+    }
+    return row.id;
   }
 
   private validate(input: StageTenantJobInput): void {
@@ -57,6 +71,9 @@ export class PostgresTenantJobRecordWriter implements TenantJobRecordWriter {
       || input.purpose.length > 128
       || !JOB_TYPE_PATTERN.test(input.jobType)
       || input.jobType.length > 128
+      || typeof input.idempotencyKey !== "string"
+      || input.idempotencyKey.length < 16
+      || input.idempotencyKey.length > 255
       || !isPlainRecord(input.payload)
       || (input.maxAttempts !== undefined
         && (!Number.isInteger(input.maxAttempts) || input.maxAttempts < 1 || input.maxAttempts > 32))
