@@ -1,7 +1,7 @@
 # 05 — Arquitectura objetivo
 
 ## 1. Estilo
-Arquitectura de microservicios orientada a dominios, event-driven, hexagonal/ports-and-adapters, con límites explícitos. No fragmentar prematuramente por endpoint; separar por bounded context y carga/seguridad/ciclo de vida.
+Arquitectura modular por dominios, event-driven y hexagonal/ports-and-adapters. Decisión vigente: modular monolith con procesos API/worker separables desde el mismo codebase. No desplegar microservicios por endpoint; extraer bounded contexts solo cuando métricas de carga, seguridad, aislamiento, ownership o ciclo de despliegue lo justifiquen. La especificación normativa está en [30-RECOMMENDED-ARCHITECTURE.md](30-RECOMMENDED-ARCHITECTURE.md).
 
 ## 2. Context map
 | Bounded context | Responsabilidad |
@@ -112,3 +112,14 @@ DB/ORM, broker, lenguaje/framework, despliegue cloud, API gateway, multi-region,
 El propietario autorizó al arquitecto a recomendar stack y confirmó despliegue en VPS. La propuesta detallada se encuentra en [30-RECOMMENDED-ARCHITECTURE.md](30-RECOMMENDED-ARCHITECTURE.md). Esta propuesta complementa este documento y no congela proveedores/versiones hasta completar el architecture spike.
 
 Contextos de CRM, Inbox, Automation e AI Assistance se incorporan como dominios de primera clase. La entrega por fases está definida en [31-MASTER-DELIVERY-PLAN.md](31-MASTER-DELIVERY-PLAN.md).
+
+
+## 9. Decisión de despliegue y consistencia actualizada (2026-11-06)
+
+- Los bounded contexts son límites lógicos y de propiedad, no equivalen inicialmente a un proceso/microservicio cada uno.
+- NestJS modular monolith, Angular web, PostgreSQL, Redis, RabbitMQ y OIDC/Keycloak forman la baseline adoptada en docs/30.
+- PostgreSQL es fuente de verdad; transactional outbox/inbox y RabbitMQ gestionan la entrega asíncrona. Redis es efímero.
+- Multi-tenancy compartido usa tenant_id + autorización backend + RLS transaccional. DB/cluster dedicado queda como tier de aislamiento enterprise.
+- Docker Compose es para desarrollo/piloto single-node, no una declaración de HA. Topología productiva requiere redundancia y pruebas de failover.
+- Los ADR-011..020 están aceptados como dirección técnica por delegación, pero TASK-039 debe medir footprint, build, pooling/RLS, queue, backup y restore antes de scaffold de producción.
+- La estructura y responsabilidades concretas están detalladas en [30-RECOMMENDED-ARCHITECTURE.md](30-RECOMMENDED-ARCHITECTURE.md); no mantener contradicciones con esta decisión posterior.
