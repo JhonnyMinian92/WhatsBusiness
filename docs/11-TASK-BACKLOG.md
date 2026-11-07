@@ -171,3 +171,33 @@ All tasks below are proposed until an implementation exists and evidence is atta
 - **Estado:** proposed.
 - **DoD:** investigación documentada, participantes segmentados y anonimizados, síntesis de patrones/contradicciones, falsación explícita de hipótesis, propuesta de ICP revisada y criterios de pricing basados en unit economics reales.
 - **Evidencia base:** INEC REEM 2025 provisional: 1.204.276 empresas totales; servicios 645,8k y comercio 388,9k; advertencias metodológicas en docs/32.
+
+
+## EP-11 — Campaign Intelligence, Creative Lab y Meta agent interoperability
+
+Todas las tareas nuevas permanecen proposed; no implican implementación ni permiso para operar campañas reales.
+
+| Tarea | Prioridad | Historia | Entregable | Dependencias | DoD / evidencia |
+|---|---|---|---|---|---|
+| TASK-067 | P0 | US-029 | Campaign Intelligence domain, metric taxonomy, campaign snapshots, recommendation lifecycle y policy boundaries | TASK-024,025,026,039 | domain model, ACs, event contracts, provenance, simulations; ningún Andromeda score inventado |
+| TASK-068 | P0 | US-029 | CRM closed-loop conversions → CAPI event pipeline | TASK-023,026,042,044,059 | stable event_id/name/time, consent, dedupe, event source, diagnostics, data minimization and replay tests |
+| TASK-069 | P1 | US-030 | Creative Lab asset catalog, variant metadata, AI provenance, rights/brand/policy review | TASK-024,038,050,060 | creative schema, near-duplicate detection, prompt provenance, brand/claim gates and approval evidence |
+| TASK-070 | P1 | US-030 | Controlled experiment/test-cell service for creative and campaign variables | TASK-024,025,067,069 | hypothesis, control/variant, randomization/Meta experiment ref, budget allocation, sample/stop rules and overlap checks |
+| TASK-071 | P0 | US-029 | Guarded budget optimizer with owner-defined +20% cap per operation and cumulative rolling-24h cap | TASK-025,067,060 | Decimal arithmetic, concurrency/idempotency, multi-agent race tests, account/campaign/adset caps, fail-closed and approval audit |
+| TASK-072 | P0 | US-029 | Meta Ads Insights ingestion, snapshots, checkpointing, async report jobs and metric freshness | TASK-024,025,029,056,060 | API version per request, pagination/checkpoints, rate limits, currency/timezone, attribution and provider provenance |
+| TASK-073 | P1 | US-030 | Advantage+ Creative features, Ads Previews and Performance Recommendations adapter | TASK-056,069 | capability/access matrix, preview tests by placement/feature, paused-first AI creative flow where required, rollback/undo |
+| TASK-074 | P1 | US-031 | Meta Ads MCP/tool interoperability with internal approval gateway | TASK-004,024,025,067 | allowlisted tools, draft staging, explicit approval, scoped tokens, action audit, deny unsafe/direct writes |
+| TASK-075 | P1 | US-031 | Meta Business Agent interoperability and conversation ownership/handoff | TASK-036,045,047,050,051,058 | ownership lease, echo/dedupe, bot suppression, human handoff, provider identity and audit; per-country/channel eligibility |
+| TASK-076 | P0 | US-032 | Meta API/Policy/Feature change intelligence and impact registry | TASK-010,029,056,065 | official source and date, version/feature/effective date, impacted adapters/tenants/tests, alert + migration draft; no auto-approval |
+| TASK-077 | P1 | US-029 | Incrementality and attribution evaluation framework | TASK-026,067,068,070 | reported-attribution vs causal lift distinction, holdout/split-test docs, confidence/denominator/measurement caveats |
+| TASK-078 | P1 | US-029 | Campaign health and business outcomes dashboard | TASK-067,068,072 | separate provider metrics from CRM outcomes, cohorts/windows, revenue/margin, data freshness and anomaly alerts |
+| TASK-079 | P1 | US-030 | Creative fatigue detection and new-variant pipeline | TASK-069,070,072,073 | recommendation evidence, fatigue thresholds by tenant/objective, variant draft, no production activation before approval |
+| TASK-080 | P1 | US-031 | Secure agent/tool execution gateway and MCP server for WhatsBusiness | TASK-004,047,067,074,075 | tool schemas, purpose/scope/tenant checks, approvals, budgets, idempotency, redaction, audit and kill switch |
+
+### Campaign optimizer non-negotiables
+- +20% is the owner's platform guardrail, not an official universal Meta threshold. Enforce both per-operation cap and rolling-24h cumulative cap.
+- No direct API calls from an LLM, no access token in prompts, no autonomous campaign publication or spend outside approval.
+- Do not modify winning/learning ad sets by default; isolate new creative tests.
+- Meta learning guidance and 50 events/7 days are evidence/context, not an unconditional target for every objective/account.
+- Do not claim control over Andromeda/GEM internals or guarantee CPA/ROAS uplift.
+- Optimize to qualified lead/revenue/margin where lawful, not vanity clicks alone.
