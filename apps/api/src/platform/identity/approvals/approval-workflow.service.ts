@@ -386,7 +386,7 @@ export class ApprovalWorkflowService {
     }
     const requestHash = calculateApprovalRequestHash(binding);
 
-    return this.database.withTenantContextAtVersion(
+    const outcome = await this.database.withTenantContextAtVersion(
       subject.actorId,
       subject.tenantId,
       subject.authzVersion,
@@ -429,10 +429,7 @@ export class ApprovalWorkflowService {
             requestHash,
             approvalId: request.id,
           });
-          throw new ConflictException({
-            code: "APPROVAL_EXPIRED",
-            detail: "La aprobación expiró antes de ejecutar la acción.",
-          });
+          return { kind: "expired" as const };
         }
 
         await client.query(
@@ -453,9 +450,18 @@ export class ApprovalWorkflowService {
           requestHash,
           approvalId: request.id,
         });
-        return stageDurableAction(client, summary);
+        const staged = await stageDurableAction(client, summary);
+        return { kind: "staged" as const, value: staged };
       },
     );
+
+    if (outcome.kind === "expired") {
+      throw new ConflictException({
+        code: "APPROVAL_EXPIRED",
+        detail: "La aprobación expiró antes de ejecutar la acción.",
+      });
+    }
+    return outcome.value;
   }
 
   private assertBinding(subject: TenantAccessContext, binding: ApprovalActionBinding): void {
