@@ -60,7 +60,7 @@ flowchart LR
 | Grafo y trazabilidad | creados | docs/18 y docs/19 |
 | Criterios de producto terminado | definidos | docs/20 |
 | Auditoría del código fuente | pendiente | siguiente paso técnico |
-| TASK-001..066 | plan consolidado; estado de código sin reconciliar | docs/11 |
+| TASK-001..080 | plan consolidado; estado de código sin reconciliar | docs/11 |
 | APIs/permisos/App Review | no verificado | Meta app/business |
 | Producto implementado | no declarado | requiere auditoría y evidencia |
 | Aceptación final | pendiente | exclusiva del propietario |
@@ -122,3 +122,9 @@ No calcular porcentaje global hasta que exista denominador de requisitos reconci
 
 ## Campaign Intelligence milestone
 Fase 7 incluye Campaign Intelligence (US-029), Creative Lab (US-030), Meta agent interoperability (US-031) y Meta API/policy intelligence (US-032). Dependencias y gates están en docs/31, docs/18 and docs/36. TASK-067..080 remain proposed. No direct Andromeda control is assumed.
+
+## Final handoff after Meta Ads AI research
+- Docs 34–36 document Meta advertising AI, reference repositories and Campaign Intelligence design.
+- US-029..032 and TASK-067..080 are the new proposed scope.
+- PD-024 and ADR-021/022 define the owner-approved 20% budget safeguard and separation between Meta delivery AI and WhatsBusiness learning engine.
+- Current code implementation remains not started; documentation commits do not count toward software completion.
