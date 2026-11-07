@@ -103,9 +103,17 @@ effectiveCapability = actorAuthorization ∩ tenantPolicy ∩ purpose/consent/le
 
 Cualquier dato faltante, expirado o contradictorio devuelve deny/disabled con reason code y evidencia requerida. Una conexión válida no implica permiso para todas las operaciones. Las operaciones de escritura externa, mensajería, anuncios y borrados conservan approval/guardrails separados.
 
+## 7.1 Respuestas comunes Problem Details y tenant identifiers
+
+El OpenAPI centraliza los errores reutilizables bajo components.responses: BadRequest, Unauthorized, Forbidden, NotFound, Conflict, UnprocessableEntity, RateLimited, InternalError, ServiceUnavailable y PayloadTooLarge. Las operaciones catalog-only los referencian y mantienen ContractNotFrozen como respuesta default de documentación/gate, no como comportamiento de una implementación futura. Los webhooks no usan Bearer/401 y definen el 413 por límite de body específico del producto.
+
+Los tenantId internos en path se tipan UUID; los IDs externos Meta permanecen strings namespaced. Esta normalización no reemplaza los schemas de request/response ni el permiso por operación.
+
 ## 8. Estado de implementación
 
 - El inventario OpenAPI incluye todas las operaciones y marca las no congeladas.
+- La capa común de errores y el tipo UUID de tenantId están normalizados; el plan de cierre por bounded context está en docs/55.
+- Las 292 operaciones catalog-only siguen sin requestBody ni response schema de negocio congelados; no deben pasar a design-frozen por tener errores comunes.
 - No hay todavía contrato Meta completo para cada operación/version ni fixtures de app/cuenta reales.
 - No se verificó App Review, scopes concedidos, account access, país/eligibility, Marketing API Access Tier de la app ni acceso a Meta Business.
 - Contract tests ejecutables y CI validators pertenecen al scaffold posterior a G0; no afirmar que están corriendo.
