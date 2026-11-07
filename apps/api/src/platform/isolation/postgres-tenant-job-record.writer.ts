@@ -35,6 +35,8 @@ export class PostgresTenantJobRecordWriter implements TenantJobRecordWriter {
         input.actorUserId.toLowerCase(),
         input.purpose,
         input.jobType,
+        input.maxAttempts ?? 8,
+        input.availableAt?.toISOString() ?? null,
         payload,
       ]), "utf8")
       .digest("hex");
