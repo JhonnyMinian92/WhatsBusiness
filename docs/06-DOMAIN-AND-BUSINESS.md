@@ -138,3 +138,23 @@ Separar:
 5. Infrastructure cost ledger: coste real de compute, storage, broker, observability y backups.
 
 Conservar moneda original, vigencia y fuente de FX si hay conversión. Ningún estimate es invoice ni un max price es charge final.
+
+
+## 13. Campaign Intelligence y Creative Lab
+Agregados adicionales:
+- CampaignPlan, CampaignSnapshot, AdSetSnapshot, AdSnapshot, CreativeAsset, CreativeVariant, CreativeFeatureEnrollment.
+- CreativeReview, BrandKit, ClaimEvidence, AssetLicense/ConsentReference, CreativePreview.
+- Experiment, TestCell, ExperimentAssignment, ExperimentMetric, ExperimentResult.
+- OptimizationRecommendation, RecommendationEvidence, ApprovalRequest, BudgetChangeGuardrail, BudgetReferenceWindow, CampaignActionExecution.
+- ProviderInsightSnapshot, BusinessOutcomeEvent, AttributionRecord, IncrementalityStudy.
+
+Invariantes:
+- El delivery model de Meta (Andromeda/GEM/ranking) no pertenece a nuestro bounded context; la plataforma no inventa score interno ni afirma control directo.
+- Campaign Intelligence consume eventos e Insights mediante contratos versionados y snapshots con provenance/API version/time range/currency/attribution setting.
+- CRM outcome events y CAPI son datos separados de Meta-attributed results; reported ROAS no equivale a incremental profit.
+- Cada test declara hipótesis, control, variante, variable, budget, sample/stop rule, window y primary KPI.
+- El anuncio ganador queda protegido; los nuevos creativos se prueban en test cells aisladas o mecanismo oficial A/B disponible.
+- Creative asset tiene provenance, rights, brand policy, claim evidence, prompt/model version, preview and approval state.
+- BudgetIncrease se calcula por objeto presupuestario y rolling 24h; cap per operation +20% y cumulative +20%. Los agentes no pueden fragmentar el cambio ni resetear baseline.
+- El LLM genera recomendaciones y borradores; no accede a token vault ni invoca Ads API writes directamente.
+- Todo cambio externo vuelve a validar scope/grant/tier, account spend cap, policy, approval, state and idempotency justo antes de ejecutar.
