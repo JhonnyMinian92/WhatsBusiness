@@ -1653,3 +1653,22 @@ Este catálogo conserva el alcance de investigación original. Para diseño actu
 8. La política WhatsApp exige experiencia esperada, respeto a opt-outs y escalamiento; implementar enforcement policy por canal/categoría/propósito/ventana, no un booleano universal.
 
 Los hallazgos anteriores deben revalidarse contra documentación/changelog oficial vigente, versión específica y cuenta de prueba antes de implementar. La fecha de corte no implica que el repositorio tenga acceso, permisos ni aprobación Meta.
+
+
+---
+
+## Actualización Meta Ads AI y agentes — 2026-11-06
+
+La estrategia publicitaria y los agentes han evolucionado desde el catálogo base. La especificación consolidada se encuentra en docs/34 y docs/36.
+
+- Andromeda es el retrieval interno de Meta; GEM es su evolución de modelo central de recomendación. Ninguna es una API con score accesible o control directo para el advertiser.
+- Meta Ads MCP permite en cuentas elegibles preparar drafts, subir/preview creativos y analizar rendimiento; Meta describe aprobación explícita antes de publication.
+- Meta Business Agent Platform conecta agentes con CRM/order management y ofrece context/history/handoff; validar disponibilidad de canal/país/partner/price antes de prometerlo.
+- Advantage+ Creative / Ads Creative Studio / Ads Performance Recommendations / Ad Previews son superficies a evaluar por API version and eligibility. Meta's public AI Creative Enhancer sample illustrates paused-first preview-and-approve flow for generated features; sample is not normative API contract.
+- Campaign learning is primarily assessed at ad set level in Meta's guide; consolidation and minimizing edits protect accumulated learning. About 50 optimization events in 7 days is contextual guidance, not a universal threshold.
+- The common +20% budget heuristic is not a universal Meta rule. WhatsBusiness enforces PD-024 as its own guardrail (+20% per action and rolling 24h cumulative cap). Meta's Ad Set Budget Sharing 20% option is a separate budget redistribution feature.
+- New creative assets should be genuinely diverse and tested in separate controlled cells; do not continuously modify winning ad sets or create many overlapping ad sets.
+- Closed-loop campaign optimization should include CRM qualified leads/sales/net revenue/margin and CAPI events with consent and dedupe, not only clicks or provider-attributed ROAS.
+- OpenWA/browser automation is not an accepted Meta integration; official APIs only.
+
+See docs/32 for dated sources and docs/34..36 for implementation design, security and tests.
