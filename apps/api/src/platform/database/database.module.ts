@@ -6,6 +6,7 @@ import {
   OnModuleDestroy,
   ServiceUnavailableException,
   NotFoundException,
+  BadRequestException,
 } from "@nestjs/common";
 import { Pool } from "pg";
 import type { PoolClient } from "pg";
@@ -57,8 +58,29 @@ export class DatabaseService implements OnModuleDestroy {
     tenantId: string,
     work: (client: PoolClient) => Promise<T>,
   ): Promise<T> {
+    return this.openTenantContext(userId, tenantId, null, work);
+  }
+
+  withTenantContextAtVersion<T>(
+    userId: string,
+    tenantId: string,
+    expectedAuthzVersion: number,
+    work: (client: PoolClient) => Promise<T>,
+  ): Promise<T> {
+    if (!Number.isSafeInteger(expectedAuthzVersion) || expectedAuthzVersion < 1) {
+      throw new BadRequestException("A positive tenant authorization version is required.");
+    }
+    return this.openTenantContext(userId, tenantId, expectedAuthzVersion, work);
+  }
+
+  private openTenantContext<T>(
+    userId: string,
+    tenantId: string,
+    expectedAuthzVersion: number | null,
+    work: (client: PoolClient) => Promise<T>,
+  ): Promise<T> {
     return this.transaction(async (client) => {
-      await client.query("SELECT set_config('app.user_id', $1, true)", [userId]);
+      await client.query("SELECT set_config('app.user_id', $1, true)");
       const authorization = await client.query<{ allowed: boolean }>(
         "SELECT platform.can_use_tenant($1) AS allowed",
         [tenantId],
@@ -69,6 +91,20 @@ export class DatabaseService implements OnModuleDestroy {
           detail: "El tenant no existe o no es accesible para este usuario.",
         });
       }
+
+      if (expectedAuthzVersion !== null) {
+        const currentVersion = await client.query<{ authz_version: number }>(
+          "SELECT authz_version FROM platform.tenants WHERE id = $1",
+          [tenantId],
+        );
+        if (currentVersion.rows[0]?.authz_version !== expectedAuthzVersion) {
+          throw new NotFoundException({
+            code: "TENANT_AUTHORIZATION_STALE",
+            detail: "El contexto de autorización cambió; debe resolverse nuevamente.",
+          });
+        }
+      }
+
       await client.query("SELECT set_config('app.tenant_id', $1, true)", [tenantId]);
       return work(client);
     });
