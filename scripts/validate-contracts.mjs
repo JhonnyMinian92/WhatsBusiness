@@ -74,18 +74,22 @@ const materialize = (schema, stack = new Set()) => {
     return materialize(domain.$defs[name], next);
   }
   if (schema.allOf) {
-    const merged = {};
+    const merged = { type: "object", properties: {}, required: [] };
     for (const part of schema.allOf) {
-      const value = materialize(part, stack);
-      if (value && typeof value === "object" && !Array.isArray(value)) {
-        for (const [key, child] of Object.entries(value)) {
-          if (key === "required") merged.required = [...new Set([...(merged.required ?? []), ...child])];
-          else if (key === "properties") merged.properties = { ...(merged.properties ?? {}), ...child };
-          else if (key === "type") merged.type = child;
-        }
-      }
+      const resolved = part.$ref
+        ? (part.$ref === envelope.$id || part.$ref === "event-envelope.schema.json"
+            ? envelope
+            : domain.$defs[part.$ref.split("/").at(-1)])
+        : part;
+      assert(resolved, `Cannot resolve allOf schema part ${JSON.stringify(part)}`);
+      const nested = resolved.allOf ? materialize(resolved, stack) : resolved;
+      Object.assign(merged.properties, nested.properties ?? {});
+      merged.required.push(...(nested.required ?? []));
     }
-    return materialize({ ...merged, ...schema, allOf: undefined }, stack);
+    Object.assign(merged.properties, schema.properties ?? {});
+    merged.required.push(...(schema.required ?? []));
+    merged.required = [...new Set(merged.required)];
+    return materialize(merged, stack);
   }
   if (schema.oneOf) return materialize(schema.oneOf[0], stack);
   if (schema.const !== undefined) return schema.const;
