@@ -21,6 +21,8 @@ Cada tarea requiere owner, prioridad, dependencias, DoR, entregables, criterios,
 | TASK-004 | US-002 | RBAC/ABAC y matriz de permisos | TASK-001 | matriz allow/deny automatizada | CR-0003: aprobar catálogo de roles |
 | TASK-005 | US-002 | Step-up, approvals y audit de acciones | TASK-004 | pruebas de escalamiento y doble aprobación | BUG-0002: evitar bypass de aprobación |
 
+**Handoff de ejecución (2026-11-07):** TASK-001 tiene estado `implemented` con validación automática CI PASS; permanece `in_progress` en el backlog global hasta revisión independiente de arquitectura/seguridad y aceptación del propietario. Migración `0002-tenant-lifecycle-invariants.sql`, runner de migraciones versionadas y pruebas PostgreSQL de ownership, transiciones, tombstone y RLS. Evidencia: commit `479a8234d2f6b78b0bb8e6474c39e4a388034c3a`, Source CI run [#15](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42379841071). TASK-002/004 siguen in_progress; TASK-005 sigue proposed. No se habilitaron operaciones de mutación HTTP ni se alteró el gate de producción.
+
 ## EP-02 — Control Plane
 | Tarea | Historia | Entregable / alcance | Dependencias | QA y DoD | Control |
 |---|---|---|---|---|---|
