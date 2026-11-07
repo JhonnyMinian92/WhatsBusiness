@@ -152,3 +152,83 @@
 
 ### TASK-066 — validación de ICP y product-market evidence
 Antes de cerrar pricing/packaging y comprometer inversión comercial, realizar discovery cualitativo con negocios de servicios, comercio y agencias; recoger job-to-be-done, canal actual, volumen, fricciones, decisor, alternativas, willingness-to-pay y criterios de compra. Complementar con pilotos instrumentados. El tamaño de muestra y los resultados deben documentarse como investigación exploratoria, no como inferencia estadística salvo diseño muestral representativo.
+
+
+## 7. Meta Ads AI, agentic tools and campaign learning (2026-11-06)
+
+### META-OBS-010 — Andromeda next-generation retrieval
+- Source: Meta Engineering, 2026-10-28, https://engineering.fb.com/2026/10/28/ml-applications/meta-andromeda-next-gen-ads-retrieval-gpu-co-design/
+- Findings: Andromeda is the first-stage personalized ads retrieval system; it narrows eligible ad candidates before later ranking. Meta describes the 2026 system as processing >1B ads/sec, a 100x uplift relative to its 2024 system, and reports 2.4% conversion contribution on Facebook since 2025. New retrieval MoE uses sequential engagement, cohort, LLM-derived semantic and cross-surface co-engagement signals.
+- Limits: performance figures are Meta-reported and not independent benchmarks or advertiser guarantees. Andromeda retrieval/ranking internals are not a public advertiser API.
+- Design: improve eligibility, creative diversity, campaign objective quality, signal quality and controlled experiments. Never claim direct control of Andromeda score or ranking.
+- State: confirmed as Meta Engineering description; API access to internals not available/documented.
+
+### META-OBS-011 — GEM central ads recommendation model
+- Source: Meta Engineering, 2026-10-13, https://engineering.fb.com/2026/10/13/ml-applications/generative-ads-model-gem-scaling-frontier-ads-ai/
+- Findings: Meta describes 2026 GEM as a central foundation model learning signals across ad surfaces/objectives, rather than isolated models by domain. Meta reports +18.9% conversions and +12% CTR across surfaces/objectives, with additional targeted improvements.
+- Limits: Meta's internal aggregated/model results are not guaranteed advertiser uplift.
+- Design: CAPI/CRM event quality and full-funnel outcomes become strategic; separate platform attribution from business outcomes and incrementality.
+
+### META-OBS-012 — Ads Creative Studio, conversational campaign assistant and Ads MCP
+- Source: Meta, Advertising Week New York, 2026-10-06, https://about.fb.com/ltam/news/2026/10/advertising-week-new-york-2026-nuevas-capacidades-de-ia-para-guiar-campanas-y-llegar-a-los-clientes/
+- Findings: Meta reports wider Ads Creative Studio rollout, business assistant memory/context, experiments with campaign creation/creative generation/targeting/budget changes, scheduled tasks and alerts. Meta Ads MCP for large advertisers/agencies supports uploading/previewing creatives and detailed performance views; agent work is staged as a draft in Ads Manager and publication requires explicit approval.
+- Further features: AI audience discovery in natural language announced for Detailed Targeting; Customer Lifecycle Strategy available to advertisers for acquisition vs existing customer distinction; Advantage+ Creative can create video from static assets; Ads Creative Studio can generate and edit video concepts/hooks/audio/duration/subtitles.
+- Limits: rollout, beta, eligible ad accounts, country and API scope may differ. Validate availability per account/region/version.
+- Design: first-class draft/preview/approval flow, creative insights, audience lifecycle, MCP adapter behind our own approval gateway.
+
+### META-OBS-013 — Advantage+ Creative / Performance Recommendations sample architecture
+- Source: Meta-owned public incubator catalogue solution sample, https://github.com/facebookincubator/catalogue-of-api-solutions/blob/main/solutions/creative/ai-creative-enhancer.md
+- Findings: the solution composes Business Management API, Advantage+ Creative API, Ads API, Ad Previews API and Ads Performance Recommendations API. It references CREATIVE_LIMITED and CREATIVE_FATIGUE recommendations; opt-in/opt-out of creative AI features; preview and eligible-feature validation; AI-feature-created ads are paused for review before activation in the sample.
+- Limits: incubator solution is an example architecture, not a versioned normative API contract. Validate current Marketing API docs, scopes, version and eligibility before use.
+- Design: recommendation-driven creative refresh, paused-first, preview by placement, human approval and undo.
+
+### META-OBS-014 — Campaign learning / fragmentation
+- Source: Meta developer learning material, updated 2026-04-08, https://developers.meta.com/vr/resources/optimize-ad-campaign/
+- Findings: Meta says learning occurs at ad set level and stabilizes with minimum around 50 optimization events over a 7-day period; too many overlapping ad sets can cannibalize event collection; edits may trigger a new learning period; Meta suggests avoiding significant changes and acknowledges trade-off when bundling multiple changes.
+- Limits: the 50-event guidance is contextual to an objective/event and must not be imposed as a universal threshold for every campaign type or low-volume tenant. The full significant-edit help page may require authenticated access.
+- Design: monitor learning status and event sample; consolidate overlapping ad sets; protect mature winners; isolate tests and avoid several uncontrolled edits.
+
+### META-OBS-015 — The 20% rule is not a universal Meta budget-increase rule
+- Sources: Meta Business Help Center "About Ad Set Budget Sharing" (https://www.facebook.com/business/help/1388266028979935) and Meta learning guide above.
+- Finding: Meta's Ad Set Budget Sharing feature may share up to 20% of daily budget across ad sets under supported campaign settings. This is budget redistribution, not a universal limit on budget increase. Meta learning documentation says adjustments can trigger a learning period but does not publish a universal "20% increase" threshold in the source reviewed.
+- Secondary cross-check: https://zephraai.com/guides/meta-ads-budget-guide (2026-09-16) reports Meta's significant-edit wording treats budget changes as depending on magnitude rather than a fixed percentage; use only as secondary interpretation.
+- Decision: PD-024 imposes WhatsBusiness +20% per operation and +20% cumulative rolling-24h cap by owner instruction. Never attribute it to Meta or promise it prevents all learning resets.
+
+### META-OBS-016 — Meta Business Agent Platform
+- Sources: Meta Newsroom 2026-06-03 https://about.fb.com/news/2026/06/meta-business-agent/ and AI at Meta https://ai.meta.com/meta-business-agent/platform/
+- Findings: Meta Business Agent is a customer-facing AI assistant; Meta Business Agent Platform is infrastructure to build/customize/deploy agents with connectors to CRM/order management, conversation context/memory, guardrails/measurement and human handoff. Meta's June announcement described capabilities across WhatsApp/Messenger/Instagram and >1M businesses using an agent at that date; AI at Meta platform page currently describes WhatsApp and Instagram support, so exact channel availability must be checked.
+- Design: support interoperability, shared conversation ownership/handoff, agent identity/provenance, connector permissions, audit and no double responses.
+- Limits: business eligibility, channel rollouts, pricing and access for Ecuador remain to be verified. Meta states a global per-message rate encompassing AI processing and delivery on its platform page; don't hardcode price or availability.
+
+### META-OBS-017 — Social Technologies MCP
+- Source: Meta for Developers, News for Developers, https://developers.meta.com/resources/blog/ (announcement dated 2026-10-26; deep link referenced on the page).
+- Finding: MCP allows AI agents to create/configure Social Technologies developer apps, link Business Portfolios and add use cases such as WhatsApp Business Messaging.
+- Design: possible developer onboarding/provisioning tool, not a runtime campaign or messaging transport. Require human owner approval, explicit app/portfolio selection, least privilege and audit before provisioning/permission changes.
+- Limits: availability, supported operations and required auth are revalidated in live developer portal; do not infer production access.
+
+### META-OBS-018 — Ads audience per creative
+- Source: Meta for Developers News, https://developers.meta.com/resources/blog/ (announcement "Choose an Audience for Each Ad Creative", current 2026 news feed).
+- Finding: advertiser can choose a specific audience for each ad creative inside one ad set, including age/gender settings, subject to feature eligibility.
+- Design: add capability descriptor for per-creative audience targeting and preserve ad-level audience policy; don't assume feature enabled or universally available.
+
+### META-OBS-019 — WhatsApp policy and automated handoff
+- Source: WhatsApp Business Policy, https://whatsappbusiness.com/policy/
+- Findings: opt-in/opt-out respect, message templates outside the service window when required, and prompt/clear human escalation when automations operate in the 24-hour service window.
+- Design: channel policy/consent at send time; handoff SLA; pause bots when human/Meta agent owns the thread.
+
+## 8. Reference-project research records
+
+The current commit, files sampled, findings and no-go conclusions are documented in [35-REFERENCE-PROJECTS-TECHNICAL-BENCHMARK.md](35-REFERENCE-PROJECTS-TECHNICAL-BENCHMARK.md).
+- REF-CHATWOOT: account-scoped inbox/channel polymorphism, conversation/message state, Redis round-robin, automation pending execution lock/reclaim, webhooks/jobs and AI support.
+- REF-TWILIO: provider SDK generated resource models, pagination, retries, typed errors, webhook validation, region/edge and credential boundaries.
+- REF-HTTPSMS: Android device gateway, FCM queue, 202 accepted vs delivered, expiry, backpressure and E2E test with emulator.
+- REF-ANDROID-SMS-GATEWAY: device/SIM registration, local/cloud, multi-device, MMS, scheduling, working hours and webhook.
+- REF-OPENWA: browser/WhatsApp Web automation, Easy API, SocketClient, plugin SDK and MCP patterns. It is unofficial and explicitly disclaims Meta affiliation; do not ship or rely on it for WhatsBusiness transport.
+
+## 9. Evidence promotion rules
+- Meta statements are time-stamped and marked Meta-reported; no vendor uplift becomes a WhatsBusiness forecast.
+- Beta/rollout features are recorded as capability watch, never promised to each tenant.
+- API sample repositories do not replace normative API docs.
+- Budget 20% is owner guardrail PD-024, not Meta policy.
+- Andromeda/GEM are internal delivery systems; no claims of direct control or queryable internal score.
+- Reference repository conclusions are based on inspected files, not full security/performance audits.
