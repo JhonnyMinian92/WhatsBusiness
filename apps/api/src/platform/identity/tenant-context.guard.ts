@@ -11,7 +11,7 @@ import {
 import { Reflector } from "@nestjs/core";
 import { randomUUID } from "node:crypto";
 import type { Response } from "express";
-import type { OidcAuthenticatedRequest, OidcClaims } from "./oidc-auth.guard.js";
+import type { OidcAuthenticatedRequest } from "./oidc-auth.guard.js";
 import { IdentityService } from "./identity.service.js";
 
 export const TENANT_ACCESS_PURPOSE = "whatsbusiness:tenant-access-purpose";
@@ -23,6 +23,7 @@ export interface TenantAccessContext {
   readonly actorId: string;
   readonly tenantId: string;
   readonly membershipId: string;
+  readonly membershipStatus: "active";
   readonly authzVersion: number;
   readonly roleKeys: readonly string[];
   readonly permissionKeys: readonly string[];
