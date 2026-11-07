@@ -56,3 +56,21 @@ Threat modeling por historia; revisión de dependencias; SAST/SCA en PR; tests d
 
 ## 8. Gate de seguridad
 No liberar si hay vulnerabilidades críticas/altas sin mitigación aceptada, secretos detectados, tests de aislamiento fallidos, auditoría incompleta o mecanismo de revocación/eliminación no probado.
+
+
+## 9. Baseline de verificación OWASP ASVS (adoptada 2026-11-06)
+- Utilizar OWASP ASVS 5.0.0 como catálogo de controles verificables para aplicación web y servicios.
+- Objetivo mínimo de referencia: nivel 2 donde el requisito aplique; riesgos críticos de tenant isolation, OAuth/token vault, administración, webhooks, ads spend, export/delete y herramientas IA elevan controles mediante threat model.
+- Cada control seleccionado debe mapearse a requisito/test/evidencia; no afirmar "ASVS compliant" por solo citar el estándar.
+- Revisar versión vigente al ejecutar assessment.
+
+## 10. Privacidad aplicada al SaaS multi-tenant
+- Minimización desde el diseño; separar finalidad, base legitimadora, consentimiento, canal, fuente, aviso y revocación.
+- Data inventory y records of processing por finalidad/tenant.
+- Retención configurable por data class y tenant policy, con legal hold cuando aplique y evidencia de purga.
+- Data subject rights workflow: acceso, copia/export, rectificación, oposición/revocación cuando aplique, supresión y registro de respuesta.
+- Orquestar borrado/exportación en DB, object store, search, cache, queues, webhook payloads, proveedores/subencargados IA y artefactos derivados. Definir backups según política/legal.
+- Registrar responsable/controlador, encargado/procesador, subencargados, transferencias internacionales, región y contrato.
+- No fijar plazos de retención ni asumir que consentimiento es siempre base legitimadora. Revisión especializada LOPDP/RGLOPDP/SPDP antes de tratar datos reales en producción.
+- No enviar conversaciones/leads/PII a proveedores IA externos hasta aprobar base legal, contrato, región, tratamiento, retención y configuración.
+- Soporte entre tenants usa grant JIT, finalidad, step-up, duración corta y audit; nunca acceso global implícito.
