@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import type { PermissionKey } from "../authorization/permission-catalog.js";
 
 export type JsonSnapshot =
   | null
@@ -10,7 +11,7 @@ export type JsonSnapshot =
 
 export interface ApprovalActionBinding {
   readonly tenantId: string;
-  readonly actionKey: string;
+  readonly actionKey: PermissionKey;
   readonly purpose: string;
   readonly resourceType: string;
   readonly resourceId: string;
