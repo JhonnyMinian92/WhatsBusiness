@@ -85,3 +85,8 @@ La estructura documental y el sistema de instrucciones para agentes se encuentra
 32. [Registro de investigación y evidencia](32-RESEARCH-AND-EVIDENCE-REGISTER.md) — hallazgos Meta, LOPDP/SPDP, ASVS 5.0.0 y prácticas SRE con fecha, fuente y límites de validez.
 
 33. [Registros formales de decisiones de arquitectura](33-ARCHITECTURE-DECISION-RECORDS.md) — ADR-011..020, alternativas, consecuencias, seguridad, coste, reversibilidad y validación.
+
+
+34. [Meta Ads AI, Andromeda, GEM y evolución de plataforma](34-META-ADS-AI-AND-PLATFORM-OUTLOOK.md) — anuncios inteligentes, creatividades, MCP, Business Agent y proyecciones.
+35. [Benchmark de proyectos de referencia](35-REFERENCE-PROJECTS-TECHNICAL-BENCHMARK.md) — Chatwoot, Twilio, httpSMS, Android SMS Gateway y OpenWA.
+36. [Campaign Intelligence y escalado controlado](36-CAMPAIGN-INTELLIGENCE-AND-GUARDED-SCALING.md) — aprendizaje comercial, Creative Lab, experimentos y guardrail +20%.
