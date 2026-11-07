@@ -240,3 +240,7 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - TASK-001: implemented y CI-verified. Sigue in_progress globalmente hasta review independiente de arquitectura/seguridad y aceptación del propietario. No declarar aceptación.
 - Siguiente tarea tras el gate de TASK-001: TASK-002 tenant context/authz; después TASK-004 RBAC/ABAC. TASK-005 continúa propuesto y depende de TASK-004.
 - No se añadieron APIs catalog-only, no se habilitó producción, no se usaron datos reales ni se ejecutaron escrituras Meta.
+
+
+- Validación adicional de idempotencia: Source CI run #16 [42380055974](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42380055974) ejecutó `pnpm db:migrate` dos veces en la misma base PostgreSQL efímera; migraciones, build, typecheck y tests finalizaron SUCCESS. Commit `84bab54d78b5246174dab6a6a9eb9173d0149476`.
+- La documentación de TASK-001 quedó sincronizada en docs/58, docs/11 y docs/14. Último commit de sincronización del backlog: `22d8ce9f7c9235e469d03d4959953537a4482291`.
