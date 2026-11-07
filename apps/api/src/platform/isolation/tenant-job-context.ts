@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
 import type { PoolClient } from "pg";
-import type { DatabaseService } from "../database/database.module.js";
+import { DatabaseService } from "../database/database.module.js";
 
 export const TENANT_JOB_RECORD_READER = Symbol("TENANT_JOB_RECORD_READER");
 
