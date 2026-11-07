@@ -22,7 +22,8 @@ CREATE TABLE platform.tenant_job_records (
     (status IN ('succeeded', 'dead_letter') AND finished_at IS NOT NULL)
     OR (status NOT IN ('succeeded', 'dead_letter') AND finished_at IS NULL)
   ),
-  CONSTRAINT tenant_job_attempts_bounded CHECK (attempts <= max_attempts)
+  CONSTRAINT tenant_job_attempts_bounded CHECK (attempts <= max_attempts),
+  CONSTRAINT tenant_job_idempotency_unique UNIQUE (tenant_id, job_type, idempotency_key)
 );
 
 CREATE INDEX tenant_job_records_dispatch_idx
@@ -56,7 +57,7 @@ CREATE POLICY tenant_job_records_tenant_update ON platform.tenant_job_records
 -- Runtime can stage jobs, but cannot read payloads or mutate lifecycle directly.
 -- The worker will receive narrow state-transition functions when the dispatcher is introduced.
 GRANT INSERT ON platform.tenant_job_records TO whatsbusiness_app;
-GRANT SELECT (id) ON platform.tenant_job_records TO whatsbusiness_app;
+GRANT SELECT (id, payload_sha256) ON platform.tenant_job_records TO whatsbusiness_app;
 
 -- A worker starts with only an opaque job UUID. This narrowly scoped function
 -- returns authorization metadata, never payload, and only for an existing row.
@@ -93,7 +94,9 @@ BEGIN
      OR NEW.purpose IS DISTINCT FROM OLD.purpose
      OR NEW.correlation_id IS DISTINCT FROM OLD.correlation_id
      OR NEW.job_type IS DISTINCT FROM OLD.job_type
+     OR NEW.idempotency_key IS DISTINCT FROM OLD.idempotency_key
      OR NEW.payload IS DISTINCT FROM OLD.payload
+     OR NEW.payload_sha256 IS DISTINCT FROM OLD.payload_sha256
      OR NEW.max_attempts IS DISTINCT FROM OLD.max_attempts
      OR NEW.created_at IS DISTINCT FROM OLD.created_at THEN
     RAISE EXCEPTION 'Tenant job identity and payload are immutable'
