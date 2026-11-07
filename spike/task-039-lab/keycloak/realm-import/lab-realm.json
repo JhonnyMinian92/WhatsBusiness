@@ -1,0 +1,42 @@
+{
+  "realm": "lab",
+  "enabled": true,
+  "displayName": "WhatsBusiness Synthetic Lab",
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "roles": {
+    "realm": [
+      { "name": "lab-user", "description": "Synthetic test role only" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "lab-cli",
+      "name": "Synthetic local test client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "redirectUris": []
+    }
+  ],
+  "users": [
+    {
+      "username": "lab.user",
+      "enabled": true,
+      "email": "lab.user@example.invalid",
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "LabOnly-Password-Change-Me",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["lab-user"]
+    }
+  ]
+}
