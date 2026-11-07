@@ -1,67 +1,110 @@
-# 29 — Decisiones confirmadas del propietario
+# 29 — Decisiones del propietario y baseline aplicada por delegación
 
-**Fecha:** 2026-11-06  
-**Fuente:** respuestas explícitas del propietario.  
-**Estado:** baseline parcial aprobada; las respuestas pendientes no son decisiones.
+**Fecha de consolidación:** 2026-11-06  
+**Autoridad:** decisiones explícitas del propietario (PD-001..PD-011) y autorización expresa posterior para que el arquitecto aplique todas las recomendaciones (PD-012..PD-023).  
+**Estado:** baseline de producto aprobada; arquitectura elegida como baseline técnica; reservas legales, financieras, de capacidad y de producción permanecen sujetas a evidencia y gates.
 
-## 1. Decisiones confirmadas
+> El propietario indicó que el arquitecto está a cargo de tomar las mejores decisiones técnicas y de documentarlas. Esto autoriza adoptar las recomendaciones de esta matriz, no inventar datos de mercado, comprometer gastos, dar asesoría legal, activar servicios de Meta ni ejecutar acciones productivas sensibles.
+
+## 1. Decisiones explícitas del propietario
 
 | ID | Decisión | Respuesta | Efecto |
 |---|---|---|---|
-| PD-001 | Modelo de negocio | SaaS comercial y plataforma interna de EcuApp | Diseñar multi-tenancy y separar control de plataforma/tenant |
-| PD-002 | Código inicial | Comenzar desde cero | Greenfield; no asumir código heredado |
-| PD-003 | Alcance Meta | Todos los productos/capacidades enumerados en META_SERVICES.md | Catálogo completo, con elegibilidad y fases |
-| PD-004 | Producto propio | Backend, panel, CRM e inbox omnicanal | CRM e inbox son dominios de primera clase |
-| PD-005 | IA | Automatización básica con visión de crecimiento | Chatbots acotados y sugerencias; arquitectura extensible |
-| PD-006 | Interfaces | Backend y panel web | No se compromete aplicación móvil nativa |
-| PD-007 | Stack | Sin stack impuesta; autoriza recomendación del arquitecto | ADR técnico recomendado con criterios y alternativas |
-| PD-008 | Hosting | VPS / servidor propio | Despliegue portable y contenerizado |
-| PD-009 | Entrega | Proponer fases; todo separado y organizado | Roadmap por dominios, dependencias y gates |
-| PD-010 | Autonomía | Continuar tareas independientes y aplicar la mejor opción técnica conocida | Registrar decisiones reversibles y no bloquear trabajo no afectado |
-| PD-011 | Escalamiento | Consultar bloqueos de producto, costes, datos, seguridad, cumplimiento, proveedores, breaking changes y decisiones irreversibles | Mantener decisiones humanas reservadas |
+| PD-001 | Modelo de negocio | SaaS comercial + plataforma interna EcuApp | Un solo producto multi-tenant, con separación de plataforma y tenants |
+| PD-002 | Código inicial | Greenfield | Construcción desde cero; no asumir legado |
+| PD-003 | Alcance Meta | Catálogo completo de META_SERVICES.md | Cobertura objetivo amplia, condicionada a capacidades y elegibilidad |
+| PD-004 | Producto propio | Backend, panel web, CRM e Inbox omnicanal | CRM e Inbox son dominios de primera clase |
+| PD-005 | IA | Automatización con visión de crecimiento | Reglas, chatbots acotados y sugerencias; evolución por fases |
+| PD-006 | Interfaces | Backend y panel web | No se compromete app móvil nativa inicial |
+| PD-007 | Tecnología | El arquitecto puede recomendar stack | Selección técnica basada en criterios y ADR |
+| PD-008 | Hosting | VPS / servidor propio | Contenedores portables, operación medible y plan de escalado |
+| PD-009 | Entrega | Por fases, separado y organizado | Gates y dependencias explícitos |
+| PD-010 | Autonomía | Continuar trabajo independiente y aplicar mejor opción conocida | No interrumpir tareas no bloqueadas |
+| PD-011 | Escalamiento | Consultar bloqueos de producto, coste, datos, seguridad, cumplimiento, proveedores y cambios irreversibles | Límites humanos reservados |
 
-## 2. Interpretación de la aclaración de IA
+## 2. Recomendaciones adoptadas por delegación del propietario
 
-La frase "pero cob vision para automatizacion con IA" se interpreta, por contexto, como "pero con visión para automatización con IA". Primera capacidad:
-- Automatizaciones basadas en reglas y eventos.
-- Chatbots con flujos/intenciones configurables.
-- Sugerencias de respuesta asistidas por IA para agentes.
-- Abstracción de proveedores/modelos y límites de consumo.
-- Registro de versiones de prompts, evaluación y trazabilidad.
+Estas decisiones son la respuesta operativa a las preguntas abiertas del cuestionario. No deben seguir apareciendo como preguntas sin respuesta en documentos derivados; sus reservas se especifican en la sección 3.
+
+| ID | Área | Decisión adoptada | Condición / límite |
+|---|---|---|---|
+| PD-012 | Segmento inicial | PYMES ecuatorianas de comercio, servicios y negocios que gestionan atención/ventas por canales Meta; incluir agencias que administran varias empresas como segmento secundario de lanzamiento | Hipótesis de enfoque, no estudio de mercado ni TAM verificado. Validar con entrevistas, pilotos y conversión |
+| PD-013 | Monetización | Suscripción por tenant + asientos/usuarios + consumo medido por módulo/uso | No fijar precios, mínimos, margen o impuestos hasta unit economics, costes y validación comercial |
+| PD-014 | Costes Meta | Mostrar y conciliar cargos Meta separadamente; trasladar al cliente el coste externo real de acuerdo con el contrato/plan, sin mezclarlo con la suscripción | No asumir recargos ni márgenes. Rate cards versionadas, moneda, mercado, vigencia y evidencia de factura |
+| PD-015 | Idioma y localización | Español de Ecuador (es-EC), USD y America/Guayaquil como defaults iniciales | Locale, moneda ISO-4217 y zona horaria IANA configurables por tenant; arquitectura internacionalizable |
+| PD-016 | Aislamiento | PostgreSQL compartido con tenant_id como default, autorización server-side y Row-Level Security como defensa en profundidad | Enterprise/regulación puede recibir DB/cluster dedicado. RLS no sustituye autorización. No usar jerarquía de tenants como permiso implícito |
+| PD-017 | Agencias | Modelo Partner/Agency con relaciones de acceso delegadas y explícitas hacia tenants cliente | Los datos no se comparten por herencia; grants revocables, auditados y limitados por acción/asset |
+| PD-018 | Privacidad y retención | Minimización, retención configurable por clase de dato y tenant, exportación, rectificación, supresión y borrado orquestado | No fijar plazos legales por intuición. Revisión con asesoría competente/DPD, LOPDP, transferencias, roles y obligaciones contractuales |
+| PD-019 | Mensajería y acciones sensibles | Política por canal, categoría, finalidad, consentimiento, ventana y elegibilidad; chatbot limitado; handoff humano; aprobación humana para campañas, gasto, envíos masivos, borrados irreversibles y cambios de permisos | Default-deny ante ambigüedad. Umbrales monetarios y matriz final de aprobadores configurables antes de producción |
+| PD-020 | Integraciones externas | Primero API pública versionada, webhooks firmados y conectores del ecosistema EcuApp cuando exista contrato real | No inventar conectores ni priorizar ERP/pagos concretos sin demanda demostrada; arquitectura ports-and-adapters |
+| PD-021 | Infraestructura | VPS/servidor propio con imágenes Docker portables; Compose para desarrollo y piloto controlado; topología multi-nodo para producción con HA | Sin proveedor, tamaño ni gasto comprometidos. Sizing por benchmark; no vender un nodo único como alta disponibilidad |
+| PD-022 | Git, releases y producción | Trabajo en environment/local; master y environment/develop permanecen protegidas; ningún agente hace merge a ramas protegidas, publica releases ni despliega a producción sin autorización explícita | También aplica a gasto real, campañas, mensajes masivos y cambios destructivos |
+| PD-023 | Estilo de arquitectura | Modular monolith por bounded contexts + procesos API/worker separables desde el mismo código; extraer microservicios solo con evidencia de escala, aislamiento, ownership o ciclo de vida | Evitar distribución prematura; límites modulares, contratos y ownership desde el primer commit |
+
+## 3. Reservas que no se pueden resolver con una decisión técnica
+
+1. **Precios y fiscalidad:** se adopta el modelo de monetización, no una tarifa. Definir planes y precios exige costes reales, entrevistas, disposición a pagar, costes de soporte/infraestructura y revisión tributaria ecuatoriana.
+2. **Retención, residencia y LOPDP:** se implementarán controles configurables y minimización desde el diseño. Los plazos concretos, roles responsable/encargado, transferencias, subencargados, avisos y obligaciones deben pasar por revisión legal/DPD antes de tratar datos reales en producción.
+3. **Capacidad y coste VPS:** no hay número de tenants, mensajes, concurrencia, presupuesto ni servidor conocido. No inventar CPU/RAM/IOPS ni prometer capacidad. TASK-060 exige pruebas de carga y dimensionamiento.
+4. **SLO/RPO/RTO:** quedan definidos objetivos candidatos en docs/13, no un SLA. Se validarán contra arquitectura, redundancia, restore drills y presupuesto.
+5. **Permisos Meta:** ningún alcance funcional implica aprobación de App Review, Business Verification, Tech Provider o elegibilidad del tenant. Cada operación exige evidencia actual de scopes, grants, tier, producto, país y cuenta.
+6. **Integraciones específicas:** no se compromete un ERP, ecommerce, pasarela o proveedor IA concreto. La selección exige casos de uso, revisión de contrato, coste, seguridad, región y portabilidad.
+7. **Acciones productivas:** el consentimiento para planear y documentar no autoriza gasto publicitario, comunicación masiva real, eliminación irreversible, publicación de contenido ni despliegue productivo.
+
+## 4. Interpretación de la aclaración de IA
+
+La frase "pero cob vision para automatizacion con IA" se interpreta, por contexto, como "pero con visión para automatización con IA". La capacidad inicial queda limitada a:
+- Automatizaciones por eventos y reglas deterministas.
+- Chatbots basados en flujos/intenciones delimitados.
+- Sugerencias de respuesta para agentes, editables antes del envío.
+- AI Gateway desacoplado de proveedores/modelos.
+- Control de datos por tenant, coste, latencia, timeout, presupuesto, evaluación y auditoría.
 - Aprobación humana para acciones externas sensibles.
 
-No se asume todavía RAG, agentes autónomos, voz, entrenamiento de modelos propios ni envío autónomo irrestricto.
+No se asume RAG, voz, entrenamiento propio ni agentes autónomos con permisos de escritura general. Cualquier ampliación debe tener REQ/ADR, evaluación de datos/coste/seguridad y gate específico.
 
-## 3. Principios derivados
+## 5. Reglas derivadas para producto y arquitectura
 
-1. SaaS y uso interno comparten producto y servicios, sin codebases divergentes.
-2. Separar Platform Control Plane, dominios de negocio y adaptadores Meta.
-3. Cada módulo/servicio tendrá ownership, contratos, datos y pruebas independientes.
-4. Un bounded context no exige necesariamente un proceso desplegable independiente desde el primer commit.
-5. VPS es una restricción de despliegue, no una razón para acoplar dominios.
-6. Panel web responsive; no se incluye aplicación móvil nativa en el baseline.
-7. IA transversal con límites por tenant, coste, privacidad y aprobación.
+- SaaS y uso interno comparten codebase y releases; configuración, tenants, límites y datos siguen aislados.
+- Agencia y cliente son entidades/relaciones de plataforma, no tenants que comparten datos de forma implícita.
+- Suscripción, asientos, uso interno y cargos externos Meta se registran en ledgers separados.
+- Contact identities son tenant-scoped y provider-scoped. El teléfono no es la clave universal de una persona/cuenta.
+- API pública, webhooks y eventos son contratos versionados; payload nativo Meta se preserva con acceso/retención controlados.
+- El backend es autoridad final de tenant, actor, grant, consentimiento, capability y policy.
+- Acciones sensibles son denegadas por defecto si falta evidencia o autorización.
+- La IA no amplía permisos y sus outputs son contenido no confiable.
+- El producto se diseña para escalar, pero no se declaran métricas sin benchmark y evidencia operativa.
 
-## 4. Preguntas pendientes y aclaraciones parciales
+## 6. Preguntas originales y estado resultante
 
-| Pregunta | Tema | Tratamiento provisional |
-|---|---|---|
-| Q-002 | Segmentos de cliente, agencias y países | Ecuador figura como mercado inicial heredado; confirmar |
-| Q-003 | Planes, precios, facturación y pass-through de costes Meta | No diseñar pricing definitivo |
-| Q-009 | Idiomas, monedas, zonas horarias y facturación local | Preparar i18n/locale; no cerrar reglas fiscales |
-| Q-013 | Volumen, disponibilidad, SLO, RPO/RTO, presupuesto VPS | Diseñar escalabilidad; medir antes de dimensionar |
-| Q-014 | Aislamiento de datos, SSO/MFA y aprobaciones | Proponer tenant_id + RLS como baseline sujeto a revisión |
-| Q-015 | Retención, residencia, LOPDP y asesoría legal | Minimización y controles configurables; retención final pendiente |
-| Q-016 | Límites de gasto y roles aprobadores | Denegar gasto real por defecto hasta política aprobada |
-| Q-017 | Integraciones externas concretas | Diseñar puertos/adaptadores; no prometer conectores |
-| Q-018 | Criterios exactos de producción y Meta App Review | Gate externo obligatorio; evidencias pendientes |
-| Q-019 | Política Git final | Regla operativa heredada: continuar en environment/local; master/develop intactas salvo autorización expresa. Confirmación explícita en el cuestionario original pendiente, pero no bloquea el trabajo actual. |
-| Q-020 | Límites finos de autonomía | Respondida en el cuestionario abreviado: continuar trabajo independiente y resolver decisiones técnicas conocidas; escalar decisiones de impacto. Aplicar PD-010/011. |
+| Pregunta | Estado actualizado |
+|---|---|
+| Q-001 Modelo de negocio | Resuelta por PD-001 |
+| Q-002 Segmentos/agencias | Baseline adoptada PD-012; hipótesis de mercado pendiente de validar |
+| Q-003 Monetización | Modelo adoptado PD-013/014; precios y fiscalidad pendientes |
+| Q-004 Catálogo Meta | Resuelta por PD-003; acceso efectivo externo pendiente |
+| Q-005 Secuencia | Resuelta por PD-009 y docs/31 |
+| Q-006 Producto | Resuelta por PD-004 |
+| Q-007 IA | Resuelta por PD-005 + sección 4 |
+| Q-008 Interfaces | Resuelta por PD-006 |
+| Q-009 Localización | Baseline adoptada PD-015 |
+| Q-010 Código fuente | Resuelta por PD-002 |
+| Q-011 Stack | Resuelta por PD-007 y ADR-011..ADR-020 |
+| Q-012 Infraestructura | Resuelta como VPS/servidor propio PD-008/021; proveedor/coste pendientes |
+| Q-013 Capacidad/SLO/RPO/RTO | Objetivos candidatos documentados; validación pendiente TASK-060 |
+| Q-014 Aislamiento/identidad | Baseline adoptada PD-016/017; revisión threat model pendiente |
+| Q-015 Retención/LOPDP | Controles adoptados PD-018; plazos/asesoría legal pendientes |
+| Q-016 Aprobaciones | Baseline fail-closed adoptada PD-019; thresholds/aprobadores finales pendientes |
+| Q-017 Integraciones | Estrategia adoptada PD-020; conectores concretos pendientes |
+| Q-018 Producción/App Review | Gates documentados; acceso/aprobación Meta pendiente |
+| Q-019 Git/producción | Política adoptada PD-022 |
+| Q-020 Autonomía | Resuelta por PD-010/011 |
 
-## 5. Reglas para agentes
+## 7. Modelo de autonomía de agentes
 
-- Decisión técnica reversible dentro de límites aprobados: elegir la opción mejor sustentada, registrar ADR y continuar.
-- Decisión de producto/comercial/legal/privacidad/coste recurrente/seguridad de alto impacto: presentar recomendación y pedir aprobación.
-- Una pregunta abierta no bloquea tareas independientes.
-- Si un supuesto afecta una fase posterior, registrar fecha límite de resolución y continuar fases anteriores.
-- Toda recomendación incluye contexto, alternativas, trade-offs, riesgos y reversión.
+- Resolver sin preguntar los detalles técnicos reversibles dentro de este baseline.
+- Registrar ADR/CR con contexto, evidencia, alternativas, consecuencias, riesgos y reversión.
+- Seguir tareas independientes cuando otra área tenga un bloqueo.
+- Escalar al propietario decisiones comerciales, compromisos de gasto, retención/legal, transferencias de datos, seguridad crítica, vendor/contratos, breaking changes y acciones productivas.
+- No interpretar "toma las mejores decisiones" como permiso para inventar evidencia, omitir gates o aprobarse a sí mismo.
+- La aceptación final del producto sigue perteneciendo al propietario.
