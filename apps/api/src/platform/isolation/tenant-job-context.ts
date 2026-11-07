@@ -1,5 +1,8 @@
+import { Inject, Injectable } from "@nestjs/common";
 import type { PoolClient } from "pg";
 import type { DatabaseService } from "../database/database.module.js";
+
+export const TENANT_JOB_RECORD_READER = Symbol("TENANT_JOB_RECORD_READER");
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const PURPOSE_PATTERN = /^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*){2,7}$/;
@@ -32,8 +35,9 @@ export interface TenantJobContext {
  * Resolves worker identity from a durable, schema-validated inbox/outbox record.
  * The queue message is only a locator (jobId), never an authorization envelope.
  */
+@Injectable()
 export class TenantJobContextResolver {
-  constructor(private readonly records: TenantJobRecordReader) {}
+  constructor(@Inject(TENANT_JOB_RECORD_READER) private readonly records: TenantJobRecordReader) {}
 
   async resolve(jobId: string): Promise<TenantJobContext> {
     assertUuid(jobId, "jobId");
@@ -65,6 +69,7 @@ export class TenantJobContextResolver {
  * Revalidates actor membership and tenant lifecycle in PostgreSQL for every
  * execution attempt. DatabaseService establishes transaction-local RLS state.
  */
+@Injectable()
 export class TenantJobExecutor {
   constructor(private readonly database: DatabaseService) {}
 
