@@ -5,6 +5,7 @@ import {
   Module,
   OnModuleDestroy,
   ServiceUnavailableException,
+  NotFoundException,
 } from "@nestjs/common";
 import { Pool } from "pg";
 import type { PoolClient } from "pg";
@@ -58,6 +59,16 @@ export class DatabaseService implements OnModuleDestroy {
   ): Promise<T> {
     return this.transaction(async (client) => {
       await client.query("SELECT set_config('app.user_id', $1, true)", [userId]);
+      const authorization = await client.query<{ allowed: boolean }>(
+        "SELECT platform.can_use_tenant($1) AS allowed",
+        [tenantId],
+      );
+      if (authorization.rows[0]?.allowed !== true) {
+        throw new NotFoundException({
+          code: "TENANT_CONTEXT_NOT_FOUND",
+          detail: "El tenant no existe o no es accesible para este usuario.",
+        });
+      }
       await client.query("SELECT set_config('app.tenant_id', $1, true)", [tenantId]);
       return work(client);
     });
