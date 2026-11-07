@@ -55,3 +55,28 @@ Estos valores son hipótesis de planificación, no SLA comprometidos.
 
 ## 6. Soporte
 Cada incidente tiene incident commander, severidad, timeline UTC, impacto por tenant, evidencia redactada, mitigación, comunicación y postmortem sin culpas con acciones verificables.
+
+
+## 7. SLO candidate baseline adopted for planning (not SLA, not measured)
+| SLI | Candidate objective | Measurement / condition |
+|---|---:|---|
+| Core API availability | 99.9% monthly | Successful eligible requests / total eligible requests; publish numerator, denominator, window and exclusions |
+| Webhook durable acceptance | p95 < 2 s | ACK after durable persistence, not after downstream processing; validate per Meta contract |
+| Internal enqueue | p95 < 500 ms | API request to durable outbox/queue acceptance; measure separately from external delivery |
+| Webhook-to-domain processing | p95 < 60 s | By event class and traffic profile; queue age is an early warning |
+| Internal confirmed event loss | 0 | Distinguish data loss from provider not delivering or duplicate events |
+| RPO | <= 15 minutes | Planning target only; prove with backup/WAL/object recovery drills |
+| RTO | <= 4 hours | Planning target only; measure from declared incident to validated service recovery |
+
+These are planning targets delegated by the owner, not historical results, contracted SLA or a promise of current VPS capacity. A single-node VPS cannot substantiate a 99.9% HA claim. 99.9% corresponds to about 43.2 minutes of downtime in a 30-day month, before considering the exact measurement policy. SLOs must be reviewed against the service cost and user experience before commercial commitments.
+
+## 8. Four golden signals and latency distributions
+- Latency: report p50, p95, p99 and maximum for critical paths, separated by operation/provider/tenant tier; never rely on averages alone.
+- Traffic: request rate, webhook event rate, message throughput, active tenants, concurrency and queue ingress.
+- Errors: HTTP/provider error classes, auth/policy denies, retries, DLQ, delivery failures and reconciliation drift.
+- Saturation: CPU, memory, DB connections/locks/IO, storage, broker queue depth/age, worker utilization, rate-limit consumption and object store latency.
+- External Meta dependency has separate provider SLI and end-to-end customer SLI so an upstream outage is visible rather than hidden.
+- No RPS, tenant count, messages/day or VPS specification is accepted until TASK-060 produces a reproducible benchmark.
+
+## 9. Production topology guardrail
+A single VPS/Compose topology is suitable for development or explicitly accepted pilot only. Production availability targets require redundancy across failure domains for ingress/app, PostgreSQL, broker and storage, plus monitoring and backups outside the primary host. Select Compose/k3s/managed equivalents only after TASK-039/TASK-060 resource and operational measurements.
