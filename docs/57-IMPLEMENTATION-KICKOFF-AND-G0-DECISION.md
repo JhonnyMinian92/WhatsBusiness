@@ -84,3 +84,20 @@ No hubo reviewer independiente en esta interacción. Esta decisión no es una re
 | R-039-09 | Review independiente | reviewer distinto del autor antes de release/aceptación |
 
 **Decisión vigente:** GO-CODE para implementar en local; NO-GO-PRODUCTION hasta resolver las condiciones aplicables y obtener aprobaciones independientes/humanas.
+
+## 8. Scaffold efectivamente creado y CI
+
+El primer workspace fue añadido directamente a `environment/local`:
+- Nx 24.0.4 + pnpm 10.34.9 + TypeScript 6.0.3.
+- Node fijado en `.node-version` a 26.13.0; `pnpm-lock.yaml` fue generado por pnpm en CI y ya está versionado.
+- `apps/api`: NestJS 12.4.0, prefijo `/api`, endpoints GET `/health/live` y GET `/health/ready`.
+- `/api/health/ready` devuelve 503 Problem Details mientras las dependencias obligatorias no tengan probes configurados; no se habilita readiness mediante un flag.
+- `apps/web`: Angular 22.2.0 standalone shell en es-EC. No simula autenticación ni ofrece selector de tenant antes de implementar Identity/Membership.
+- Tests Node para liveness, fail-closed readiness, status 503, media type `application/problem+json` y correlationId.
+
+Evidencia CI posterior al scaffold:
+- [Source workspace validation #3](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42373918923) terminó SUCCESS: instalación, build API/Web, typecheck, tests iniciales y creación del lockfile. Run intermedio anterior a los tests del controller.
+- [Source workspace validation #6](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42374058862) terminó SUCCESS con `pnpm install` usando lockfile existente, build API/Web, typecheck y los tests ampliados de health.
+- [Contract validation #12](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42373843076) terminó SUCCESS: Redocly OpenAPI, AsyncAPI CLI y validador AJV con las 69 definiciones/fixtures de eventos; incluye la comprobación de 296 operaciones y unicidad de `x-api-id`.
+
+La evidencia prueba compilación/tests del scaffold y validación estructural de contratos. No prueba todavía OIDC aplicado al API, base de datos integrada, RLS con pool Node, outbox runtime, ni aceptación independiente del producto.
