@@ -122,5 +122,8 @@ for (const [name, definition] of Object.entries(domain.$defs)) {
   const negative = structuredClone(sample);
   negative.tenantId = null;
   assert(!validator(negative), `Cross-tenant/invalid tenant fixture unexpectedly passed for ${name}`);
+  const extraProperty = structuredClone(sample);
+  extraProperty.data.unexpectedField = "must-be-rejected";
+  assert(!validator(extraProperty), `Unexpected payload field passed for ${name}`);
 }
 console.log(`Contract structure and JSON Schema fixtures passed: ${operations.length} OpenAPI operations, ${channelNames.length} event channels, ${asyncOperationIds.length} AsyncAPI operations, ${Object.keys(domain.$defs).length} event schemas.`);
