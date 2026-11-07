@@ -42,6 +42,9 @@ function fixture(options: {
         audience: ["whatsbusiness-web"],
         expiresAt: Math.floor(Date.now() / 1000) + 300,
         displayName: "Synthetic User",
+        authTime: Math.floor(Date.now() / 1000) - 30,
+        authenticationContext: "urn:synthetic:loa:2",
+        authenticationMethods: ["pwd", "otp"],
       },
     }),
   } as TenantAuthenticatedRequest;
