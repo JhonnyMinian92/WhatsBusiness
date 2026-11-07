@@ -123,3 +123,11 @@ Contextos de CRM, Inbox, Automation e AI Assistance se incorporan como dominios 
 - Docker Compose es para desarrollo/piloto single-node, no una declaración de HA. Topología productiva requiere redundancia y pruebas de failover.
 - Los ADR-011..020 están aceptados como dirección técnica por delegación, pero TASK-039 debe medir footprint, build, pooling/RLS, queue, backup y restore antes de scaffold de producción.
 - La estructura y responsabilidades concretas están detalladas en [30-RECOMMENDED-ARCHITECTURE.md](30-RECOMMENDED-ARCHITECTURE.md); no mantener contradicciones con esta decisión posterior.
+
+
+## 10. Campaign Intelligence and agent gateway
+Campaigns & Measurement incluye Campaign Intelligence and Creative Lab. Campaign Intelligence receives Insights snapshots, CRM/CAPI business events and experiment results; it emits OptimizationRecommendations and budget proposals. Creative Lab stores source/rights/brand/provenance, variants, previews, approvals and test-cell relationships. Meta delivery AI remains external; we do not access Andromeda/GEM scores.
+
+External AI tools (Meta Ads MCP, Meta Business Agent, WhatsBusiness MCP) are adapters behind a single Agent Tool Gateway. The gateway enforces actor/tenant/purpose/asset capabilities, policy, budget cap PD-024, approval, idempotency and audit. Agents cannot possess unrestricted API tokens or mutate Meta directly.
+
+See docs/36-CAMPAIGN-INTELLIGENCE-AND-GUARDED-SCALING.md and ADR-021/022 in docs/33.
