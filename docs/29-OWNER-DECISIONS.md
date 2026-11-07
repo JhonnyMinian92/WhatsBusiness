@@ -42,7 +42,7 @@ No se asume todavía RAG, agentes autónomos, voz, entrenamiento de modelos prop
 6. Panel web responsive; no se incluye aplicación móvil nativa en el baseline.
 7. IA transversal con límites por tenant, coste, privacidad y aprobación.
 
-## 4. Decisiones todavía no respondidas
+## 4. Preguntas pendientes y aclaraciones parciales
 
 | Pregunta | Tema | Tratamiento provisional |
 |---|---|---|
@@ -55,8 +55,8 @@ No se asume todavía RAG, agentes autónomos, voz, entrenamiento de modelos prop
 | Q-016 | Límites de gasto y roles aprobadores | Denegar gasto real por defecto hasta política aprobada |
 | Q-017 | Integraciones externas concretas | Diseñar puertos/adaptadores; no prometer conectores |
 | Q-018 | Criterios exactos de producción y Meta App Review | Gate externo obligatorio; evidencias pendientes |
-| Q-019 | Política Git final | Continuar en environment/local; no tocar master/develop |
-| Q-020 | Límites finos de autonomía | Aplicar PD-010/011 |
+| Q-019 | Política Git final | Regla operativa heredada: continuar en environment/local; master/develop intactas salvo autorización expresa. Confirmación explícita en el cuestionario original pendiente, pero no bloquea el trabajo actual. |
+| Q-020 | Límites finos de autonomía | Respondida en el cuestionario abreviado: continuar trabajo independiente y resolver decisiones técnicas conocidas; escalar decisiones de impacto. Aplicar PD-010/011. |
 
 ## 5. Reglas para agentes
 
