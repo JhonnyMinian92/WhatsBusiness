@@ -39,4 +39,8 @@ test("object storage rejects missing integrity metadata and traversal keys", asy
     contentType: "image/png",
     checksumSha256: "invalid",
   }));
+  assert.throws(() => storage.put(tenantA, "media", "file", new Uint8Array([1]), {
+    contentType: "image/png",
+    checksumSha256: "0".repeat(64),
+  }));
 });
