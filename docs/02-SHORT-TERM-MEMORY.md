@@ -288,6 +288,6 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - TenantScopedCache decora CacheStore, aplica namespace y TTL bounded; TenantScopedObjectStorage decora ObjectStorage, aplica prefijo tenant, valida MIME/checksum.
 - TenantJobContextResolver recupera el registro durable por jobId y produce contexto inmutable no falsificable mediante WeakSet privado; TenantJobExecutor revalida cada ejecución mediante DatabaseService.withTenantContext.
 - TenantTelemetryContext usa HmacTenantPseudonymizer con clave mínima de 256 bits inyectada; las métricas aceptan vocabulario acotado y excluyen tenant.
-- Siete suites unitarias registradas en apps/api/project.json; CI aún pendiente de inspección.
+- Seis suites unitarias registradas en apps/api/project.json; CI aún pendiente de inspección.
 - Límites: sin adapters/wiring reales Valkey/S3/RabbitMQ; sin outbox/inbox/consumer durable, DLQ/replay; falta PostgreSQL pool A→B desde worker y adapter de secret manager y wiring del pseudonymizer HMAC; no se ha ejecutado suite en esta sesión.
 - TASK-003 está implemented a nivel de primitives, no verified/accepted. GO-PRODUCTION sigue NO-GO.
