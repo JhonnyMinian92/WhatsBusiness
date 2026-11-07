@@ -131,3 +131,18 @@ flowchart TD
 ```
 
 TASK-034..041 se incorporan al DAG. Las tareas de especificación pueden avanzar en paralelo con ownership separado; TASK-039 depende de requisitos técnicos mínimos y no autoriza compromisos de gasto.
+
+
+## 7. Dependencias añadidas tras investigación y decisiones PD-012..PD-023
+
+TASK-039 architecture spike → TASK-053 identity/WAAC/PMA, TASK-054 Embedded Signup v4, TASK-056 Meta API version/access-tier registry.
+TASK-056 → TASK-055 Marketing Messages API migration/readiness → TASK-057 Max Pricing and cost ledger.
+TASK-034 platform/tenant spec + TASK-004 authorization → TASK-058 agency partner grants.
+TASK-031 security + TASK-032 data rights → TASK-059 privacy lifecycle and LOPDP controls.
+TASK-039 + TASK-041 SLO/RPO/RTO → TASK-060 load/capacity benchmark → TASK-061 DR and restore drills.
+TASK-027 webhook ingress + TASK-028 event platform → TASK-062 public API and signed webhooks.
+TASK-052 tenant/entitlement lifecycle + TASK-060 capacity → TASK-063 billing and usage.
+TASK-046 Inbox UI → TASK-064 WCAG 2.2 AA audit.
+TASK-056 → TASK-065 Meta change/deprecation operations.
+
+Todos TASK-053..065 permanecen proposed. El grafo es dependencia lógica, no calendario ni ejecución realizada.
