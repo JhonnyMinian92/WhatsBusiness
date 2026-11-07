@@ -61,10 +61,14 @@ export class TenantJobRetryPolicy {
     const capped = Math.min(this.options.maximumDelayMs, exponential);
     // Equal jitter avoids synchronized retries while guaranteeing a non-zero delay.
     const delayMs = Math.max(1, Math.floor(capped / 2 + randomSample * capped / 2));
+    const availableAtMs = now.getTime() + delayMs;
+    if (!Number.isFinite(availableAtMs) || Math.abs(availableAtMs) > 8.64e15) {
+      throw new Error("Tenant job retry availability exceeds the supported date range.");
+    }
     return Object.freeze({
       action: "retry",
       errorCode: failure.code,
-      availableAt: new Date(now.getTime() + delayMs),
+      availableAt: new Date(availableAtMs),
       delayMs,
     });
   }
