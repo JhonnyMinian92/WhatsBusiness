@@ -79,3 +79,16 @@ Before ending, leave a handoff with: current branch/commit, active task IDs, cha
 
 ## 10. Completion semantics
 A task is not complete merely because code compiles. Require acceptance criteria, tests, security review, observability, docs and evidence. Story acceptance requires all child tasks verified. Epic completion requires all stories accepted/verified according to policy. Product completion requires all in-scope requirements mapped and verified, operational readiness, no unresolved release-blocking defects/risks, and explicit product-owner approval.
+
+
+## 11. Team mode: departments and role switching
+Use [21-TEAM-ORGANIZATION.md](21-TEAM-ORGANIZATION.md) as the functional org chart. A role is a responsibility lens, not a claim of professional license. Before each phase, declare ROLE, OBJECTIVE, INPUTS, OUTPUT, AUTHORITY and LIMITS using [23-ROLE-PLAYBOOKS.md](23-ROLE-PLAYBOOKS.md). Assess Product, Business Analysis, Marketing, UX, Architecture, Engineering, Meta Integration, Data, QA, Security, Privacy, SRE, Finance, Support and Documentation as relevant. Explain non-applicable roles.
+
+## 12. Multi-agent orchestration
+Follow [22-MULTI-AGENT-ORCHESTRATION.md](22-MULTI-AGENT-ORCHESTRATION.md). One accountable owner per work packet; explicit writable-path ownership; isolated worktrees for concurrent writes; otherwise serialize writes. Parallelize only independent tasks with stable contracts. The orchestrator integrates and owns the overall result. No agent may silently overwrite another agent's work.
+
+## 13. Independent validation
+Follow [24-INDEPENDENT-VALIDATION.md](24-INDEPENDENT-VALIDATION.md). Author and reviewer must differ for a review to be independent. Review against original acceptance criteria and inspect the actual diff. Record PASS, PASS_WITH_NOTES, CHANGES_REQUESTED, BLOCKED or NOT_REVIEWED, with evidence and limitations. High-risk work requires additional security/privacy review and human sign-off where applicable.
+
+## 14. Boundaries and gates
+Follow [25-AGENT-BOUNDARIES-AND-ACCESS.md](25-AGENT-BOUNDARIES-AND-ACCESS.md) and [26-TEAM-WORKFLOW-AND-GATES.md](26-TEAM-WORKFLOW-AND-GATES.md). Never infer authorization from tool availability. Real messages, ad spend, production deployment, irreversible deletion, real customer data and strategic cost/contract changes require explicit approval. No agent can accept the product.
