@@ -21,6 +21,10 @@ export type AuthorizationDenyReason =
   | "CAPABILITY_EVIDENCE_STALE"
   | "POLICY_CONFIGURATION_INVALID";
 
+export interface AuthorizationSubject extends Omit<TenantAccessContext, "membershipStatus"> {
+  readonly membershipStatus: "active" | "invited" | "suspended" | "revoked";
+}
+
 export interface AuthorizationResource {
   readonly tenantId: string;
   readonly ownerId?: string | null;
@@ -67,7 +71,7 @@ export interface AuthorizationEvidence {
 }
 
 export interface AuthorizationEvaluation {
-  readonly subject: TenantAccessContext;
+  readonly subject: AuthorizationSubject;
   readonly resource: AuthorizationResource;
   readonly permission: PermissionKey;
   readonly purpose: string;
