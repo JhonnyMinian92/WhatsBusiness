@@ -106,6 +106,20 @@ export class PostgresTenantJobRuntimeRepository implements TenantJobRuntimeRepos
     await client.query("SELECT platform.assert_tenant_job_execution_lease($1, $2)", [jobId, leaseToken]);
   }
 
+  async renewExecutionLease(jobId: string, leaseToken: string, leaseSeconds: number): Promise<Date | null> {
+    const result = await this.pool.query<{ lease_expires_at: Date | string | null }>(
+      "SELECT platform.renew_tenant_job_execution_lease($1, $2, $3) AS lease_expires_at",
+      [jobId, leaseToken, leaseSeconds],
+    );
+    const value = result.rows[0]?.lease_expires_at;
+    if (!value) return null;
+    const expiresAt = new Date(value);
+    if (!Number.isFinite(expiresAt.getTime())) {
+      throw new Error("PostgreSQL returned an invalid tenant job lease expiration.");
+    }
+    return expiresAt;
+  }
+
   async complete(client: PoolClient, jobId: string, leaseToken: string, consumerName: string): Promise<void> {
     await client.query(
       "SELECT platform.complete_tenant_job($1, $2, $3)",
