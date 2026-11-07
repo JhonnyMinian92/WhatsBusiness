@@ -13,7 +13,7 @@ Deliver the complete, production-grade WhatsBusiness product defined by `META_SE
 5. Identify the active branch and current commit. Unless the user explicitly directs otherwise, do all work on `environment/local`. Never push to, merge into, or rewrite `master` or `environment/develop` without explicit authorization.
 6. Reconcile the requested work with existing task/story/bug/change IDs before editing.
 7. For the current kickoff, read docs/46-AGENT-START-AND-WORKPACKETS.md and relevant specifications in docs/37..45. Preparatory work and TASK-039 may start; production scaffold remains gated by G0.
-8. Before coding, read docs/48-CODING-ARCHITECTURE-AND-REUSE-STANDARD.md, docs/49-API-CONTRACT-READINESS-AND-META-ADAPTER-GATES.md, docs/50-EVENT-CATALOG-AND-VERSIONED-SCHEMAS.md and the specific OpenAPI/AsyncAPI schemas.
+8. Before coding, read docs/48-CODING-ARCHITECTURE-AND-REUSE-STANDARD.md, docs/49-API-CONTRACT-READINESS-AND-META-ADAPTER-GATES.md, docs/50-EVENT-CATALOG-AND-VERSIONED-SCHEMAS.md, docs/51-TECHNOLOGY-FIT-AND-VERSION-BASELINE.md, docs/52-REST-GRAPHQL-GRPC-PROTOCOL-DECISION.md and the specific OpenAPI/AsyncAPI schemas.
 
 ## Authority and priorities
 - Direct, latest user instruction > accepted product decisions in central memory > approved ADRs > product requirements > implementation conventions > agent assumptions.
@@ -106,8 +106,8 @@ For every non-trivial feature, assess Product/BA, domain/marketing, architecture
 
 ## Adopted product and architecture baseline — 2026-11-06
 - Canonical decisions are in docs/29-OWNER-DECISIONS.md, PD-001..PD-023. Do not reopen delegated choices without new evidence.
-- Architecture: modular monolith, bounded contexts, API/worker/scheduler roles, TypeScript/NestJS, Angular, Nx/pnpm, PostgreSQL, Redis, RabbitMQ, OIDC/Keycloak, Docker and OpenTelemetry. See docs/30-RECOMMENDED-ARCHITECTURE.md.
-- ADR-011..020 are accepted as direction by owner delegation; TASK-039 architecture spike remains required before production bootstrap. Pin supported versions in lockfiles at implementation.
+- Architecture: modular monolith, bounded contexts, API/worker/scheduler roles, TypeScript 6.0/Node 26/NestJS 12, Angular 22, Nx 24/pnpm, PostgreSQL 18, Valkey 9.1, RabbitMQ 4.4, OIDC/Keycloak 26.8, Docker/Compose, Traefik and OpenTelemetry. See docs/30-RECOMMENDED-ARCHITECTURE.md.
+- ADR-011..025 are accepted as recommended direction by delegated technical authority; docs/51/52 contain the comparison and current version baseline. TASK-039/SP-01..10 remain required before production bootstrap. Pin exact supported patches, image digests and lockfiles after compatibility validation.
 - Initial segment: Ecuadorian SMEs in commerce/services, agencies secondary. This is a hypothesis, not market research. Do not claim TAM, revenue, conversion or demand without evidence.
 - Commercial baseline: subscription per tenant + seats + measured usage. Meta external costs are separate, transparent pass-through. Do not invent prices, markup, tax or margin.
 - Default locale: es-EC, USD, America/Guayaquil; tenant configurable.
