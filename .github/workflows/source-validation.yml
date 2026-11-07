@@ -47,6 +47,19 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     services:
+      rabbitmq:
+        image: rabbitmq:4.4.0-management-alpine
+        env:
+          RABBITMQ_DEFAULT_USER: whatsbusiness
+          RABBITMQ_DEFAULT_PASS: ci-rabbit-password
+        ports:
+          - 5672:5672
+          - 15672:15672
+        options: >-
+          --health-cmd "rabbitmq-diagnostics -q ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 30
       postgres:
         image: postgres:18.6-alpine
         env:
@@ -65,9 +78,11 @@ jobs:
       DATABASE_JOB_DISPATCHER_URL: postgresql://whatsbusiness_job_dispatcher:ci-dispatcher-password@127.0.0.1:5432/whatsbusiness_ci
       DATABASE_JOB_WORKER_URL: postgresql://whatsbusiness_job_worker:ci-worker-password@127.0.0.1:5432/whatsbusiness_ci
       MIGRATION_DATABASE_URL: postgresql://postgres:ci-postgres-password@127.0.0.1:5432/whatsbusiness_ci
+      RABBITMQ_URL: amqp://whatsbusiness:ci-rabbit-password@127.0.0.1:5672/%2F
       NODE_ENV: test
       RUN_APPROVAL_INTEGRATION_TESTS: "true"
       RUN_TENANT_JOB_RUNTIME_INTEGRATION_TESTS: "true"
+      RUN_RABBITMQ_INTEGRATION_TESTS: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -122,6 +137,39 @@ jobs:
           SQL
       - name: Verify versioned migrations are idempotent
         run: pnpm db:migrate
+      - name: Configure quorum dead-lettering with at-least-once confirms
+        run: |
+          docker exec "${{ job.services.rabbitmq.id }}" rabbitmqctl set_policy \
+            --apply-to quorum_queues \
+            --priority 50 \
+            whatsbusiness-jobs-quorum-dlx \
+            '^whatsbusiness\\.jobs\\.worker\\.v1
+      - name: Typecheck all applications
+        run: pnpm typecheck
+      - name: Run unit and PostgreSQL RLS integration tests
+        run: pnpm test
+      - name: Require lockfile synchronization in pull requests
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          if [[ -n "$(git status --porcelain -- pnpm-lock.yaml)" ]]; then
+            echo "::error::pnpm-lock.yaml is out of date. Regenerate and commit it with the dependency change."
+            exit 1
+          fi
+      - name: Commit verified lockfile on the authorized branch
+        if: github.event_name == 'push' && steps.install.outputs.lockfile_changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pnpm-lock.yaml
+          git commit -m "build: commit validated pnpm lockfile"
+          AUTH_HEADER="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          git -c "http.extraheader=AUTHORIZATION: basic $AUTH_HEADER" push origin "HEAD:environment/local"
+ \
+            '{"dead-letter-exchange":"whatsbusiness.jobs.dlx","dead-letter-routing-key":"jobs.dead","dead-letter-strategy":"at-least-once","overflow":"reject-publish","delivery-limit":5,"max-length-bytes":268435456}'
       - name: Build all applications
         run: pnpm build
       - name: Typecheck all applications
