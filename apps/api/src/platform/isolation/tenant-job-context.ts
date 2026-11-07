@@ -3,15 +3,21 @@ import type { DatabaseService } from "../database/database.module.js";
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const PURPOSE_PATTERN = /^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*){2,7}$/;
+const trustedContexts = new WeakSet<object>();
 
 export interface PersistedTenantJobRecord {
-  /** Must originate from a committed, schema-validated inbox/outbox record. */
+  /** The repository adapter must return only rows committed to durable storage. */
   readonly persistenceState: "committed";
   readonly tenantId: string;
   readonly actorUserId: string;
   readonly purpose: string;
   readonly correlationId: string;
   readonly jobId: string;
+}
+
+export interface TenantJobRecordReader {
+  /** Reads the canonical record from durable storage, never from a broker payload. */
+  findCommitted(jobId: string): Promise<PersistedTenantJobRecord | null>;
 }
 
 export interface TenantJobContext {
@@ -23,28 +29,35 @@ export interface TenantJobContext {
 }
 
 /**
- * Creates immutable worker context only from a committed, validated job record.
- * The queue payload alone is never an authorization source.
+ * Resolves worker identity from a durable, schema-validated inbox/outbox record.
+ * The queue message is only a locator (jobId), never an authorization envelope.
  */
-export class TenantJobContextFactory {
-  create(record: PersistedTenantJobRecord): TenantJobContext {
-    if (record.persistenceState !== "committed") {
-      throw new Error("A tenant job must be durably committed before execution.");
+export class TenantJobContextResolver {
+  constructor(private readonly records: TenantJobRecordReader) {}
+
+  async resolve(jobId: string): Promise<TenantJobContext> {
+    assertUuid(jobId, "jobId");
+    const record = await this.records.findCommitted(jobId);
+    if (!record || record.persistenceState !== "committed" || record.jobId !== jobId) {
+      throw new Error("A committed canonical tenant job record is required.");
     }
     assertUuid(record.tenantId, "tenantId");
     assertUuid(record.actorUserId, "actorUserId");
     assertUuid(record.correlationId, "correlationId");
-    assertUuid(record.jobId, "jobId");
-    if (!PURPOSE_PATTERN.test(record.purpose) || record.purpose.length > 128) {
+    if (typeof record.purpose !== "string"
+      || record.purpose.length > 128
+      || !PURPOSE_PATTERN.test(record.purpose)) {
       throw new Error("A valid declared tenant job purpose is required.");
     }
-    return Object.freeze({
+    const context = Object.freeze({
       tenantId: record.tenantId.toLowerCase(),
       actorUserId: record.actorUserId.toLowerCase(),
       purpose: record.purpose,
       correlationId: record.correlationId.toLowerCase(),
       jobId: record.jobId.toLowerCase(),
     });
+    trustedContexts.add(context);
+    return context;
   }
 }
 
@@ -59,6 +72,9 @@ export class TenantJobExecutor {
     context: TenantJobContext,
     work: (client: PoolClient, context: TenantJobContext) => Promise<T>,
   ): Promise<T> {
+    if (!trustedContexts.has(context)) {
+      throw new Error("Worker context must be resolved from a committed job record.");
+    }
     return this.database.withTenantContext(
       context.actorUserId,
       context.tenantId,
@@ -68,7 +84,7 @@ export class TenantJobExecutor {
 }
 
 function assertUuid(value: string, field: string): void {
-  if (!UUID_PATTERN.test(value)) {
+  if (typeof value !== "string" || !UUID_PATTERN.test(value)) {
     throw new Error(`A valid UUID is required for ${field}.`);
   }
 }
