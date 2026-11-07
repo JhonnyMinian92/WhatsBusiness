@@ -105,3 +105,10 @@ flowchart TB
 
 ## 7. Decisiones pendientes antes del código
 DB/ORM, broker, lenguaje/framework, despliegue cloud, API gateway, multi-region, RPO/RTO y SLA deben decidirse con ADR basado en requisitos cuantificados; no fijarlos por preferencia personal.
+
+
+## 8. Baseline técnica posterior a respuestas del propietario
+
+El propietario autorizó al arquitecto a recomendar stack y confirmó despliegue en VPS. La propuesta detallada se encuentra en [30-RECOMMENDED-ARCHITECTURE.md](30-RECOMMENDED-ARCHITECTURE.md). Esta propuesta complementa este documento y no congela proveedores/versiones hasta completar el architecture spike.
+
+Contextos de CRM, Inbox, Automation e AI Assistance se incorporan como dominios de primera clase. La entrega por fases está definida en [31-MASTER-DELIVERY-PLAN.md](31-MASTER-DELIVERY-PLAN.md).
