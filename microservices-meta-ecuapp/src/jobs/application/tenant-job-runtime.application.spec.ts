@@ -11,6 +11,7 @@ class FakeSession implements TenantJobRuntimeSession {
   stopped = false;
   closed = false;
   private disconnectResolver: (() => void) | null = null;
+  private disconnected = false;
 
   async start(): Promise<void> { this.started = true; }
   async run(signal: AbortSignal): Promise<void> {
@@ -18,9 +19,13 @@ class FakeSession implements TenantJobRuntimeSession {
     await new Promise<void>((resolve) => signal.addEventListener("abort", () => resolve(), { once: true }));
   }
   waitForDisconnect(): Promise<void> {
+    if (this.disconnected) return Promise.resolve();
     return new Promise((resolve) => { this.disconnectResolver = resolve; });
   }
-  disconnect(): void { this.disconnectResolver?.(); }
+  disconnect(): void {
+    this.disconnected = true;
+    this.disconnectResolver?.();
+  }
   async stop(): Promise<void> { this.stopped = true; }
   async close(): Promise<void> { this.closed = true; }
 }
