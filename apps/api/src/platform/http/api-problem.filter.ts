@@ -2,6 +2,10 @@ import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from
 import { randomUUID } from "node:crypto";
 import type { Request, Response } from "express";
 
+interface CorrelatedRequest extends Request {
+  correlationId?: string;
+}
+
 interface ProblemBody {
   readonly type: string;
   readonly title: string;
@@ -35,7 +39,7 @@ const codes: Readonly<Record<number, string>> = {
 export class ApiProblemFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost): void {
     const http = host.switchToHttp();
-    const request = http.getRequest<Request>();
+    const request = http.getRequest<CorrelatedRequest>();
     const response = http.getResponse<Response>();
     const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
     const raw = exception instanceof HttpException ? exception.getResponse() : null;
@@ -48,9 +52,10 @@ export class ApiProblemFilter implements ExceptionFilter {
           ? body["message"].filter((value): value is string => typeof value === "string").join("; ")
           : undefined;
     const suppliedId = request.header("x-correlation-id");
-    const correlationId = suppliedId && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(suppliedId)
-      ? suppliedId
-      : randomUUID();
+    const correlationId = request.correlationId
+      ?? (suppliedId && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(suppliedId)
+        ? suppliedId
+        : randomUUID());
 
     const problem: ProblemBody = {
       type: "about:blank",
