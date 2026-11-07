@@ -131,3 +131,17 @@ Los archivos contractuales de cada adapter y fixtures se guardan por producto/ve
 ## 9. Inventario de endpoints de producto y trazabilidad
 
 El catálogo de qué construye WhatsBusiness y cómo se correlaciona con las TASK no vive en esta matriz Meta. Su fuente maestra es [47-API-INVENTORY-AND-TASK-MAP.md](47-API-INVENTORY-AND-TASK-MAP.md). Este documento 09 debe consultarse para las operaciones externas de Meta; docs/47 para las rutas propias, eventos, webhooks, secuencias y mapping a US/TASK.
+
+## 10. Evidencia oficial de permisos y versiones — revisión 2026-11-06
+
+Esta sección complementa (no reemplaza) las fichas por operación. Los scopes son específicos al flujo consultado y no constituyen evidencia de permisos concedidos a la app/cuenta WhatsBusiness.
+
+- **WhatsApp Cloud API core:** la colección oficial de Meta documenta whatsapp_business_management y whatsapp_business_messaging. Las llamadas que consultan Business Portfolio pueden requerir business_management; no solicitarlo por defecto para todo endpoint.
+- **Embedded Signup:** la documentación de Meta indica App Review y Advanced Access para business_management y whatsapp_business_management en el proceso de liberación descrito. Verificar la configuración actual del flujo/versión, app mode, assets y usuarios del sistema antes de cada integración.
+- **Instagram con Facebook Login:** la colección oficial lista pages_show_list, instagram_basic, instagram_content_publish, pages_read_engagement e instagram_manage_comments; requiere Page vinculada a Instagram Professional. No accede cuentas consumer. Stories publishing tiene la limitación documentada para cuentas Business.
+- **Instagram con Instagram Login:** la colección lista instagram_business_basic, instagram_business_manage_messages, instagram_business_manage_comments e instagram_business_content_publish. Esta ruta no ofrece acceso a Ads o tagging según la guía consultada. Los tokens/scopes no se mezclan con Facebook Login.
+- **Marketing API:** ads_read y ads_management responden a lectura/gestión según uso; Marketing API Access Tier es una feature distinta. Meta comunicó el 2026-05-04 los nombres Limited/Full y requisitos de Full Tier visibles en el App Dashboard (500 llamadas en 15 días y error <15% en las últimas 500). Guardarlo separado de scopes y grants.
+- Meta Developer News lista Graph API v27.0 y Marketing API v27.0. Esas versiones no se convierten en versión global para WhatsApp, Instagram, Pages, Threads o Flows. Selección por operación y producto, contra docs/changelog específico.
+- Meta comunicó el sunset de marketing messages enviado por Cloud API para 2027-10-13; las nuevas integraciones deben evaluar Marketing Messages API elegible y planificar migración.
+
+Fuentes y reglas completas: [docs/49](49-API-CONTRACT-READINESS-AND-META-ADAPTER-GATES.md). Cualquier scope/capability de Pages, Messenger, Lead Ads, Threads, CAPI, Flows o Marketing Messages no listado aquí queda unknown/disabled hasta completar evidencia oficial por operación.
