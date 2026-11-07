@@ -5,6 +5,7 @@ import {
   type ResolvedIdentityUser,
   type TenantContextRecord,
 } from "./identity.repository.js";
+import type { TenantAccessContext } from "./tenant-context.guard.js";
 import type { OidcClaims } from "./oidc-auth.guard.js";
 
 export interface CurrentPrincipalResponse {
@@ -39,16 +40,49 @@ export class IdentityService {
     return this.repository.accessibleTenants(user.userId, cursor, pageSize);
   }
 
-  async tenantContext(claims: OidcClaims, tenantId: string): Promise<TenantContextRecord> {
+  async authorizeTenantAccess(
+    claims: OidcClaims,
+    tenantId: string,
+    purpose: string,
+    correlationId: string,
+  ): Promise<TenantAccessContext> {
     const user = await this.activeUser(claims);
-    const context = await this.repository.tenantContext(user.userId, tenantId);
-    if (!context) {
+    const resolved = await this.repository.tenantContext(user.userId, tenantId);
+    if (!resolved) {
       throw new NotFoundException({
         code: "TENANT_CONTEXT_NOT_FOUND",
         detail: "El tenant no existe o no es accesible para este usuario.",
       });
     }
-    return context;
+
+    return {
+      actorId: user.userId,
+      tenantId: resolved.tenantId,
+      membershipId: resolved.membershipId,
+      membershipStatus: resolved.membershipStatus,
+      authzVersion: resolved.authzVersion,
+      roleKeys: resolved.roleKeys,
+      permissionKeys: resolved.permissionKeys,
+      entitlementKeys: resolved.entitlementKeys,
+      locale: resolved.locale,
+      timezone: resolved.timezone,
+      currency: resolved.currency,
+      purpose,
+      correlationId,
+    };
+  }
+
+  tenantContextResponse(context: TenantAccessContext): TenantContextRecord {
+    return {
+      tenantId: context.tenantId,
+      membershipStatus: context.membershipStatus,
+      roleKeys: context.roleKeys,
+      permissionKeys: context.permissionKeys,
+      entitlementKeys: context.entitlementKeys,
+      locale: context.locale,
+      timezone: context.timezone,
+      currency: context.currency,
+    };
   }
 
   private async activeUser(claims: OidcClaims): Promise<ResolvedIdentityUser> {
