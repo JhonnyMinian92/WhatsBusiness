@@ -102,3 +102,10 @@ Evidencia CI posterior al scaffold:
 - [Contract validation #12](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42373843076) terminó SUCCESS: Redocly OpenAPI, AsyncAPI CLI y validador AJV con las 69 definiciones/fixtures de eventos; incluye la comprobación de 296 operaciones y unicidad de `x-api-id`.
 
 La evidencia prueba compilación/tests del scaffold y validación estructural de contratos. No prueba todavía OIDC aplicado al API, base de datos integrada, RLS con pool Node, outbox runtime, ni aceptación independiente del producto.
+
+
+## 9. GO-CODE ampliado — Identity/Tenant/Membership (2026-11-07)
+
+Por instrucción posterior del propietario, el primer vertical slice continúa desde health hacia OIDC/JWKS, identidad User, Tenant, Membership y las APIs de lectura PLT-003..005. Estas operaciones se habilitan explícitamente para este slice de GO-CODE; no se habilitan rutas de mutación ni se altera GO-PRODUCTION.
+
+La implementación y sus límites se documentan en docs/58-IDENTITY-TENANCY-IMPLEMENTATION.md. TASK-001/002/004 siguen in_progress hasta CI completo y revisión independiente. TASK-005 continúa proposed.

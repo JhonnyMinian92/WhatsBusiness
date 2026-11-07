@@ -6,6 +6,7 @@ on:
     paths:
       - "apps/**"
       - "libs/**"
+      - "scripts/**"
       - "package.json"
       - "pnpm-workspace.yaml"
       - "pnpm-lock.yaml"
@@ -20,6 +21,7 @@ on:
     paths:
       - "apps/**"
       - "libs/**"
+      - "scripts/**"
       - "package.json"
       - "pnpm-workspace.yaml"
       - "pnpm-lock.yaml"
@@ -31,58 +33,98 @@ on:
       - ".github/workflows/source-validation.yml"
   workflow_dispatch:
 
+concurrency:
+  group: source-validation-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:18.6-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ci-postgres-password
+          POSTGRES_DB: whatsbusiness_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d whatsbusiness_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgresql://whatsbusiness_app:ci-runtime-password@127.0.0.1:5432/whatsbusiness_ci
+      MIGRATION_DATABASE_URL: postgresql://postgres:ci-postgres-password@127.0.0.1:5432/whatsbusiness_ci
+      NODE_ENV: test
     steps:
       - name: Checkout
         uses: actions/checkout@v5
         with:
-          ref: ${{ github.ref_name }}
-
+          ref: ${{ github.head_ref || github.ref_name }}
+          persist-credentials: false
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 10.34.9
           run_install: false
-
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
           node-version-file: .node-version
           package-manager-cache: false
-
-      - name: Install dependencies
+      - name: Synchronize lockfile and verify frozen installation
         id: install
         shell: bash
         run: |
-          if [[ -f pnpm-lock.yaml ]]; then
-            echo "lockfile_created=false" >> "$GITHUB_OUTPUT"
-            pnpm install --frozen-lockfile
-          else
-            pnpm install --no-frozen-lockfile
-            echo "lockfile_created=true" >> "$GITHUB_OUTPUT"
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" && ! -f pnpm-lock.yaml ]]; then
+            echo "::error::pnpm-lock.yaml must be committed for pull requests."
+            exit 1
           fi
-
+          pnpm install --no-frozen-lockfile
+          pnpm install --frozen-lockfile
+          if [[ -n "$(git status --porcelain -- pnpm-lock.yaml)" ]]; then
+            echo "lockfile_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "lockfile_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Provision restricted database runtime role
+        run: |
+          psql "$MIGRATION_DATABASE_URL" --set=ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE whatsbusiness_app
+            LOGIN PASSWORD 'ci-runtime-password'
+            NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+          SQL
+      - name: Apply versioned PostgreSQL migrations
+        run: pnpm db:migrate
       - name: Build all applications
         run: pnpm build
-
       - name: Typecheck all applications
         run: pnpm typecheck
-
-      - name: Run automated tests
+      - name: Run unit and PostgreSQL RLS integration tests
         run: pnpm test
-
-      - name: Commit first verified lockfile
-        if: github.event_name == 'push' && steps.install.outputs.lockfile_created == 'true'
+      - name: Require lockfile synchronization in pull requests
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          if [[ -n "$(git status --porcelain -- pnpm-lock.yaml)" ]]; then
+            echo "::error::pnpm-lock.yaml is out of date. Regenerate and commit it with the dependency change."
+            exit 1
+          fi
+      - name: Commit verified lockfile on the authorized branch
+        if: github.event_name == 'push' && steps.install.outputs.lockfile_changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add pnpm-lock.yaml
-          git commit -m "build: commit CI-generated pnpm lockfile"
-          git push origin "HEAD:environment/local"
+          git commit -m "build: commit validated pnpm lockfile"
+          AUTH_HEADER="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          git -c "http.extraheader=AUTHORIZATION: basic $AUTH_HEADER" push origin "HEAD:environment/local"

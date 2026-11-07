@@ -159,3 +159,8 @@ El estado de validación, las propuestas de eventos pendientes y el GO/NO-GO arq
 - [55 — OpenAPI contract completion plan by bounded context](55-OPENAPI-CONTRACT-COMPLETION-PLAN.md)
 - [56 — Architecture review, event reconciliation and acceptance gates](56-ARCHITECTURE-REVIEW-AND-ACCEPTANCE-GATES.md)
 - [57 — Implementation kickoff and GO-CODE decision](57-IMPLEMENTATION-KICKOFF-AND-G0-DECISION.md)
+
+
+## 58 — Identity/Tenant/Membership implementation
+
+[58 — Implementación inicial de Identity, Tenant y Membership](58-IDENTITY-TENANCY-IMPLEMENTATION.md) documenta OIDC/JWKS, PostgreSQL transaccional, RLS, APIs PLT-003..005, pruebas sintéticas y límites pendientes.

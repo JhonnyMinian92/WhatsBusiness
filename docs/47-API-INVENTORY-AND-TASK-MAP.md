@@ -1018,3 +1018,8 @@ La matriz anterior agrupa tareas por historia para facilitar lectura. Esta tabla
 | TASK-080 | US-031 | AGT-001..006, IAM-018..020, OPS-001..002 | Secure tool execution gateway/MCP, budgets, idempotency, audit and kill switch |
 
 **Importante:** la matriz es una asignación de diseño inicial. Si al ejecutar la tarea un API ID se divide, fusiona o cambia, el agente debe actualizar docs/47, el OpenAPI/AsyncAPI aplicable, docs/19 y el backlog en el mismo cambio revisado. No se permite que el código diverja silenciosamente de esta matriz.
+
+
+## Implementación habilitada — Platform foundation (2026-11-07)
+
+Por instrucción expresa de continuar Identity/Tenant/Membership bajo GO-CODE, PLT-003 GET /v1/me, PLT-004 GET /v1/tenants y PLT-005 GET /v1/tenants/{tenantId}/context quedan habilitadas solo para la lectura autenticada descrita en docs/58, con OIDC/JWKS, provisioning previo, contexto transaccional y RLS. No se habilitan rutas de creación, invitaciones, grants, mutaciones de roles, approvals, suspensión ni soporte JIT.

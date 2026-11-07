@@ -277,3 +277,15 @@ La matriz de docs/47 define la relación por US y por API ID. Esta tabla es un �
 - ADR-023..025 fijan protocolo, baseline de versiones y Valkey. Son baseline recomendada, no evidencia de benchmark.
 - TASK-039 se amplía con SP-08..10 para comparar backend/frontend/protocolos, revisar licencia/compatibilidad Valkey y validar la matriz de versiones en checkout limpio.
 - No existe todavía scaffold ni proyecto ejecutable en environment/local; no marcar TASK-039/G0 como verificados hasta que haya build, RLS/pooling, broker, restore, footprint y review independiente con resultados reproducibles.
+
+
+## Handoff — Platform Identity (2026-11-07)
+
+| TASK | Estado | Evidencia / alcance |
+|---|---|---|
+| TASK-001 | in_progress | Primera migración de Organization/Tenant y policies RLS; lifecycle, provisioning y mutaciones pendientes. |
+| TASK-002 | in_progress | Guard OIDC, principal issuer+subject, contexto transaction-local y APIs PLT-003..005 read-only; worker context, revocación y grants pendientes. |
+| TASK-004 | in_progress | Esquema roles/permissions y lectura de role/permission keys; RBAC/ABAC final, mutations, approvals y pruebas de escalamiento pendientes. |
+| TASK-005 | proposed | Step-up, doble control y auditoría de acciones privilegiadas no implementados. |
+
+No marcar TASK-001/002/004 como verified hasta que source CI y contract CI pasen en el commit de este slice, con pruebas PostgreSQL/RLS, y exista review independiente.

@@ -216,3 +216,15 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - El conflicto de ruta/API ID LEAD-010 vs SALES-014 se corrigió: Sales conserva la operación; LEAD-010 se retira como alias histórico.
 - Siguiente desarrollo: Identity/OIDC → tenant/membership → PostgreSQL transaction-local RLS con pool Node real → tenant context/audit/outbox → UI de tenant.
 - GO-PRODUCTION permanece NO-GO. No usar cuentas, credenciales, datos reales, Meta writes, mensajes, Ads spend ni proveedores IA externos.
+
+
+## Handoff — CI e Identity/Tenant/Membership (2026-11-07)
+
+- Rama activa: environment/local. No se modifica master ni environment/develop.
+- Los workflows de base ya estaban verdes antes de este slice: Source workspace validation #7 y Contract validation #12. El lockfile pnpm está versionado.
+- Se refuerza source CI para sincronizar dependencias, verificar instalación frozen, ejecutar migración PostgreSQL y tests RLS; Contract CI usa la baseline Node 26 y verifica el conjunto autorizado de API IDs.
+- Slice agregado: OIDC RS256/JWKS, User por issuer+subject, Organization/Tenant/Membership/Role/Permission/Entitlement, Pool PostgreSQL, migración y RLS; APIs de lectura PLT-003..005.
+- Pruebas nuevas: firma/issuer/audience/exp/nbf de JWT con JWKS sintético y RLS con dos usuarios/dos tenants usando pool de una conexión.
+- TASK-001/002/004 permanecen in_progress hasta workflows verdes en este commit y review independiente; TASK-005 proposed.
+- Próximo bloque: provisioning/invitations, lifecycle de Tenant/Membership, RBAC/ABAC, audit/outbox, worker context y UI de selector de tenant.
+- GO-PRODUCTION sigue NO-GO. No usar datos/cuentas reales, Meta writes, mensajes, Ads, proveedor IA externo, gasto recurrente ni deploy.

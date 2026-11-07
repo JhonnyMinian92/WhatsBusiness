@@ -195,3 +195,16 @@ No cerrar una TASK porque el API ID o el schema exista. El commit de implementac
 - [docs/53 — TASK work packages](53-TASK-WORK-PACKAGES.md): registro TASK-001..080 con owner role sugerido, dependencias, API IDs, eventos, DoD, pruebas y handoff. Las asignaciones reales/reviewers deben confirmarse antes de iniciar.
 - [docs/54 — TASK-039 execution & consistency report](54-TASK-039-EXECUTION-AND-CONSISTENCY-REPORT.md): evidencia estática, limitaciones runtime, hallazgos, gate G0 y acciones pendientes.
 - Los resúmenes DoD no son AC IDs formales. El agente debe enlazar AC existentes de la US y derivar Given/When/Then + TEST IDs antes de implementar.
+
+
+## Evidence map — Identity foundation (2026-11-07)
+
+| Resultado | Historia / tareas | Código / contrato | Validación |
+|---|---|---|---|
+| Resolver OIDC issuer+subject, sin email como clave | US-001/002; TASK-001/002/004 | OidcJwtVerifier, OidcAuthGuard, platform.resolve_oidc_user | JWT RS256/JWKS: firma, issuer, audience, exp y nbf |
+| Leer principal y memberships propias | US-001/002; TASK-001/002 | GET /v1/me (PLT-003), RLS platform.memberships | Token ausente, usuario no provisionado, memberships ajenas invisibles |
+| Listar tenants activos accesibles | US-001; TASK-001/002 | GET /v1/tenants (PLT-004), cursor keyset y RLS | Membership inactiva, cursor/pageSize y BOLA |
+| Resolver contexto efectivo | US-001/002/024; TASK-002/004 | GET /v1/tenants/{tenantId}/context (PLT-005) | 404 no filtrante, roles/permisos/entitlements y RLS |
+| Propagar contexto de tenant dentro de transacción | US-001; TASK-001/002 | DatabaseService.withUserContext/withTenantContext y migration 0001 | Pool max=1, usuario/tenant A→B, ausencia de contexto y limpieza SET LOCAL |
+
+Este mapeo documenta la implementación; no implica revisión independiente ni acceptance. Partner/JIT grants, membership mutations, audit/outbox y worker propagation quedan fuera de este slice.

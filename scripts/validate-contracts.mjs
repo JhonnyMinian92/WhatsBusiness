@@ -17,7 +17,7 @@ const operations = [];
 for (const [route, pathItem] of Object.entries(openapi.paths ?? {})) {
   for (const method of ["get", "post", "put", "patch", "delete", "options", "head"]) {
     const operation = pathItem?.[method];
-    if (operation) operations.push({ route, method, operationId: operation.operationId, apiId: operation["x-api-id"], supersedesApiIds: operation["x-supersedes-api-ids"] ?? [] });
+    if (operation) operations.push({ route, method, operationId: operation.operationId, apiId: operation["x-api-id"], implementationAllowed: operation["x-implementation-allowed"] === true, supersedesApiIds: operation["x-supersedes-api-ids"] ?? [] });
   }
 }
 const operationIds = operations.map((operation) => operation.operationId);
@@ -30,6 +30,14 @@ assert(new Set(apiIds).size === apiIds.length, "OpenAPI x-api-id values must be 
 assert(!apiIds.includes("LEAD-010"), "LEAD-010 is retired and must not define a second HTTP operation");
 const salesConversion = operations.filter((operation) => operation.apiId === "SALES-014");
 assert(salesConversion.length === 1 && salesConversion[0].supersedesApiIds.includes("LEAD-010"), "SALES-014 must explicitly supersede retired LEAD-010");
+const implementationAllowedIds = operations
+  .filter((operation) => operation.implementationAllowed)
+  .map((operation) => operation.apiId)
+  .sort();
+assert(
+  JSON.stringify(implementationAllowedIds) === JSON.stringify(["PLT-001", "PLT-002", "PLT-003", "PLT-004", "PLT-005"]),
+  `Only PLT-001..005 may be enabled for foundation; found: ${implementationAllowedIds.join(", ")}`,
+);
 
 const channels = asyncapi.channels ?? {};
 const channelNames = Object.keys(channels);
@@ -116,9 +124,13 @@ const materialize = (schema, stack = new Set()) => {
   if (schema.type === "string") {
     if (schema.format === "uuid") return "00000000-0000-4000-8000-000000000001";
     if (schema.format === "date-time") return "2026-01-01T00:00:00Z";
-    if (schema.pattern === "^-?\\d+(\\.\\d{1,4})?$") return "1.25";
-    if (schema.pattern === "^[A-Z]{3}$") return "USD";
-    if (schema.pattern === "^[A-Z0-9_]+$") return "REASON_CODE";
+    if (schema.pattern) {
+      const candidates = ["sample", "USD", "1.25", "REASON_CODE", "https://example.test", "user@example.test", "abc123"];
+      const expression = new RegExp(schema.pattern);
+      const candidate = candidates.find((value) => expression.test(value));
+      assert(candidate !== undefined, `No positive fixture candidate matches pattern: ${schema.pattern}`);
+      return candidate;
+    }
     return "sample";
   }
   return {};

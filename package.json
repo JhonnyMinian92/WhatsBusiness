@@ -10,7 +10,8 @@
   "scripts": {
     "build": "nx run-many --target=build --all",
     "test": "nx run-many --target=test --all",
-    "typecheck": "nx run-many --target=typecheck --all"
+    "typecheck": "nx run-many --target=typecheck --all",
+    "db:migrate": "node scripts/migrate.mjs"
   },
   "dependencies": {
     "@nestjs/common": "12.4.0",
@@ -22,7 +23,8 @@
     "@angular/compiler": "22.2.0",
     "@angular/core": "22.2.0",
     "@angular/platform-browser": "22.2.0",
-    "zone.js": "0.16.0"
+    "zone.js": "0.16.0",
+    "pg": "8.23.1"
   },
   "devDependencies": {
     "@angular/build": "22.2.0",
@@ -32,6 +34,7 @@
     "@types/node": "26.0.0",
     "nx": "24.0.4",
     "tsx": "4.20.6",
-    "typescript": "6.0.3"
+    "typescript": "6.0.3",
+    "@types/pg": "8.23.1"
   }
 }

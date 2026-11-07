@@ -121,8 +121,8 @@ paths:
       x-traceability: 'US-001/002; TASK-001..004'
       x-contract-status: 'design-frozen'
       x-contract-ready: true
-      x-implementation-allowed: false
-      x-required-gate: G0
+      x-implementation-allowed: true
+      x-required-gate: GO-CODE-IDENTITY
       security:
         - bearerAuth: []
       responses:
@@ -145,8 +145,8 @@ paths:
       x-traceability: 'US-001/024; TASK-001,002,052'
       x-contract-status: 'design-frozen'
       x-contract-ready: true
-      x-implementation-allowed: false
-      x-required-gate: G0
+      x-implementation-allowed: true
+      x-required-gate: GO-CODE-IDENTITY
       security:
         - bearerAuth: []
       parameters:
@@ -172,8 +172,8 @@ paths:
       x-traceability: 'US-001/002/024/025; TASK-002,004,052,058'
       x-contract-status: 'design-frozen'
       x-contract-ready: true
-      x-implementation-allowed: false
-      x-required-gate: G0
+      x-implementation-allowed: true
+      x-required-gate: GO-CODE-IDENTITY
       security:
         - bearerAuth: []
       parameters:

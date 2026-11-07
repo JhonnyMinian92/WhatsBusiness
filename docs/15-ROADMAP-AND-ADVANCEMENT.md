@@ -141,3 +141,13 @@ Estado actual:
 - TASK-039/G0: pendiente de ejecutar SP-01..07 en entorno con Docker y recursos medibles.
 - TASK-041/060/061: sin presupuesto VPS aprobado, benchmark ni restore drill.
 - Meta, LOPDP, proveedor IA y producción: gates externos específicos; no bloquean la preparación sintética.
+
+
+## Actualización — Identity foundation (2026-11-07)
+
+- GO-CODE vigente exclusivamente en environment/local.
+- Source y Contract CI pasaron en el scaffold anterior; este cambio amplía source CI con migración PostgreSQL y RLS integration.
+- Identity foundation incorpora OIDC/JWKS, identidad issuer+subject, User/Tenant/Membership y PLT-003..005 read-only.
+- TASK-001/002/004 siguen in_progress hasta workflows verdes de este slice y review independiente.
+- Siguiente dependencia: provisioning/membership lifecycle, RBAC/ABAC, audit/outbox y worker tenant context antes de habilitar mutaciones.
+- G0-PRODUCTION continúa NO-GO.

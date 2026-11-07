@@ -23,13 +23,17 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/checkout@v5
         with:
-          node-version: "26"
+          persist-credentials: false
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
       - name: Install isolated contract validators
         run: npm install --no-save --package-lock=false yaml@2.8.1 ajv@8.17.1 ajv-formats@3.0.1
       - name: Validate OpenAPI

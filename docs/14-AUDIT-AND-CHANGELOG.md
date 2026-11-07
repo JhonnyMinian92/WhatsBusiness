@@ -177,3 +177,13 @@ No Ads integration, optimizer, AI agent execution, performance benchmark or live
 - No se ejecutó código, build, lint, tests, Docker, spike, benchmark, restore, Meta app/account test, revisión legal ni despliegue en este cambio.
 - En el entorno usado para esta auditoría se observó Node.js v22.16.0 y npm 10.9.2; pnpm y Docker/Compose no están instalados. No representa la capacidad del VPS.
 - Dictamen: GO condicionado para revisión de especificaciones y TASK-039; NO-GO para declarar G0 aprobado o iniciar scaffold definitivo hasta aportar evidencia del spike y review independiente.
+
+
+## 16. CI reproducible y foundation Identity/Tenant/Membership (AUD-046/047; 2026-11-07)
+
+| ID | Cambio | Alcance / control |
+|---|---|---|
+| AUD-046 | Workflows source/contract y lockfile | Source sincroniza dependencias, comprueba instalación frozen, build, typecheck y tests; integra PostgreSQL efímero con migraciones/RLS. Contract CI valida OpenAPI, AsyncAPI, JSON Schema y API implementation gates. |
+| AUD-047 | Platform Identity foundation | OIDC RS256/JWKS, resolución issuer+subject, migración Organization/User/Tenant/Membership/Role/Permission/Entitlement, RLS y endpoints PLT-003..005 read-only. |
+
+Este cambio se marca implementado, no verified hasta que ambos workflows pasen en este commit y exista review independiente. Provisioning, mutaciones de membresía/roles, ABAC completo, approvals, audit/outbox y worker tenant context permanecen pendientes. No se usaron datos ni credenciales reales.
