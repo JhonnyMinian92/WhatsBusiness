@@ -119,3 +119,17 @@ Cada reporte incluye el denominador y evidencia: REQ mapeados/total; AC verifica
 - Phase 8 hardening must test PD-024, API-version drift, Meta policy changes, AI creative rights/claims, conversation ownership and budget anomalies.
 - Campaign Intelligence does not control Andromeda/GEM; it provides eligible diversified creatives, valid conversion signals and learns from attributed and business outcomes.
 - No auto-scaling live campaigns until benchmarked experiments, sample rules, account caps, approval and rollback have passed. TASK-067..080 proposed.
+
+
+### Phase 7B — Campaign Intelligence and Creative Lab (after Phase 7A signals)
+Prerequisites: stable Ads API adapters/Insights, CRM lead lifecycle, CAPI consent/dedupe, policy engine, account spend limits and approval gateway.
+
+Deliver:
+- Campaign snapshots/metrics with provider provenance and timestamped API version.
+- CRM closed-loop outcomes (qualified lead → opportunity → sale → net revenue/margin) shared with Meta via CAPI only when lawful/authorized.
+- Creative Lab for diverse concepts/hooks/formats/visuals/CTAs, brand/claim/right review, AI provenance and placement previews.
+- Controlled experiment/test cells with control/variants, sample/stop criteria and winner protection.
+- Campaign optimizer for diagnostics, fatigue recommendations, budget guardrail PD-024, human approvals, execution and reconciliation.
+- Meta Ads MCP, Business Agent and WhatsBusiness MCP interoperability through one approval/tool gateway.
+
+Gate G7B: no production autonomy until test fixtures, concurrency/cap +20% coverage, creative review, CAPI signal quality, controlled experiments, audit/rollback and permission checks pass. Improvement claims require independent test evidence; no claimed Andromeda control or guaranteed ROAS.
