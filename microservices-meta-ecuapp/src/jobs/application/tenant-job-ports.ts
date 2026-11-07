@@ -67,7 +67,7 @@ export interface TenantJobExecutionBoundary {
   /** Must wrap handler DB effects and complete() in the same PostgreSQL transaction. */
   execute<T>(
     context: TenantJobExecutionContext,
-    work: (client: PoolClient) => Promise<T>,
+    work: (client: PoolClient, context: TenantJobExecutionContext) => Promise<T>,
   ): Promise<T>;
 }
 
