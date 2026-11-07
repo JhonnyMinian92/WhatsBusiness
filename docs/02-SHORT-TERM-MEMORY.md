@@ -160,3 +160,33 @@ Estado de producto: no implementation, no runtime metrics, no deployed environme
 - OpenWA/WhatsApp Web automation is prohibited for WhatsBusiness production. Use official Meta APIs only.
 - Benchmark of Chatwoot, Twilio Node SDK, httpSMS, Android SMS Gateway and OpenWA is summarized in docs/35; no code copied, no project builds run.
 - US-029..032 / TASK-067..080 added; all proposed, no feature implementation performed.
+
+## Handoff — Meta Ads AI, Campaign Intelligence y repositorios de referencia (2026-11-06)
+
+### Archivos nuevos
+- docs/34-META-ADS-AI-AND-PLATFORM-OUTLOOK.md
+- docs/35-REFERENCE-PROJECTS-TECHNICAL-BENCHMARK.md
+- docs/36-CAMPAIGN-INTELLIGENCE-AND-GUARDED-SCALING.md
+
+### Archivos ampliados
+- PD-024 en docs/29: +20% por operación y +20% acumulado por ventana móvil de 24h como regla interna del propietario, no como regla universal Meta.
+- docs/32 con META-OBS-010..020 sobre Andromeda 2024/2026, GEM, Ads MCP, Business Agent, Advantage+ Creative, learning, budget sharing y política WhatsApp.
+- docs/33 con ADR-021/022.
+- US-029..032 y TASK-067..080.
+- docs/30, docs/05, docs/06, docs/08, docs/09, docs/12, docs/13, docs/18, docs/19, docs/31, AGENTS, META_SERVICES y docs/README sincronizados.
+
+### Reglas de producto críticas
+- Andromeda/GEM son sistemas internos Meta, no APIs a controlar. Feed eligible diverse creatives and lawful quality conversion signals; no internal score claims.
+- Learning is at ad set level; ~50 optimization events/7d is contextual, not universal. Avoid overlap and significant unneeded edits. Protect winners.
+- New creatives go through Creative Lab, provenance, brand/policy review, preview, approval and isolated test cell.
+- Campaign learning combines Meta Insights + CRM/CAPI outcomes; distinguish reported attribution from incremental causal evidence.
+- PD-024 enforced server-side, with concurrency lock and no split-transaction bypass.
+- Meta Ads MCP/Business Agent integration behind the internal agent gateway and conversation ownership leases.
+- OpenWA is never a production WhatsApp transport.
+
+### Estado real y siguiente paso
+- All US-029..032 and TASK-067..080 are proposed only. No campaign engine, optimizer, creative generator, MCP gateway, live API adapter, or tests exist yet.
+- Next engineering sequence: complete TASK-039 architecture spike; then prioritize TASK-072/068 (data/signals), TASK-067 (engine/contracts), TASK-069/070 (Creative Lab/tests), TASK-071 (guardrails), followed by TASK-073/074/075/080.
+- Before any Ads write: real Meta app access, Marketing API tier, permissions, scopes, account eligibility, approval matrix and test account must be verified.
+- The +20% cap cannot be bypassed by an agent, parallel task, retry or split operation.
+- The owner retains approval of production changes, ad spend, campaign publication and final product acceptance.
