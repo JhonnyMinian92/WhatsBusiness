@@ -198,3 +198,6 @@ Resultado de automatización: Source CI #42376234089 y Contract CI #42376234088 
 | AUD-050 | Pruebas de lifecycle/ownership | Tests PostgreSQL sintéticos cubren pending_provisioning→active, active→suspended→active→closing→deleted, transición inválida, tenant tombstone, ownership inmutable, protección de Organization y visibilidad RLS. |
 
 Source CI run #15 [42379841071](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42379841071) finalizó SUCCESS para commit `479a8234d2f6b78b0bb8e6474c39e4a388034c3a`: instalación frozen, migraciones PostgreSQL, build, typecheck y suite unit/integration pasaron. El run #13 falló por una expectativa SQLSTATE incorrecta (RESTRICT devuelve 23001); se corrigió y runs #14 y #15 pasaron. Estado TASK-001: implemented y CI-verified; revisión independiente y aceptación del propietario pendientes. No se modificaron master/environment/develop ni se ejecutaron acciones productivas.
+
+
+| AUD-051 | Idempotencia de migraciones en CI | Source CI run #16 [42380055974](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42380055974) ejecutó pnpm db:migrate dos veces consecutivas en PostgreSQL 18.6 efímero; ambas pasaron, junto con frozen install, build, typecheck y tests unitarios/integración. Commit `84bab54d78b5246174dab6a6a9eb9173d0149476`. |
