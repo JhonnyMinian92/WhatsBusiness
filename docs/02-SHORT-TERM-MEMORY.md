@@ -148,3 +148,15 @@ Estado de producto: no implementation, no runtime metrics, no deployed environme
 - Read-after-write checks completed for all changed documentation groups; see docs/14 AUD-029.
 
 - INEC REEM 2025 macro evidence added to docs/32; US-028/TASK-066 created to validate ICP and willingness-to-pay before pricing.
+
+
+## Campaign and Meta AI baseline (2026-11-06)
+- Read docs/34-META-ADS-AI-AND-PLATFORM-OUTLOOK.md, docs/35-REFERENCE-PROJECTS-TECHNICAL-BENCHMARK.md and docs/36-CAMPAIGN-INTELLIGENCE-AND-GUARDED-SCALING.md before working on Ads/creative/agents.
+- Separate Meta Delivery Plane (Andromeda/GEM are internal Meta systems) from WhatsBusiness Intelligence Plane (Insights + CRM/CAPI outcomes + experiments).
+- Meta documents learning at ad set level; approx. 50 optimization events / 7 days is contextual learning guidance, not a universal rule for every goal/account. Avoid overlapping adsets and unnecessary live winner edits.
+- PD-024: max +20% per automatic budget change and max +20% cumulative within rolling 24h. This is a WhatsBusiness owner guardrail, not a Meta official universal budget-increase rule.
+- New creative tests use isolated test cells/Meta supported experiments; no default mutation of winning/learning ad sets. Creative generation requires provenance, rights, brand/claim review, preview and human approval.
+- Meta Ads MCP and Business Agent integration are optional/eligibility dependent and must route through the same internal approval gateway and conversation ownership model.
+- OpenWA/WhatsApp Web automation is prohibited for WhatsBusiness production. Use official Meta APIs only.
+- Benchmark of Chatwoot, Twilio Node SDK, httpSMS, Android SMS Gateway and OpenWA is summarized in docs/35; no code copied, no project builds run.
+- US-029..032 / TASK-067..080 added; all proposed, no feature implementation performed.
