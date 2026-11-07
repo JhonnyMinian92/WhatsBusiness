@@ -5,6 +5,7 @@ CREATE OR REPLACE FUNCTION platform.can_use_tenant(p_tenant_id uuid)
 RETURNS boolean
 LANGUAGE sql
 STABLE
+SECURITY DEFINER
 SET search_path = pg_catalog, platform
 AS $function$
   SELECT EXISTS (
@@ -54,7 +55,6 @@ CREATE TRIGGER memberships_identity_guard
 CREATE OR REPLACE FUNCTION platform.bump_tenant_authorization_version(p_tenant_id uuid)
 RETURNS void
 LANGUAGE sql
-SECURITY DEFINER
 SET search_path = pg_catalog, platform
 AS $function$
   UPDATE platform.tenants
@@ -77,7 +77,6 @@ CREATE POLICY tenants_authorization_version_update ON platform.tenants
 CREATE OR REPLACE FUNCTION platform.bump_authz_after_membership_change()
 RETURNS trigger
 LANGUAGE plpgsql
-SECURITY DEFINER
 SET search_path = pg_catalog, platform
 AS $function$
 BEGIN
@@ -101,7 +100,6 @@ CREATE TRIGGER memberships_authz_version
 CREATE OR REPLACE FUNCTION platform.bump_authz_after_membership_role_change()
 RETURNS trigger
 LANGUAGE plpgsql
-SECURITY DEFINER
 SET search_path = pg_catalog, platform
 AS $function$
 BEGIN
@@ -125,7 +123,6 @@ CREATE TRIGGER membership_roles_authz_version
 CREATE OR REPLACE FUNCTION platform.bump_authz_after_role_change()
 RETURNS trigger
 LANGUAGE plpgsql
-SECURITY DEFINER
 SET search_path = pg_catalog, platform
 AS $function$
 BEGIN
@@ -179,7 +176,6 @@ CREATE POLICY role_permissions_active_member_read ON platform.role_permissions
 CREATE OR REPLACE FUNCTION platform.bump_authz_after_role_permission_change()
 RETURNS trigger
 LANGUAGE plpgsql
-SECURITY DEFINER
 SET search_path = pg_catalog, platform
 AS $function$
 BEGIN
