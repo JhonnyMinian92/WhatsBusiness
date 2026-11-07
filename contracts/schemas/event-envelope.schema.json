@@ -2,9 +2,8 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.whatsbusiness.example/event-envelope.schema.json",
   "title": "WhatsBusiness Event Envelope",
-  "description": "Versioned internal event envelope. Delivery is at-least-once and consumers must be idempotent.",
+  "description": "Common versioned envelope; event-specific closed contracts are composed in domain-events-v1.schema.json. Delivery is at-least-once and consumers must be idempotent.",
   "type": "object",
-  "additionalProperties": false,
   "required": [
     "id",
     "type",
@@ -17,7 +16,10 @@
     "data"
   ],
   "properties": {
-    "id": { "type": "string", "format": "uuid" },
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
     "type": {
       "type": "string",
       "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9_]*)+$"
@@ -26,34 +28,66 @@
       "type": "string",
       "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
     },
-    "occurredAt": { "type": "string", "format": "date-time" },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
     "tenantId": {
       "oneOf": [
-        { "type": "string", "format": "uuid" },
-        { "type": "null" }
+        {
+          "type": "string",
+          "format": "uuid"
+        },
+        {
+          "type": "null"
+        }
       ]
     },
     "aggregate": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "version"],
+      "required": [
+        "type",
+        "id",
+        "version"
+      ],
       "properties": {
-        "type": { "type": "string" },
-        "id": { "type": "string", "format": "uuid" },
-        "version": { "type": "integer", "minimum": 1 }
+        "type": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        }
       }
     },
-    "source": { "type": "string", "minLength": 1 },
-    "correlationId": { "type": "string", "format": "uuid" },
+    "source": {
+      "type": "string",
+      "minLength": 1
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "uuid"
+    },
     "causationId": {
       "oneOf": [
-        { "type": "string", "format": "uuid" },
-        { "type": "null" }
+        {
+          "type": "string",
+          "format": "uuid"
+        },
+        {
+          "type": "null"
+        }
       ]
     },
     "data": {
       "type": "object",
-      "description": "Event-specific validated payload. Do not include credentials or unnecessary personal data."
+      "description": "Event-specific payload validated against the matching closed definition in domain-events-v1.schema.json."
     }
-  }
+  },
+  "unevaluatedProperties": true
 }

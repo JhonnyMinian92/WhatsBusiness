@@ -3,8 +3,8 @@ info:
   title: WhatsBusiness Platform Events
   version: 1.0.0
   description: >
-    Initial event contracts for the modular monolith and asynchronous workers.
-    Delivery is at-least-once; consumers must be idempotent.
+    Full internal domain event catalog, 55 versioned event types. Delivery is at-least-once.
+    This contract does not claim producers, consumers, broker topology or runtime behavior exist.
 defaultContentType: application/json
 servers:
   local:
@@ -12,79 +12,831 @@ servers:
     protocol: amqp
     description: Local development broker; topology and credentials are environment-specific.
 channels:
-  platform.audit-events.v1:
+  'platform.tenant.created.v1':
+    description: 'Producer platform-identity; consumers entitlements,audit,notifications; TASK-001, TASK-002, TASK-052. Logical route; queue topology is consumer-specific.'
     publish:
-      operationId: publishAuditEvent
+      operationId: publishPlatformTenantCreated
       message:
-        $ref: '#/components/messages/AuditEvent'
-  meta.webhook-received.v1:
+        $ref: '#/components/messages/PlatformTenantCreated'
+  'platform.tenant.suspended.v1':
+    description: 'Producer platform-identity; consumers entitlements,audit,notifications; TASK-001, TASK-002, TASK-052. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishPlatformTenantSuspended
+      message:
+        $ref: '#/components/messages/PlatformTenantSuspended'
+  'platform.membership.changed.v1':
+    description: 'Producer platform-identity; consumers session/cache invalidation, workers; TASK-004, TASK-005, TASK-058. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishPlatformMembershipChanged
+      message:
+        $ref: '#/components/messages/PlatformMembershipChanged'
+  'platform.grant.revoked.v1':
+    description: 'Producer platform-identity; consumers cache/session invalidation, workers; TASK-058. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishPlatformGrantRevoked
+      message:
+        $ref: '#/components/messages/PlatformGrantRevoked'
+  'meta.connection.created.v1':
+    description: 'Producer meta-control-plane; consumers asset registry, capability registry; TASK-006..010, TASK-056. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishMetaConnectionCreated
+      message:
+        $ref: '#/components/messages/MetaConnectionCreated'
+  'meta.credentials.expiring.v1':
+    description: 'Producer meta-control-plane; consumers operations and reconnect workflow; TASK-007, TASK-056. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishMetaCredentialsExpiring
+      message:
+        $ref: '#/components/messages/MetaCredentialsExpiring'
+  'meta.connection.revoked.v1':
+    description: 'Producer meta-control-plane; consumers asset registry, capability registry; TASK-007, TASK-056. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishMetaConnectionRevoked
+      message:
+        $ref: '#/components/messages/MetaConnectionRevoked'
+  'meta.assets.sync_requested.v1':
+    description: 'Producer meta-asset-registry; consumers asset sync worker; TASK-009, TASK-010. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishMetaAssetsSyncRequested
+      message:
+        $ref: '#/components/messages/MetaAssetsSyncRequested'
+  'meta.assets.synced.v1':
+    description: 'Producer meta-asset-registry; consumers capability registry; TASK-009, TASK-010. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishMetaAssetsSynced
+      message:
+        $ref: '#/components/messages/MetaAssetsSynced'
+  'meta.capability.changed.v1':
+    description: 'Producer meta-capability-registry; consumers UI, policies and affected workers; TASK-010, TASK-056, TASK-065. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishMetaCapabilityChanged
+      message:
+        $ref: '#/components/messages/MetaCapabilityChanged'
+  'meta.webhook.received.v1':
+    description: 'Producer webhook-inbox; consumers channel processors; TASK-027, TASK-028. Logical route; queue topology is consumer-specific.'
     publish:
       operationId: publishMetaWebhookReceived
       message:
         $ref: '#/components/messages/MetaWebhookReceived'
-  crm.lead-created.v1:
+  'whatsapp.message.send_requested.v1':
+    description: 'Producer messaging-inbox; consumers outbound WhatsApp worker; TASK-011..013, TASK-045. Logical route; queue topology is consumer-specific.'
     publish:
-      operationId: publishLeadCreated
+      operationId: publishWhatsappMessageSendRequested
       message:
-        $ref: '#/components/messages/LeadCreated'
-  inbox.message-received.v1:
+        $ref: '#/components/messages/WhatsappMessageSendRequested'
+  'whatsapp.message.delivery_updated.v1':
+    description: 'Producer whatsapp-webhook-processor; consumers Inbox and CRM timeline; TASK-013, TASK-045. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishWhatsappMessageDeliveryUpdated
+      message:
+        $ref: '#/components/messages/WhatsappMessageDeliveryUpdated'
+  'whatsapp.template.status_changed.v1':
+    description: 'Producer whatsapp-management-adapter; consumers template registry and UX; TASK-014, TASK-015. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishWhatsappTemplateStatusChanged
+      message:
+        $ref: '#/components/messages/WhatsappTemplateStatusChanged'
+  'lead.received.v1':
+    description: 'Producer lead-ingress; consumers CRM; TASK-022, TASK-023, TASK-042. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishLeadReceived
+      message:
+        $ref: '#/components/messages/LeadReceived'
+  'lead.deduplicated.v1':
+    description: 'Producer crm; consumers CRM and identity resolution; TASK-023, TASK-042, TASK-043. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishLeadDeduplicated
+      message:
+        $ref: '#/components/messages/LeadDeduplicated'
+  'lead.qualified.v1':
+    description: 'Producer crm; consumers sales pipeline and Campaign Intelligence; TASK-023, TASK-042. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishLeadQualified
+      message:
+        $ref: '#/components/messages/LeadQualified'
+  'crm.contact.created.v1':
+    description: 'Producer crm; consumers Inbox and campaigns; TASK-042. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishCrmContactCreated
+      message:
+        $ref: '#/components/messages/CrmContactCreated'
+  'crm.identity.linked.v1':
+    description: 'Producer crm; consumers Inbox and campaigns; TASK-043, TASK-053. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishCrmIdentityLinked
+      message:
+        $ref: '#/components/messages/CrmIdentityLinked'
+  'crm.identity.merged.v1':
+    description: 'Producer crm; consumers Inbox, campaign and audit projections; TASK-043, TASK-053. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishCrmIdentityMerged
+      message:
+        $ref: '#/components/messages/CrmIdentityMerged'
+  'crm.opportunity.stage_changed.v1':
+    description: 'Producer crm-sales; consumers Campaign Intelligence and CAPI; TASK-044, TASK-068. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishCrmOpportunityStageChanged
+      message:
+        $ref: '#/components/messages/CrmOpportunityStageChanged'
+  'crm.opportunity.won.v1':
+    description: 'Producer crm-sales; consumers CAPI and Campaign Intelligence; TASK-044, TASK-068. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishCrmOpportunityWon
+      message:
+        $ref: '#/components/messages/CrmOpportunityWon'
+  'inbox.conversation.created.v1':
+    description: 'Producer channel-adapters; consumers Inbox projections and routing; TASK-045, TASK-046. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishInboxConversationCreated
+      message:
+        $ref: '#/components/messages/InboxConversationCreated'
+  'inbox.message.received.v1':
+    description: 'Producer channel-adapters; consumers Inbox and automation triggers; TASK-045, TASK-046, TASK-049. Logical route; queue topology is consumer-specific.'
     publish:
       operationId: publishInboxMessageReceived
       message:
         $ref: '#/components/messages/InboxMessageReceived'
+  'inbox.message.send_requested.v1':
+    description: 'Producer inbox; consumers channel outbound worker; TASK-045. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishInboxMessageSendRequested
+      message:
+        $ref: '#/components/messages/InboxMessageSendRequested'
+  'inbox.message.delivery_updated.v1':
+    description: 'Producer channel-webhook-processor; consumers Inbox delivery state; TASK-045. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishInboxMessageDeliveryUpdated
+      message:
+        $ref: '#/components/messages/InboxMessageDeliveryUpdated'
+  'inbox.assignment.changed.v1':
+    description: 'Producer inbox; consumers agent presence and queue; TASK-047. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishInboxAssignmentChanged
+      message:
+        $ref: '#/components/messages/InboxAssignmentChanged'
+  'inbox.ownership.acquired.v1':
+    description: 'Producer inbox; consumers bot suppression and handoff coordinator; TASK-047, TASK-075. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishInboxOwnershipAcquired
+      message:
+        $ref: '#/components/messages/InboxOwnershipAcquired'
+  'inbox.handoff.completed.v1':
+    description: 'Producer inbox; consumers agent presence and bot suppression; TASK-047, TASK-075. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishInboxHandoffCompleted
+      message:
+        $ref: '#/components/messages/InboxHandoffCompleted'
+  'automation.execution.requested.v1':
+    description: 'Producer automation; consumers scheduler and workers; TASK-048, TASK-049. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishAutomationExecutionRequested
+      message:
+        $ref: '#/components/messages/AutomationExecutionRequested'
+  'automation.step.completed.v1':
+    description: 'Producer automation; consumers workflow scheduler; TASK-049. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishAutomationStepCompleted
+      message:
+        $ref: '#/components/messages/AutomationStepCompleted'
+  'automation.dead_letter.v1':
+    description: 'Producer automation; consumers operations and retry review; TASK-049. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishAutomationDeadLetter
+      message:
+        $ref: '#/components/messages/AutomationDeadLetter'
+  'ai.suggestion.requested.v1':
+    description: 'Producer inbox; consumers AI Gateway; TASK-050, TASK-051. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishAiSuggestionRequested
+      message:
+        $ref: '#/components/messages/AiSuggestionRequested'
+  'ai.suggestion.created.v1':
+    description: 'Producer ai-gateway; consumers Inbox suggestion UI; TASK-050, TASK-051. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishAiSuggestionCreated
+      message:
+        $ref: '#/components/messages/AiSuggestionCreated'
+  'ai.feedback.received.v1':
+    description: 'Producer ai-gateway; consumers AI evaluation and analytics; TASK-050, TASK-051. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishAiFeedbackReceived
+      message:
+        $ref: '#/components/messages/AiFeedbackReceived'
+  'ads.draft.created.v1':
+    description: 'Producer ads; consumers approval gateway; TASK-024, TASK-025, TASK-069. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishAdsDraftCreated
+      message:
+        $ref: '#/components/messages/AdsDraftCreated'
+  'ads.campaign.approval.requested.v1':
+    description: 'Producer ads; consumers approval service; TASK-024, TASK-025, TASK-071. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishAdsCampaignApprovalRequested
+      message:
+        $ref: '#/components/messages/AdsCampaignApprovalRequested'
+  'ads.budget.change.approved.v1':
+    description: 'Producer ads; consumers guarded ads execution worker; TASK-025, TASK-071. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishAdsBudgetChangeApproved
+      message:
+        $ref: '#/components/messages/AdsBudgetChangeApproved'
+  'ads.insights.snapshot.created.v1':
+    description: 'Producer ads-insights; consumers Campaign Intelligence; TASK-072. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishAdsInsightsSnapshotCreated
+      message:
+        $ref: '#/components/messages/AdsInsightsSnapshotCreated'
+  'campaign.recommendation.created.v1':
+    description: 'Producer campaign-intelligence; consumers approval gateway; TASK-067, TASK-071. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishCampaignRecommendationCreated
+      message:
+        $ref: '#/components/messages/CampaignRecommendationCreated'
+  'campaign.recommendation.approved.v1':
+    description: 'Producer approval-gateway; consumers campaign execution worker; TASK-067, TASK-071, TASK-074. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishCampaignRecommendationApproved
+      message:
+        $ref: '#/components/messages/CampaignRecommendationApproved'
+  'campaign.recommendation.executed.v1':
+    description: 'Producer campaign-execution; consumers Campaign Intelligence; TASK-067, TASK-071, TASK-074. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishCampaignRecommendationExecuted
+      message:
+        $ref: '#/components/messages/CampaignRecommendationExecuted'
+  'creative.variant.created.v1':
+    description: 'Producer creative-lab; consumers experiment manager; TASK-069, TASK-070, TASK-079. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishCreativeVariantCreated
+      message:
+        $ref: '#/components/messages/CreativeVariantCreated'
+  'creative.reviewed.v1':
+    description: 'Producer creative-review; consumers experiment manager and audit; TASK-069, TASK-073, TASK-079. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishCreativeReviewed
+      message:
+        $ref: '#/components/messages/CreativeReviewed'
+  'privacy.request.created.v1':
+    description: 'Producer privacy; consumers privacy orchestrator; TASK-032, TASK-059. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishPrivacyRequestCreated
+      message:
+        $ref: '#/components/messages/PrivacyRequestCreated'
+  'privacy.deletion.completed.v1':
+    description: 'Producer privacy-orchestrator; consumers domain stores and audit; TASK-032, TASK-059. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishPrivacyDeletionCompleted
+      message:
+        $ref: '#/components/messages/PrivacyDeletionCompleted'
+  'developer.webhook.delivery.requested.v1':
+    description: 'Producer developer-platform; consumers webhook delivery worker; TASK-062. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishDeveloperWebhookDeliveryRequested
+      message:
+        $ref: '#/components/messages/DeveloperWebhookDeliveryRequested'
+  'developer.webhook.delivered.v1':
+    description: 'Producer developer-platform; consumers delivery audit and subscription metrics; TASK-062. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishDeveloperWebhookDelivered
+      message:
+        $ref: '#/components/messages/DeveloperWebhookDelivered'
+  'developer.webhook.failed.v1':
+    description: 'Producer developer-platform; consumers retry/DLQ and delivery audit; TASK-062. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishDeveloperWebhookFailed
+      message:
+        $ref: '#/components/messages/DeveloperWebhookFailed'
+  'agent.tool.requested.v1':
+    description: 'Producer agent-tool-gateway; consumers policy/approval gateway; TASK-074, TASK-075, TASK-080. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishAgentToolRequested
+      message:
+        $ref: '#/components/messages/AgentToolRequested'
+  'agent.tool.approved.v1':
+    description: 'Producer agent-approval-gateway; consumers tool execution worker; TASK-074, TASK-080. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishAgentToolApproved
+      message:
+        $ref: '#/components/messages/AgentToolApproved'
+  'agent.tool.completed.v1':
+    description: 'Producer agent-tool-execution; consumers audit and result retrieval; TASK-074, TASK-075, TASK-080. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishAgentToolCompleted
+      message:
+        $ref: '#/components/messages/AgentToolCompleted'
+  'agent.tool.denied.v1':
+    description: 'Producer agent-policy-gateway; consumers audit and user notification; TASK-074, TASK-075, TASK-080. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishAgentToolDenied
+      message:
+        $ref: '#/components/messages/AgentToolDenied'
+  'meta.change.detected.v1':
+    description: 'Producer meta-change-intelligence; consumers capability registry and task impact; TASK-065, TASK-076. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishMetaChangeDetected
+      message:
+        $ref: '#/components/messages/MetaChangeDetected'
+  'meta.change.impact.analyzed.v1':
+    description: 'Producer meta-change-intelligence; consumers capability registry and backlog; TASK-065, TASK-076. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishMetaChangeImpactAnalyzed
+      message:
+        $ref: '#/components/messages/MetaChangeImpactAnalyzed'
 components:
   messages:
-    AuditEvent:
-      name: AuditEvent
+    PlatformTenantCreated:
+      name: 'platform.tenant.created'
+      title: 'platform.tenant.created'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
       payload:
-        $ref: '#/components/schemas/EventEnvelope'
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/PlatformTenantCreated'
+    PlatformTenantSuspended:
+      name: 'platform.tenant.suspended'
+      title: 'platform.tenant.suspended'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/PlatformTenantSuspended'
+    PlatformMembershipChanged:
+      name: 'platform.membership.changed'
+      title: 'platform.membership.changed'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/PlatformMembershipChanged'
+    PlatformGrantRevoked:
+      name: 'platform.grant.revoked'
+      title: 'platform.grant.revoked'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/PlatformGrantRevoked'
+    MetaConnectionCreated:
+      name: 'meta.connection.created'
+      title: 'meta.connection.created'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/MetaConnectionCreated'
+    MetaCredentialsExpiring:
+      name: 'meta.credentials.expiring'
+      title: 'meta.credentials.expiring'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/MetaCredentialsExpiring'
+    MetaConnectionRevoked:
+      name: 'meta.connection.revoked'
+      title: 'meta.connection.revoked'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/MetaConnectionRevoked'
+    MetaAssetsSyncRequested:
+      name: 'meta.assets.sync_requested'
+      title: 'meta.assets.sync_requested'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/MetaAssetsSyncRequested'
+    MetaAssetsSynced:
+      name: 'meta.assets.synced'
+      title: 'meta.assets.synced'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/MetaAssetsSynced'
+    MetaCapabilityChanged:
+      name: 'meta.capability.changed'
+      title: 'meta.capability.changed'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/MetaCapabilityChanged'
     MetaWebhookReceived:
-      name: MetaWebhookReceived
+      name: 'meta.webhook.received'
+      title: 'meta.webhook.received'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
       payload:
-        $ref: '#/components/schemas/EventEnvelope'
-    LeadCreated:
-      name: LeadCreated
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/MetaWebhookReceived'
+    WhatsappMessageSendRequested:
+      name: 'whatsapp.message.send_requested'
+      title: 'whatsapp.message.send_requested'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
       payload:
-        $ref: '#/components/schemas/EventEnvelope'
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/WhatsappMessageSendRequested'
+    WhatsappMessageDeliveryUpdated:
+      name: 'whatsapp.message.delivery_updated'
+      title: 'whatsapp.message.delivery_updated'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/WhatsappMessageDeliveryUpdated'
+    WhatsappTemplateStatusChanged:
+      name: 'whatsapp.template.status_changed'
+      title: 'whatsapp.template.status_changed'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/WhatsappTemplateStatusChanged'
+    LeadReceived:
+      name: 'lead.received'
+      title: 'lead.received'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/LeadReceived'
+    LeadDeduplicated:
+      name: 'lead.deduplicated'
+      title: 'lead.deduplicated'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/LeadDeduplicated'
+    LeadQualified:
+      name: 'lead.qualified'
+      title: 'lead.qualified'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/LeadQualified'
+    CrmContactCreated:
+      name: 'crm.contact.created'
+      title: 'crm.contact.created'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmContactCreated'
+    CrmIdentityLinked:
+      name: 'crm.identity.linked'
+      title: 'crm.identity.linked'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmIdentityLinked'
+    CrmIdentityMerged:
+      name: 'crm.identity.merged'
+      title: 'crm.identity.merged'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmIdentityMerged'
+    CrmOpportunityStageChanged:
+      name: 'crm.opportunity.stage_changed'
+      title: 'crm.opportunity.stage_changed'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmOpportunityStageChanged'
+    CrmOpportunityWon:
+      name: 'crm.opportunity.won'
+      title: 'crm.opportunity.won'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmOpportunityWon'
+    InboxConversationCreated:
+      name: 'inbox.conversation.created'
+      title: 'inbox.conversation.created'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxConversationCreated'
     InboxMessageReceived:
-      name: InboxMessageReceived
+      name: 'inbox.message.received'
+      title: 'inbox.message.received'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
       payload:
-        $ref: '#/components/schemas/EventEnvelope'
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxMessageReceived'
+    InboxMessageSendRequested:
+      name: 'inbox.message.send_requested'
+      title: 'inbox.message.send_requested'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxMessageSendRequested'
+    InboxMessageDeliveryUpdated:
+      name: 'inbox.message.delivery_updated'
+      title: 'inbox.message.delivery_updated'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxMessageDeliveryUpdated'
+    InboxAssignmentChanged:
+      name: 'inbox.assignment.changed'
+      title: 'inbox.assignment.changed'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxAssignmentChanged'
+    InboxOwnershipAcquired:
+      name: 'inbox.ownership.acquired'
+      title: 'inbox.ownership.acquired'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxOwnershipAcquired'
+    InboxHandoffCompleted:
+      name: 'inbox.handoff.completed'
+      title: 'inbox.handoff.completed'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxHandoffCompleted'
+    AutomationExecutionRequested:
+      name: 'automation.execution.requested'
+      title: 'automation.execution.requested'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/AutomationExecutionRequested'
+    AutomationStepCompleted:
+      name: 'automation.step.completed'
+      title: 'automation.step.completed'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/AutomationStepCompleted'
+    AutomationDeadLetter:
+      name: 'automation.dead_letter'
+      title: 'automation.dead_letter'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/AutomationDeadLetter'
+    AiSuggestionRequested:
+      name: 'ai.suggestion.requested'
+      title: 'ai.suggestion.requested'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/AiSuggestionRequested'
+    AiSuggestionCreated:
+      name: 'ai.suggestion.created'
+      title: 'ai.suggestion.created'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/AiSuggestionCreated'
+    AiFeedbackReceived:
+      name: 'ai.feedback.received'
+      title: 'ai.feedback.received'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/AiFeedbackReceived'
+    AdsDraftCreated:
+      name: 'ads.draft.created'
+      title: 'ads.draft.created'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/AdsDraftCreated'
+    AdsCampaignApprovalRequested:
+      name: 'ads.campaign.approval.requested'
+      title: 'ads.campaign.approval.requested'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/AdsCampaignApprovalRequested'
+    AdsBudgetChangeApproved:
+      name: 'ads.budget.change.approved'
+      title: 'ads.budget.change.approved'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/AdsBudgetChangeApproved'
+    AdsInsightsSnapshotCreated:
+      name: 'ads.insights.snapshot.created'
+      title: 'ads.insights.snapshot.created'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/AdsInsightsSnapshotCreated'
+    CampaignRecommendationCreated:
+      name: 'campaign.recommendation.created'
+      title: 'campaign.recommendation.created'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/CampaignRecommendationCreated'
+    CampaignRecommendationApproved:
+      name: 'campaign.recommendation.approved'
+      title: 'campaign.recommendation.approved'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/CampaignRecommendationApproved'
+    CampaignRecommendationExecuted:
+      name: 'campaign.recommendation.executed'
+      title: 'campaign.recommendation.executed'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/CampaignRecommendationExecuted'
+    CreativeVariantCreated:
+      name: 'creative.variant.created'
+      title: 'creative.variant.created'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/CreativeVariantCreated'
+    CreativeReviewed:
+      name: 'creative.reviewed'
+      title: 'creative.reviewed'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/CreativeReviewed'
+    PrivacyRequestCreated:
+      name: 'privacy.request.created'
+      title: 'privacy.request.created'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/PrivacyRequestCreated'
+    PrivacyDeletionCompleted:
+      name: 'privacy.deletion.completed'
+      title: 'privacy.deletion.completed'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/PrivacyDeletionCompleted'
+    DeveloperWebhookDeliveryRequested:
+      name: 'developer.webhook.delivery.requested'
+      title: 'developer.webhook.delivery.requested'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/DeveloperWebhookDeliveryRequested'
+    DeveloperWebhookDelivered:
+      name: 'developer.webhook.delivered'
+      title: 'developer.webhook.delivered'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/DeveloperWebhookDelivered'
+    DeveloperWebhookFailed:
+      name: 'developer.webhook.failed'
+      title: 'developer.webhook.failed'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/DeveloperWebhookFailed'
+    AgentToolRequested:
+      name: 'agent.tool.requested'
+      title: 'agent.tool.requested'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/AgentToolRequested'
+    AgentToolApproved:
+      name: 'agent.tool.approved'
+      title: 'agent.tool.approved'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/AgentToolApproved'
+    AgentToolCompleted:
+      name: 'agent.tool.completed'
+      title: 'agent.tool.completed'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/AgentToolCompleted'
+    AgentToolDenied:
+      name: 'agent.tool.denied'
+      title: 'agent.tool.denied'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/AgentToolDenied'
+    MetaChangeDetected:
+      name: 'meta.change.detected'
+      title: 'meta.change.detected'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/MetaChangeDetected'
+    MetaChangeImpactAnalyzed:
+      name: 'meta.change.impact.analyzed'
+      title: 'meta.change.impact.analyzed'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/MetaChangeImpactAnalyzed'
   schemas:
-    EventEnvelope:
-      type: object
-      additionalProperties: false
-      required: [id, type, schemaVersion, occurredAt, tenantId, aggregate, source, correlationId, data]
-      properties:
-        id:
-          type: string
-          format: uuid
-        type:
-          type: string
-          pattern: '^[a-z][a-z0-9]*(\.[a-z][a-z0-9_]*)+$'
-        schemaVersion:
-          type: string
-          pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
-        occurredAt:
-          type: string
-          format: date-time
-        tenantId:
-          type: [string, 'null']
-        aggregate:
-          type: object
-          additionalProperties: false
-          required: [type, id, version]
-          properties:
-            type: { type: string }
-            id: { type: string, format: uuid }
-            version: { type: integer, minimum: 1 }
-        source:
-          type: string
-        correlationId:
-          type: string
-          format: uuid
-        causationId:
-          type: [string, 'null']
-        data:
-          type: object
-          description: Event-specific validated payload. Never include credentials or unnecessary personal data.
+    PlatformTenantCreated:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/PlatformTenantCreated'
+    PlatformTenantSuspended:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/PlatformTenantSuspended'
+    PlatformMembershipChanged:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/PlatformMembershipChanged'
+    PlatformGrantRevoked:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/PlatformGrantRevoked'
+    MetaConnectionCreated:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/MetaConnectionCreated'
+    MetaCredentialsExpiring:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/MetaCredentialsExpiring'
+    MetaConnectionRevoked:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/MetaConnectionRevoked'
+    MetaAssetsSyncRequested:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/MetaAssetsSyncRequested'
+    MetaAssetsSynced:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/MetaAssetsSynced'
+    MetaCapabilityChanged:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/MetaCapabilityChanged'
+    MetaWebhookReceived:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/MetaWebhookReceived'
+    WhatsappMessageSendRequested:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/WhatsappMessageSendRequested'
+    WhatsappMessageDeliveryUpdated:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/WhatsappMessageDeliveryUpdated'
+    WhatsappTemplateStatusChanged:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/WhatsappTemplateStatusChanged'
+    LeadReceived:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/LeadReceived'
+    LeadDeduplicated:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/LeadDeduplicated'
+    LeadQualified:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/LeadQualified'
+    CrmContactCreated:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmContactCreated'
+    CrmIdentityLinked:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmIdentityLinked'
+    CrmIdentityMerged:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmIdentityMerged'
+    CrmOpportunityStageChanged:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmOpportunityStageChanged'
+    CrmOpportunityWon:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmOpportunityWon'
+    InboxConversationCreated:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxConversationCreated'
+    InboxMessageReceived:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxMessageReceived'
+    InboxMessageSendRequested:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxMessageSendRequested'
+    InboxMessageDeliveryUpdated:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxMessageDeliveryUpdated'
+    InboxAssignmentChanged:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxAssignmentChanged'
+    InboxOwnershipAcquired:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxOwnershipAcquired'
+    InboxHandoffCompleted:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxHandoffCompleted'
+    AutomationExecutionRequested:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/AutomationExecutionRequested'
+    AutomationStepCompleted:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/AutomationStepCompleted'
+    AutomationDeadLetter:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/AutomationDeadLetter'
+    AiSuggestionRequested:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/AiSuggestionRequested'
+    AiSuggestionCreated:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/AiSuggestionCreated'
+    AiFeedbackReceived:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/AiFeedbackReceived'
+    AdsDraftCreated:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/AdsDraftCreated'
+    AdsCampaignApprovalRequested:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/AdsCampaignApprovalRequested'
+    AdsBudgetChangeApproved:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/AdsBudgetChangeApproved'
+    AdsInsightsSnapshotCreated:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/AdsInsightsSnapshotCreated'
+    CampaignRecommendationCreated:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/CampaignRecommendationCreated'
+    CampaignRecommendationApproved:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/CampaignRecommendationApproved'
+    CampaignRecommendationExecuted:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/CampaignRecommendationExecuted'
+    CreativeVariantCreated:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/CreativeVariantCreated'
+    CreativeReviewed:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/CreativeReviewed'
+    PrivacyRequestCreated:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/PrivacyRequestCreated'
+    PrivacyDeletionCompleted:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/PrivacyDeletionCompleted'
+    DeveloperWebhookDeliveryRequested:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/DeveloperWebhookDeliveryRequested'
+    DeveloperWebhookDelivered:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/DeveloperWebhookDelivered'
+    DeveloperWebhookFailed:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/DeveloperWebhookFailed'
+    AgentToolRequested:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/AgentToolRequested'
+    AgentToolApproved:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/AgentToolApproved'
+    AgentToolCompleted:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/AgentToolCompleted'
+    AgentToolDenied:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/AgentToolDenied'
+    MetaChangeDetected:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/MetaChangeDetected'
+    MetaChangeImpactAnalyzed:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/MetaChangeImpactAnalyzed'

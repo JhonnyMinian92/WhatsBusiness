@@ -1,0 +1,4242 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.whatsbusiness.example/domain-events-v1.schema.json",
+  "title": "WhatsBusiness internal domain event schemas v1",
+  "description": "Closed payload schemas for all 55 event types. All current event types require a non-null tenantId.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/PlatformTenantCreated"
+    },
+    {
+      "$ref": "#/$defs/PlatformTenantSuspended"
+    },
+    {
+      "$ref": "#/$defs/PlatformMembershipChanged"
+    },
+    {
+      "$ref": "#/$defs/PlatformGrantRevoked"
+    },
+    {
+      "$ref": "#/$defs/MetaConnectionCreated"
+    },
+    {
+      "$ref": "#/$defs/MetaCredentialsExpiring"
+    },
+    {
+      "$ref": "#/$defs/MetaConnectionRevoked"
+    },
+    {
+      "$ref": "#/$defs/MetaAssetsSyncRequested"
+    },
+    {
+      "$ref": "#/$defs/MetaAssetsSynced"
+    },
+    {
+      "$ref": "#/$defs/MetaCapabilityChanged"
+    },
+    {
+      "$ref": "#/$defs/MetaWebhookReceived"
+    },
+    {
+      "$ref": "#/$defs/WhatsappMessageSendRequested"
+    },
+    {
+      "$ref": "#/$defs/WhatsappMessageDeliveryUpdated"
+    },
+    {
+      "$ref": "#/$defs/WhatsappTemplateStatusChanged"
+    },
+    {
+      "$ref": "#/$defs/LeadReceived"
+    },
+    {
+      "$ref": "#/$defs/LeadDeduplicated"
+    },
+    {
+      "$ref": "#/$defs/LeadQualified"
+    },
+    {
+      "$ref": "#/$defs/CrmContactCreated"
+    },
+    {
+      "$ref": "#/$defs/CrmIdentityLinked"
+    },
+    {
+      "$ref": "#/$defs/CrmIdentityMerged"
+    },
+    {
+      "$ref": "#/$defs/CrmOpportunityStageChanged"
+    },
+    {
+      "$ref": "#/$defs/CrmOpportunityWon"
+    },
+    {
+      "$ref": "#/$defs/InboxConversationCreated"
+    },
+    {
+      "$ref": "#/$defs/InboxMessageReceived"
+    },
+    {
+      "$ref": "#/$defs/InboxMessageSendRequested"
+    },
+    {
+      "$ref": "#/$defs/InboxMessageDeliveryUpdated"
+    },
+    {
+      "$ref": "#/$defs/InboxAssignmentChanged"
+    },
+    {
+      "$ref": "#/$defs/InboxOwnershipAcquired"
+    },
+    {
+      "$ref": "#/$defs/InboxHandoffCompleted"
+    },
+    {
+      "$ref": "#/$defs/AutomationExecutionRequested"
+    },
+    {
+      "$ref": "#/$defs/AutomationStepCompleted"
+    },
+    {
+      "$ref": "#/$defs/AutomationDeadLetter"
+    },
+    {
+      "$ref": "#/$defs/AiSuggestionRequested"
+    },
+    {
+      "$ref": "#/$defs/AiSuggestionCreated"
+    },
+    {
+      "$ref": "#/$defs/AiFeedbackReceived"
+    },
+    {
+      "$ref": "#/$defs/AdsDraftCreated"
+    },
+    {
+      "$ref": "#/$defs/AdsCampaignApprovalRequested"
+    },
+    {
+      "$ref": "#/$defs/AdsBudgetChangeApproved"
+    },
+    {
+      "$ref": "#/$defs/AdsInsightsSnapshotCreated"
+    },
+    {
+      "$ref": "#/$defs/CampaignRecommendationCreated"
+    },
+    {
+      "$ref": "#/$defs/CampaignRecommendationApproved"
+    },
+    {
+      "$ref": "#/$defs/CampaignRecommendationExecuted"
+    },
+    {
+      "$ref": "#/$defs/CreativeVariantCreated"
+    },
+    {
+      "$ref": "#/$defs/CreativeReviewed"
+    },
+    {
+      "$ref": "#/$defs/PrivacyRequestCreated"
+    },
+    {
+      "$ref": "#/$defs/PrivacyDeletionCompleted"
+    },
+    {
+      "$ref": "#/$defs/DeveloperWebhookDeliveryRequested"
+    },
+    {
+      "$ref": "#/$defs/DeveloperWebhookDelivered"
+    },
+    {
+      "$ref": "#/$defs/DeveloperWebhookFailed"
+    },
+    {
+      "$ref": "#/$defs/AgentToolRequested"
+    },
+    {
+      "$ref": "#/$defs/AgentToolApproved"
+    },
+    {
+      "$ref": "#/$defs/AgentToolCompleted"
+    },
+    {
+      "$ref": "#/$defs/AgentToolDenied"
+    },
+    {
+      "$ref": "#/$defs/MetaChangeDetected"
+    },
+    {
+      "$ref": "#/$defs/MetaChangeImpactAnalyzed"
+    }
+  ],
+  "$defs": {
+    "PlatformTenantCreated": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "platform.tenant.created"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "tenant"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "tenantId",
+                "organizationId"
+              ],
+              "properties": {
+                "tenantId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "organizationId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: platform-identity; consumers: entitlements,audit,notifications; TASK-001, TASK-002, TASK-052. References and state only; no PII or secrets."
+    },
+    "PlatformTenantSuspended": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "platform.tenant.suspended"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "tenant"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "tenantId",
+                "reasonCode"
+              ],
+              "properties": {
+                "tenantId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "reasonCode": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: platform-identity; consumers: entitlements,audit,notifications; TASK-001, TASK-002, TASK-052. References and state only; no PII or secrets."
+    },
+    "PlatformMembershipChanged": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "platform.membership.changed"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "membership"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "membershipId",
+                "changeType",
+                "authzVersion"
+              ],
+              "properties": {
+                "membershipId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "changeType": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                },
+                "authzVersion": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: platform-identity; consumers: session/cache invalidation, workers; TASK-004, TASK-005, TASK-058. References and state only; no PII or secrets."
+    },
+    "PlatformGrantRevoked": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "platform.grant.revoked"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "partner_tenant_grant"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "grantId",
+                "revokedAt"
+              ],
+              "properties": {
+                "grantId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "revokedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: platform-identity; consumers: cache/session invalidation, workers; TASK-058. References and state only; no PII or secrets."
+    },
+    "MetaConnectionCreated": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "meta.connection.created"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "meta_connection"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "connectionId",
+                "provider",
+                "authMode"
+              ],
+              "properties": {
+                "connectionId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "provider": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                },
+                "authMode": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: meta-control-plane; consumers: asset registry, capability registry; TASK-006..010, TASK-056. References and state only; no PII or secrets."
+    },
+    "MetaCredentialsExpiring": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "meta.credentials.expiring"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "meta_connection"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "connectionId",
+                "expiresAt"
+              ],
+              "properties": {
+                "connectionId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "expiresAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: meta-control-plane; consumers: operations and reconnect workflow; TASK-007, TASK-056. References and state only; no PII or secrets."
+    },
+    "MetaConnectionRevoked": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "meta.connection.revoked"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "meta_connection"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "connectionId",
+                "revokedAt"
+              ],
+              "properties": {
+                "connectionId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "revokedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: meta-control-plane; consumers: asset registry, capability registry; TASK-007, TASK-056. References and state only; no PII or secrets."
+    },
+    "MetaAssetsSyncRequested": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "meta.assets.sync_requested"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "meta_connection"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "connectionId",
+                "syncRequestId"
+              ],
+              "properties": {
+                "connectionId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "syncRequestId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: meta-asset-registry; consumers: asset sync worker; TASK-009, TASK-010. References and state only; no PII or secrets."
+    },
+    "MetaAssetsSynced": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "meta.assets.synced"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "asset_registry_snapshot"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "connectionId",
+                "snapshotVersion"
+              ],
+              "properties": {
+                "connectionId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "snapshotVersion": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: meta-asset-registry; consumers: capability registry; TASK-009, TASK-010. References and state only; no PII or secrets."
+    },
+    "MetaCapabilityChanged": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "meta.capability.changed"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "meta_capability_snapshot"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "assetId",
+                "operationKey",
+                "decision",
+                "reasonCode"
+              ],
+              "properties": {
+                "assetId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "operationKey": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                },
+                "decision": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                },
+                "reasonCode": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: meta-capability-registry; consumers: UI, policies and affected workers; TASK-010, TASK-056, TASK-065. References and state only; no PII or secrets."
+    },
+    "MetaWebhookReceived": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "meta.webhook.received"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "webhook_receipt"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "receiptId",
+                "product",
+                "payloadSha256"
+              ],
+              "properties": {
+                "receiptId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "product": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                },
+                "payloadSha256": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: webhook-inbox; consumers: channel processors; TASK-027, TASK-028. References and state only; no PII or secrets."
+    },
+    "WhatsappMessageSendRequested": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "whatsapp.message.send_requested"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "whatsapp_message"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "messageId",
+                "deliveryAttemptId"
+              ],
+              "properties": {
+                "messageId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "deliveryAttemptId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: messaging-inbox; consumers: outbound WhatsApp worker; TASK-011..013, TASK-045. References and state only; no PII or secrets."
+    },
+    "WhatsappMessageDeliveryUpdated": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "whatsapp.message.delivery_updated"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "whatsapp_message"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "messageId",
+                "deliveryStatus",
+                "providerMessageId"
+              ],
+              "properties": {
+                "messageId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "deliveryStatus": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                },
+                "providerMessageId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: whatsapp-webhook-processor; consumers: Inbox and CRM timeline; TASK-013, TASK-045. References and state only; no PII or secrets."
+    },
+    "WhatsappTemplateStatusChanged": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "whatsapp.template.status_changed"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "whatsapp_template"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "templateId",
+                "providerStatus"
+              ],
+              "properties": {
+                "templateId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "providerStatus": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: whatsapp-management-adapter; consumers: template registry and UX; TASK-014, TASK-015. References and state only; no PII or secrets."
+    },
+    "LeadReceived": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "lead.received"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "lead"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "leadId",
+                "sourceKey"
+              ],
+              "properties": {
+                "leadId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "sourceKey": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: lead-ingress; consumers: CRM; TASK-022, TASK-023, TASK-042. References and state only; no PII or secrets."
+    },
+    "LeadDeduplicated": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "lead.deduplicated"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "lead"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "leadId",
+                "canonicalContactId",
+                "deduplicationId"
+              ],
+              "properties": {
+                "leadId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "canonicalContactId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "deduplicationId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: crm; consumers: CRM and identity resolution; TASK-023, TASK-042, TASK-043. References and state only; no PII or secrets."
+    },
+    "LeadQualified": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "lead.qualified"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "lead"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "leadId",
+                "qualificationVersion"
+              ],
+              "properties": {
+                "leadId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "qualificationVersion": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: crm; consumers: sales pipeline and Campaign Intelligence; TASK-023, TASK-042. References and state only; no PII or secrets."
+    },
+    "CrmContactCreated": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "crm.contact.created"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "contact"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "contactId"
+              ],
+              "properties": {
+                "contactId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: crm; consumers: Inbox and campaigns; TASK-042. References and state only; no PII or secrets."
+    },
+    "CrmIdentityLinked": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "crm.identity.linked"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "contact_identity"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "contactId",
+                "identityId"
+              ],
+              "properties": {
+                "contactId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "identityId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: crm; consumers: Inbox and campaigns; TASK-043, TASK-053. References and state only; no PII or secrets."
+    },
+    "CrmIdentityMerged": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "crm.identity.merged"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "contact_merge"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "sourceContactId",
+                "targetContactId",
+                "mergeOperationId"
+              ],
+              "properties": {
+                "sourceContactId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "targetContactId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "mergeOperationId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: crm; consumers: Inbox, campaign and audit projections; TASK-043, TASK-053. References and state only; no PII or secrets."
+    },
+    "CrmOpportunityStageChanged": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "crm.opportunity.stage_changed"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "opportunity"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "opportunityId",
+                "fromStageId",
+                "toStageId"
+              ],
+              "properties": {
+                "opportunityId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "fromStageId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "toStageId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: crm-sales; consumers: Campaign Intelligence and CAPI; TASK-044, TASK-068. References and state only; no PII or secrets."
+    },
+    "CrmOpportunityWon": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "crm.opportunity.won"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "opportunity"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "opportunityId",
+                "value",
+                "currency"
+              ],
+              "properties": {
+                "opportunityId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "value": {
+                  "type": "string",
+                  "pattern": "^-?\\d+(\\.\\d{1,4})?$",
+                  "description": "Exact decimal string; never IEEE-754 float."
+                },
+                "currency": {
+                  "type": "string",
+                  "pattern": "^[A-Z]{3}$"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: crm-sales; consumers: CAPI and Campaign Intelligence; TASK-044, TASK-068. References and state only; no PII or secrets."
+    },
+    "InboxConversationCreated": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "inbox.conversation.created"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "conversation"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "conversationId",
+                "channel"
+              ],
+              "properties": {
+                "conversationId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "channel": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: channel-adapters; consumers: Inbox projections and routing; TASK-045, TASK-046. References and state only; no PII or secrets."
+    },
+    "InboxMessageReceived": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "inbox.message.received"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "message"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "conversationId",
+                "messageId"
+              ],
+              "properties": {
+                "conversationId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "messageId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: channel-adapters; consumers: Inbox and automation triggers; TASK-045, TASK-046, TASK-049. References and state only; no PII or secrets."
+    },
+    "InboxMessageSendRequested": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "inbox.message.send_requested"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "message"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "conversationId",
+                "messageId",
+                "deliveryAttemptId"
+              ],
+              "properties": {
+                "conversationId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "messageId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "deliveryAttemptId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: inbox; consumers: channel outbound worker; TASK-045. References and state only; no PII or secrets."
+    },
+    "InboxMessageDeliveryUpdated": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "inbox.message.delivery_updated"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "message"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "messageId",
+                "deliveryStatus"
+              ],
+              "properties": {
+                "messageId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "deliveryStatus": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: channel-webhook-processor; consumers: Inbox delivery state; TASK-045. References and state only; no PII or secrets."
+    },
+    "InboxAssignmentChanged": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "inbox.assignment.changed"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "conversation_assignment"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "conversationId",
+                "assignmentId",
+                "assigneeUserId"
+              ],
+              "properties": {
+                "conversationId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "assignmentId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "assigneeUserId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: inbox; consumers: agent presence and queue; TASK-047. References and state only; no PII or secrets."
+    },
+    "InboxOwnershipAcquired": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "inbox.ownership.acquired"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "ownership_lease"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "conversationId",
+                "leaseId",
+                "ownerType"
+              ],
+              "properties": {
+                "conversationId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "leaseId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "ownerType": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: inbox; consumers: bot suppression and handoff coordinator; TASK-047, TASK-075. References and state only; no PII or secrets."
+    },
+    "InboxHandoffCompleted": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "inbox.handoff.completed"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "handoff"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "conversationId",
+                "handoffId",
+                "fromActorType",
+                "toActorType"
+              ],
+              "properties": {
+                "conversationId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "handoffId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "fromActorType": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                },
+                "toActorType": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: inbox; consumers: agent presence and bot suppression; TASK-047, TASK-075. References and state only; no PII or secrets."
+    },
+    "AutomationExecutionRequested": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "automation.execution.requested"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "workflow_execution"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "workflowId",
+                "executionId"
+              ],
+              "properties": {
+                "workflowId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "executionId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: automation; consumers: scheduler and workers; TASK-048, TASK-049. References and state only; no PII or secrets."
+    },
+    "AutomationStepCompleted": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "automation.step.completed"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "workflow_execution_step"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "executionId",
+                "stepId",
+                "resultRef"
+              ],
+              "properties": {
+                "executionId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "stepId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "resultRef": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: automation; consumers: workflow scheduler; TASK-049. References and state only; no PII or secrets."
+    },
+    "AutomationDeadLetter": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "automation.dead_letter"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "workflow_execution"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "executionId",
+                "stepId",
+                "reasonCode"
+              ],
+              "properties": {
+                "executionId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "stepId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "reasonCode": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: automation; consumers: operations and retry review; TASK-049. References and state only; no PII or secrets."
+    },
+    "AiSuggestionRequested": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "ai.suggestion.requested"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "ai_suggestion_request"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "conversationId",
+                "requestId"
+              ],
+              "properties": {
+                "conversationId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "requestId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: inbox; consumers: AI Gateway; TASK-050, TASK-051. References and state only; no PII or secrets."
+    },
+    "AiSuggestionCreated": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "ai.suggestion.created"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "ai_suggestion"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "conversationId",
+                "suggestionId"
+              ],
+              "properties": {
+                "conversationId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "suggestionId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: ai-gateway; consumers: Inbox suggestion UI; TASK-050, TASK-051. References and state only; no PII or secrets."
+    },
+    "AiFeedbackReceived": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "ai.feedback.received"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "ai_feedback"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "suggestionId",
+                "feedbackType"
+              ],
+              "properties": {
+                "suggestionId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "feedbackType": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: ai-gateway; consumers: AI evaluation and analytics; TASK-050, TASK-051. References and state only; no PII or secrets."
+    },
+    "AdsDraftCreated": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "ads.draft.created"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "campaign_draft"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "campaignId",
+                "draftId"
+              ],
+              "properties": {
+                "campaignId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "draftId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: ads; consumers: approval gateway; TASK-024, TASK-025, TASK-069. References and state only; no PII or secrets."
+    },
+    "AdsCampaignApprovalRequested": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "ads.campaign.approval.requested"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "campaign"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "campaignId",
+                "approvalId"
+              ],
+              "properties": {
+                "campaignId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "approvalId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: ads; consumers: approval service; TASK-024, TASK-025, TASK-071. References and state only; no PII or secrets."
+    },
+    "AdsBudgetChangeApproved": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "ads.budget.change.approved"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "budget_change_approval"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "campaignId",
+                "approvalId",
+                "previousBudget",
+                "approvedBudget",
+                "currency"
+              ],
+              "properties": {
+                "campaignId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "approvalId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "previousBudget": {
+                  "type": "string",
+                  "pattern": "^-?\\d+(\\.\\d{1,4})?$",
+                  "description": "Exact decimal string; never IEEE-754 float."
+                },
+                "approvedBudget": {
+                  "type": "string",
+                  "pattern": "^-?\\d+(\\.\\d{1,4})?$",
+                  "description": "Exact decimal string; never IEEE-754 float."
+                },
+                "currency": {
+                  "type": "string",
+                  "pattern": "^[A-Z]{3}$"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: ads; consumers: guarded ads execution worker; TASK-025, TASK-071. References and state only; no PII or secrets."
+    },
+    "AdsInsightsSnapshotCreated": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "ads.insights.snapshot.created"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "insights_snapshot"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "accountId",
+                "snapshotId",
+                "periodStart",
+                "periodEnd"
+              ],
+              "properties": {
+                "accountId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "snapshotId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "periodStart": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "periodEnd": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: ads-insights; consumers: Campaign Intelligence; TASK-072. References and state only; no PII or secrets."
+    },
+    "CampaignRecommendationCreated": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "campaign.recommendation.created"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "campaign_recommendation"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "recommendationId",
+                "campaignId"
+              ],
+              "properties": {
+                "recommendationId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "campaignId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: campaign-intelligence; consumers: approval gateway; TASK-067, TASK-071. References and state only; no PII or secrets."
+    },
+    "CampaignRecommendationApproved": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "campaign.recommendation.approved"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "campaign_recommendation"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "recommendationId",
+                "approvalId"
+              ],
+              "properties": {
+                "recommendationId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "approvalId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: approval-gateway; consumers: campaign execution worker; TASK-067, TASK-071, TASK-074. References and state only; no PII or secrets."
+    },
+    "CampaignRecommendationExecuted": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "campaign.recommendation.executed"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "campaign_recommendation_execution"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "recommendationId",
+                "executionId"
+              ],
+              "properties": {
+                "recommendationId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "executionId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: campaign-execution; consumers: Campaign Intelligence; TASK-067, TASK-071, TASK-074. References and state only; no PII or secrets."
+    },
+    "CreativeVariantCreated": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "creative.variant.created"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "creative_variant"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "creativeId",
+                "variantId"
+              ],
+              "properties": {
+                "creativeId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "variantId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: creative-lab; consumers: experiment manager; TASK-069, TASK-070, TASK-079. References and state only; no PII or secrets."
+    },
+    "CreativeReviewed": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "creative.reviewed"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "creative_review"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "creativeId",
+                "reviewId",
+                "decision"
+              ],
+              "properties": {
+                "creativeId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "reviewId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "decision": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: creative-review; consumers: experiment manager and audit; TASK-069, TASK-073, TASK-079. References and state only; no PII or secrets."
+    },
+    "PrivacyRequestCreated": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "privacy.request.created"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "privacy_request"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "requestId",
+                "requestType"
+              ],
+              "properties": {
+                "requestId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "requestType": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: privacy; consumers: privacy orchestrator; TASK-032, TASK-059. References and state only; no PII or secrets."
+    },
+    "PrivacyDeletionCompleted": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "privacy.deletion.completed"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "deletion_job"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "requestId",
+                "deletionJobId"
+              ],
+              "properties": {
+                "requestId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "deletionJobId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: privacy-orchestrator; consumers: domain stores and audit; TASK-032, TASK-059. References and state only; no PII or secrets."
+    },
+    "DeveloperWebhookDeliveryRequested": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "developer.webhook.delivery.requested"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "webhook_delivery"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "deliveryId",
+                "subscriptionId",
+                "eventId"
+              ],
+              "properties": {
+                "deliveryId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "subscriptionId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "eventId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: developer-platform; consumers: webhook delivery worker; TASK-062. References and state only; no PII or secrets."
+    },
+    "DeveloperWebhookDelivered": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "developer.webhook.delivered"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "webhook_delivery"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "deliveryId",
+                "attempt"
+              ],
+              "properties": {
+                "deliveryId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "attempt": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: developer-platform; consumers: delivery audit and subscription metrics; TASK-062. References and state only; no PII or secrets."
+    },
+    "DeveloperWebhookFailed": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "developer.webhook.failed"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "webhook_delivery"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "deliveryId",
+                "attempt",
+                "reasonCode"
+              ],
+              "properties": {
+                "deliveryId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "attempt": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "reasonCode": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: developer-platform; consumers: retry/DLQ and delivery audit; TASK-062. References and state only; no PII or secrets."
+    },
+    "AgentToolRequested": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "agent.tool.requested"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "agent_tool_run"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "runId",
+                "toolKey"
+              ],
+              "properties": {
+                "runId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "toolKey": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: agent-tool-gateway; consumers: policy/approval gateway; TASK-074, TASK-075, TASK-080. References and state only; no PII or secrets."
+    },
+    "AgentToolApproved": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "agent.tool.approved"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "agent_tool_run"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "runId",
+                "approvalId"
+              ],
+              "properties": {
+                "runId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "approvalId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: agent-approval-gateway; consumers: tool execution worker; TASK-074, TASK-080. References and state only; no PII or secrets."
+    },
+    "AgentToolCompleted": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "agent.tool.completed"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "agent_tool_run"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "runId",
+                "outcomeCode"
+              ],
+              "properties": {
+                "runId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "outcomeCode": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: agent-tool-execution; consumers: audit and result retrieval; TASK-074, TASK-075, TASK-080. References and state only; no PII or secrets."
+    },
+    "AgentToolDenied": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "agent.tool.denied"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "agent_tool_run"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "runId",
+                "reasonCode"
+              ],
+              "properties": {
+                "runId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "reasonCode": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: agent-policy-gateway; consumers: audit and user notification; TASK-074, TASK-075, TASK-080. References and state only; no PII or secrets."
+    },
+    "MetaChangeDetected": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "meta.change.detected"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "meta_platform_change"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "changeId",
+                "product",
+                "apiVersion"
+              ],
+              "properties": {
+                "changeId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "product": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                },
+                "apiVersion": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: meta-change-intelligence; consumers: capability registry and task impact; TASK-065, TASK-076. References and state only; no PII or secrets."
+    },
+    "MetaChangeImpactAnalyzed": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "meta.change.impact.analyzed"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "meta_impact_analysis"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "changeId",
+                "analysisId",
+                "affectedCapabilityCount"
+              ],
+              "properties": {
+                "changeId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "analysisId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "affectedCapabilityCount": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: meta-change-intelligence; consumers: capability registry and backlog; TASK-065, TASK-076. References and state only; no PII or secrets."
+    }
+  }
+}
