@@ -121,7 +121,7 @@ Puedes copiar y completar este resumen si te resulta más cómodo:
 
 ## Respuestas recibidas del propietario (2026-11-06)
 
-Estado del cuestionario: 10 de 20 preguntas respondidas. La fuente de verdad de las decisiones confirmadas es [29-OWNER-DECISIONS.md](29-OWNER-DECISIONS.md).
+Estado: se recibieron 10 respuestas al cuestionario abreviado del chat. No corresponden uno a uno con las preguntas originales Q-001..Q-020. La fuente de verdad de las decisiones confirmadas es [29-OWNER-DECISIONS.md](29-OWNER-DECISIONS.md).
 
 | Pregunta | Respuesta registrada |
 |---|---|
@@ -136,7 +136,7 @@ Estado del cuestionario: 10 de 20 preguntas respondidas. La fuente de verdad de 
 | Q-009 | Chatbots y sugerencias básicas, con proyección futura |
 | Q-010 | Agentes continúan tareas independientes y aplican la mejor opción técnica conocida sin preguntar; consultan decisiones de impacto |
 
-Las preguntas Q-011..Q-020 originales se mantienen pendientes, excepto que la decisión de hosting (VPS), estrategia Git (seguir environment/local) y autonomía operativa se han aclarado parcialmente por las respuestas. No se inferirán detalles de precios, retención, cumplimiento, carga, SLO ni proveedores externos.
+La correspondencia semántica y el estado real de las preguntas originales se encuentra en docs/29-OWNER-DECISIONS.md. No reutilizar la numeración abreviada como si fuera la numeración original. Las decisiones de stack (autorizada recomendación), hosting (VPS), greenfield y autonomía están respondidas; segmentos, monetización, localización, sizing, aislamiento, retención, aprobaciones comerciales, integraciones y criterios de producción permanecen abiertos.
 
 
 ## Aclaración de numeración de respuestas
