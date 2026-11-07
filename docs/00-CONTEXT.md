@@ -102,3 +102,13 @@ La interpretación de la aclaración de IA está registrada en PD-005. No añadi
 - SLO de planificación: 99.9% mensual para core API, RPO <= 15 min y RTO <= 4 h tier base, todos candidatos sujetos a pruebas/HA/coste; no son SLA ni mediciones actuales.
 - Fuentes: docs/29-OWNER-DECISIONS.md, docs/30-RECOMMENDED-ARCHITECTURE.md, docs/31-MASTER-DELIVERY-PLAN.md, docs/32-RESEARCH-AND-EVIDENCE-REGISTER.md.
 - Cambios Meta recientes: versiones Graph/Marketing API por adapter; Embedded Signup v4 a evaluar; BSUID y WAAC/PMA en modelo de identidad/activos; Marketing Messages API como camino principal para marketing WhatsApp frente al sunset anunciado de Cloud API marketing (2027-10-13). Verificar disponibilidad y esquema reales por app/cuenta.
+
+
+## 11. Campaign Intelligence y nueva generación de IA publicitaria
+- Campaigns & Measurement crecen hasta Campaign Intelligence: Meta Insights + CAPI + CRM outcomes, Creative Lab, test cells, optimization recommendations, budget guardrails and audit.
+- Objetivo de negocio: optimizar leads calificados, ventas, revenue neto y contribution margin, no solo clicks o ROAS atribuido.
+- Andromeda/GEM son sistemas internos Meta; WhatsBusiness no puede controlarlos ni consultar score. Se aportan creatividades elegibles diversas y señales de conversión de calidad.
+- Policy PD-024: máximo +20% de aumento automático por operación y +20% acumulado en rolling 24h, medido sobre baseline de ventana. Política propia; no es porcentaje universal publicado por Meta.
+- Meta Ads MCP y Business Agent Platform son integraciones opcionales sujetas a autorización/país/cuenta; todos los writes usan approval gateway.
+- OpenWA y WhatsApp Web automation quedan prohibidos como transporte de producción. Solo APIs Meta oficiales.
+- Documentos obligatorios: docs/34, docs/35 y docs/36.
