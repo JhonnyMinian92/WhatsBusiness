@@ -37,6 +37,7 @@ AS $function$
         ON role_permission.role_id = role.id
        AND role_permission.tenant_id = role.tenant_id
       WHERE tenant.id = p_tenant_id
+        AND p_tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
         AND tenant.status = 'active'
         AND organization.status = 'active'
         AND membership.user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
@@ -124,9 +125,6 @@ CREATE TABLE platform.approval_decisions (
 
 CREATE INDEX approval_decisions_tenant_request_idx
   ON platform.approval_decisions (tenant_id, approval_id, decided_at);
-
-ALTER TABLE platform.audit_stream_heads
-  ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now();
 
 CREATE TABLE platform.audit_stream_heads (
   tenant_id uuid PRIMARY KEY REFERENCES platform.tenants(id) ON DELETE RESTRICT,
