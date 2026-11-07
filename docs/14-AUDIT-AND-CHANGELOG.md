@@ -135,3 +135,16 @@ No se han ejecutado builds, tests de producto, benchmarks, Meta account checks n
 |---|---|---|
 | AUD-030 | INEC REEM 2025 y validación ICP | docs/32 registra 1.204.276 empresas (base provisional 2025), desagregación sectorial y límites metodológicos; no se interpreta como TAM |
 | AUD-031 | US-028 / TASK-066 | Se creó trabajo de discovery cualitativo y pilotos antes de pricing/forecast; estado proposed |
+
+
+## 13. Campaign AI research, product rules and reference benchmark (2026-11-06)
+| ID | Evento | Resultado |
+|---|---|---|
+| AUD-032 | Meta Ads AI research | docs/34 registra Andromeda, GEM, Advantage+ Creative, Ads Creative Studio, Ads MCP, Business Agent and Social Technologies MCP with evidence/limits |
+| AUD-033 | PD-024 campaign spend guardrail | +20% per action and rolling 24h cumulative cap adopted as owner policy, explicitly not Meta universal rule |
+| AUD-034 | Campaign Intelligence design | docs/36 defines two learning planes, Creative Lab, controlled test cells, budget optimizer, CRM/CAPI signals and no-go policies |
+| AUD-035 | Reference project benchmark | docs/35 compares Chatwoot, Twilio Node SDK, httpSMS, Android SMS Gateway and OpenWA from representative files |
+| AUD-036 | Product requirements/backlog | US-029..032 and TASK-067..080 added as proposed and traced in docs/19 |
+| AUD-037 | Formal architecture decisions | ADR-021/022 added to docs/33 for learning plane and budget/official API policy |
+
+No Ads integration, optimizer, AI agent execution, performance benchmark or live campaign change has been implemented/executed by this documentation update.
