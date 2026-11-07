@@ -1,0 +1,23 @@
+{
+  "users": [],
+  "vhosts": [],
+  "permissions": [],
+  "topic_permissions": [],
+  "parameters": [],
+  "policies": [
+    {
+      "vhost": "/",
+      "name": "whatsbusiness-jobs-quorum-dlx",
+      "pattern": "^whatsbusiness\\.jobs\\.worker\\.v1$",
+      "apply-to": "quorum_queues",
+      "priority": 50,
+      "definition": {
+        "dead-letter-exchange": "whatsbusiness.jobs.dlx",
+        "dead-letter-routing-key": "jobs.dead",
+        "dead-letter-strategy": "at-least-once",
+        "overflow": "reject-publish",
+        "delivery-limit": 5
+      }
+    }
+  ]
+}
