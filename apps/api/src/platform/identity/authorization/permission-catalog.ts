@@ -42,6 +42,11 @@ export const PERMISSION_CATALOG = {
     riskClass: "critical",
     requiresIndependentApproval: true,
   },
+  "approvals.read": {
+    description: "Read approval requests visible within the tenant",
+    riskClass: "sensitive",
+    requiresIndependentApproval: false,
+  },
   "approvals.create": {
     description: "Create an approval request",
     riskClass: "sensitive",
