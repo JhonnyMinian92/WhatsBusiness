@@ -280,3 +280,18 @@ La implementación no constituye aún un outbox dispatcher ni consumer: faltan p
 | AUD-080 | Documentación de límites | `docs/59-TENANT-JOB-RETRY-POLICY.md` registra contrato, riesgos y trabajo restante. |
 
 Commits: implementación `c27a8578f56ef2e740a56d907e5fdc963a0a5b46`; tests `aa5c37273011ba354a1b574a8a519fd0d623960a`; registro de suite `98c5b0fdf23416f1ca55ceffaed881b07827e237`; documentación `4890949ae83db4d5b5626c4fd23aad62e1c8d5b3`. No se ejecutaron build/typecheck/tests localmente; consulta de workflow runs asociada al commit de documentación no devolvió runs. No declarar CI PASS ni TASK-003 verified.
+## 24. Runtime durable de jobs y separación backend — TASK-003 (AUD-081..089; 2026-11-07)
+
+| ID | Cambio | Evidencia / resultado |
+|---|---|---|
+| AUD-081 | Backend root `microservices-meta-ecuapp` | Proyecto Nx/workspace/package raíz, manteniendo HTTP foundation en `apps/api` sin duplicar el servicio de base de datos. |
+| AUD-082 | Migración runtime PostgreSQL | `0007-tenant-job-runtime.sql` crea leases de dispatcher/ejecución, fencing tokens, constraints, inbox y funciones acotadas de claim/complete/fail/recovery. |
+| AUD-083 | Roles DB separados | `0008-tenant-job-database-roles.sql` crea roles de grupo dispatcher/worker y revoca funciones de procesamiento al login de API. |
+| AUD-084 | Runtime application/composition | Dispatcher, consumer, session factory, reconnect/backoff estable, bootstrap y manejo de pools independientes. |
+| AUD-085 | RabbitMQ adapters y topology | Publisher confirm + mandatory, consumer manual ACK, quorum queue y DLX configurados como artefactos de infraestructura. |
+| AUD-086 | Graceful shutdown | Consumer cancela intake y espera promesas de entregas activas antes del cierre normal del canal. |
+| AUD-087 | Pruebas agregadas | Unit tests del envelope, retry, dispatcher, consumer, supervisor, session lifecycle, bootstrap, publisher y consumer Rabbit; integración PostgreSQL/Rabbit gated registrada. |
+| AUD-088 | Configuración segura | `.env.example` con URLs/limites sin secretos reales; TLS DB y AMQPS obligatorios en production. |
+| AUD-089 | Documentación técnica | `docs/60-TENANT-JOBS-RUNTIME.md`, README backend, backlog y memoria documentan el estado y límites. |
+
+La migración 0007 fue reemplazada completa para corregir un fragmento SQL duplicado/incompleto descubierto mediante readback y logs de Actions. El commit actual aún necesita una corrida CI verde. No se ejecutaron datos de producción ni se creó frontend. TASK-003 sigue `in_progress`; faltan heartbeat, replay autorizado, observabilidad operativa, crash/concurrency tests extendidos, handlers de negocio reales y revisión independiente.
