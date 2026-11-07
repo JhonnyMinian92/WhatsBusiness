@@ -221,3 +221,14 @@ Source CI run #15 [42379841071](https://github.com/JhonnyMinian92/WhatsBusiness/
 | AUD-056 | Integración y regresión | PLT-005 consume el guard sin cambiar su respuesta pública; tests unitarios y PostgreSQL cubren tenant cruzado, usuario/org/membership inactivos, revocación y snapshot obsoleto. |
 
 Source CI run #47 [42383524043](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42383524043) finalizó SUCCESS para commit `74febd28056043cda15221f29c8c5b71290ca06c`: instalación frozen, migraciones versionadas, idempotencia, build, typecheck y tests unit/integration. TASK-002 está implementada y CI-verificada; revisión independiente de seguridad/arquitectura y aceptación del propietario permanecen pendientes. TASK-004 RBAC/ABAC no se considera cubierta por este contexto base. No se habilitó producción ni endpoints catalog-only.
+## 20. RBAC/ABAC y matriz de permisos — TASK-004 (AUD-057; 2026-11-07)
+
+| ID | Cambio | Evidencia / resultado |
+|---|---|---|
+| AUD-057 | Catálogo versionado de permisos | Migration 0004 inserta permission keys y risk_class sin concederlos ni crear assignments; prueba PostgreSQL comprueba igualdad contra el catálogo tipado. |
+| AUD-058 | Templates tenant least-privilege | Nueve role templates versionados; roles de plataforma quedan separados y no son asignables desde el catálogo tenant. |
+| AUD-059 | Policy evaluator RBAC/ABAC | Decisión pura: membership, tenant, purpose, permission, entitlement, owner, estado, asset grant, consent, approval independiente y frescura capability. |
+| AUD-060 | Role assignment protection | Policy requiere tenant_owner, impide self-assignment, plataforma dentro de tenant y privilegios por encima del actor; exige aprobación independiente. |
+| AUD-061 | Guards y regresión | `AuthorizationGuard` + `@RequireTenantPermission`; suites allow/deny, catálogo, asignación y PostgreSQL. |
+
+Source CI run #67 [42385036275](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42385036275) finalizó SUCCESS para commit `53e50dc00daccc7c64c7931e468e6ef0af132940`: frozen install, migraciones e idempotencia, build, typecheck y tests. La entrega no habilita mutaciones ni IAM-007..020 (catalog-only). El audit append-only, step-up y workflow durable de approvals quedan para TASK-005. Revisión independiente y aceptación del propietario pendientes.
