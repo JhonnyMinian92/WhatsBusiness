@@ -51,9 +51,9 @@ function setup(options: { handlerFails?: boolean; claimAvailable?: boolean } = {
     },
   };
   const execution: TenantJobExecutionBoundary = {
-    async execute(_context, work) {
+    async execute(context, work) {
       events.push("transaction-begin");
-      const result = await work({} as never);
+      const result = await work({} as never, context);
       events.push("transaction-commit");
       return result;
     },
