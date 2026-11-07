@@ -73,6 +73,7 @@ test("PostgreSQL approval workflow enforces idempotency, quorum, step-up, exact 
     await adminPool.query(
       "CREATE TABLE platform.approval_test_commands (id uuid PRIMARY KEY, approval_id uuid NOT NULL, tenant_id uuid NOT NULL, request_hash char(64) NOT NULL)",
     );
+    await adminPool.query("GRANT INSERT ON platform.approval_test_commands TO whatsbusiness_app");
     await adminPool.query(
       "INSERT INTO platform.organizations (id, organization_type, name) VALUES ($1, 'customer', 'Synthetic approval integration')",
       [organizationId],
