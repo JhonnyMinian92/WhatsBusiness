@@ -61,6 +61,7 @@ AS $function$
   UPDATE platform.tenants
      SET authz_version = authz_version + 1
    WHERE id = p_tenant_id
+     AND status <> 'deleted'
 $function$;
 
 REVOKE ALL ON FUNCTION platform.bump_tenant_authorization_version(uuid) FROM PUBLIC;
