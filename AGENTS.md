@@ -130,3 +130,11 @@ For every non-trivial feature, assess Product/BA, domain/marketing, architecture
 - Meta Business Agent interoperability requires conversation ownership/lease, loop prevention and human handoff. Never let multiple bot providers answer the same thread concurrently.
 - Use official Meta APIs only for WhatsApp, Messenger, Instagram, Ads, Leads and conversions. OpenWA is read-only architecture reference for plugins/MCP patterns; never ship or fall back to WhatsApp Web/browser automation or QR sessions.
 - Treat third-party SDK/repository code as reference; check license, security, current source and version before reuse. Do not assume README marketing claims are performance evidence.
+
+
+## Campaign Intelligence and external reference research
+- Read docs/34, docs/35 and docs/36 for current Meta Ads AI, campaign learning, budget rules and benchmark projects.
+- Campaign requirements US-029..032, tasks TASK-067..080, decisions PD-024 and ADR-021/022 apply.
+- The 20% cap is owner-defined; never misattribute it to Meta.
+- Always protect winning ad sets and use isolated experiments; no model may directly write to Meta Ads API.
+- OpenWA is not an approved WhatsApp transport. Official Meta APIs only.
