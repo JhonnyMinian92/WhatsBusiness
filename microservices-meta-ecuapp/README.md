@@ -33,7 +33,7 @@ RabbitMQ 4.4 con quorum queues es la baseline documentada en docs/51. Se requier
 
 ## Validación
 
-`pnpm build`, `pnpm typecheck` y `pnpm test` ejecutan también este proyecto Nx. Source CI aplica migraciones hasta la 0007 y habilita `RUN_TENANT_JOB_RUNTIME_INTEGRATION_TESTS=true` sobre PostgreSQL efímero.
+`pnpm build`, `pnpm typecheck` y `pnpm test` ejecutan también este proyecto Nx. Source CI aplica migraciones versionadas hasta la 0009 y habilita `RUN_TENANT_JOB_RUNTIME_INTEGRATION_TESTS=true y valida renovación de leases con fencing` sobre PostgreSQL efímero.
 
 ## Estado honesto
 
