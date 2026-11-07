@@ -285,3 +285,53 @@ test("permission catalog and tenant role templates stay internally consistent", 
   assert.equal(agent.permissions.includes("roles.assign"), false);
   assert.equal(agent.permissions.includes("ads.publish.request"), false);
 });
+
+test("policy requires the configured number of distinct independent approvers", () => {
+  const actor = subject({
+    purpose: "tenant.roles.assign",
+    permissionKeys: ["roles.assign"],
+  });
+  const insufficient = evaluator.evaluate(evaluation({
+    subject: actor,
+    permission: "roles.assign",
+    purpose: "tenant.roles.assign",
+    evidence: {
+      approval: {
+        status: "approved",
+        approverIds: [randomUUID()],
+        requiredApprovals: 2,
+      },
+    },
+  }));
+  assert.equal(insufficient.allowed, false);
+  assert.equal(insufficient.reason, "APPROVAL_NOT_GRANTED");
+
+  const duplicated = randomUUID();
+  const duplicateVoters = evaluator.evaluate(evaluation({
+    subject: actor,
+    permission: "roles.assign",
+    purpose: "tenant.roles.assign",
+    evidence: {
+      approval: {
+        status: "approved",
+        approverIds: [duplicated, duplicated],
+        requiredApprovals: 2,
+      },
+    },
+  }));
+  assert.equal(duplicateVoters.reason, "APPROVAL_NOT_GRANTED");
+
+  const approved = evaluator.evaluate(evaluation({
+    subject: actor,
+    permission: "roles.assign",
+    purpose: "tenant.roles.assign",
+    evidence: {
+      approval: {
+        status: "approved",
+        approverIds: [randomUUID(), randomUUID()],
+        requiredApprovals: 2,
+      },
+    },
+  }));
+  assert.equal(approved.allowed, true);
+});
