@@ -96,4 +96,4 @@ Los 14 nombres se incorporaron como contratos v1.0.0 porque representan hechos d
 
 ### 7.2 Comprobaciones de contrato y límite de validación
 
-Comprobación estructural actual: 69 canales; 69 `publish`; 69 `subscribe`; 138 operationIds únicos; 69 referencias de mensajes; 69 tipos y 69 definiciones de payload con correspondencia uno a uno. JSON Schemas parseables como JSON y referencias de payload coherentes. No equivale a lint/parse oficial AsyncAPI, validación JSON Schema con fixtures, contract tests, compatibilidad, broker ni prueba de productores/consumers runtime. Los resultados y bloqueos se registran en docs/56.
+Cobertura declarada y comprobada por inspección estructural del contenido guardado: 69 canales; 69 `publish`; 69 `subscribe`; 138 operationIds únicos; 69 referencias de mensajes; 69 tipos y 69 definiciones de payload. El workflow añade parser/linter AsyncAPI, parser OpenAPI y validación AJV 2020-12 con fixtures positivos y negativos por evento; su resultado debe confirmarse en GitHub Actions. Esto no prueba compatibilidad producer/consumer ni broker/runtime. Los resultados y bloqueos se registran en docs/56.
