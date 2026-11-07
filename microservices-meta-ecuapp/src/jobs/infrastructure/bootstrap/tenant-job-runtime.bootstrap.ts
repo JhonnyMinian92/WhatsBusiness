@@ -7,7 +7,7 @@ import { RabbitMqPostgresTenantJobRuntimeSessionFactory } from "../rabbitmq/rabb
 import type { TenantDatabaseTransactionBoundary } from "../postgres/postgres-tenant-job-execution-boundary.js";
 
 export interface TenantJobRuntimeBootstrapOptions {
-  readonly database: TenantDatabaseTransactionBoundary;
+  readonly databaseFactory: (workerPool: Pool) => TenantDatabaseTransactionBoundary;
   readonly handlers: readonly TenantJobHandler[];
   readonly logger: TenantJobRuntimeSessionLogger;
   readonly environment?: NodeJS.ProcessEnv;
@@ -69,7 +69,7 @@ export class TenantJobRuntimeProcess {
         connectionName: environment["TENANT_JOB_CONNECTION_NAME"]?.trim() || "whatsbusiness-job-runtime",
         dispatcherPool,
         workerPool,
-        database: options.database,
+        database: options.databaseFactory(workerPool),
         handlers: options.handlers,
         logger: options.logger,
         consumerName: environment["TENANT_JOB_CONSUMER_NAME"]?.trim() || "inbox-worker",
