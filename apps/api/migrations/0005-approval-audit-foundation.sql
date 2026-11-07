@@ -450,6 +450,14 @@ CREATE POLICY approval_decisions_read ON platform.approval_decisions
     AND (
       platform.has_permission(tenant_id, 'approvals.read')
       OR platform.has_permission(tenant_id, 'approvals.decide')
+      OR EXISTS (
+        SELECT 1
+          FROM platform.approval_requests AS request
+         WHERE request.id = approval_decisions.approval_id
+           AND request.tenant_id = approval_decisions.tenant_id
+           AND request.requester_user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
+           AND platform.has_permission(tenant_id, 'approvals.create')
+      )
     )
   );
 CREATE POLICY approval_decisions_create ON platform.approval_decisions
