@@ -4,6 +4,8 @@ import { Pool, type PoolClient } from "pg";
 import test from "node:test";
 
 const runtimeUrl = process.env["DATABASE_URL"];
+const dispatcherUrl = process.env["DATABASE_JOB_DISPATCHER_URL"];
+const workerUrl = process.env["DATABASE_JOB_WORKER_URL"];
 const migrationUrl = process.env["MIGRATION_DATABASE_URL"];
 const enabled = process.env["RUN_TENANT_JOB_RUNTIME_INTEGRATION_TESTS"] === "true";
 
@@ -43,7 +45,7 @@ async function stageJob(
   jobType: string,
   payload: Record<string, unknown>,
 ): Promise<string> {
-  return withTenantContext(runtimePool, actorUserId, tenantId, async (client) => {
+  return withTenantContext(workerPool, actorUserId, tenantId, async (client) => {
     const requestHash = "a".repeat(64);
     const result = await client.query<{ id: string }>(
       [
@@ -70,23 +72,24 @@ async function stageJob(
 }
 
 async function publishAndClaim(
-  runtimePool: Pool,
+  dispatcherPool: Pool,
+  workerPool: Pool,
   jobId: string,
   leaseSeconds = 30,
 ): Promise<{ leaseToken: string; attempt: number }> {
-  const dispatch = await runtimePool.query<{ lease_token: string }>(
+  const dispatch = await dispatcherPool.query<{ lease_token: string }>(
     "SELECT lease_token FROM platform.claim_tenant_job_publications(10, 30) WHERE job_id = $1",
     [jobId],
   );
   const dispatchToken = dispatch.rows[0]?.lease_token;
   if (!dispatchToken) throw new Error("Synthetic tenant job was not claimed by the dispatcher.");
-  const published = await runtimePool.query<{ marked: boolean }>(
+  const published = await dispatcherPool.query<{ marked: boolean }>(
     "SELECT platform.mark_tenant_job_published($1, $2) AS marked",
     [jobId, dispatchToken],
   );
   assert.equal(published.rows[0]?.marked, true);
 
-  const execution = await runtimePool.query<{ lease_token: string; attempt: number; payload: unknown }>(
+  const execution = await workerPool.query<{ lease_token: string; attempt: number; payload: unknown }>(
     "SELECT lease_token, attempt, payload FROM platform.claim_tenant_job_execution($1, $2)",
     [jobId, leaseSeconds],
   );
@@ -97,10 +100,12 @@ async function publishAndClaim(
 }
 
 test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atomic", {
-  skip: !enabled || !runtimeUrl || !migrationUrl,
+  skip: !enabled || !runtimeUrl || !dispatcherUrl || !workerUrl || !migrationUrl,
 }, async () => {
   const adminPool = new Pool({ connectionString: migrationUrl, max: 1 });
-  const runtimePool = new Pool({ connectionString: runtimeUrl, max: 4 });
+  const runtimePool = new Pool({ connectionString: runtimeUrl, max: 2 });
+  const dispatcherPool = new Pool({ connectionString: dispatcherUrl, max: 2 });
+  const workerPool = new Pool({ connectionString: workerUrl, max: 4 });
   const organizationId = randomUUID();
   const tenantId = randomUUID();
   const actorUserId = randomUUID();
@@ -141,10 +146,10 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
       "inbox.message.process", { messageId: "synthetic-message-1", version: 1 },
     );
     insertedJobs.push(completionJobId);
-    const completion = await publishAndClaim(runtimePool, completionJobId);
+    const completion = await publishAndClaim(dispatcherPool, workerPool, completionJobId);
 
     const wrongContext = await assert.rejects(
-      withTenantContext(runtimePool, otherActorUserId, otherTenantId, async (client) => {
+      withTenantContext(workerPool, otherActorUserId, otherTenantId, async (client) => {
         await client.query(
           "SELECT platform.complete_tenant_job($1, $2, 'inbox-worker')",
           [completionJobId, completion.leaseToken],
@@ -153,14 +158,14 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
     );
     assert.ok(wrongContext);
 
-    const wrongPublicationToken = await runtimePool.query<{ marked: boolean }>(
+    const wrongPublicationToken = await dispatcherPool.query<{ marked: boolean }>(
       "SELECT platform.mark_tenant_job_published($1, $2) AS marked",
       [completionJobId, randomUUID()],
     );
     assert.equal(wrongPublicationToken.rows[0]?.marked, false);
 
     await assert.rejects(
-      withTenantContext(runtimePool, actorUserId, tenantId, async (client) => {
+      withTenantContext(workerPool, actorUserId, tenantId, async (client) => {
         await client.query(
           "SELECT platform.complete_tenant_job($1, $2, 'inbox-worker')",
           [completionJobId, completion.leaseToken],
@@ -180,7 +185,7 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
     assert.equal(rolledBack.rows[0]?.status, "processing");
     assert.equal(rolledBack.rows[0]?.inbox_count, "0");
 
-    await withTenantContext(runtimePool, actorUserId, tenantId, async (client) => {
+    await withTenantContext(workerPool, actorUserId, tenantId, async (client) => {
       await client.query(
         "SELECT platform.complete_tenant_job($1, $2, 'inbox-worker')",
         [completionJobId, completion.leaseToken],
@@ -202,8 +207,8 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
       "inbox.message.retry", { messageId: "synthetic-message-2" },
     );
     insertedJobs.push(retryJobId);
-    const retryClaim = await publishAndClaim(runtimePool, retryJobId);
-    const scheduled = await runtimePool.query<{ outcome: string }>(
+    const retryClaim = await publishAndClaim(dispatcherPool, workerPool, retryJobId);
+    const scheduled = await workerPool.query<{ outcome: string }>(
       "SELECT platform.fail_tenant_job($1, $2, 'UPSTREAM_TIMEOUT', true, clock_timestamp() + interval '4 seconds') AS outcome",
       [retryJobId, retryClaim.leaseToken],
     );
@@ -219,8 +224,8 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
       "inbox.message.permanent", { messageId: "synthetic-message-3" },
     );
     insertedJobs.push(permanentJobId);
-    const permanentClaim = await publishAndClaim(runtimePool, permanentJobId);
-    const deadLetter = await runtimePool.query<{ outcome: string }>(
+    const permanentClaim = await publishAndClaim(dispatcherPool, workerPool, permanentJobId);
+    const deadLetter = await workerPool.query<{ outcome: string }>(
       "SELECT platform.fail_tenant_job($1, $2, 'INVALID_MESSAGE', false, NULL) AS outcome",
       [permanentJobId, permanentClaim.leaseToken],
     );
@@ -236,13 +241,13 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
       "inbox.message.dispatch", { messageId: "synthetic-message-4" },
     );
     insertedJobs.push(dispatchBlockedJobId);
-    const dispatchClaim = await runtimePool.query<{ lease_token: string }>(
+    const dispatchClaim = await dispatcherPool.query<{ lease_token: string }>(
       "SELECT lease_token FROM platform.claim_tenant_job_publications(10, 30) WHERE job_id = $1",
       [dispatchBlockedJobId],
     );
     const dispatchToken = dispatchClaim.rows[0]?.lease_token;
     assert.ok(dispatchToken);
-    const blocked = await runtimePool.query<{ released: boolean }>(
+    const blocked = await dispatcherPool.query<{ released: boolean }>(
       "SELECT platform.release_tenant_job_publication($1, $2, NULL, 'UNROUTABLE_TENANT_JOB', true) AS released",
       [dispatchBlockedJobId, dispatchToken],
     );
@@ -258,10 +263,10 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
       "inbox.message.expire", { messageId: "synthetic-message-5" },
     );
     insertedJobs.push(expiredJobId);
-    const expiredClaim = await publishAndClaim(runtimePool, expiredJobId, 5);
+    const expiredClaim = await publishAndClaim(dispatcherPool, workerPool, expiredJobId, 5);
     assert.ok(expiredClaim.leaseToken);
     await new Promise((resolve) => setTimeout(resolve, 5_200));
-    const recovered = await runtimePool.query<{
+    const recovered = await dispatcherPool.query<{
       recovered_execution_leases: number;
       recovered_dispatch_leases: number;
       redispatched_stale_messages: number;
@@ -280,7 +285,7 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
     });
 
     await assert.rejects(
-      runtimePool.query("SELECT payload FROM platform.tenant_job_records WHERE id = $1", [completionJobId]),
+      workerPool.query("SELECT payload FROM platform.tenant_job_records WHERE id = $1", [completionJobId]),
       (error: unknown) => typeof error === "object" && error !== null && "code" in error
         && (error as { code: string }).code === "42501",
     );
@@ -293,6 +298,8 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
       await adminPool.query("DELETE FROM platform.organizations WHERE id = $1", [organizationId]);
       await adminPool.query("DELETE FROM platform.users WHERE id = ANY($1::uuid[])", [[actorUserId, otherActorUserId]]);
     } finally {
+      await workerPool.end();
+      await dispatcherPool.end();
       await runtimePool.end();
       await adminPool.end();
     }
