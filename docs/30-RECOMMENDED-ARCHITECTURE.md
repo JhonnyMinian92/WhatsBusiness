@@ -229,3 +229,24 @@ TASK-039 debe:
 
 ## 15. Registros formales de decisión
 Los ADR-011..020 completos —contexto, alternativas, consecuencias, seguridad, coste, reversibilidad y triggers de revisión— se encuentran en [33-ARCHITECTURE-DECISION-RECORDS.md](33-ARCHITECTURE-DECISION-RECORDS.md). Esa matriz es normativa junto con este documento.
+
+
+## 16. Campaign Intelligence y agente de operaciones
+
+El modelo objetivo se extiende con dos planos separados:
+- Meta Delivery Plane: Meta controla retrieval/ranking/auction/delivery con sistemas internos como Andromeda y GEM; nuestro sistema no los llama ni accede a sus scores privados.
+- WhatsBusiness Intelligence Plane: ingiere provider Insights + CAPI/CRM business outcomes, crea snapshots, calcula KPIs internos, genera hipótesis/creative variants y planifica experimentos controlados.
+
+Nuevos componentes lógicos:
+- Campaign Intelligence / Optimization Service: campaign snapshots, KPI registry, health diagnostics, recommendation lifecycle, budget guardrails.
+- Creative Lab: assets/variants, metadata semántica, brand kit, claims evidence, provenance IA, preview y approval.
+- Experiment Service: test cells, control/variant, audience overlap, sample/stop rules, split tests y results.
+- Marketing Signals Pipeline: Meta Insights, lead lifecycle/CRM, CAPI events, revenue/margin and attribution snapshots.
+- Agent Tool Gateway: tool schemas/MCP endpoints; todas las acciones atraviesan tenant auth, capability, purpose, policy, approval, budget, idempotency y audit.
+
+Meta agent interoperability:
+- Meta Ads MCP puede producir drafts/previews/insights en cuentas habilitadas; sus operaciones se encapsulan en un adapter/connector, nunca se consideran policy authority.
+- Meta Business Agent se integra con conversation ownership/handoff. Solo un responder activo puede emitir respuesta al contacto a la vez; el lease expira y se audita.
+- Social Technologies MCP puede ayudar al developer onboarding/configuración, no se expone como API runtime pública del cliente por defecto.
+
+El modelo canónico y reglas de ejecución se encuentran en [36-CAMPAIGN-INTELLIGENCE-AND-GUARDED-SCALING.md](36-CAMPAIGN-INTELLIGENCE-AND-GUARDED-SCALING.md).
