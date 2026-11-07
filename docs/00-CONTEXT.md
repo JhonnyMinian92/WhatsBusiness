@@ -90,3 +90,15 @@ Consultar [29-OWNER-DECISIONS.md](29-OWNER-DECISIONS.md) como fuente canónica.
 - Agentes: continuar trabajo independiente; resolver decisiones técnicas reversibles y documentarlas; escalar bloqueos de negocio, coste, datos, seguridad, cumplimiento y breaking changes.
 
 La interpretación de la aclaración de IA está registrada en PD-005. No añadir alcance de RAG, voz o agentes autónomos sin nueva decisión.
+
+
+## 10. Baseline aplicada por delegación del propietario (2026-11-06)
+- Segmento inicial: PYMES ecuatorianas de comercio/servicios; agencias multiempresa como segmento secundario. Hipótesis de go-to-market pendiente de validar con entrevistas y pilotos, no estadística de mercado.
+- Monetización: suscripción por tenant + usuarios/asientos + uso medido. Costes externos de Meta se informan y concilian por separado; no hay precios ni márgenes aprobados.
+- Localización por defecto: es-EC, USD y America/Guayaquil; configurable por tenant.
+- Multi-tenancy: PostgreSQL compartido con tenant_id, autorización server-side y RLS; aislamiento dedicado como opción enterprise. Agencia accede mediante grants delegados explícitos, temporales/revocables y auditados.
+- Privacidad: minimización, clasificación, retención configurable y workflows de derechos/exportación/borrado. Plazos y bases legales definitivas esperan revisión especializada LOPDP y transferencias.
+- Arquitectura adoptada: modular monolith con API/worker/scheduler separados como procesos; TypeScript/NestJS, Angular, Nx/pnpm, PostgreSQL, Redis, RabbitMQ, OIDC/Keycloak, Docker y OpenTelemetry. No desplegar microservicios prematuros.
+- SLO de planificación: 99.9% mensual para core API, RPO <= 15 min y RTO <= 4 h tier base, todos candidatos sujetos a pruebas/HA/coste; no son SLA ni mediciones actuales.
+- Fuentes: docs/29-OWNER-DECISIONS.md, docs/30-RECOMMENDED-ARCHITECTURE.md, docs/31-MASTER-DELIVERY-PLAN.md, docs/32-RESEARCH-AND-EVIDENCE-REGISTER.md.
+- Cambios Meta recientes: versiones Graph/Marketing API por adapter; Embedded Signup v4 a evaluar; BSUID y WAAC/PMA en modelo de identidad/activos; Marketing Messages API como camino principal para marketing WhatsApp frente al sunset anunciado de Cloud API marketing (2027-10-13). Verificar disponibilidad y esquema reales por app/cuenta.
