@@ -57,17 +57,25 @@ test("OIDC verifier validates RSA signature, issuer, audience, expiry and not-be
       sub: "synthetic-user-01",
       aud: "whatsbusiness-web",
       exp: Math.floor(Date.now() / 1000) + 300,
+      auth_time: Math.floor(Date.now() / 1000) - 30,
+      acr: "urn:synthetic:loa:2",
+      amr: ["pwd", "otp"],
       name: "Synthetic User",
     };
     const verified = await verifier.verify(tokenFor(privateKey, claims));
     assert.equal(verified.subject, "synthetic-user-01");
     assert.equal(verified.displayName, "Synthetic User");
+    assert.equal(verified.authTime, claims.auth_time);
+    assert.equal(verified.authenticationContext, "urn:synthetic:loa:2");
+    assert.deepEqual(verified.authenticationMethods, ["pwd", "otp"]);
 
     for (const rejected of [
       { ...claims, iss: "http://attacker.synthetic.test" },
       { ...claims, aud: "other-client" },
       { ...claims, exp: Math.floor(Date.now() / 1000) - 5 },
       { ...claims, nbf: Math.floor(Date.now() / 1000) + 300 },
+      { ...claims, auth_time: Math.floor(Date.now() / 1000) + 300 },
+      { ...claims, amr: "otp" },
     ]) {
       await assert.rejects(
         verifier.verify(tokenFor(privateKey, rejected)),
