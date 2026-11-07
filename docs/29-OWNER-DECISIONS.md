@@ -108,3 +108,19 @@ No se asume RAG, voz, entrenamiento propio ni agentes autónomos con permisos de
 - Escalar al propietario decisiones comerciales, compromisos de gasto, retención/legal, transferencias de datos, seguridad crítica, vendor/contratos, breaking changes y acciones productivas.
 - No interpretar "toma las mejores decisiones" como permiso para inventar evidencia, omitir gates o aprobarse a sí mismo.
 - La aceptación final del producto sigue perteneciendo al propietario.
+
+
+## 8. Política adicional adoptada por instrucción del propietario (2026-11-06)
+
+| ID | Área | Decisión | Fundamento/alcance |
+|---|---|---|---|
+| PD-024 | Escalado automático de presupuestos Ads | Ningún aumento automático supera +20% por operación ni +20% acumulado sobre el presupuesto de referencia de una ventana móvil de 24 horas | Guardrail propio y más conservador del producto, impuesto por el propietario. No atribuir a Meta como umbral universal ni afirmar que evita toda recalibración del learning. Ver docs/36. |
+
+La política se aplica en el backend y el execution gateway, no solo en la UI. Se verifica con lock/serialización por objeto presupuestario, idempotency key, account spend caps y relectura del estado Meta justo antes del cambio. Los agentes no pueden dividir un incremento en varias operaciones para evadir el límite ni reiniciar el periodo de referencia. Cualquier cambio al cap requiere autorización del propietario.
+
+## 9. Precisión sobre Andromeda y el 20%
+- Andromeda es el motor interno de retrieval de anuncios elegibles, no un producto API que podamos configurar o llamar para elegir ganadores.
+- La acción de WhatsBusiness es aportar señales comerciales autorizadas, campañas y creatividades elegibles/diversas, más experimentos controlados. Meta conserva el control de retrieval/ranking/delivery.
+- Las fuentes revisadas de Meta describen aprendizaje a nivel ad set, el impacto de cambios y un contexto de unos 50 eventos/7 días. No se encontró un umbral público universal que determine que un incremento >20% siempre empeora resultados o reinicia aprendizaje.
+- Meta Ad Set Budget Sharing que usa 20% es una función de redistribución parcial de presupuesto diario entre ad sets, no una regla general de escalado de presupuesto.
+- Por lo tanto PD-024 es un límite operativo de WhatsBusiness elegido por el propietario, no una cita de política Meta.
