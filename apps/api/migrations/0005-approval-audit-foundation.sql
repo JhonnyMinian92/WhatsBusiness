@@ -191,6 +191,7 @@ CREATE TRIGGER audit_events_append_only
 CREATE OR REPLACE FUNCTION platform.prevent_audit_head_rewind()
 RETURNS trigger
 LANGUAGE plpgsql
+SECURITY DEFINER
 SET search_path = pg_catalog, platform
 AS $function$
 BEGIN
