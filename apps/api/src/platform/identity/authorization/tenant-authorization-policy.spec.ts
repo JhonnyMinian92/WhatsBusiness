@@ -1,14 +1,11 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import test from "node:test";
-import type { TenantAccessContext } from "../tenant-access-context.js";
-import {
-  PERMISSION_CATALOG,
-  type PermissionKey,
-} from "./permission-catalog.js";
+import { PERMISSION_CATALOG } from "./permission-catalog.js";
 import {
   TenantAuthorizationPolicyEvaluator,
   type AuthorizationEvaluation,
+  type AuthorizationSubject,
 } from "./tenant-authorization-policy.js";
 import {
   PLATFORM_ROLE_KEYS,
@@ -19,7 +16,7 @@ const tenantId = randomUUID();
 const actorId = randomUUID();
 const evaluator = new TenantAuthorizationPolicyEvaluator();
 
-function subject(overrides: Partial<TenantAccessContext> = {}): TenantAccessContext {
+function subject(overrides: Partial<AuthorizationSubject> = {}): AuthorizationSubject {
   return {
     actorId,
     tenantId,
@@ -61,7 +58,7 @@ test("policy allows a granted permission within the active tenant and declared p
 
 test("policy denies inactive membership before permission evaluation", () => {
   const decision = evaluator.evaluate(evaluation({
-    subject: subject({ membershipStatus: "suspended" as "active" }),
+    subject: subject({ membershipStatus: "suspended" }),
   }));
   assert.equal(decision.allowed, false);
   assert.equal(decision.reason, "MEMBERSHIP_NOT_ACTIVE");
@@ -285,6 +282,6 @@ test("permission catalog and tenant role templates stay internally consistent", 
 
   const agent = TENANT_ROLE_CATALOG.find((role) => role.roleKey === "agent");
   assert.ok(agent);
-  assert.equal(agent.permissions.includes("roles.assign" as PermissionKey), false);
-  assert.equal(agent.permissions.includes("ads.publish.request" as PermissionKey), false);
+  assert.equal(agent.permissions.includes("roles.assign"), false);
+  assert.equal(agent.permissions.includes("ads.publish.request"), false);
 });
