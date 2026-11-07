@@ -125,6 +125,8 @@ test("PostgreSQL RLS isolates tenants and clears SET LOCAL context on a reused c
       "VALUES ($1, $2, 'tenant-a', 'Synthetic Tenant A', 'active'),",
       "       ($3, $2, 'tenant-b', 'Synthetic Tenant B', 'active')",
     ].join("\n"), [tenantA, organizationId, tenantB]);
+    await adminPool.query("UPDATE platform.tenants SET status = 'suspended' WHERE id = $1", [tenantA]);
+    await adminPool.query("UPDATE platform.tenants SET status = 'active' WHERE id = $1", [tenantA]);
     await adminPool.query(
       "INSERT INTO platform.memberships (tenant_id, user_id, status) VALUES ($1, $2, 'active'), ($3, $4, 'active')",
       [tenantA, userA, tenantB, userB],
@@ -177,6 +179,12 @@ test("PostgreSQL RLS isolates tenants and clears SET LOCAL context on a reused c
       client.query<{ tenant_id: string }>("SELECT tenant_id::text FROM platform.memberships ORDER BY tenant_id"),
     );
     assert.deepEqual(membershipsB.rows.map((row) => row.tenant_id), [tenantB]);
+
+    await assert.rejects(
+      adminPool.query("UPDATE platform.tenants SET status = 'pending_provisioning' WHERE id = $1", [tenantA]),
+      (error: unknown) => typeof error === "object" && error !== null && "code" in error
+        && (error as { code: string }).code === "23514",
+    );
 
     await adminPool.query("UPDATE platform.tenants SET status = 'suspended' WHERE id = $1", [tenantA]);
     const suspended = await adminPool.query<{ status: string; suspended_at: Date | null }>(
