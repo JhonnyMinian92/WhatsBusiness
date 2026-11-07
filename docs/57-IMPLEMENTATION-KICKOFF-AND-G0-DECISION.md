@@ -98,6 +98,7 @@ El primer workspace fue añadido directamente a `environment/local`:
 Evidencia CI posterior al scaffold:
 - [Source workspace validation #3](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42373918923) terminó SUCCESS: instalación, build API/Web, typecheck, tests iniciales y creación del lockfile. Run intermedio anterior a los tests del controller.
 - [Source workspace validation #6](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42374058862) terminó SUCCESS con `pnpm install` usando lockfile existente, build API/Web, typecheck y los tests ampliados de health.
+- [Source workspace validation #7](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42374267061) terminó SUCCESS en el HEAD actual; además incluye target explícito de typecheck Angular (`ng build web --configuration development`), de modo que Nx ejecuta verificación para API y Web.
 - [Contract validation #12](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42373843076) terminó SUCCESS: Redocly OpenAPI, AsyncAPI CLI y validador AJV con las 69 definiciones/fixtures de eventos; incluye la comprobación de 296 operaciones y unicidad de `x-api-id`.
 
 La evidencia prueba compilación/tests del scaffold y validación estructural de contratos. No prueba todavía OIDC aplicado al API, base de datos integrada, RLS con pool Node, outbox runtime, ni aceptación independiente del producto.
