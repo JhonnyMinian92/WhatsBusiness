@@ -177,6 +177,34 @@ test("PostgreSQL RLS isolates tenants and clears SET LOCAL context on a reused c
       client.query<{ tenant_id: string }>("SELECT tenant_id::text FROM platform.memberships ORDER BY tenant_id"),
     );
     assert.deepEqual(membershipsB.rows.map((row) => row.tenant_id), [tenantB]);
+
+    await adminPool.query("UPDATE platform.tenants SET status = 'suspended' WHERE id = $1", [tenantA]);
+    const suspended = await adminPool.query<{ status: string; suspended_at: Date | null }>(
+      "SELECT status, suspended_at FROM platform.tenants WHERE id = $1",
+      [tenantA],
+    );
+    assert.equal(suspended.rows[0]?.status, "suspended");
+    assert.ok(suspended.rows[0]?.suspended_at instanceof Date);
+
+    await adminPool.query("UPDATE platform.tenants SET status = 'active' WHERE id = $1", [tenantA]);
+    await adminPool.query("UPDATE platform.tenants SET status = 'closing' WHERE id = $1", [tenantA]);
+    await adminPool.query("UPDATE platform.tenants SET status = 'deleted' WHERE id = $1", [tenantA]);
+
+    await assert.rejects(
+      adminPool.query("UPDATE platform.tenants SET status = 'active' WHERE id = $1", [tenantA]),
+      (error: unknown) => typeof error === "object" && error !== null && "code" in error
+        && (error as { code: string }).code === "23514",
+    );
+    await assert.rejects(
+      adminPool.query("UPDATE platform.tenants SET organization_id = $2 WHERE id = $1", [tenantB, organizationId]),
+      (error: unknown) => typeof error === "object" && error !== null && "code" in error
+        && (error as { code: string }).code === "23514",
+    );
+    await assert.rejects(
+      adminPool.query("DELETE FROM platform.organizations WHERE id = $1", [organizationId]),
+      (error: unknown) => typeof error === "object" && error !== null && "code" in error
+        && (error as { code: string }).code === "23503",
+    );
   } finally {
     await adminPool.query("DELETE FROM platform.organizations WHERE id = $1", [organizationId]);
     await adminPool.query("DELETE FROM platform.users WHERE id = ANY($1::uuid[])", [[userA, userB]]);
