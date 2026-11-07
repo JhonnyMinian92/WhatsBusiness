@@ -113,3 +113,21 @@ Estas tareas se añaden a la línea base porque el propietario confirmó greenfi
 | TASK-041 | Definición operativa: SLO/RPO/RTO, capacidad, backups y presupuesto VPS | Q-013 | Objetivos cuantificados y validados por propietario |
 
 Estado inicial de TASK-034..041: proposed. TASK-039 no autoriza compra de servicios ni contratación de proveedores; cualquier coste recurrente requiere aprobación.
+
+
+## EP-09 — CRM, Inbox, automatización e IA (nuevo alcance confirmado)
+| Tarea | Historia | Entregable / alcance | Dependencias | QA y DoD | Control |
+|---|---|---|---|---|---|
+| TASK-042 | US-018 | Contactos, perfiles y custom fields | TASK-001,034 | tenant isolation, validation, audit | PD-004 |
+| TASK-043 | US-018 | Identidades multicanal, dedupe y merge reversible | TASK-042,022 | collision, provenance, undo tests | CR: identity resolution |
+| TASK-044 | US-019 | Pipelines, oportunidades, tareas y timeline | TASK-042,004 | transition, assignment, permission tests | PD-004 |
+| TASK-045 | US-020 | Conversation/message canonical model + channel extensions | TASK-010,027,036 | adapter contract, native payload, capability tests | PD-003/004 |
+| TASK-046 | US-020 | Inbox UI, search, filters, message composer | TASK-045, frontend foundation | E2E per channel, responsive, a11y | PD-006 |
+| TASK-047 | US-021 | Teams, assignment, internal notes and handoff | TASK-004,045 | race, duplicate send, privacy tests | PD-004 |
+| TASK-048 | US-022 | Workflow definition, versioning and builder | TASK-028,034,037 | schema, simulation, permission tests | PD-005 |
+| TASK-049 | US-022 | Workflow runtime, scheduler, retries and kill switch | TASK-048,027,028 | idempotency, DLQ, timeout, replay tests | PD-005 |
+| TASK-050 | US-023 | AI Gateway/provider adapters and budget ledger | TASK-029,038 | timeout, cost cap, redaction, fallback tests | PD-005 |
+| TASK-051 | US-023 | Reply suggestions, rule chatbot and human handoff | TASK-045,047,050 | no-auto-send, prompt injection, eval tests | PD-005 |
+| TASK-052 | US-024 | Tenant lifecycle, plans, entitlements and support access | TASK-001,004,041 | privilege, audit, entitlement tests | PD-001 |
+
+All tasks proposed; module paths and service ownership are finalized only after repository bootstrap and architecture spike. TASK-034..041 cover discovery/architecture; TASK-042..052 cover product capabilities.
