@@ -80,3 +80,19 @@ These are planning targets delegated by the owner, not historical results, contr
 
 ## 9. Production topology guardrail
 A single VPS/Compose topology is suitable for development or explicitly accepted pilot only. Production availability targets require redundancy across failure domains for ingress/app, PostgreSQL, broker and storage, plus monitoring and backups outside the primary host. Select Compose/k3s/managed equivalents only after TASK-039/TASK-060 resource and operational measurements.
+
+
+## 10. Campaign and AI operation metrics
+### Campaign Intelligence
+- Snapshot freshness by account/campaign/adset/ad; last successful sync; async insights job age; API version/sunset; quota usage and 429 rate.
+- Delivery state distribution (Learning, Learning Limited, Active, Paused, Rejected/Restricted) where supported.
+- Spend pacing versus account/campaign/adset caps; budget change count and delta in rolling 24h; number of blocked cap violations.
+- Creative diversity by concept/format/hook/offer and similarity clusters; creative fatigue/limited recommendation counts.
+- Experiment sample progress, primary metric, stop rules, confidence/uncertainty, test budget and control contamination/overlap.
+- Campaign outcomes: qualified lead %, opportunity %, sales, net revenue, contribution margin, refunds and response speed.
+- CAPI signal quality: event match diagnostics where exposed, dropped/duplicate/late events, event freshness, event source and consent denies.
+### Agent gateway
+- tool calls by provider/action/result; approval latency; denied/blocked calls; replay attempts; cost per recommendation/action; prompt injection and safety incidents.
+- conversation owner/lease state and double-response prevention.
+### Alerts
+- budget cap breach attempt; unexpected spend velocity; loss of account permission/tier; API version sunset; creative rejected; high opt-out/negative signal; CRM/CAPI lag; insights stale; experiment overspend; Meta agent and WhatsBusiness reply collision.
