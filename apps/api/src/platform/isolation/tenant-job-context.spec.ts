@@ -19,7 +19,7 @@ const record: PersistedTenantJobRecord = {
 
 function createResolver(row: PersistedTenantJobRecord | null = record): TenantJobContextResolver {
   const repository: TenantJobRecordReader = {
-    findCommitted: async (jobId) => jobId === record.jobId ? row : null,
+    findCommitted: async (jobId) => jobId.toLowerCase() === record.jobId ? row : null,
   };
   return new TenantJobContextResolver(repository);
 }
@@ -28,6 +28,11 @@ test("job context is resolved from durable storage and immutable", async () => {
   const context = await createResolver().resolve(record.jobId);
   assert.equal(context.tenantId, record.tenantId);
   assert.equal(Object.isFrozen(context), true);
+});
+
+test("job UUID locators are normalized before canonical record lookup", async () => {
+  const context = await createResolver().resolve(record.jobId.toUpperCase());
+  assert.equal(context.jobId, record.jobId);
 });
 
 test("uncommitted, malformed and missing job records are rejected", async () => {
