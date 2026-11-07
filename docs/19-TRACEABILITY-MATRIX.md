@@ -70,3 +70,17 @@ At every milestone, report counts with a real denominator:
 - External Meta capabilities documented vs verified in actual app/business.
 - Release gates passed / required gates.
 Do not convert missing evidence into a percentage of completion.
+
+
+## 7. Trazabilidad ampliada — CRM, Inbox, Automation, AI y SaaS
+| Requisito/resultado | Historia | Tareas | Contexto lógico | Evidencia esperada |
+|---|---|---|---|---|
+| Contactos e identidades multicanal | US-018 | TASK-042,043 | CRM | tests de tenant, dedupe, merge reversible, provenance |
+| Pipeline y actividades | US-019 | TASK-044 | CRM | tests de transiciones, ownership y permisos |
+| Bandeja omnicanal | US-020 | TASK-045,046 | Messaging & Inbox | adapter contracts, E2E por canal, capability gating |
+| Colaboración y handoff | US-021 | TASK-047 | Messaging & Inbox | concurrency, assignment, internal-note privacy |
+| Automatización por reglas | US-022 | TASK-048,049 | Automation | simulation, idempotency, retry/DLQ, kill switch |
+| Chatbots y sugerencias IA | US-023 | TASK-050,051 | AI Assistance | prompt injection, budget, redaction, no-auto-send |
+| SaaS/planes/entitlements | US-024 | TASK-052 | Platform Identity/Billing | tenant lifecycle, entitlements, support audit |
+
+Los nombres de contextos son límites lógicos propuestos; no asignar paths o MOD IDs hasta que exista el repositorio de código y se complete el architecture spike.
