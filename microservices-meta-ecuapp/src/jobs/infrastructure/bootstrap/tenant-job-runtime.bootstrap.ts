@@ -22,7 +22,7 @@ export class TenantJobRuntimeProcess {
     private readonly workerPool: Pool,
   ) {}
 
-  static create(options: TenantJobRuntimeBootstrapOptions): TenantJobRuntimeProcess {
+  static async create(options: TenantJobRuntimeBootstrapOptions): Promise<TenantJobRuntimeProcess> {
     if (!options.handlers.length) {
       throw new Error("At least one real tenant job handler must be registered.");
     }
@@ -102,7 +102,7 @@ export class TenantJobRuntimeProcess {
 
       return new TenantJobRuntimeProcess(application, dispatcherPool, workerPool);
     } catch (error) {
-      void Promise.allSettled([dispatcherPool.end(), workerPool.end()]);
+      await Promise.allSettled([dispatcherPool.end(), workerPool.end()]);
       throw error;
     }
   }
