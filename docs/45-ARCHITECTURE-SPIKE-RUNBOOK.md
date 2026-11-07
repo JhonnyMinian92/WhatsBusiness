@@ -126,3 +126,10 @@ En checkout limpio y con lockfile:
 ## 11. Estado de ejecución actualizado
 
 A 2026-11-06 la rama inspeccionada de GitHub contiene documentación, contracts/ y guías, pero no existen aún apps/, libs/, src/, package.json, pnpm-lock.yaml, Docker Compose del proyecto ni prototipo ejecutable. Por tanto no se pudo ejecutar SP-01..SP-10, no hay build ni benchmark medido y TASK-039/G0 permanece pendiente. El registro Node 22/npm 10 de auditorías anteriores no es evidencia del VPS ni del stack objetivo Node 26.
+
+
+## 12. Ejecución y auditoría estática — 2026-11-06
+
+La inspección de esta sesión está registrada en [docs/54](54-TASK-039-EXECUTION-AND-CONSISTENCY-REPORT.md). Resultado: **TASK-039 bloqueada para ejecución SP-01..10; G0 no verificado**. Se pudo auditar documentalmente baseline, APIs/eventos y grafo de tareas, pero no se ejecutaron servicios ni benchmarks: no hay Node 26, pnpm, Docker/Compose, PostgreSQL, RabbitMQ, Keycloak ni workspace ejecutable del proyecto. No se reporta PASS de runtime.
+
+Auditoría estática: 80/80 TASK en backlog y matriz individual; 297 operationIds/API IDs únicos; 5 design-frozen + 292 catalog-only; 55 canales/payloads y 55 definiciones JSON Schema. No hay dependencias TASK inexistentes ni ciclos en el grafo declarado. Se detectaron mapeos obsoletos SP-01..07/ADR-011..020 en docs/46 y docs/47, y FE-FOUNDATION no normalizado para TASK-046/064; ver docs/53 y docs/54. El envelope genérico permite tenantId null, pero los 55 eventos de dominio exigen UUID no nulo.
