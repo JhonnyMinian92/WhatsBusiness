@@ -35,20 +35,22 @@ export class TenantScopedObjectStorage {
     if (!/^[-\w.+]+\/[\w.+-]+$/.test(metadata.contentType)) {
       throw new Error("A valid MIME content type is required.");
     }
-    const actualChecksum = createHash("sha256").update(body).digest("hex");
+    const immutableBody = Uint8Array.from(body);
+    const actualChecksum = createHash("sha256").update(immutableBody).digest("hex");
     if (!/^[0-9a-f]{64}$/i.test(metadata.checksumSha256)
       || actualChecksum !== metadata.checksumSha256.toLowerCase()) {
       throw new Error("Object SHA-256 checksum does not match its content.");
     }
     return this.storage.put(
       this.namespaces.objectKey(tenantId, resource, key),
-      body,
-      metadata,
+      immutableBody,
+      Object.freeze({ ...metadata }),
     );
   }
 
-  get(tenantId: string, resource: string, key: string): Promise<Uint8Array | null> {
-    return this.storage.get(this.namespaces.objectKey(tenantId, resource, key));
+  async get(tenantId: string, resource: string, key: string): Promise<Uint8Array | null> {
+    const value = await this.storage.get(this.namespaces.objectKey(tenantId, resource, key));
+    return value === null ? null : Uint8Array.from(value);
   }
 
   delete(tenantId: string, resource: string, key: string): Promise<void> {
