@@ -39,8 +39,7 @@ BEGIN
     VALUES ('eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
             '11111111-1111-4111-8111-111111111111',
             'synthetic-event-001',
-            '{"source":"lab","synthetic":true}'::jsonb)
-ON CONFLICT (tenant_id, external_event_id) DO NOTHING;
+            '{"source":"lab","synthetic":true}'::jsonb);
     RAISE EXCEPTION 'Webhook inbox accepted a duplicate event';
   EXCEPTION WHEN unique_violation THEN
     RAISE NOTICE 'PASS: duplicate webhook event rejected';
