@@ -148,7 +148,7 @@ El propietario indicó que se apliquen todas las recomendaciones y que el arquit
 
 | Tema original | Decisión aplicada | Lo que sigue pendiente |
 |---|---|---|
-| Q-002 Segmentos/agencias | PYMES de comercio/servicios en Ecuador; agencias como segmento secundario | Validación empírica de ICP, entrevistas, conversión, retención y demanda |
+| Q-002 Segmentos/agencias | PYMES de comercio/servicios en Ecuador; agencias como segmento secundario | TASK-066: entrevistas, pilotos, conversión, retención, demanda y disposición a pagar; REEM macro no es TAM ni conteo de buyers |
 | Q-003 Monetización | Suscripción tenant + seats + usage; costes Meta por separado | Tarifas, márgenes, impuestos, unit economics y pricing research |
 | Q-009 Idioma/moneda/zona | es-EC, USD, America/Guayaquil defaults configurables | Locales adicionales y reglas fiscales por país |
 | Q-013 Capacidad/SLO | 99.9%, RPO 15m, RTO 4h como objetivos candidatos de planificación | Hardware, workload, benchmark, HA, restore tests, coste y aceptación SLO |
