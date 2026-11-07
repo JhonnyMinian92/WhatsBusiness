@@ -1,5 +1,4 @@
 import type {
-  Clock,
   TenantJobRuntimeRepository,
 } from "./tenant-job-ports.js";
 import type { TenantJobOutboxDispatcher } from "./tenant-job-outbox-dispatcher.js";
@@ -30,7 +29,6 @@ export class TenantJobRuntimeSupervisor {
   constructor(
     private readonly repository: TenantJobRuntimeRepository,
     private readonly dispatcher: TenantJobOutboxDispatcher,
-    private readonly clock: Clock,
     private readonly logger: TenantJobRuntimeLogger,
     private readonly options: TenantJobRuntimeSupervisorOptions,
   ) {
