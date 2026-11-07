@@ -43,7 +43,7 @@ export class PostgresTenantJobRecordWriter implements TenantJobRecordWriter {
         "INSERT INTO platform.tenant_job_records",
         "(tenant_id, actor_user_id, purpose, correlation_id, job_type, idempotency_key, payload, payload_sha256, max_attempts, available_at)",
         "VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8, $9, $10)",
-        "ON CONFLICT (tenant_id, job_type, idempotency_key) DO NOTHING",
+        "ON CONFLICT (tenant_id, actor_user_id, job_type, idempotency_key) DO NOTHING",
         "RETURNING id::text, payload_sha256",
       ].join(" "),
       [
@@ -62,8 +62,8 @@ export class PostgresTenantJobRecordWriter implements TenantJobRecordWriter {
     if (inserted.rows[0]) return inserted.rows[0].id;
 
     const existing = await client.query<{ id: string; payload_sha256: string }>(
-      "SELECT id::text, payload_sha256 FROM platform.tenant_job_records WHERE tenant_id = $1 AND job_type = $2 AND idempotency_key = $3",
-      [input.tenantId, input.jobType, input.idempotencyKey],
+      "SELECT id::text, payload_sha256 FROM platform.tenant_job_records WHERE tenant_id = $1 AND actor_user_id = $2 AND job_type = $3 AND idempotency_key = $4",
+      [input.tenantId, input.actorUserId, input.jobType, input.idempotencyKey],
     );
     const row = existing.rows[0];
     if (!row) throw new Error("Tenant job idempotency record could not be resolved.");
