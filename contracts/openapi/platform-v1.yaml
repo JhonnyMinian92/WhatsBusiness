@@ -3264,7 +3264,7 @@ paths:
       x-traceability: 'US-007; TASK-016'
       x-contract-status: 'catalog-only'
       x-common-error-profile: 'problem-details-v1'
-      x-contract-error-catalog: [400, 401, 403, 404, 409, 422, 429, 500, 503]
+      x-contract-error-catalog: [400, 403, 404, 409, 413, 422, 429, 500, 503]
       x-contract-ready: false
       x-implementation-allowed: false
       x-required-gate: API-CONTRACT-FREEZE+G0
@@ -3287,6 +3287,7 @@ paths:
         default:
           description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
@@ -5461,7 +5462,7 @@ paths:
       x-traceability: 'US-011/014; TASK-022,027,028'
       x-contract-status: 'catalog-only'
       x-common-error-profile: 'problem-details-v1'
-      x-contract-error-catalog: [400, 401, 403, 404, 409, 422, 429, 500, 503]
+      x-contract-error-catalog: [400, 403, 404, 409, 413, 422, 429, 500, 503]
       x-contract-ready: false
       x-implementation-allowed: false
       x-required-gate: API-CONTRACT-FREEZE+G0
@@ -5484,6 +5485,7 @@ paths:
         default:
           description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
@@ -12918,7 +12920,7 @@ paths:
       x-traceability: 'TASK-027'
       x-contract-status: 'catalog-only'
       x-common-error-profile: 'problem-details-v1'
-      x-contract-error-catalog: [400, 401, 403, 404, 409, 422, 429, 500, 503]
+      x-contract-error-catalog: [400, 403, 404, 409, 413, 422, 429, 500, 503]
       x-contract-ready: false
       x-implementation-allowed: false
       x-required-gate: API-CONTRACT-FREEZE+G0
@@ -12937,6 +12939,7 @@ paths:
         default:
           description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
@@ -12954,7 +12957,7 @@ paths:
       x-traceability: 'TASK-027,028,011,014'
       x-contract-status: 'catalog-only'
       x-common-error-profile: 'problem-details-v1'
-      x-contract-error-catalog: [400, 401, 403, 404, 409, 422, 429, 500, 503]
+      x-contract-error-catalog: [400, 403, 404, 409, 413, 422, 429, 500, 503]
       x-contract-ready: false
       x-implementation-allowed: false
       x-required-gate: API-CONTRACT-FREEZE+G0
@@ -12968,6 +12971,7 @@ paths:
         default:
           description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
@@ -12985,7 +12989,7 @@ paths:
       x-traceability: 'TASK-027,028,019'
       x-contract-status: 'catalog-only'
       x-common-error-profile: 'problem-details-v1'
-      x-contract-error-catalog: [400, 401, 403, 404, 409, 422, 429, 500, 503]
+      x-contract-error-catalog: [400, 403, 404, 409, 413, 422, 429, 500, 503]
       x-contract-ready: false
       x-implementation-allowed: false
       x-required-gate: API-CONTRACT-FREEZE+G0
@@ -12999,6 +13003,7 @@ paths:
         default:
           description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
@@ -13016,7 +13021,7 @@ paths:
       x-traceability: 'TASK-027,028,020,021'
       x-contract-status: 'catalog-only'
       x-common-error-profile: 'problem-details-v1'
-      x-contract-error-catalog: [400, 401, 403, 404, 409, 422, 429, 500, 503]
+      x-contract-error-catalog: [400, 403, 404, 409, 413, 422, 429, 500, 503]
       x-contract-ready: false
       x-implementation-allowed: false
       x-required-gate: API-CONTRACT-FREEZE+G0
@@ -13030,6 +13035,7 @@ paths:
         default:
           description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
@@ -13047,7 +13053,7 @@ paths:
       x-traceability: 'TASK-022,027,028'
       x-contract-status: 'catalog-only'
       x-common-error-profile: 'problem-details-v1'
-      x-contract-error-catalog: [400, 401, 403, 404, 409, 422, 429, 500, 503]
+      x-contract-error-catalog: [400, 403, 404, 409, 413, 422, 429, 500, 503]
       x-contract-ready: false
       x-implementation-allowed: false
       x-required-gate: API-CONTRACT-FREEZE+G0
@@ -13061,6 +13067,7 @@ paths:
         default:
           description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
@@ -13078,7 +13085,7 @@ paths:
       x-traceability: 'TASK-024,025,027,072'
       x-contract-status: 'catalog-only'
       x-common-error-profile: 'problem-details-v1'
-      x-contract-error-catalog: [400, 401, 403, 404, 409, 422, 429, 500, 503]
+      x-contract-error-catalog: [400, 403, 404, 409, 413, 422, 429, 500, 503]
       x-contract-ready: false
       x-implementation-allowed: false
       x-required-gate: API-CONTRACT-FREEZE+G0
@@ -13092,6 +13099,7 @@ paths:
         default:
           description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
@@ -13109,7 +13117,7 @@ paths:
       x-traceability: 'TASK-033,027'
       x-contract-status: 'catalog-only'
       x-common-error-profile: 'problem-details-v1'
-      x-contract-error-catalog: [400, 401, 403, 404, 409, 422, 429, 500, 503]
+      x-contract-error-catalog: [400, 403, 404, 409, 413, 422, 429, 500, 503]
       x-contract-ready: false
       x-implementation-allowed: false
       x-required-gate: API-CONTRACT-FREEZE+G0
@@ -13123,6 +13131,7 @@ paths:
         default:
           description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
@@ -13140,7 +13149,7 @@ paths:
       x-traceability: 'TASK-016'
       x-contract-status: 'catalog-only'
       x-common-error-profile: 'problem-details-v1'
-      x-contract-error-catalog: [400, 401, 403, 404, 409, 422, 429, 500, 503]
+      x-contract-error-catalog: [400, 403, 404, 409, 413, 422, 429, 500, 503]
       x-contract-ready: false
       x-implementation-allowed: false
       x-required-gate: API-CONTRACT-FREEZE+G0
@@ -13154,6 +13163,7 @@ paths:
         default:
           description: 'Catalog-only entry. Business contract is not frozen; implementation is blocked.'
         '400': { $ref: '#/components/responses/BadRequest' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
@@ -13213,6 +13223,11 @@ components:
           schema: { $ref: '#/components/schemas/Problem' }
     UnprocessableEntity:
       description: Business validation, policy, consent, capability, or domain invariant failed.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    PayloadTooLarge:
+      description: Webhook payload exceeds the product-specific maximum body size.
       content:
         application/problem+json:
           schema: { $ref: '#/components/schemas/Problem' }
