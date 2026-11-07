@@ -93,3 +93,15 @@ No iniciar primero con envío de mensajes, Ads o agentes autónomos; dependen de
 Docs 37..46 se crean como especificaciones/runbooks, sin afirmar implementación. OpenAPI/AsyncAPI iniciales en contracts/ son contratos de partida, no garantía de endpoint implementado. TASK-039 y TASK-041/060/061 no ejecutados en esta sesión. Meta account/app access, review, scopes, country eligibility no comprobados. Revisión legal LOPDP y costes de infraestructura no realizados. No hay agent roster real ni reviewers independientes asignados.
 
 Este documento autoriza iniciar la preparación técnica controlada; no autoriza operaciones productivas ni omitir gates.
+
+## 10. Norma obligatoria contra código espagueti y duplicación
+
+Todos los agentes deben leer y cumplir [docs/48](48-CODING-ARCHITECTURE-AND-REUSE-STANDARD.md). El primer paso de cada paquete de código es inspeccionar módulos, exports públicos, use cases, policies, ports, DTOs/schemas, componentes, adapters y tests existentes. El handoff debe decir explícitamente qué se reutilizó, qué se extendió, qué se creó y por qué. No se permite copiar lógica existente, hacer imports privados entre bounded contexts, duplicar reglas, engordar controllers/componentes ni crear shared/utils sin cohesión.
+
+## 11. Paquetes de contratos y gates
+
+- WP-043 debe usar [docs/49](49-API-CONTRACT-READINESS-AND-META-ADAPTER-GATES.md) y [docs/50](50-EVENT-CATALOG-AND-VERSIONED-SCHEMAS.md).
+- El inventario HTTP tiene 289 operaciones REST propias más 8 webhooks. Solo PLT-001..005 tienen schemas de diseño concretos; las demás son catalog-only y no autorizan a inferir payloads.
+- AsyncAPI/JSON Schema definen 55 tipos de eventos v1.0.0 con payload mínimo. Productores/consumidores, outbox, broker, DLQ y pruebas siguen pendientes de implementación.
+- La matriz pública de scopes Meta es parcial. Meta App Review, elegibilidad de app/cuenta/país y scopes concedidos no se han probado.
+- No hay evidencia de TASK-039 ni G0. El scaffold definitivo sigue bloqueado por los criterios de sección 7; estos documentos no alteran ese gate.
