@@ -154,20 +154,6 @@ BEGIN
     END IF;
     NEW.finished_at := NULL;
     NEW.error_code := NULL;
-  ELSIF NEW.status = 'processing' AND OLD.status = 'processing' THEN
-    IF OLD.execution_lease_expires_at IS NULL
-       OR OLD.execution_lease_expires_at > clock_timestamp()
-       OR NEW.attempts <> OLD.attempts + 1
-       OR NEW.attempts > NEW.max_attempts
-       OR NEW.execution_lease_token IS NULL
-       OR NEW.execution_lease_token = OLD.execution_lease_token
-       OR NEW.execution_lease_expires_at <= clock_timestamp()
-       OR NEW.available_at IS DISTINCT FROM OLD.available_at THEN
-      RAISE EXCEPTION 'An active tenant job lease cannot be stolen'
-        USING ERRCODE = '23514';
-    END IF;
-    NEW.finished_at := NULL;
-    NEW.error_code := NULL;
   ELSIF NEW.status = 'failed' AND OLD.status = 'processing' THEN
     IF NEW.attempts <> OLD.attempts
        OR NEW.available_at <= clock_timestamp()
@@ -254,8 +240,8 @@ BEGIN
       AND job.available_at <= clock_timestamp()
       AND job.dispatch_attempts < 32
     ORDER BY job.dispatch_after, job.created_at, job.id
-    FOR UPDATE SKIP LOCKED
     LIMIT p_limit
+    FOR UPDATE SKIP LOCKED
   ),
   claimed AS (
     UPDATE platform.tenant_job_records AS job
@@ -376,9 +362,6 @@ BEGIN
       (job.status IN ('queued', 'failed')
         AND job.dispatch_status = 'published'
         AND job.available_at <= clock_timestamp())
-      OR
-      (job.status = 'processing'
-        AND job.execution_lease_expires_at <= clock_timestamp())
     )
   FOR UPDATE SKIP LOCKED;
 
@@ -599,8 +582,8 @@ BEGIN
     WHERE candidate.status = 'processing'
       AND candidate.execution_lease_expires_at <= clock_timestamp()
     ORDER BY candidate.execution_lease_expires_at, candidate.id
-    FOR UPDATE SKIP LOCKED
     LIMIT p_limit
+    FOR UPDATE SKIP LOCKED
   LOOP
     IF job.attempts >= job.max_attempts THEN
       UPDATE platform.tenant_job_records
@@ -634,8 +617,8 @@ BEGIN
     WHERE dispatch_status = 'publishing'
       AND dispatch_lease_expires_at <= clock_timestamp()
     ORDER BY dispatch_lease_expires_at, id
-    FOR UPDATE SKIP LOCKED
     LIMIT p_limit
+    FOR UPDATE SKIP LOCKED
   ),
   changed AS (
     UPDATE platform.tenant_job_records AS job
@@ -657,8 +640,8 @@ BEGIN
       AND dispatch_status = 'published'
       AND published_at < clock_timestamp() - make_interval(secs => p_stale_publish_seconds)
     ORDER BY published_at, id
-    FOR UPDATE SKIP LOCKED
     LIMIT p_limit
+    FOR UPDATE SKIP LOCKED
   ),
   changed AS (
     UPDATE platform.tenant_job_records AS job
