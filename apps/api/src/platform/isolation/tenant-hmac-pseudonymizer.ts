@@ -9,10 +9,13 @@ export interface TenantPseudonymizer {
  * never source it from tenant data, request input, or a committed .env file.
  */
 export class HmacTenantPseudonymizer implements TenantPseudonymizer {
-  constructor(private readonly secret: Uint8Array) {
+  private readonly secret: Uint8Array;
+
+  constructor(secret: Uint8Array) {
     if (secret.byteLength < 32) {
       throw new Error("Tenant telemetry HMAC key must contain at least 256 bits.");
     }
+    this.secret = Uint8Array.from(secret);
   }
 
   pseudonymize(tenantId: string): string {
