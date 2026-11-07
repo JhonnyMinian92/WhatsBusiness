@@ -299,6 +299,6 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Añadida migración `0006-tenant-job-outbox.sql`: tabla `platform.tenant_job_records`, RLS FORCE, ownership tenant/actor, payload JSON, estado, intentos bounded e índices.
 - Función `platform.resolve_tenant_job_context(uuid)` concede al rol runtime solo metadata mínima de autorización; no retorna payload. `PostgresTenantJobRecordReader` implementa el puerto `TenantJobRecordReader` y `IsolationModule` registra reader/resolver/executor.
 - `DatabaseModule` exporta `DATABASE_POOL` para adapters de infraestructura; `AppModule` importa `IsolationModule`.
-- Añadida suite de adapter PostgreSQL; siete suites TASK-003 están registradas en `apps/api/project.json`.
-- No se afirma CI/test pass de esta iteración. Publisher transaccional, inbox/consumer, dedupe/retry/DLQ/replay, adapters reales Valkey/object storage/broker, pool A→B PostgreSQL, secret manager y wiring de telemetría siguen pendientes.
+- Añadidos `PostgresTenantJobRecordWriter.stage(client, input)` para insertar jobs dentro de la transacción de negocio y guard SQL de transiciones/attempts. Ocho suites TASK-003 están registradas en `apps/api/project.json`.
+- No se afirma CI/test pass de esta iteración. Publisher/outbox dispatcher, inbox/consumer, schema validation, dedupe/retry/backoff/DLQ/replay, adapters reales Valkey/object storage/broker, pool A→B PostgreSQL, secret manager y wiring de telemetría siguen pendientes.
 - TASK-003 sigue `in_progress` (implementación parcial); GO-PRODUCTION continúa NO-GO.
