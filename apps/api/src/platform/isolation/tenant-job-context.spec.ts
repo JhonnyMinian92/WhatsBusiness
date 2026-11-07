@@ -2,9 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { DatabaseService } from "../database/database.module.js";
 import {
-  TenantJobContextFactory,
+  TenantJobContextResolver,
   TenantJobExecutor,
   type PersistedTenantJobRecord,
+  type TenantJobRecordReader,
 } from "./tenant-job-context.js";
 
 const record: PersistedTenantJobRecord = {
@@ -16,18 +17,25 @@ const record: PersistedTenantJobRecord = {
   jobId: "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
 };
 
-test("job context is validated and immutable", () => {
-  const context = new TenantJobContextFactory().create(record);
+function createResolver(row: PersistedTenantJobRecord | null = record): TenantJobContextResolver {
+  const repository: TenantJobRecordReader = {
+    findCommitted: async (jobId) => jobId === record.jobId ? row : null,
+  };
+  return new TenantJobContextResolver(repository);
+}
+
+test("job context is resolved from durable storage and immutable", async () => {
+  const context = await createResolver().resolve(record.jobId);
   assert.equal(context.tenantId, record.tenantId);
   assert.equal(Object.isFrozen(context), true);
-  assert.throws(() => new TenantJobContextFactory().create({
-    ...record,
-    persistenceState: "pending" as unknown as "committed",
-  }));
-  assert.throws(() => new TenantJobContextFactory().create({
-    ...record,
-    purpose: "admin",
-  }));
+});
+
+test("uncommitted, malformed and missing job records are rejected", async () => {
+  const uncommitted = { ...record, persistenceState: "pending" as unknown as "committed" };
+  await assert.rejects(createResolver(uncommitted).resolve(record.jobId));
+  await assert.rejects(createResolver({ ...record, purpose: "admin" }).resolve(record.jobId));
+  await assert.rejects(createResolver(null).resolve(record.jobId));
+  await assert.rejects(createResolver().resolve("not-a-uuid"));
 });
 
 test("every worker execution re-enters authorized transaction-local tenant context", async () => {
@@ -42,9 +50,15 @@ test("every worker execution re-enters authorized transaction-local tenant conte
       return work({} as never);
     },
   } as unknown as DatabaseService;
-  const context = new TenantJobContextFactory().create(record);
+  const context = await createResolver().resolve(record.jobId);
   const executor = new TenantJobExecutor(database);
   const result = await executor.execute(context, async (_client, jobContext) => jobContext.jobId);
   assert.deepEqual(observed, [record.actorUserId, record.tenantId]);
   assert.equal(result, record.jobId);
+});
+
+test("forged in-memory context cannot enter the worker executor", async () => {
+  const database = { withTenantContext: async () => "unexpected" } as unknown as DatabaseService;
+  const executor = new TenantJobExecutor(database);
+  await assert.rejects(executor.execute({ ...record }, async () => "unexpected"));
 });
