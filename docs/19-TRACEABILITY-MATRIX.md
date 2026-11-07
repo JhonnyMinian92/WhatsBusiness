@@ -230,3 +230,14 @@ CI source: run #47 [42383524043](https://github.com/JhonnyMinian92/WhatsBusiness
 | Role assignment anti-escalation | US-002; TASK-004 | `TenantRoleAssignmentPolicy` | self assignment, non-owner, cross-tenant, platform role, overprivilege and independent approval tests | implemented / CI-verified |
 
 Source CI run #67 [42385036275](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42385036275), commit `53e50dc00daccc7c64c7931e468e6ef0af132940` — SUCCESS. No se declaran APIs IAM-007..020 implementadas, ni assignments persistentes, audit durable o approval workflow; TASK-005 debe cerrar los controles operativos que dependen de estos resultados.
+## Evidence map — TASK-005 Approval / Step-up / Audit (2026-11-07)
+
+| Resultado / criterio | Historia / tarea | Código / contrato | Evidencia automatizada | Estado |
+|---|---|---|---|---|
+| Claims step-up firmados y recientes | US-002; TASK-005 | OIDC verifier + `OidcStepUpEvidenceVerifier` | `auth_time` freshness, issuer ACR/AMR allowlist, absent/stale/future/unknown deny | implemented / CI-verified |
+| Approval request immutable binding | US-002; TASK-005 | `approval_requests`, `approval-request-hash.ts`, idempotency key | same request retry, changed payload with same key conflict, different payload rejected | implemented / CI-verified |
+| Independent approval quorum | US-002; TASK-005 | `approval_decisions`, DB triggers, `ApprovalWorkflowService` | requester cannot decide, distinct approvers, quorum, immutable retry and step-up evidence | implemented / CI-verified |
+| Exact action consumption | US-002; TASK-005 | `consumeAndStage`, status transition approved→consumed, transaction rollback | mismatched action hash denied, callback failure rolls back, one-time consumption and local durable stage | implemented / CI-verified |
+| Append-only audit stream | US-002; TASK-005 | `audit_events`, `audit_stream_heads`, `AppendOnlyAuditRepository` | tenant-scoped hash-chain verification, head-to-event consistency, UPDATE/DELETE denied | implemented / CI-verified |
+
+Source CI run #112 [42387272987](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42387272987), commit `b38b78ab52dbb96262dc8078518fdf4f55fc5a2c` — SUCCESS; ephemeral PostgreSQL approval integration was enabled in this run. Limits: no real IdP/verified ACR-AMR allowlist, no business outbox/consumer, IAM approval APIs are still catalog-only, review independent/owner acceptance pending.
