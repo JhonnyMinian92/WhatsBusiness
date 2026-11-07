@@ -177,3 +177,14 @@ El inventario de rutas y correlación detallada vive en [docs/47-API-INVENTORY-A
 - Unit/integration/contract/security/E2E test IDs y evidence artifact.
 
 Una TASK que no crea endpoint debe declarar por qué (spike, benchmark, research, security, accessibility, legal review o traceability) y entregar su evidencia no-HTTP.
+
+## 10. Trazabilidad de contratos y calidad de ingeniería
+
+| Artefacto/control | Alcance | Fuente normativa | Evidencia requerida |
+|---|---|---|---|
+| Calidad/anti-spaghetti/reutilización | Todo backend, frontend, worker, adapter y tests | docs/48 + AGENTS.md | Plan de reuse, Nx boundaries, diff review, test evidence |
+| API HTTP | API IDs de docs/47; OpenAPI completo | docs/49 + contracts/openapi/platform-v1.yaml | x-contract-status, schemas, authz, error, idempotency y contract tests |
+| Eventos internos | 55 event types y payloads v1.0.0 | docs/50 + AsyncAPI + JSON Schema | Schema validation, producer/consumer contract, dedupe, tenant checks |
+| Meta adapters | Cada producto/login/version/operation | docs/09 + docs/49 + docs/32 | Fuente oficial fechada, scopes, grants, tier, eligibility, fixtures y account evidence |
+
+No cerrar una TASK porque el API ID o el schema exista. El commit de implementación debe incluir código, tests ejecutados y evidencia; las revisiones independientes y aceptación del propietario mantienen sus estados propios.
