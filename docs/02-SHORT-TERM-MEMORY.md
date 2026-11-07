@@ -279,3 +279,15 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - No se añadieron endpoints IAM-018..020; siguen catalog-only. No existe outbox/consumer de negocio ni integración real del IdP. Allowlist ACR/AMR por defecto vacía y step-up falla cerrado.
 - Source CI #112 [42387272987](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42387272987), commit `b38b78ab52dbb96262dc8078518fdf4f55fc5a2c` — SUCCESS; `RUN_APPROVAL_INTEGRATION_TESTS=true` ejecutó integración real en PostgreSQL efímero con requester y dos approvers.
 - TASK-005: núcleo implementado y CI-verified; sigue in_progress hasta integración IdP, outbox/consumer, freeze contratos, revisión independiente y aceptación del PO. GO-PRODUCTION NO-GO.
+
+
+## Handoff — TASK-003 aislamiento operativo (2026-11-07)
+
+- Rama environment/local; primitives añadidas en apps/api/src/platform/isolation/.
+- TenantResourceNamespace centraliza cache keys y object keys tenant-scoped; rechaza tenant UUID/resource inválidos y path traversal.
+- TenantScopedCache decora CacheStore, aplica namespace y TTL bounded; TenantScopedObjectStorage decora ObjectStorage, aplica prefijo tenant, valida MIME/checksum.
+- TenantJobContextFactory valida y congela el contexto desde registro durable; TenantJobExecutor revalida cada ejecución mediante DatabaseService.withTenantContext.
+- TenantTelemetryContext exige pseudonymizer inyectado para logs y no permite tenant como dimensión métrica.
+- Cinco suites unitarias registradas en apps/api/project.json; CI aún pendiente de inspección.
+- Límites: sin adapters/wiring reales Valkey/S3/RabbitMQ; sin outbox/inbox/consumer durable, DLQ/replay; falta PostgreSQL pool A→B desde worker y pseudonymizer HMAC real; no se ha ejecutado suite en esta sesión.
+- TASK-003 está implemented a nivel de primitives, no verified/accepted. GO-PRODUCTION sigue NO-GO.
