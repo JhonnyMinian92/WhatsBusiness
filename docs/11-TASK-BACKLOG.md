@@ -269,3 +269,11 @@ La matriz de docs/47 define la relación por US y por API ID. Esta tabla es un �
 - Para toda tarea de código aplica [docs/48](48-CODING-ARCHITECTURE-AND-REUSE-STANDARD.md): inspección previa de reutilización, un solo dueño de regla/dato, boundaries acíclicos y revisión anti-spaghetti.
 - API readiness se gobierna por [docs/49](49-API-CONTRACT-READINESS-AND-META-ADAPTER-GATES.md): los endpoints catalog-only no son implementables hasta completar schemas.
 - Eventos v1.0.0 están en [docs/50](50-EVENT-CATALOG-AND-VERSIONED-SCHEMAS.md) y contracts/asyncapi; sus producers/consumers y evidencia de ejecución siguen pendientes.
+
+## Anexo — revisión tecnológica y protocolo API
+
+- docs/51 compara TypeScript/Node, NestJS, Angular, Nx/pnpm, PostgreSQL, Valkey, RabbitMQ, Keycloak, Traefik, Docker/Compose y observabilidad; define versiones candidatas y fuentes oficiales.
+- docs/52 documenta decisión REST/JSON + OpenAPI como API síncrona, llamadas directas a use cases/ports entre módulos y RabbitMQ/AsyncAPI para async. GraphQL y gRPC quedan como opciones futuras con triggers explícitos.
+- ADR-023..025 fijan protocolo, baseline de versiones y Valkey. Son baseline recomendada, no evidencia de benchmark.
+- TASK-039 se amplía con SP-08..10 para comparar backend/frontend/protocolos, revisar licencia/compatibilidad Valkey y validar la matriz de versiones en checkout limpio.
+- No existe todavía scaffold ni proyecto ejecutable en environment/local; no marcar TASK-039/G0 como verificados hasta que haya build, RLS/pooling, broker, restore, footprint y review independiente con resultados reproducibles.
