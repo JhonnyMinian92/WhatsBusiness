@@ -89,3 +89,12 @@ El número de operaciones incluye las cinco PLT ya congeladas. Los rangos API ID
 Each operation owner must update OpenAPI and the relevant domain/event schemas in the same change as its contract review. Then update docs/47, docs/19, docs/53 and the related TASK acceptance tests. Reviewer must be different from author. Only after schema validation, contract tests and approval may the operation move from catalog-only to design-frozen. G0 remains a separate gate; design-frozen never means implementation/deployment is authorized.
 
 No request/response fields, Meta scopes, API versions, error codes or account capabilities may be inferred solely from an operation summary. Missing business decisions must be recorded as explicit blockers and returned to the relevant product/domain owner.
+
+
+## 7. Corrección estructural y revisión transversal (2026-11-06)
+
+Se encontró y corrigió un problema de YAML en las 292 operaciones catalog-only: cada objeto `responses` contenía un placeholder `default` descriptivo y, posteriormente, una segunda clave `default` con referencia a `ContractNotFrozen`. Se eliminó el placeholder duplicado y se conservó exactamente una respuesta `default` por operación. El estado de negocio no cambia: las 292 operaciones continúan catalog-only y sin schemas de request/response específicos.
+
+La revisión de ADR, límites de módulos, tenancy y criterios de aceptación se documenta en [docs/56](56-ARCHITECTURE-REVIEW-AND-ACCEPTANCE-GATES.md). La ampliación AsyncAPI (55 publish + 55 subscribe y correlación de mensaje), junto con la reconciliación de 14 propuestas no catalogadas de CRM/Inbox, se registra en [docs/50](50-EVENT-CATALOG-AND-VERSIONED-SCHEMAS.md).
+
+No se ejecutó parser/linter OpenAPI en CI ni validación contract-test; la eliminación de claves duplicadas se verificó por recuento estructural antes de guardar el archivo. No declarar el OpenAPI como YAML-validado ni los contratos de negocio como completos hasta ejecutar tooling formal y completar owner/reviewer/schema/tests por operación.
