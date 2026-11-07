@@ -146,3 +146,6 @@ TASK-046 Inbox UI → TASK-064 WCAG 2.2 AA audit.
 TASK-056 → TASK-065 Meta change/deprecation operations.
 
 Todos TASK-053..065 permanecen proposed. El grafo es dependencia lógica, no calendario ni ejecución realizada.
+
+
+TASK-066 market/ICP validation → pricing/packaging decision and commercial launch planning. TASK-066 may run in parallel with engineering spike and foundational product specifications; it is a gate before final pricing and commercial forecast, not a blocker for independent architecture/security work.
