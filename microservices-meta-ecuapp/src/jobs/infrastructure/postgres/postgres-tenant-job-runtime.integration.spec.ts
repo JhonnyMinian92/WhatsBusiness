@@ -153,13 +153,11 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
     );
     assert.ok(wrongContext);
 
-    await assert.rejects(
-      runtimePool.query(
-        "SELECT platform.mark_tenant_job_published($1, $2)",
-        [completionJobId, randomUUID()],
-      ),
-      /does not throw/,
-    ).catch(() => undefined);
+    const wrongPublicationToken = await runtimePool.query<{ marked: boolean }>(
+      "SELECT platform.mark_tenant_job_published($1, $2) AS marked",
+      [completionJobId, randomUUID()],
+    );
+    assert.equal(wrongPublicationToken.rows[0]?.marked, false);
 
     await assert.rejects(
       withTenantContext(runtimePool, actorUserId, tenantId, async (client) => {
