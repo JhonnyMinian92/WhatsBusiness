@@ -90,3 +90,9 @@ Cuando exista código en la rama de trabajo:
 **Estado de auditoría:** `blocked_pending_source_code_and_owner_decisions`.
 
 Esta auditoría sí confirma que la rama inspeccionada contiene la base documental, pero no permite certificar arquitectura implementada, calidad, seguridad ni cobertura funcional. No se modificó código fuente porque no se encontró código fuente en el árbol auditado.
+
+
+## 9. Actualización por confirmación greenfield del propietario (2026-11-06)
+El propietario confirmó que el producto debe comenzar desde cero. Por tanto, la ausencia de backend/frontend en el árbol auditado deja de ser un bloqueo por falta de código heredado y pasa a ser el estado inicial esperado del proyecto greenfield. La auditoría estática histórica se conserva como evidencia de lo que había en el árbol al momento de inspección; no se convierte en auditoría de calidad de una implementación. La próxima auditoría técnica debe ejecutarse después de crear el scaffold, CI, servicios y frontend, y antes de cada release candidate.
+
+Decisiones vinculantes y nuevas historias: docs/29, docs/30, docs/31, US-018..US-024, TASK-034..TASK-052.
