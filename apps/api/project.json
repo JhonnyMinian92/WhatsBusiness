@@ -24,7 +24,7 @@
     "test": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsx --tsconfig apps/api/tsconfig.app.json --test apps/api/src/platform/health/readiness.service.spec.ts apps/api/src/platform/health/health.controller.spec.ts apps/api/src/platform/identity/identity.slice.spec.ts apps/api/src/platform/identity/tenant-context.guard.spec.ts apps/api/src/platform/identity/authorization/tenant-authorization-policy.spec.ts apps/api/src/platform/identity/authorization/authorization.guard.spec.ts"
+        "command": "tsx --tsconfig apps/api/tsconfig.app.json --test apps/api/src/platform/health/readiness.service.spec.ts apps/api/src/platform/health/health.controller.spec.ts apps/api/src/platform/identity/identity.slice.spec.ts apps/api/src/platform/identity/tenant-context.guard.spec.ts apps/api/src/platform/identity/authorization/tenant-authorization-policy.spec.ts apps/api/src/platform/identity/authorization/authorization.guard.spec.ts apps/api/src/platform/identity/authorization/tenant-role-assignment.policy.spec.ts"
       }
     }
   }
