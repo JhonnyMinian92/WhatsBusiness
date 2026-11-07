@@ -5,7 +5,7 @@ import {
   type ResolvedIdentityUser,
   type TenantContextRecord,
 } from "./identity.repository.js";
-import type { TenantAccessContext } from "./tenant-context.guard.js";
+import type { TenantAccessContext } from "./tenant-access-context.js";
 import type { OidcClaims } from "./oidc-auth.guard.js";
 
 export interface CurrentPrincipalResponse {
