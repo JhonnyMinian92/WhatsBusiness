@@ -1,8 +1,16 @@
 # 11 — Backlog técnico trazable
 
+## Propósito y autoridad
+Este backlog representa el plan inicial de trabajo, no el estado comprobado del código. Todo agente debe inspeccionar el repositorio y reconciliar cada tarea con código, tests y evidencia antes de cambiar su estado. Las tareas son unidades ejecutables; los criterios de aceptación de las historias son el resultado de negocio.
+
 ## Convenciones
-Cada tarea requiere owner, prioridad, estimación, dependencias, DoR, entregables, pruebas, DoD y un control asociado. Estados permitidos: `proposed`, `ready`, `in_progress`, `blocked`, `review`, `done`, `cancelled`.
-Bugs `BUG-xxxx`; cambios `CR-xxxx`. Los controles listados son controles preventivos iniciales, no bugs confirmados.
+Estados canónicos: `proposed`, `ready`, `in_progress`, `blocked`, `implemented`, `verified`, `accepted`, `deferred`, `cancelled`.
+- `implemented`: existe implementación.
+- `verified`: criterios y pruebas requeridas pasan con evidencia.
+- `accepted`: aceptación explícita del propietario/producto.
+- `blocked`: existe impedimento concreto registrado.
+- No usar `done` como sinónimo ambiguo.
+Cada tarea requiere owner, prioridad, dependencias, DoR, entregables, criterios, pruebas, DoD y enlaces a controles. Si faltan campos, completar al activar la tarea.
 
 ## EP-01 — Tenant/Identity
 | Tarea | Historia | Entregable / alcance | Dependencias | QA y DoD | Control |
@@ -51,8 +59,8 @@ Bugs `BUG-xxxx`; cambios `CR-xxxx`. Los controles listados son controles prevent
 | TASK-026 | US-013 | CAPI event gateway/dedupe/attribution | TASK-023,031 | event_id, consent, dedupe | CR-0015: política de attribution window |
 
 ## EP-06 — Reliability/Security
-| Tarea | Historia | Entregable / alcance | Dependencias | QA y DoD | Control |
 |---|---|---|---|---|---|
+| Tarea | Historia | Entregable / alcance | Dependencias | QA y DoD | Control |
 | TASK-027 | US-014 | Webhook gateway, verify, inbox | TASK-001,007 | signature, size, durable ack | BUG-0012: spoof/replay |
 | TASK-028 | US-014 | event bus, consumers, DLQ, replay | TASK-027 | at-least-once, idempotency | CR-0016: retención/replay policy |
 | TASK-029 | US-015 | tracing, metrics, logs y SLO | TASK-001 | redaction, cardinality, alerts | CR-0017: SLO/RPO/RTO |
@@ -65,29 +73,25 @@ Bugs `BUG-xxxx`; cambios `CR-xxxx`. Los controles listados son controles prevent
 |---|---|---|---|---|---|
 | TASK-033 | US-017 | Threads adapter y adapter conformance suite | TASK-010,027,029 | backward compatibility | CR-0020: nueva API version policy |
 
-## Requisitos comunes de cada tarea
-**DoR:** historia aprobada; alcance y owner; fuentes Meta revisadas; dependencias resueltas; threat/data classification; criterios testeables; diseño/ADR si cambia arquitectura.
+## Work packet obligatorio
+Antes de ejecutar una tarea, el agente debe completar en el registro de la tarea:
+- Estado, prioridad, owner y story padre.
+- Objetivo de usuario, alcance incluido/excluido.
+- Dependencias upstream y nodos downstream.
+- DoR, criterios de aceptación Given/When/Then y límites.
+- Contextos/módulos/contratos afectados (confirmados tras inspección).
+- Clasificación de datos, controles de seguridad y permisos.
+- Pruebas exactas y evidencia esperada.
+- Migración, compatibilidad y rollback si aplica.
+- BUG/CR/ADR/API vinculados.
 
-**DoD:** código revisado; unit/integration/contract/security tests; observabilidad; migración/backward compatibility; docs/runbook; auditoría; no secrets; aceptación QA/product/security; evidencia enlazada.
+## Requisitos comunes
+**DoR:** resultado solicitado claro; criterios testeables; dependencias entendidas; stack/código inspeccionado; fuente Meta vigente si aplica; clasificación de datos y amenazas; decisiones bloqueantes resueltas.
 
-## Registro de bugs iniciales
-No se declara que los bugs preventivos sean defectos encontrados. Son escenarios de riesgo que deben probarse y, si se reproducen, convertirse en BUG real con pasos/evidencia.
+**DoD:** implementación real; tests unit/component/contract/integration/E2E pertinentes; análisis estático y build; seguridad; observabilidad/auditoría; compatibilidad/migración/rollback; documentación y runbook; diff revisado; evidencia enlazada.
 
-| ID | Riesgo a probar | Severidad inicial | Estado |
-|---|---|---|---|
-| BUG-0001 | Falta de tenant context | S0 si permite fuga | preventivo |
-| BUG-0002 | Bypass de aprobación | S0/S1 | preventivo |
-| BUG-0003 | Replay de OAuth callback | S1 | preventivo |
-| BUG-0004 | Operar asset sin grant vigente | S1 | preventivo |
-| BUG-0005 | Payload universal pierde semántica | S2 | preventivo |
-| BUG-0006 | Confundir accepted con delivered | S2 | preventivo |
-| BUG-0007 | Envío de template no aprobado | S1 | preventivo |
-| BUG-0008 | Costos hardcodeados | S2 | preventivo |
-| BUG-0009 | Suponer paridad Instagram login | S2 | preventivo |
-| BUG-0010 | Lead perdido/duplicado | S1/S2 | preventivo |
-| BUG-0011 | Gasto publicitario sin autorización | S0 | preventivo |
-| BUG-0012 | Webhook spoof/replay | S1 | preventivo |
-| BUG-0013 | Operación sin audit trail | S1/S2 | preventivo |
+## Registro de riesgos preventivos
+Los BUG-0001..BUG-0013 son escenarios de riesgo que deben probarse, no defectos confirmados. Solo crear/actualizar un BUG real si hay reproducción o evidencia concreta. Mantener severidad, impacto, causa raíz, corrección y test de regresión.
 
-## Registro de cambios iniciales
-Los CR representan decisiones pendientes de diseño/validación; no se ejecutan automáticamente. Deben cerrarse con ADR, responsable y evidencia.
+## Controles de cambio
+CR-0001..CR-0020 son decisiones/validaciones pendientes enumeradas en el backlog inicial. No marcarlas cerradas sin decisión, responsable, impacto, evidencia y aprobación correspondiente.
