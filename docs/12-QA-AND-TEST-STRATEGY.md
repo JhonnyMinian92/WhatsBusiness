@@ -64,3 +64,15 @@ SAST, SCA, secret scanning, IaC scanning, container scanning, DAST, fuzzing, pen
 
 ## 9. Métricas QA
 Defect escape rate, flaky test rate, change failure rate, MTTR, contract drift, test coverage por criterio de aceptación, vulnerabilidades por severidad y defectos cross-tenant. No aceptar cobertura alta si los AC críticos carecen de pruebas.
+
+
+## 10. Standards and extended regression requirements (baseline 2026-11-06)
+- OWASP ASVS 5.0.0 is the baseline catalog for security verification. Select applicable requirements, target level and evidence in the security test plan; do not claim certification/compliance merely because the standard is referenced.
+- Primary user journeys target WCAG 2.2 AA; automation checks are complemented by manual keyboard and screen-reader review.
+- CRM identity tests cover phone, BSUID and provider-scoped identifiers, namespace collisions, no unsafe auto-merge, and reversible merges.
+- Asset graph tests cover WAAC/PMA and WABA legacy relationships without assumptions about a universal parent ID.
+- Meta adapter suites are versioned by product/API version; test unknown fields, enum drift, native error preservation, sunset flags and capability deny when access tier/grant/scope is missing.
+- Marketing Messages API suite tests category eligibility, opt-out/suppression, provider pricing and estimate/maximum/actual/reconciled cost distinctions.
+- Tenant/agency suite must test explicit grant scope, expiry, revocation, client-side isolation, audit provenance and support JIT access.
+- LOPDP lifecycle suite tests export/rectification/deletion orchestration across primary and derived systems; exact retention windows remain policy inputs pending legal approval.
+- Nonfunctional tests report p50/p95/p99, throughput, concurrency, saturation, queue age, error budgets, recovery and test environment. Never extrapolate benchmark beyond its hardware/configuration.
