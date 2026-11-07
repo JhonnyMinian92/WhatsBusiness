@@ -74,3 +74,19 @@ Las empresas necesitan administrar activos, conversaciones, campañas, formulari
 - Campañas con límites, aprobación y auditoría.
 - Costes y métricas distinguen estimación, dato reportado por Meta y conciliación.
 - Versiones de API, cambios y deprecaciones trazables.
+
+
+## 9. Baseline confirmada por el propietario (2026-11-06)
+
+Consultar [29-OWNER-DECISIONS.md](29-OWNER-DECISIONS.md) como fuente canónica.
+- Modelo: SaaS para terceros y plataforma interna de EcuApp.
+- Greenfield: comenzar desde cero.
+- Cobertura: todo el catálogo Meta de META_SERVICES.md, sujeto a elegibilidad oficial por operación/cuenta.
+- Producto propio: backend, panel web, CRM e inbox omnicanal.
+- IA inicial: chatbots y sugerencias de respuesta; automatización básica extensible.
+- Hosting objetivo: VPS/servidor propio.
+- Entrega: por fases, dominios y límites bien separados.
+- Stack: recomendación del arquitecto autorizada; propuesta aún no congelada.
+- Agentes: continuar trabajo independiente; resolver decisiones técnicas reversibles y documentarlas; escalar bloqueos de negocio, coste, datos, seguridad, cumplimiento y breaking changes.
+
+La interpretación de la aclaración de IA está registrada en PD-005. No añadir alcance de RAG, voz o agentes autónomos sin nueva decisión.
