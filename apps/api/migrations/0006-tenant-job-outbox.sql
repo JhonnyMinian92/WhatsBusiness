@@ -56,7 +56,8 @@ CREATE POLICY tenant_job_records_tenant_update ON platform.tenant_job_records
 
 -- Runtime can stage jobs, but cannot read payloads or mutate lifecycle directly.
 -- The worker will receive narrow state-transition functions when the dispatcher is introduced.
-GRANT INSERT ON platform.tenant_job_records TO whatsbusiness_app;
+GRANT INSERT (tenant_id, actor_user_id, purpose, correlation_id, job_type, idempotency_key, payload, request_sha256, max_attempts, available_at)
+  ON platform.tenant_job_records TO whatsbusiness_app;
 GRANT SELECT (id, request_sha256) ON platform.tenant_job_records TO whatsbusiness_app;
 
 -- A worker starts with only an opaque job UUID. This narrowly scoped function
