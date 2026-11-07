@@ -23,7 +23,7 @@ CREATE TABLE platform.tenant_job_records (
     OR (status NOT IN ('succeeded', 'dead_letter') AND finished_at IS NULL)
   ),
   CONSTRAINT tenant_job_attempts_bounded CHECK (attempts <= max_attempts),
-  CONSTRAINT tenant_job_idempotency_unique UNIQUE (tenant_id, job_type, idempotency_key)
+  CONSTRAINT tenant_job_idempotency_unique UNIQUE (tenant_id, actor_user_id, job_type, idempotency_key)
 );
 
 CREATE INDEX tenant_job_records_dispatch_idx
