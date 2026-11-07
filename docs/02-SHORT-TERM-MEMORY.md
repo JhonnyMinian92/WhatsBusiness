@@ -269,3 +269,13 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - No se implementan IAM-007..020 ni mutaciones; siguen catalog-only. Auditoría append-only, approvals workflow/step-up y outbox siguen para TASK-005.
 - Source CI #67 [42385036275](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42385036275) SUCCESS en commit `53e50dc00daccc7c64c7931e468e6ef0af132940`: install frozen, migraciones e idempotencia, build, typecheck y tests.
 - Estado: núcleo TASK-004 implemented y CI-verified; tarea global in_progress hasta revisión independiente, integración con assignments/audit y aceptación del propietario. Siguiente work package crítico: TASK-005 approvals/audit; también queda TASK-003 aislamiento jobs/cache/files/telemetry.
+## Handoff — TASK-005 Approval, Step-up y Audit (2026-11-07)
+
+- Branch activo `environment/local`; no se modificaron `master` ni `environment/develop`.
+- Migration `0005-approval-audit-foundation.sql`: approval_requests, approval_decisions, audit_stream_heads, audit_events, RLS/grants y triggers para binding/quorum/identidad/append-only.
+- Código principal: `security/step-up-evidence.ts`; `approvals/approval-policy.ts`, `approval-request-hash.ts`, `approval-workflow.service.ts`; `audit/append-only-audit.repository.ts`, `authorization-decision-audit.service.ts`; OIDC guard conserva claims `auth_time/acr/amr` tras validar firma.
+- Solicitudes idempotentes y ligadas a SHA-256 de tenant/action/purpose/resource/snapshot. Decisiones distintas e independientes; no autoaprobación; step-up reciente con allowlist IdP; expiración; consumo único exacto.
+- Audit stream SHA-256 por tenant; append events sensibles/denegaciones; stream head monotónico unido a evento; triggers rechazan update/delete.
+- No se añadieron endpoints IAM-018..020; siguen catalog-only. No existe outbox/consumer de negocio ni integración real del IdP. Allowlist ACR/AMR por defecto vacía y step-up falla cerrado.
+- Source CI #112 [42387272987](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42387272987), commit `b38b78ab52dbb96262dc8078518fdf4f55fc5a2c` — SUCCESS; `RUN_APPROVAL_INTEGRATION_TESTS=true` ejecutó integración real en PostgreSQL efímero con requester y dos approvers.
+- TASK-005: núcleo implementado y CI-verified; sigue in_progress hasta integración IdP, outbox/consumer, freeze contratos, revisión independiente y aceptación del PO. GO-PRODUCTION NO-GO.
