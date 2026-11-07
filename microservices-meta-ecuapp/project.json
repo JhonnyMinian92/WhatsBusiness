@@ -1,0 +1,27 @@
+{
+  "name": "microservices-meta-ecuapp",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "microservices-meta-ecuapp/src",
+  "tags": ["scope:platform", "type:application", "runtime:node"],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --project microservices-meta-ecuapp/tsconfig.app.json"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit --project microservices-meta-ecuapp/tsconfig.app.json"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsx --tsconfig microservices-meta-ecuapp/tsconfig.app.json --test microservices-meta-ecuapp/src/jobs/domain/tenant-job-message.spec.ts microservices-meta-ecuapp/src/jobs/domain/tenant-job-retry-policy.spec.ts microservices-meta-ecuapp/src/jobs/application/tenant-job-outbox-dispatcher.spec.ts microservices-meta-ecuapp/src/jobs/application/tenant-job-consumer.spec.ts microservices-meta-ecuapp/src/jobs/infrastructure/rabbitmq/rabbitmq-tenant-job-publisher.spec.ts microservices-meta-ecuapp/src/jobs/infrastructure/postgres/postgres-tenant-job-runtime.integration.spec.ts"
+      }
+    }
+  }
+}
