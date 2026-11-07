@@ -5,8 +5,10 @@ import type { KeyObject } from "node:crypto";
 import type { AddressInfo } from "node:net";
 import { Pool } from "pg";
 import test from "node:test";
-import { UnauthorizedException } from "@nestjs/common";
+import { ForbiddenException, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { OidcJwtVerifier } from "./oidc-auth.guard.js";
+import { IdentityRepository } from "./identity.repository.js";
+import { IdentityService } from "./identity.service.js";
 import { DatabaseService } from "../database/database.module.js";
 
 function encode(value: unknown): string {
@@ -97,6 +99,7 @@ test("PostgreSQL RLS isolates tenants and clears SET LOCAL context on a reused c
   const adminPool = new Pool({ connectionString: migrationUrl, max: 1 });
   const runtimePool = new Pool({ connectionString: runtimeUrl, max: 1 });
   const database = new DatabaseService(runtimePool);
+  const identity = new IdentityService(new IdentityRepository(database));
   const organizationId = randomUUID();
   const userA = randomUUID();
   const userB = randomUUID();
@@ -131,6 +134,29 @@ test("PostgreSQL RLS isolates tenants and clears SET LOCAL context on a reused c
       "INSERT INTO platform.memberships (tenant_id, user_id, status) VALUES ($1, $2, 'active'), ($3, $4, 'active')",
       [tenantA, userA, tenantB, userB],
     );
+
+    const roleA = randomUUID();
+    await adminPool.query(
+      "INSERT INTO platform.roles (id, tenant_id, role_key, display_name) VALUES ($1, $2, 'tenant_admin', 'Tenant Admin')",
+      [roleA, tenantA],
+    );
+    await adminPool.query(
+      "INSERT INTO platform.permissions (permission_key, description, risk_class) VALUES ('tenant.read', 'Read tenant resources', 'normal')",
+    );
+    const membershipA = await adminPool.query<{ id: string }>(
+      "SELECT id::text FROM platform.memberships WHERE tenant_id = $1 AND user_id = $2",
+      [tenantA, userA],
+    );
+    const membershipAId = membershipA.rows[0]?.id;
+    assert.ok(membershipAId);
+    await adminPool.query(
+      "INSERT INTO platform.membership_roles (membership_id, role_id, tenant_id) VALUES ($1, $2, $3)",
+      [membershipAId, roleA, tenantA],
+    );
+    await adminPool.query(
+      "INSERT INTO platform.role_permissions (role_id, permission_key, tenant_id) VALUES ($1, 'tenant.read', $2)",
+      [roleA, tenantA],
+    );
     await adminPool.query(
       "INSERT INTO platform.entitlements (tenant_id, feature_key, state) VALUES ($1, 'synthetic.feature.a', 'active'), ($2, 'synthetic.feature.b', 'active')",
       [tenantA, tenantB],
@@ -160,10 +186,12 @@ test("PostgreSQL RLS isolates tenants and clears SET LOCAL context on a reused c
     );
     assert.deepEqual(visibleTenantA.rows.map((row) => row.id), [tenantA]);
 
-    const crossTenant = await database.withTenantContext(userA, tenantB, (client) =>
-      client.query<{ id: string }>("SELECT id::text FROM platform.tenants WHERE id = $1", [tenantB]),
+    await assert.rejects(
+      database.withTenantContext(userA, tenantB, (client) =>
+        client.query<{ id: string }>("SELECT id::text FROM platform.tenants WHERE id = $1", [tenantB]),
+      ),
+      (error: unknown) => error instanceof NotFoundException,
     );
-    assert.deepEqual(crossTenant.rows, []);
 
     const entitlementsA = await database.withTenantContext(userA, tenantA, (client) =>
       client.query<{ feature_key: string }>("SELECT feature_key FROM platform.entitlements ORDER BY feature_key"),
@@ -180,6 +208,84 @@ test("PostgreSQL RLS isolates tenants and clears SET LOCAL context on a reused c
     );
     assert.deepEqual(membershipsB.rows.map((row) => row.tenant_id), [tenantB]);
 
+    const claimsA = {
+      issuer,
+      subject: "subject-a",
+      audience: ["whatsbusiness-web"],
+      expiresAt: Math.floor(Date.now() / 1000) + 300,
+      displayName: "Synthetic A",
+    };
+    const accessContext = await identity.authorizeTenantAccess(
+      claimsA,
+      tenantA,
+      "platform.tenant.context.read",
+      randomUUID(),
+    );
+    assert.equal(accessContext.actorId, userA);
+    assert.equal(accessContext.tenantId, tenantA);
+    assert.equal(accessContext.membershipId, membershipAId);
+    assert.ok(accessContext.authzVersion > 1);
+    assert.deepEqual(accessContext.roleKeys, ["tenant_admin"]);
+    assert.deepEqual(accessContext.permissionKeys, ["tenant.read"]);
+    const publicContext = identity.tenantContextResponse(accessContext);
+    assert.equal("membershipId" in publicContext, false);
+    assert.equal("authzVersion" in publicContext, false);
+
+    const versionBeforeMembershipChange = accessContext.authzVersion;
+    await adminPool.query(
+      "UPDATE platform.memberships SET status = 'suspended' WHERE id = $1",
+      [membershipAId],
+    );
+    const versionAfterMembershipChange = await adminPool.query<{ authz_version: number }>(
+      "SELECT authz_version FROM platform.tenants WHERE id = $1",
+      [tenantA],
+    );
+    assert.ok((versionAfterMembershipChange.rows[0]?.authz_version ?? 0) > versionBeforeMembershipChange);
+    await assert.rejects(
+      database.withTenantContext(userA, tenantA, (client) =>
+        client.query("SELECT id FROM platform.tenants WHERE id = $1", [tenantA]),
+      ),
+      (error: unknown) => error instanceof NotFoundException,
+    );
+    await assert.rejects(
+      identity.authorizeTenantAccess(claimsA, tenantA, "platform.tenant.context.read", randomUUID()),
+      (error: unknown) => error instanceof NotFoundException,
+    );
+    await adminPool.query(
+      "UPDATE platform.memberships SET status = 'active' WHERE id = $1",
+      [membershipAId],
+    );
+
+    await adminPool.query(
+      "UPDATE platform.users SET status = 'disabled' WHERE id = $1",
+      [userA],
+    );
+    await assert.rejects(
+      database.withTenantContext(userA, tenantA, (client) => client.query("SELECT id FROM platform.tenants")),
+      (error: unknown) => error instanceof NotFoundException,
+    );
+    await assert.rejects(
+      identity.authorizeTenantAccess(claimsA, tenantA, "platform.tenant.context.read", randomUUID()),
+      (error: unknown) => error instanceof ForbiddenException,
+    );
+    await adminPool.query(
+      "UPDATE platform.users SET status = 'active' WHERE id = $1",
+      [userA],
+    );
+
+    await adminPool.query(
+      "UPDATE platform.organizations SET status = 'suspended' WHERE id = $1",
+      [organizationId],
+    );
+    await assert.rejects(
+      database.withTenantContext(userA, tenantA, (client) => client.query("SELECT id FROM platform.tenants")),
+      (error: unknown) => error instanceof NotFoundException,
+    );
+    await adminPool.query(
+      "UPDATE platform.organizations SET status = 'active' WHERE id = $1",
+      [organizationId],
+    );
+
     await assert.rejects(
       adminPool.query("UPDATE platform.tenants SET status = 'pending_provisioning' WHERE id = $1", [tenantA]),
       (error: unknown) => typeof error === "object" && error !== null && "code" in error
@@ -187,6 +293,10 @@ test("PostgreSQL RLS isolates tenants and clears SET LOCAL context on a reused c
     );
 
     await adminPool.query("UPDATE platform.tenants SET status = 'suspended' WHERE id = $1", [tenantA]);
+    await assert.rejects(
+      database.withTenantContext(userA, tenantA, (client) => client.query("SELECT id FROM platform.tenants")),
+      (error: unknown) => error instanceof NotFoundException,
+    );
     const suspended = await adminPool.query<{ status: string; suspended_at: Date | null }>(
       "SELECT status, suspended_at FROM platform.tenants WHERE id = $1",
       [tenantA],
