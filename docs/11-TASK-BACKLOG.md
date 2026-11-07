@@ -108,7 +108,7 @@ Estas tareas se añaden a la línea base porque el propietario confirmó greenfi
 | TASK-036 | Especificación funcional de Inbox omnicanal y handoff humano | PD-004, PD-003 | Contratos canónicos, diferencias por canal, estados y UX documentados |
 | TASK-037 | Especificación de Automation Engine y chatbots basados en reglas | PD-005 | Triggers, condiciones, acciones, retries, versiones, pausa y audit definidos |
 | TASK-038 | Especificación de AI Assistance / AI Gateway | PD-005 | Proveedor desacoplado, seguridad, coste, evaluación y human approval definidos |
-| TASK-039 | Architecture spike y ADR-011..017 | PD-007, PD-008 | Build/deploy local/VPS de prueba, footprint medido, contratos y trade-offs documentados |
+| TASK-039 | Architecture spike y validación transversal ADR-011..020 | PD-007, PD-008, PD-021, PD-023 | Build/deploy de laboratorio, footprint medido, RLS/pooling, outbox/broker, webhook y restore documentados |
 | TASK-040 | Reconciliación completa de historias, requisitos y trazabilidad | TASK-034..039 | Cada requisito tiene ID, prioridad, owner, AC, tareas, módulos previstos y evidencia esperada |
 | TASK-041 | Definición operativa: SLO/RPO/RTO, capacidad, backups y presupuesto VPS | Q-013 | Objetivos cuantificados y validados por propietario |
 
@@ -201,3 +201,23 @@ Todas las tareas nuevas permanecen proposed; no implican implementación ni perm
 - Meta learning guidance and 50 events/7 days are evidence/context, not an unconditional target for every objective/account.
 - Do not claim control over Andromeda/GEM internals or guarantee CPA/ROAS uplift.
 - Optimize to qualified lead/revenue/margin where lawful, not vanity clicks alone.
+
+
+## Readiness y estado documental (kickoff 2026-11-06)
+
+La tabla separa artefactos de especificación de ejecución/verificación. La creación de un documento no acredita código ni prueba independiente.
+
+| TASK / paquete | Artefacto de diseño disponible | Estado documental | Estado de ejecución/verificación |
+|---|---|---|---|
+| TASK-034 | docs/37 | implementado (documentación) | review pendiente; código no iniciado |
+| TASK-035 | docs/38 | implementado (documentación) | review pendiente; código no iniciado |
+| TASK-036 | docs/39 | implementado (documentación) | review pendiente; código no iniciado |
+| TASK-037 | docs/40 | implementado (documentación) | review pendiente; código no iniciado |
+| TASK-038 | docs/41 | implementado (documentación) | review security/privacy pendiente; proveedor no seleccionado |
+| TASK-039 | docs/45 | runbook preparado | spike no ejecutado; G0 no verificado |
+| TASK-040 | docs/19, docs/42, docs/43, docs/46 | base de trazabilidad creada | revisión de cobertura y huérfanos pendiente |
+| TASK-041 | docs/13, docs/30, docs/31, docs/45 | objetivos candidatos documentados | especificación VPS/budget y validación de owner pendientes |
+| TASK-060 | docs/45 | plan de benchmark | carga/capacidad no medidas |
+| TASK-061 | docs/45 | plan de restore/DR | restore drill no ejecutado |
+
+La tabla usa "implementado (documentación)" solo para indicar que el entregable documental existe; no cambia el estado de implementación de producto. Ninguna tarea se marca verified o accepted por la creación de especificaciones.

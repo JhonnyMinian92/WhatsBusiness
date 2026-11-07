@@ -97,3 +97,32 @@ Las siguientes familias se evalúan por versión/permiso/capability al integrar;
 - Los nuevos anuncios deben aportar diversidad sustancial de hipótesis/visual/hook/format/offer/CTA, no spam de duplicados.
 
 Fuentes: docs/34 y docs/36; la muestra Meta AI Creative Enhancer se referencia en docs/32 y requiere revalidación contra API docs normativas.
+
+
+## 8. Capability record obligatorio por operación
+
+Ningún adapter puede declararse listo solo porque el endpoint aparezca en el catálogo. Registrar una ficha versionada por operación:
+
+| Campo | Regla |
+|---|---|
+| capability_key | Identificador estable producto.operación |
+| provider_product / api_version | Producto y versión exactos; no una versión Graph universal |
+| method / path | Método y ruta de referencia normativa |
+| source_url / checked_at | URL oficial y fecha de consulta |
+| app_mode / access_level | Development/Live y nivel de acceso documentado |
+| oauth_scopes | Scopes requeridos y concedidos, separados |
+| asset_tasks / grants | Permisos efectivos del activo |
+| marketing_api_tier | Limited/Full u otro tier separado de OAuth scopes |
+| account_type / country | Elegibilidad real por tipo de cuenta y país |
+| webhook_fields | Suscripciones y campos requeridos |
+| rate_limit / pagination | Límites, headers y cursor/offset semántica |
+| write_semantics | Idempotencia documentada, timeout y reconciliación |
+| pricing_basis | Fuente, currency, effective dates y cálculo si aplica |
+| native_errors | Errores originales, códigos y mapping canónico |
+| sandbox_limitations | Diferencias conocidas del entorno de prueba |
+| evidence_state | documented, app-tested, account-tested o unknown |
+| sunset / migration | Deprecación, fecha efectiva, owner y plan de migración |
+
+La capability efectiva se calcula por intersección de autorización del actor, tenant policy, consent/legal basis, entitlement, OAuth scope, asset grant/task, App Review/access tier, elegibilidad de cuenta/país, versión API y approval aplicable. Falta de evidencia = disabled/deny, no asumir que funciona.
+
+Los archivos contractuales de cada adapter y fixtures se guardan por producto/versión. Antes de implementar un endpoint se vuelve a consultar la referencia oficial; docs/32 y META_SERVICES.md no sustituyen esa consulta ni la prueba con cuenta autorizada.

@@ -128,3 +128,16 @@ Fase 7 incluye Campaign Intelligence (US-029), Creative Lab (US-030), Meta agent
 - US-029..032 and TASK-067..080 are the new proposed scope.
 - PD-024 and ADR-021/022 define the owner-approved 20% budget safeguard and separation between Meta delivery AI and WhatsBusiness learning engine.
 - Current code implementation remains not started; documentation commits do not count toward software completion.
+
+
+## Kickoff readiness reconciliation — 2026-11-06
+
+La fase resumida antigua de este archivo queda subordinada al plan normativo docs/31 y al paquete docs/46. Las decisiones PD-001..PD-024 ya están consolidadas en docs/29; no volver a presentarlas como preguntas sin respuesta.
+
+Estado actual:
+- Preparación documental TASK-034..038: especificaciones creadas en docs/37..41; falta review independiente, no desarrollo funcional.
+- Contratos y modelo lógico: primera base en docs/42..43 y contracts/; faltan lint, contract review y pruebas ejecutables.
+- Threat model: versión inicial docs/44; falta revisión independiente y test mapping final.
+- TASK-039/G0: pendiente de ejecutar SP-01..07 en entorno con Docker y recursos medibles.
+- TASK-041/060/061: sin presupuesto VPS aprobado, benchmark ni restore drill.
+- Meta, LOPDP, proveedor IA y producción: gates externos específicos; no bloquean la preparación sintética.

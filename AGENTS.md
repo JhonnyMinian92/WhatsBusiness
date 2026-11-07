@@ -12,6 +12,7 @@ Deliver the complete, production-grade WhatsBusiness product defined by `META_SE
 4. Inspect the actual repository tree, manifests, source, tests, workflows, migrations and git status. Documentation is intent; the codebase is evidence. Never assume a task is complete from a checkbox alone.
 5. Identify the active branch and current commit. Unless the user explicitly directs otherwise, do all work on `environment/local`. Never push to, merge into, or rewrite `master` or `environment/develop` without explicit authorization.
 6. Reconcile the requested work with existing task/story/bug/change IDs before editing.
+7. For the current kickoff, read docs/46-AGENT-START-AND-WORKPACKETS.md and relevant specifications in docs/37..45. Preparatory work and TASK-039 may start; production scaffold remains gated by G0.
 
 ## Authority and priorities
 - Direct, latest user instruction > accepted product decisions in central memory > approved ADRs > product requirements > implementation conventions > agent assumptions.
@@ -138,3 +139,11 @@ For every non-trivial feature, assess Product/BA, domain/marketing, architecture
 - The 20% cap is owner-defined; never misattribute it to Meta.
 - Always protect winning ad sets and use isolated experiments; no model may directly write to Meta Ads API.
 - OpenWA is not an approved WhatsApp transport. Official Meta APIs only.
+
+
+## Current agent kickoff baseline — 2026-11-06
+
+- docs/37..41 contienen especificaciones funcionales iniciales; docs/42 modelo lógico; docs/43 contratos; docs/44 threat model; docs/45 runbook del spike; docs/46 work packets.
+- docs/46 autoriza preparación y el Architecture Spike desechable ahora. No autoriza scaffold de producción antes de TASK-039/G0 ni operaciones reales, gasto recurrente o despliegue.
+- Readiness y estados están en docs/11, docs/15, docs/19, docs/31 y docs/46. No inferir que una tarea está completa por existir una especificación.
+- El entorno de esta auditoría no tenía pnpm ni Docker/Compose; los agentes deben registrar el entorno real y no reutilizar esos datos como mediciones del VPS.

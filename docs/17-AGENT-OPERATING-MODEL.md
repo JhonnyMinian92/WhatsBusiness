@@ -92,3 +92,20 @@ Follow [24-INDEPENDENT-VALIDATION.md](24-INDEPENDENT-VALIDATION.md). Author and 
 
 ## 14. Boundaries and gates
 Follow [25-AGENT-BOUNDARIES-AND-ACCESS.md](25-AGENT-BOUNDARIES-AND-ACCESS.md) and [26-TEAM-WORKFLOW-AND-GATES.md](26-TEAM-WORKFLOW-AND-GATES.md). Never infer authorization from tool availability. Real messages, ad spend, production deployment, irreversible deletion, real customer data and strategic cost/contract changes require explicit approval. No agent can accept the product.
+
+
+## 15. Current kickoff artifacts (2026-11-06)
+
+For broad implementation planning, also read:
+- docs/37-PLATFORM-IDENTITY-AND-TENANCY-SPEC.md
+- docs/38-CRM-DOMAIN-SPEC.md
+- docs/39-OMNICHANNEL-INBOX-SPEC.md
+- docs/40-AUTOMATION-ENGINE-SPEC.md
+- docs/41-AI-ASSISTANCE-SPEC.md
+- docs/42-INITIAL-DATA-MODEL.md
+- docs/43-API-AND-EVENT-CONTRACTS.md
+- docs/44-THREAT-MODEL-AND-DATA-INVENTORY.md
+- docs/45-ARCHITECTURE-SPIKE-RUNBOOK.md
+- docs/46-AGENT-START-AND-WORKPACKETS.md
+
+Current authorization: preparation/review and the disposable spike may start. Production scaffold requires TASK-039 evidence and G0 review. Use synthetic data only until legal/privacy and provider approvals permit otherwise. Initial OpenAPI/AsyncAPI contracts are not implemented endpoints.

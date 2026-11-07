@@ -1,0 +1,265 @@
+openapi: 3.1.0
+info:
+  title: WhatsBusiness Platform API
+  version: 1.0.0
+  description: >
+    Initial contract for identity and tenant-context foundation.
+    This is a design contract; implementation must pass authorization,
+    tenancy and RLS acceptance tests before it is exposed.
+servers:
+  - url: /api
+tags:
+  - name: Health
+  - name: Identity
+  - name: Tenancy
+paths:
+  /health/live:
+    get:
+      tags: [Health]
+      operationId: healthLive
+      security: []
+      responses:
+        '200':
+          description: Process is alive.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /health/ready:
+    get:
+      tags: [Health]
+      operationId: healthReady
+      security: []
+      responses:
+        '200':
+          description: Required dependencies are ready.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: Process is alive but not ready.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /v1/me:
+    get:
+      tags: [Identity]
+      operationId: getCurrentPrincipal
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Authenticated principal and active memberships.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentPrincipal'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        default:
+          $ref: '#/components/responses/Problem'
+  /v1/tenants:
+    get:
+      tags: [Tenancy]
+      operationId: listAccessibleTenants
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Only tenants accessible to the authenticated principal.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        default:
+          $ref: '#/components/responses/Problem'
+  /v1/tenants/{tenantId}/context:
+    get:
+      tags: [Tenancy]
+      operationId: getTenantContext
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Correlation-ID
+          in: header
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Effective tenant membership, permissions summary and entitlements.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantContext'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Principal has no active membership or valid delegated grant.
+          $ref: '#/components/responses/Problem'
+        '404':
+          description: Resource is not visible to this principal.
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        default:
+          $ref: '#/components/responses/Problem'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    Cursor:
+      name: cursor
+      in: query
+      required: false
+      schema:
+        type: string
+        maxLength: 2048
+    PageSize:
+      name: pageSize
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 25
+  responses:
+    Unauthorized:
+      description: Missing or invalid authentication.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    RateLimited:
+      description: Request limit reached.
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Problem:
+      description: Typed API error.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+  schemas:
+    HealthResponse:
+      type: object
+      additionalProperties: false
+      required: [status, timestamp]
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded]
+        timestamp:
+          type: string
+          format: date-time
+        checks:
+          type: array
+          items:
+            type: object
+            required: [name, status]
+            properties:
+              name: { type: string }
+              status: { type: string, enum: [ok, degraded, failed] }
+    CurrentPrincipal:
+      type: object
+      additionalProperties: false
+      required: [userId, memberships]
+      properties:
+        userId: { type: string, format: uuid }
+        displayName: { type: [string, 'null'] }
+        memberships:
+          type: array
+          items:
+            $ref: '#/components/schemas/MembershipSummary'
+    MembershipSummary:
+      type: object
+      additionalProperties: false
+      required: [tenantId, tenantName, membershipStatus, roleKeys]
+      properties:
+        tenantId: { type: string, format: uuid }
+        tenantName: { type: string }
+        membershipStatus: { type: string, enum: [active, invited, suspended, revoked] }
+        roleKeys:
+          type: array
+          items: { type: string }
+    TenantList:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MembershipSummary'
+        nextCursor: { type: [string, 'null'] }
+    TenantContext:
+      type: object
+      additionalProperties: false
+      required: [tenantId, membershipStatus, roleKeys, permissionKeys, locale, timezone, currency]
+      properties:
+        tenantId: { type: string, format: uuid }
+        membershipStatus: { type: string, enum: [active] }
+        roleKeys:
+          type: array
+          items: { type: string }
+        permissionKeys:
+          type: array
+          items: { type: string }
+        delegatedGrant:
+          type: [object, 'null']
+          properties:
+            grantId: { type: string, format: uuid }
+            expiresAt: { type: string, format: date-time }
+        locale: { type: string, default: es-EC }
+        timezone: { type: string, default: America/Guayaquil }
+        currency: { type: string, pattern: '^[A-Z]{3}$', default: USD }
+        entitlementKeys:
+          type: array
+          items: { type: string }
+    Problem:
+      type: object
+      additionalProperties: true
+      required: [title, status, code, correlationId]
+      properties:
+        type: { type: string, format: uri-reference }
+        title: { type: string }
+        status: { type: integer, minimum: 400, maximum: 599 }
+        code: { type: string }
+        detail: { type: string }
+        correlationId: { type: string, format: uuid }
+        errors:
+          type: array
+          items:
+            type: object
+            required: [path, code]
+            properties:
+              path: { type: string }
+              code: { type: string }

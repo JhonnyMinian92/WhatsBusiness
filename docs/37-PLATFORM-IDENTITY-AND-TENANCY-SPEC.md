@@ -1,0 +1,135 @@
+# 37 — Especificación funcional: identidad, organizaciones y tenancy
+
+**Relacionado:** TASK-001..005, TASK-034, US-001, US-002, US-024, US-025, PD-001, PD-016, PD-017.  
+**Estado:** baseline de diseño propuesta para revisión técnica; no implementada ni verificada.  
+**Autoridad:** las decisiones PD-001/016/017 y los ADR aceptados prevalecen. Los nombres de roles y permisos aquí son un catálogo inicial extensible.
+
+## 1. Propósito y límites
+
+Definir el límite de seguridad que separa clientes SaaS, uso interno EcuApp, agencias, usuarios, membresías y operadores de plataforma. El tenant es el límite primario de propiedad de datos. Una organización agencia no obtiene acceso a un tenant cliente por jerarquía, relación comercial ni coincidencia de usuario.
+
+La autenticación demuestra quién es el usuario; no determina por sí sola a qué tenant puede acceder ni qué puede hacer. El backend resuelve y valida el contexto en cada frontera de confianza.
+
+## 2. Conceptos canónicos
+
+| Entidad | Responsabilidad | Regla |
+|---|---|---|
+| User | Identidad humana global | Clave interna UUID; identidad OIDC por combinación issuer + subject |
+| Organization | Agrupación comercial/administrativa | No constituye por sí sola permiso de lectura sobre tenants |
+| Tenant | Espacio aislado del cliente, incluido el tenant interno EcuApp | Límite de propiedad, datos, configuración, cuotas y auditoría |
+| Membership | Relación usuario-tenant | Define estado y roles asignados en ese tenant |
+| Role / Permission | Catálogo de autorización | Permisos granulares; rol es agrupación, no bypass |
+| PartnerOrganization | Agencia/reseller/proveedor | Separado del tenant del cliente |
+| PartnerTenantGrant | Delegación explícita a tenant cliente | Alcance por actor, rol, asset, acción, purpose, vigencia y revocación |
+| PlatformGrant | Acceso excepcional de operador a tenant | Just-in-time, temporal, motivado y auditado |
+| Plan / Entitlement | Capacidades comerciales contratadas | No sustituye autorización ni permiso Meta |
+| TenantSettings | Preferencias locales del tenant | Incluye locale, timezone, currency y políticas aprobadas |
+
+Un usuario puede tener memberships en varios tenants. Seleccionar el tenant activo no crea membresía. Un usuario agencia opera como actor de su organización y entra al tenant cliente mediante un grant vigente.
+
+## 3. Ciclo de vida
+
+### Tenant
+
+Estados: `pending_provisioning` → `active` → `suspended` → `active`; cierre: `active|suspended` → `closing` → `deleted` (tombstone mínimo de auditoría según política legal aprobada).
+
+- `pending_provisioning`: no permite operaciones de negocio.
+- `active`: opera según entitlements y políticas.
+- `suspended`: bloquea acciones nuevas; lectura administrativa solo con permiso explícito.
+- `closing`: bloquea escrituras ordinarias y ejecuta export/delete workflow aprobado.
+- `deleted`: acceso revocado; no implica purga inmediata de backups fuera de su política documentada.
+
+No inferir periodo de retención. La transición a borrado requiere política aprobada, evidencia y tratamiento de copias de respaldo.
+
+### User y Membership
+
+User: `invited`, `active`, `locked`, `disabled`.  
+Membership: `invited`, `active`, `suspended`, `revoked`.
+
+Revocar membership debe invalidar sesiones/contextos o impedir su reutilización mediante comprobación de estado y versión de autorización. Deshabilitar un usuario global no borra registros de auditoría.
+
+### PartnerTenantGrant
+
+Campos mínimos: `id`, `partner_organization_id`, `tenant_id`, `subject_user_id` o selector de grupo aprobado, `role_ids`, `asset_ids` (si aplica), `actions`, `purpose`, `valid_from`, `expires_at`, `approved_by`, `revoked_at`, `revoked_by`, `version`. No se admiten grants abiertos sin tenant, actor/alcance, propósito y expiración.
+
+## 4. Contexto de tenant y autorización
+
+1. Validar firma, issuer, audience, expiry y subject del token OIDC.
+2. Resolver User por issuer + subject; nunca confiar en un email como identificador estable.
+3. Recibir tenant solicitado desde ruta o selector. Un header como `X-Tenant-ID` es solo una selección no confiable.
+4. Consultar membership activa o grant de partner vigente y comprobar que el actor pertenece al tenant o que la delegación permite esa acción y esos assets.
+5. Construir un `ActorContext` inmutable: user, tenant, membership/grant, roles, purpose, correlationId y authzVersion.
+6. Evaluar permission + ownership + estado del recurso + tenant policy + consent/purpose + capability externa cuando corresponda.
+7. Abrir transacción y establecer el tenant context para RLS con alcance transaccional (por ejemplo `SET LOCAL`); limpiar automáticamente al finalizar.
+8. Auditar allow/deny para acciones privilegiadas.
+
+No confiar en tenant IDs enviados desde el frontend, jobs o mensajes. Los workers deben volver a resolver la membresía/grant y el tenant desde un envelope firmado/interno y validar la autorización adecuada al ejecutar.
+
+## 5. Catálogo inicial de permisos
+
+Nomenclatura `<domain>.<resource>.<action>`; ejemplos:
+
+- `tenant.read`, `tenant.settings.manage`, `tenant.members.read`, `tenant.members.invite`, `tenant.members.manage`.
+- `roles.read`, `roles.assign`, `approvals.create`, `approvals.decide`.
+- `meta.connections.read`, `meta.connections.manage`, `meta.assets.read`, `meta.capabilities.read`.
+- `crm.contacts.read|create|update|merge`, `crm.leads.read|assign|export`.
+- `inbox.conversations.read|assign|reply|handoff`, `inbox.notes.create`.
+- `automation.read|create|publish|pause`, `ai.suggestions.read`.
+- `ads.read`, `ads.draft.create`, `ads.publish.request`, `ads.budget.change.request`.
+- `audit.read`, `privacy.export.request`, `privacy.deletion.request`.
+
+ABAC agrega tenant, asset, owner, purpose, estado, consentimiento, capacidad Meta, límite comercial y aprobación. La UI puede ocultar acciones, pero el backend es la autoridad final.
+
+## 6. Roles semilla sugeridos
+
+Roles de tenant configurables: Tenant Owner, Tenant Admin, Integration Admin, Marketing Manager, Inbox Supervisor, Agent, Analyst, Compliance Auditor y Developer/API Integrator. Roles de plataforma separados: Platform Owner, Platform Operations y Support JIT. No asignar automáticamente permisos de plataforma a usuarios de tenant.
+
+La matriz exacta de permisos debe vivir en seed versionado + policy tests. Evitar un rol "admin" que eluda reglas de consentimiento, límites de gasto, tenant ownership o aprobación.
+
+## 7. Planes, cuotas y entitlements
+
+Entitlements expresan qué features y límites contratados están disponibles. No definen el permiso del actor. La decisión final es la intersección de:
+
+`actor authorization ∩ tenant policy ∩ entitlement ∩ consent/legal basis ∩ Meta scope/grant/tier/eligibility ∩ approval`.
+
+El modelo de suscripción es tenant + seats + consumo medido (PD-013/014). No fijar precios, impuestos, márgenes ni cuotas monetarias en esta especificación. Costes de Meta se contabilizan por separado de la suscripción.
+
+## 8. Configuración regional
+
+Defaults de PD-015: `es-EC`, `USD`, `America/Guayaquil`. Guardar identificadores normalizados (locale BCP-47, currency ISO-4217, timezone IANA). La configuración es por tenant; fechas internas en UTC y presentación local.
+
+## 9. APIs internas iniciales
+
+- `GET /v1/me`: identidad y memberships activas del actor.
+- `GET /v1/tenants`: tenants que puede seleccionar el actor, sin exponer otros tenants.
+- `GET /v1/tenants/{tenantId}/context`: resumen de membresía, roles y entitlements permitidos.
+- `GET /v1/tenants/{tenantId}/members`: miembros según permiso.
+- Operaciones de invitación, grants, roles y suspensión se exponen solo cuando TASK-004/005 implementen approval/audit.
+
+Todas las rutas tenant-scoped pasan por guards y tenant context backend; los IDs no sustituyen la autorización.
+
+## 10. Criterios de aceptación ampliados
+
+- Dado un usuario autenticado sin membership ni grant, cuando solicita un tenant, entonces obtiene 403/404 sin filtrar su existencia.
+- Dado un grant expirado o revocado, cuando intenta acceder a un asset, entonces la operación se deniega aunque el token siga vigente.
+- Dado un usuario miembro de dos tenants, cuando cambia el tenant activo, entonces ningún query/job/cache/file/evento conserva el tenant anterior.
+- Dado un worker que procesa un evento, cuando el envelope no contiene tenant verificable o su autorización ha sido revocada, entonces falla de forma cerrada y auditable.
+- Dado un operador de soporte, cuando obtiene acceso JIT, entonces la razón, recursos, duración, actor aprobador y accesos quedan auditados.
+- Dado RLS habilitado, cuando el pool reutiliza una conexión, entonces ningún contexto de tenant anterior filtra datos al siguiente request.
+- Dado un PartnerTenantGrant, cuando el cliente lo revoca, entonces todos los siguientes accesos del partner se deniegan y los accesos previos siguen auditables.
+
+## 11. Pruebas obligatorias
+
+Unit: políticas de rol/ABAC, transiciones de estado, expiración de grants, entitlement.  
+Integration: OIDC claims, transaction-local tenant context, RLS con rol no superuser y pool real.  
+Security: BOLA/IDOR, tenant header spoofing, role escalation, stale token/session, grant replay, JIT expiry.  
+E2E: usuario multi-tenant, invitación, selección de tenant, agencia con grant, revocación y soporte temporal.
+
+## 12. Dependencias y decisiones abiertas
+
+- TASK-039 debe validar RLS + pooling antes del bootstrap definitivo.
+- TASK-041/060 deben aportar límites medidos de capacidad y coste.
+- Revisión legal debe fijar retención, roles y condiciones antes de datos reales.
+- El Product Owner debe aprobar umbrales monetarios y matriz final de aprobadores antes de operaciones sensibles en producción.
+
+No bloquean el diseño ni los tests sintéticos: nombres comerciales, tarifas finales, proveedor VPS y aprobación Meta.

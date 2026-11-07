@@ -1,10 +1,10 @@
 # META_SERVICES.md
 ## Especificación funcional, técnica y de arquitectura para la integración integral con Meta
 
-**Producto:** microservices-meta-ecuapp  
+**Producto:** WhatsBusiness  
 **Repositorio:** [JhonnyMinian92/WhatsBusiness](https://github.com/JhonnyMinian92/WhatsBusiness)  
 **Fecha de corte de investigación:** 6 de noviembre de 2026  
-**Estrategia:** integración directa, oficial y multi-tenant con Meta; cobertura amplia; arquitectura extensible y polimórfica.  
+**Estrategia:** integración directa, oficial y multi-tenant con Meta; cobertura amplia; arquitectura extensible y polimórfica. La arquitectura normativa posterior es modular monolith (docs/30 y docs/33), no microservicios por endpoint.  
 **Estado:** documento de investigación y decisiones de arquitectura. No contiene código inicial ni representa una implementación.
 
 ---
@@ -22,7 +22,7 @@ La regla de selección es: **máxima capacidad oficial, control operativo y cobe
 | WhatsApp | WhatsApp Business Platform - Cloud API | Mensajería bidireccional, medios, plantillas, estados y eventos. |
 | Administración WhatsApp | WhatsApp Business Management API | WABA, números, plantillas, activos, analytics, configuración y ciclo de vida. |
 | Alta de clientes WhatsApp | Embedded Signup | Onboarding delegado para conectar activos de clientes sin pedir sus contraseñas. |
-| Marketing WhatsApp | Marketing Messages API + Cloud API | Separar el tráfico promocional optimizado del tráfico operacional y transaccional. |
+| Marketing WhatsApp | Marketing Messages API para tráfico promocional; Cloud API para capacidades de servicio/transaccionales elegibles | Mantener separados marketing, service/utility/auth y sus contratos de envío. No iniciar nuevas dependencias de marketing en la ruta Cloud API legacy. |
 | Experiencias WhatsApp | WhatsApp Flows API | Formularios, calificación de leads, reservas, cotizaciones, solicitudes y procesos estructurados. |
 | Facebook | Graph API + Pages API | Activos, publicaciones, comentarios, moderación, lectura permitida y métricas de Páginas. |
 | Atención Facebook | Messenger Platform | Inbox, mensajes, adjuntos, plantillas, eventos de conversación y atención humana. |
@@ -1672,3 +1672,15 @@ La estrategia publicitaria y los agentes han evolucionado desde el catálogo bas
 - OpenWA/browser automation is not an accepted Meta integration; official APIs only.
 
 See docs/32 for dated sources and docs/34..36 for implementation design, security and tests.
+
+
+---
+
+## Nota de precedencia y vigencia documental (kickoff 2026-11-06)
+
+- El nombre canónico del producto es WhatsBusiness.
+- La arquitectura normativa de implementación es modular monolith con NestJS/Angular/Nx, según docs/30 y ADR-011..020; la sección histórica de servicios/microservicios de este documento se interpreta como context map/bounded contexts, no obligación de desplegar un microservicio por dominio.
+- La fila de Marketing WhatsApp distingue Marketing Messages API para marketing y Cloud API para capacidades no promocionales elegibles. No crear dependencias nuevas de tráfico promocional sobre el endpoint legacy.
+- Las tarifas numéricas y tablas heredadas en este documento son referencias históricas de investigación, no valores normativos ni constantes de código. Implementar rate cards versionadas con fuente oficial, moneda, mercado, categoría y vigencia; separar estimate, maximum/upper bound, provider-reported actual y reconciled statement.
+- Los endpoints, scopes, tareas de activos, tiers, versiones, países, límites, precios, elegibilidad y sunsets deben revalidarse en fuentes oficiales antes de implementar cada operación. Docs/09 define el capability record obligatorio.
+- Docs/37..46, contracts/ y docs/31 son la base de preparación más reciente para agentes. Este documento conserva utilidad como catálogo de investigación y referencia, pero no sustituye los contratos operativos por endpoint.

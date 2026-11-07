@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.whatsbusiness.example/event-envelope.schema.json",
+  "title": "WhatsBusiness Event Envelope",
+  "description": "Versioned internal event envelope. Delivery is at-least-once and consumers must be idempotent.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "type",
+    "schemaVersion",
+    "occurredAt",
+    "tenantId",
+    "aggregate",
+    "source",
+    "correlationId",
+    "data"
+  ],
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "type": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9_]*)+$"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "tenantId": {
+      "oneOf": [
+        { "type": "string", "format": "uuid" },
+        { "type": "null" }
+      ]
+    },
+    "aggregate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "version"],
+      "properties": {
+        "type": { "type": "string" },
+        "id": { "type": "string", "format": "uuid" },
+        "version": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "source": { "type": "string", "minLength": 1 },
+    "correlationId": { "type": "string", "format": "uuid" },
+    "causationId": {
+      "oneOf": [
+        { "type": "string", "format": "uuid" },
+        { "type": "null" }
+      ]
+    },
+    "data": {
+      "type": "object",
+      "description": "Event-specific validated payload. Do not include credentials or unnecessary personal data."
+    }
+  }
+}

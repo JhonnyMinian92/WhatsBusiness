@@ -1,0 +1,78 @@
+# 45 — Runbook reproducible del Architecture Spike (TASK-039)
+
+**Objetivo:** verificar la arquitectura adoptada antes del scaffold de producción.  
+**Naturaleza:** prototipo desechable y laboratorio; no es el primer release del producto.  
+**Estado:** protocolo preparado; ejecución real pendiente. No inventar resultados.
+
+## 1. Resultado obligatorio
+
+Entregar un informe reproducible que confirme o ajuste ADR-011..020. El spike debe medir compatibilidad, build, memoria, arranque, integración transaccional, aislamiento, resiliencia básica y restauración. Si el entorno no dispone de Docker o acceso a hardware VPS de referencia, registrar BLOCKED para esa parte; no sustituirlo por estimación.
+
+## 2. Entorno y registro
+
+Registrar OS/kernel; CPU/cores; RAM; disco/IO; filesystem; versiones exactas de Node LTS, Corepack, pnpm, Nx, NestJS, Angular, PostgreSQL, Redis, RabbitMQ, Keycloak y Docker; commit de spike; lockfile; config; image digests; comandos; consumo idle/peak por servicio; tiempos cold/warm; tests; skips y limitaciones. No usar latest en resultados reproducibles.
+
+## 3. Experimentos
+
+### SP-01 Workspace y developer experience
+- Crear prototipo Nx + pnpm con apps API, worker, scheduler y web.
+- Instalar desde checkout limpio usando lockfile: pnpm install --frozen-lockfile.
+- Ejecutar build, lint, typecheck y tests por proyecto y affected graph.
+- Medir primera instalación, cold/warm build, memoria máxima y tamaño de artefactos.
+- Verificar boundaries server/browser y domain sin imports de Nest/Angular/driver.
+
+### SP-02 PostgreSQL, tenant context y RLS
+- Crear dos tenants y conjuntos sintéticos.
+- Habilitar RLS en tabla tenant-scoped; usar rol runtime no superuser ni BYPASSRLS.
+- Establecer tenant con contexto transaction-local.
+- Reutilizar pool/conexiones alternando tenant A/B.
+- Intentar lectura/escritura sin contexto, contexto falso y tenant cruzado.
+- Exit: todo intento no autorizado denegado y sin filtración entre requests.
+
+### SP-03 Outbox + RabbitMQ
+- En una transacción crear agregado + outbox record.
+- Publicar outbox hacia RabbitMQ y simular caída antes/después de publish.
+- Consumer at-least-once con dedupe/idempotency.
+- Probar duplicate, poison event, broker unavailable, restart y DLQ.
+- Exit: sin pérdida confirmada de eventos committed; duplicados no duplican side effect; recovery demostrable.
+
+### SP-04 Webhook durable
+- Endpoint sintético con validación de firma/challenge de prueba, size/content-type limits y dedupe.
+- Persistir inbox payload ref y metadata de autenticidad antes de ACK.
+- Forzar worker down y verificar reanudación desde durable inbox.
+- Exit: ACK solo después del commit durable; worker independiente del request HTTP.
+
+### SP-05 Keycloak/OIDC
+- Login de prueba, JWKS validation, issuer/audience/expiry, user mapping y roles.
+- Probar token inválido, expirado, issuer equivocado y membership revocada.
+- Exit: autenticación separada de autorización tenant/asset.
+
+### SP-06 Backup/restore
+- Backup encrypted de PostgreSQL + config no secreta necesaria.
+- Restaurar en host/container limpio.
+- Comprobar schema, filas, constraints, event consistency y acceso.
+- Documentar restore time y data-loss window simulada.
+- Exit: restore reproducible; RPO/RTO medidos en ese entorno, sin extrapolar a VPS productivo.
+
+### SP-07 Footprint VPS
+- Ejecutar stack local Compose con carga sintética.
+- Medir idle/peak RSS, CPU, disk IOPS/space, network, startup/restart y contention.
+- Definir escenario objetivo preliminar; no afirmar capacidad sin resultados.
+- Comparar con VPS propuesta solo si se dispone del hardware concreto.
+- Exit: tamaño mínimo de laboratorio y limitaciones medidos; capacidad productiva requiere TASK-060 y aprobación de coste.
+
+## 4. Configuración segura
+
+Solo datos y tokens sintéticos. No conectar Meta app real, enviar mensajes, publicar anuncios, gastar presupuesto ni usar datos de clientes. Contratos Meta pueden probarse con fixtures sanitizadas sin permiso real. Secrets locales se inyectan y nunca se versionan.
+
+## 5. Criterios globales de salida
+
+Install/build/lint/typecheck/tests limpios desde checkout limpio; RLS + pooling demuestra aislamiento; outbox/inbox/RabbitMQ/DLQ demuestran dedupe/replay; webhook ACK después de persistencia durable; backup/restore completado y medido; footprint medido para el host probado; decisiones y comandos documentados; sin secretos/PII/recursos no aprobados; informe revisado por agente distinto del autor. Sin segundo agente, self-review y G0 no verificado.
+
+## 6. Artefactos
+
+spike/README.md, spike/compose.yaml, prototipo descartable, scripts/tests, spike/results/benchmark.csv, spike/results/test-evidence.md, spike/results/restore-report.md, ADR updates y conclusión ACCEPT / ADJUST / REJECT por decisión. El prototipo se elimina o queda aislado tras la decisión; no copiarlo automáticamente al scaffold.
+
+## 7. Estado real del entorno de auditoría
+
+En el entorno de esta sesión se verificó Node.js v22.16.0 y npm 10.9.2; no se encontraron pnpm ni Docker/Compose instalados. Por ello no se ejecutaron estos experimentos. Estos datos describen el entorno de auditoría, no el VPS del propietario. TASK-039 permanece pendiente de ejecución reproducible.

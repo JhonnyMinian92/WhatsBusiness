@@ -133,3 +133,29 @@ Deliver:
 - Meta Ads MCP, Business Agent and WhatsBusiness MCP interoperability through one approval/tool gateway.
 
 Gate G7B: no production autonomy until test fixtures, concurrency/cap +20% coverage, creative review, CAPI signal quality, controlled experiments, audit/rollback and permission checks pass. Improvement claims require independent test evidence; no claimed Andromeda control or guaranteed ROAS.
+
+
+## 8. Kickoff plan after documentation audit (2026-11-06)
+
+### Estado de preparación
+
+| Entregable | Estado | Evidencia |
+|---|---|---|
+| Decisiones de producto | baseline adoptada; reservas identificadas | docs/29 |
+| Arquitectura y ADR | dirección adoptada, validación práctica pendiente | docs/30, docs/33 |
+| Especificaciones funcionales TASK-034..038 | documentación inicial creada; review pendiente | docs/37..41 |
+| Modelo lógico y contratos base | creados; lint/contract review pendiente | docs/42..43, contracts/ |
+| Threat model | baseline inicial creada; review pendiente | docs/44 |
+| Architecture Spike | runbook listo; ejecución pendiente | docs/45 |
+| Work packets y G0 | definidos; owners/reviewers aún no asignados | docs/46 |
+| Capacidad, backup/restore y coste VPS | no medidos/no aprobados | TASK-041, TASK-060, TASK-061 |
+| Meta App/account eligibility | no comprobada | TASK-054..056 y matriz docs/09 |
+| Legal/LOPDP | no revisado por especialista | TASK-059 |
+
+### Autorización de inicio
+
+Los agentes pueden comenzar trabajo de preparación, revisión de especificaciones, contratos y el prototipo desechable TASK-039. El scaffold definitivo se inicia después de G0. La autorización técnica no reemplaza aprobaciones humanas sobre coste, proveedor, datos reales, legalidad, permisos Meta, producción y acciones irreversibles.
+
+### Primer slice tras G0
+
+Platform Identity/Tenant Context: NestJS API + Angular shell + CI mínimo; OIDC dev; User/Tenant/Membership; PostgreSQL + RLS; GET /v1/me; GET /v1/tenants/{tenantId}/context; audit/outbox; panel mínimo de selección de tenant y pruebas negativas cross-tenant. WhatsApp send, Ads spend y agentes con escritura no son el primer slice.

@@ -195,3 +195,14 @@ Estado de producto: no implementation, no runtime metrics, no deployed environme
 Branch compare refreshed after handoff documentation: master → environment/local and environment/develop → environment/local are each ahead 161 / behind 0; master and environment/develop remain identical.
 
 Latest GitHub compare after validation-record commits: environment/local is ahead 163 / behind 0 of master and environment/develop; master and environment/develop remain identical. Documentation-only changes; no product implementation/tests/benchmark performed.
+
+
+## Handoff — kickoff documental y readiness (2026-11-06)
+
+- Se añadieron docs/37..41 como especificaciones funcionales iniciales para Platform Identity/Tenancy, CRM, Inbox, Automation y AI Assistance.
+- Se añadieron docs/42..44 para modelo lógico de datos, contratos y threat model/data inventory.
+- Se añadió docs/45 con protocolo reproducible del Architecture Spike y docs/46 con decisión de inicio condicionado, work packets y G0.
+- Se añadieron contratos iniciales OpenAPI, AsyncAPI y JSON Schema en contracts/.
+- Estado real: especificaciones/contracts creados; no hay código de producto, tests, build ni ejecución del spike acreditados. En el entorno de esta sesión Node.js v22.16.0 y npm 10.9.2 están presentes; pnpm y Docker/Compose no están instalados.
+- Próxima acción: asignar WP-039 y reviewers reales; ejecutar SP-01..07 en un entorno con Docker y hardware documentable. En paralelo, realizar review independiente de docs/37..44 y completar la matriz REQ/US/AC/TASK/contract/test.
+- No afirmar asignación de agentes, review independiente, G0 aprobado, permisos Meta o coste de VPS.

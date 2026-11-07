@@ -85,7 +85,7 @@ Solo promover una afirmación a esta memoria si tiene fuente/evidencia, fecha, a
 
 ## Baseline confirmada del producto (2026-11-06)
 - Decisiones del propietario: [29-OWNER-DECISIONS.md](29-OWNER-DECISIONS.md).
-- Arquitectura/stack recomendada, aún proposed: [30-RECOMMENDED-ARCHITECTURE.md](30-RECOMMENDED-ARCHITECTURE.md).
+- Arquitectura/stack adoptada por delegación como dirección: [30-RECOMMENDED-ARCHITECTURE.md](30-RECOMMENDED-ARCHITECTURE.md); ADR-011..020 aceptados como dirección, sujetos a TASK-039 antes del scaffold definitivo.
 - Plan maestro por fases: [31-MASTER-DELIVERY-PLAN.md](31-MASTER-DELIVERY-PLAN.md).
 - SaaS comercial + plataforma interna EcuApp; greenfield; todo el catálogo Meta; backend, panel web, CRM, inbox omnicanal; IA básica para chatbots/sugerencias; VPS.
 - El propietario autoriza recomendar stack y resolver decisiones técnicas reversibles sin interrumpir el trabajo independiente. Las decisiones comerciales, legales, de privacidad, datos, costes recurrentes, seguridad de alto impacto y breaking changes se escalan.
@@ -128,3 +128,11 @@ Los ADR-011..020 están formalizados en docs/33-ARCHITECTURE-DECISION-RECORDS.md
 - Campaign system must learn from CRM/CAPI qualified leads, opportunities, sales, net revenue and margin as well as Meta Insights. Distinguish provider-attributed ROAS from incremental causal lift.
 - No direct Andromeda/GEM access, no LLM direct Ads API writes, no unapproved publish/spend.
 - Official Meta API only. OpenWA is a reference for plugin/MCP boundaries, not an allowed WhatsApp transport.
+
+
+## Agent readiness baseline — 2026-11-06
+
+- Especificaciones funcionales iniciales: docs/37..41; modelo de datos: docs/42; contratos: docs/43 + contracts/; threat model: docs/44; spike runbook: docs/45; work packets y gates: docs/46.
+- Autorizado: agentes de preparación, review read-only y ejecución de TASK-039 como prototipo desechable.
+- No se declara completado: TASK-039, benchmark TASK-060, restore/DR TASK-061, Meta account access/App Review, legal review LOPDP ni aprobación de costes/proveedor.
+- Scaffold definitivo y primer vertical slice quedan condicionados al gate G0 descrito en docs/46.

@@ -96,3 +96,18 @@ Esta auditoría sí confirma que la rama inspeccionada contiene la base document
 El propietario confirmó que el producto debe comenzar desde cero. Por tanto, la ausencia de backend/frontend en el árbol auditado deja de ser un bloqueo por falta de código heredado y pasa a ser el estado inicial esperado del proyecto greenfield. La auditoría estática histórica se conserva como evidencia de lo que había en el árbol al momento de inspección; no se convierte en auditoría de calidad de una implementación. La próxima auditoría técnica debe ejecutarse después de crear el scaffold, CI, servicios y frontend, y antes de cada release candidate.
 
 Decisiones vinculantes y nuevas historias: docs/29, docs/30, docs/31, US-018..US-024, TASK-034..TASK-052.
+
+
+## 10. Addendum — auditoría de preparación para agentes (2026-11-06)
+
+Esta sección actualiza el estado posterior a las decisiones del propietario y al paquete documental de kickoff. Los bloqueos DISC-001..006 de la sección 6 son históricos: greenfield y baseline PD-001..PD-024 están registrados en docs/29; no deben reabrirse como preguntas generales. Las reservas legales, financieras, de capacidad y de acceso Meta permanecen explícitas.
+
+Estado actualizado:
+- La ausencia de source code continúa siendo el estado greenfield esperado.
+- README raíz y docs/README fueron actualizados para dirigir al contrato y a los gates vigentes.
+- TASK-034..038 ya tienen especificaciones iniciales docs/37..41; falta review independiente, no se afirma que exista implementación.
+- Modelo lógico, contratos iniciales y threat model están en docs/42..44.
+- TASK-039 dispone de runbook reproducible en docs/45, pero no se ejecutó en esta sesión.
+- La autorización de inicio condicionado y los work packets están en docs/46.
+- La observación histórica sobre secuencias literales \\n en el índice debe considerarse corregida; la versión actual de docs/README no contiene dichas secuencias.
+- El estado correcto es preparation_ready_for_agents; architecture_spike_and_G0_pending. No equivale a technical production readiness.

@@ -1,0 +1,90 @@
+asyncapi: 2.6.0
+info:
+  title: WhatsBusiness Platform Events
+  version: 1.0.0
+  description: >
+    Initial event contracts for the modular monolith and asynchronous workers.
+    Delivery is at-least-once; consumers must be idempotent.
+defaultContentType: application/json
+servers:
+  local:
+    url: rabbitmq:5672
+    protocol: amqp
+    description: Local development broker; topology and credentials are environment-specific.
+channels:
+  platform.audit-events.v1:
+    publish:
+      operationId: publishAuditEvent
+      message:
+        $ref: '#/components/messages/AuditEvent'
+  meta.webhook-received.v1:
+    publish:
+      operationId: publishMetaWebhookReceived
+      message:
+        $ref: '#/components/messages/MetaWebhookReceived'
+  crm.lead-created.v1:
+    publish:
+      operationId: publishLeadCreated
+      message:
+        $ref: '#/components/messages/LeadCreated'
+  inbox.message-received.v1:
+    publish:
+      operationId: publishInboxMessageReceived
+      message:
+        $ref: '#/components/messages/InboxMessageReceived'
+components:
+  messages:
+    AuditEvent:
+      name: AuditEvent
+      payload:
+        $ref: '#/components/schemas/EventEnvelope'
+    MetaWebhookReceived:
+      name: MetaWebhookReceived
+      payload:
+        $ref: '#/components/schemas/EventEnvelope'
+    LeadCreated:
+      name: LeadCreated
+      payload:
+        $ref: '#/components/schemas/EventEnvelope'
+    InboxMessageReceived:
+      name: InboxMessageReceived
+      payload:
+        $ref: '#/components/schemas/EventEnvelope'
+  schemas:
+    EventEnvelope:
+      type: object
+      additionalProperties: false
+      required: [id, type, schemaVersion, occurredAt, tenantId, aggregate, source, correlationId, data]
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          pattern: '^[a-z][a-z0-9]*(\.[a-z][a-z0-9_]*)+$'
+        schemaVersion:
+          type: string
+          pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
+        occurredAt:
+          type: string
+          format: date-time
+        tenantId:
+          type: [string, 'null']
+        aggregate:
+          type: object
+          additionalProperties: false
+          required: [type, id, version]
+          properties:
+            type: { type: string }
+            id: { type: string, format: uuid }
+            version: { type: integer, minimum: 1 }
+        source:
+          type: string
+        correlationId:
+          type: string
+          format: uuid
+        causationId:
+          type: [string, 'null']
+        data:
+          type: object
+          description: Event-specific validated payload. Never include credentials or unnecessary personal data.

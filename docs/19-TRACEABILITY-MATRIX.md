@@ -143,3 +143,25 @@ Andromeda/GEM are internal Meta systems, not a WhatsBusiness API surface. All TA
 
 
 | Tool/agent authorization, approval and audit gateway | US-031 | TASK-080 | Agent Tool Gateway / Policy & Approval | allowlisted tool schemas, scopes/purpose/tenant checks, idempotency, budget cap, redaction, audit, kill switch and replay tests |
+
+
+## 12. Initial requirement register for kickoff
+
+Los IDs REQ-0001..REQ-0012 se reservan como requisitos paraguas para que la trazabilidad no apunte a requisitos inexistentes. Cada Acceptance Criterion detallado conserva su AC-XXX-NN original.
+
+| REQ | Resultado obligatorio | Stories / AC | Tasks | Contrato/dominio | Evidencia mínima |
+|---|---|---|---|---|---|
+| REQ-0001 | Identidad global y tenant isolation | US-001/002; AC-001-01..04, AC-002-* | TASK-001..005, 034 | docs/37, docs/42, OpenAPI | RLS, BOLA, membership/grant tests |
+| REQ-0002 | OAuth, conexiones Meta y capabilities verificables | US-003/004 | TASK-006..010, 054..056 | docs/09, Meta Control Plane | state/replay, scopes/tasks/tier fixture and account evidence |
+| REQ-0003 | Mensajería y delivery por canal | US-005..010, US-020/021 | TASK-011..021, 045..047 | docs/39, AsyncAPI | adapter contracts, message state, delivery/reconcile tests |
+| REQ-0004 | Webhook/event platform durable | US-014 | TASK-027..028 | docs/43, inbox/outbox | signature, durable ACK, duplicate/out-of-order, DLQ/replay |
+| REQ-0005 | CRM, identity graph, leads y pipeline | US-018/019 | TASK-035, 042..044, 053 | docs/38, docs/42 | provenance, merge collision/undo, tenant tests |
+| REQ-0006 | Automatización determinista | US-022 | TASK-037, 048..049 | docs/40, events | versioning, idempotency, lock, retry, kill switch |
+| REQ-0007 | AI assistance bajo control | US-023 | TASK-038, 050..051 | docs/41 | redaction, cost/quota, prompt injection, no-auto-send |
+| REQ-0008 | Ads, Leads y conversion measurement | US-011..013, US-029/030 | TASK-022..026, 067..073 | docs/34/36, capability contracts | consent, dedupe, budget guard, attribution separation |
+| REQ-0009 | Security, privacy y data rights | US-016, US-025 | TASK-031/032, 058/059 | docs/44, docs/08 | threat review, DSR/export/delete, legal evidence |
+| REQ-0010 | Observability, recovery y production operation | US-015 | TASK-029/030, 041, 060/061 | docs/13, docs/45 | telemetry, benchmark, backup/restore, measured RPO/RTO |
+| REQ-0011 | SaaS billing, entitlements y partner access | US-024..027 | TASK-052, 058, 062/063 | docs/37, docs/42 | entitlement matrix, immutable usage, scoped grant tests |
+| REQ-0012 | Governed campaign/agent tool execution | US-029..032 | TASK-067..080 | docs/36, docs/41, docs/44 | approval gateway, PD-024, audit, lease, kill switch |
+
+No REQ is declared verified by this register alone. On implementation, extend each row with code module IDs, test IDs, evidence artifact path, owner, reviewer and release gate.

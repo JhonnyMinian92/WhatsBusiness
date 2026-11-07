@@ -16,7 +16,7 @@
 11. [Límites y accesos](25-AGENT-BOUNDARIES-AND-ACCESS.md) — acciones permitidas, prohibidas y escalamiento.
 12. [Flujo de equipo y gates](26-TEAM-WORKFLOW-AND-GATES.md) — ciclo completo, plantillas y puertas de calidad.
 13. [Auditoría inicial del repositorio](27-INITIAL-REPOSITORY-AUDIT.md) — evidencia del estado real inspeccionado.
-14. [Cuestionario de descubrimiento](28-PRODUCT-DISCOVERY-QUESTIONNAIRE.md) — decisiones que debe confirmar el propietario.
+14. [Cuestionario de descubrimiento](28-PRODUCT-DISCOVERY-QUESTIONNAIRE.md) — cuestionario histórico; las decisiones vigentes están en docs/29.
 
 ## Reglas rectoras
 1. Trabajo activo exclusivamente en `environment/local`, salvo instrucción expresa del propietario.
@@ -60,7 +60,7 @@
 | [25-AGENT-BOUNDARIES-AND-ACCESS.md](25-AGENT-BOUNDARIES-AND-ACCESS.md) | Límites, permisos y autoridad |
 | [26-TEAM-WORKFLOW-AND-GATES.md](26-TEAM-WORKFLOW-AND-GATES.md) | Flujo, ceremonias, gates y plantillas |
 | [27-INITIAL-REPOSITORY-AUDIT.md](27-INITIAL-REPOSITORY-AUDIT.md) | Auditoría estática inicial y límites de evidencia |
-| [28-PRODUCT-DISCOVERY-QUESTIONNAIRE.md](28-PRODUCT-DISCOVERY-QUESTIONNAIRE.md) | Preguntas y decisiones pendientes del propietario |
+| [28-PRODUCT-DISCOVERY-QUESTIONNAIRE.md](28-PRODUCT-DISCOVERY-QUESTIONNAIRE.md) | Cuestionario histórico; ver docs/29 para decisiones vigentes |
 
 ## Memoria de producto de origen
 [META_SERVICES.md](../META_SERVICES.md) conserva la investigación inicial. Es referencia histórica/técnica, no prueba de que una API siga vigente ni de que la cuenta tenga acceso. Validar todo dato volátil con fuentes oficiales antes de implementar.
@@ -90,3 +90,27 @@ La estructura documental y el sistema de instrucciones para agentes se encuentra
 34. [Meta Ads AI, Andromeda, GEM y evolución de plataforma](34-META-ADS-AI-AND-PLATFORM-OUTLOOK.md) — anuncios inteligentes, creatividades, MCP, Business Agent y proyecciones.
 35. [Benchmark de proyectos de referencia](35-REFERENCE-PROJECTS-TECHNICAL-BENCHMARK.md) — Chatwoot, Twilio, httpSMS, Android SMS Gateway y OpenWA.
 36. [Campaign Intelligence y escalado controlado](36-CAMPAIGN-INTELLIGENCE-AND-GUARDED-SCALING.md) — aprendizaje comercial, Creative Lab, experimentos y guardrail +20%.
+
+
+## Especificaciones de implementación y arranque (docs/37–46)
+
+37. Identidad, organizaciones y tenancy — docs/37-PLATFORM-IDENTITY-AND-TENANCY-SPEC.md.
+38. CRM y ciclo comercial — docs/38-CRM-DOMAIN-SPEC.md.
+39. Inbox omnicanal — docs/39-OMNICHANNEL-INBOX-SPEC.md.
+40. Automation Engine — docs/40-AUTOMATION-ENGINE-SPEC.md.
+41. AI Assistance Gateway — docs/41-AI-ASSISTANCE-SPEC.md.
+42. Modelo lógico de datos — docs/42-INITIAL-DATA-MODEL.md.
+43. Contratos HTTP y eventos — docs/43-API-AND-EVENT-CONTRACTS.md.
+44. Threat model y data inventory — docs/44-THREAT-MODEL-AND-DATA-INVENTORY.md.
+45. Architecture Spike Runbook — docs/45-ARCHITECTURE-SPIKE-RUNBOOK.md.
+46. Agent Start & Work Packets — docs/46-AGENT-START-AND-WORKPACKETS.md.
+
+## Contratos versionados iniciales
+
+- OpenAPI: ../contracts/openapi/platform-v1.yaml
+- AsyncAPI: ../contracts/asyncapi/platform-events-v1.yaml
+- JSON Schema: ../contracts/schemas/event-envelope.schema.json
+
+## Readiness vigente
+
+Los agentes pueden empezar análisis, revisión de especificaciones, validación de contratos y TASK-039. No se ha aprobado todavía el scaffold definitivo: se requiere evidencia del spike y review de G0. Las validaciones legales, financieras, Meta y VPS siguen siendo gates específicos; no se simulan.
