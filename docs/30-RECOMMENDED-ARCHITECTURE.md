@@ -225,3 +225,7 @@ TASK-039 debe:
 8. No contratar proveedor ni activar gasto recurrente sin aprobación explícita.
 
 **Criterio de salida:** decisión de topología y sizing respaldada por medición; rollback documentado; ningún dato comercial/legal inferido. Después de este gate, el owner técnico puede iniciar el primer vertical slice según docs/31.
+
+
+## 15. Registros formales de decisión
+Los ADR-011..020 completos —contexto, alternativas, consecuencias, seguridad, coste, reversibilidad y triggers de revisión— se encuentran en [33-ARCHITECTURE-DECISION-RECORDS.md](33-ARCHITECTURE-DECISION-RECORDS.md). Esa matriz es normativa junto con este documento.
