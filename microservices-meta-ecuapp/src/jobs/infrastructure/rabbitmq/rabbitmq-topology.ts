@@ -7,10 +7,22 @@ export interface RabbitMqJobTopologyOptions {
   readonly deadLetterQueue: string;
 }
 
+export const TENANT_JOB_RABBITMQ_TOPOLOGY: RabbitMqJobTopologyOptions = Object.freeze({
+  exchange: "whatsbusiness.jobs.exchange",
+  deadLetterExchange: "whatsbusiness.jobs.dlx",
+  queue: "whatsbusiness.jobs.worker.v1",
+  deadLetterQueue: "whatsbusiness.jobs.dlq.v1",
+});
+
 export class RabbitMqJobTopology {
   constructor(private readonly channel: Channel, private readonly options: RabbitMqJobTopologyOptions) {
     for (const value of Object.values(options)) {
       if (!value.trim()) throw new Error("RabbitMQ topology names are required.");
+    }
+    if (options.queue !== TENANT_JOB_RABBITMQ_TOPOLOGY.queue
+      || options.deadLetterQueue !== TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue
+      || options.deadLetterExchange !== TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterExchange) {
+      throw new Error("Tenant job queue names must match the versioned quorum DLX policy.");
     }
   }
 
@@ -22,11 +34,7 @@ export class RabbitMqJobTopology {
       durable: true,
       exclusive: false,
       autoDelete: false,
-      arguments: {
-        "x-queue-type": "quorum",
-        "x-dead-letter-exchange": deadLetterExchange,
-        "x-dead-letter-routing-key": "jobs.dead",
-      },
+      arguments: { "x-queue-type": "quorum" },
     });
     await this.channel.assertQueue(deadLetterQueue, {
       durable: true,
