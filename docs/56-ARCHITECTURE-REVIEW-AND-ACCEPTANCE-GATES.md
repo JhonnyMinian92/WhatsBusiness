@@ -1,6 +1,6 @@
 # 56 — Revisión arquitectónica, eventos y criterios de aceptación transversales
 
-**Corte de revisión:** 2026-11-06  
+**Corte de revisión:** 2026-11-07  
 **Rama revisada:** `environment/local`  
 **Tipo de revisión:** documental y estática sobre contratos y especificaciones.  
 **Estado:** dirección arquitectónica coherente; contratos ampliados; cierre técnico bloqueado por validación formal, revisión independiente y evidencia de implementación.
@@ -202,10 +202,28 @@ Se deben crear TEST IDs antes de implementar criterios nuevos y completar la cad
 
 ## 10. Decisión final de arquitectura
 
-- **GO limitado:** revisión documental, refinamiento de contratos, validadores aislados y experimentos desechables de TASK-039.
-- **NO-GO:** scaffold productivo definitivo, despliegue, datos reales, Meta mutations, gasto publicitario, mensajes reales, borrado irreversible o afirmación de producción lista.
-- **G0:** BLOCKED hasta que SP-01..10, RLS/pooling, RabbitMQ/outbox/inbox, webhook durable, backup/restore, footprint y review independiente tengan evidencia reproducible.
-- **ADRs:** mantener ADR-011..025 como dirección hasta que un spike contradiga una decisión y un ADR superseding sea aprobado.
+**GO-CODE:** aprobado por instrucción expresa del propietario el 2026-11-07 para crear workspace, CI y primer slice de foundation en environment/local. La autorización está registrada en docs/57.
+- **NO-GO-PRODUCTION:** se mantiene para despliegue, datos reales, Meta mutations, gasto publicitario, mensajes reales, proveedor IA externo, borrado irreversible y afirmación de producción lista.
+- **TASK-039:** parcialmente verificada por el Docker lab; no se eleva a `verified` ni `accepted` hasta completar experimentos y revisión que correspondan.
+- **ADRs:** ADR-011..025 se mantienen como dirección aceptada; compatibilidad Nx/Node y hardening quedan sujetos a evidencia del workspace/CI.
 - **Aceptación:** solo el Product Owner puede declarar el producto aceptado según docs/20.
 
 Este informe actualiza el estado de revisión; no cambia los gates ni constituye una autorización de implementación/producción.
+
+
+## 11. Actualización de evidencia y decisión GO-CODE — 2026-11-07
+
+El propietario instruyó explícitamente comenzar el código fuente sin más demora. Se aprueba **G0-CODE / GO-CODE** para crear el workspace y ejecutar el primer vertical slice de foundation en `environment/local`. Esta decisión supersede el NO-GO histórico de scaffold únicamente para desarrollo incremental; no aprueba despliegue ni uso productivo.
+
+[TASK-039 Docker lab run #5](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42344526870) terminó SUCCESS en runner GitHub-hosted. Los logs acreditan PostgreSQL RLS básico/cross-tenant/no-context y dedupe; RabbitMQ publish durable/queue/DLX; Valkey auth/TTL; Keycloak discovery/JWKS/login sintético; pg_dump y restore lógico en DB fresca dentro del mismo container. Artefacto [task039-lab-evidence.zip](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42344526870/artifacts/13562838303), SHA-256 `2ee9bc136e2234252b5f407a84f013a2fef813e5b70aa17be1316afbedfd8f5a`. El ZIP no se descargó; resultados citados a partir de los logs.
+
+Limitaciones: no hay pool Node real, outbox/consumer crash/replay, endpoint HTTP webhook firma/ACK, autorización OIDC de aplicación issuer/audience/membership, clean-host restore/RPO/RTO, VPS footprint/benchmarks, Valkey ACL/TLS/failover ni SBOM/CVE/license/digests. TASK-039 es `partially_verified`, no completa.
+
+| Gate | Estado | Alcance |
+|---|---|---|
+| G0-CODE | **GO** | Workspace fuente, CI y foundation slice en environment/local; solo datos sintéticos |
+| G0-PRODUCTION | **NO-GO** | Requiere pruebas técnicas/operativas, supply-chain, reviews independientes y approvals aplicables |
+
+No hubo reviewer independiente en esta interacción; esta actualización no pretende ser review externa. La aceptación final sigue perteneciendo al propietario.
+
+La ruta POST de conversión de Lead se consolida en SALES-014 y LEAD-010 queda como alias retirado. OpenAPI queda en 296 operaciones activas (288 REST + 8 webhooks), 5 design-frozen y 291 catalog-only. El validador exige unicidad de operationId y x-api-id. PLT-001/002 se habilitan para health; PLT-003..005 siguen bloqueadas.
