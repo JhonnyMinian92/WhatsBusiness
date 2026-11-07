@@ -22,6 +22,8 @@ export interface StepUpRequirements {
   readonly acceptedAuthenticationMethods: readonly string[];
 }
 
+export const STEP_UP_EVIDENCE_VERIFIER = Symbol("STEP_UP_EVIDENCE_VERIFIER");
+
 export interface StepUpEvidenceVerifier {
   verify(claims: OidcClaims, now?: number): StepUpEvidence;
 }
