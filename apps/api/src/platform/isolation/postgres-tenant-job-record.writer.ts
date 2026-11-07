@@ -1,29 +1,20 @@
+import { Injectable } from "@nestjs/common";
 import type { PoolClient } from "pg";
-
-export interface StageTenantJobInput {
-  readonly tenantId: string;
-  readonly actorUserId: string;
-  readonly purpose: string;
-  readonly correlationId: string;
-  readonly jobType: string;
-  readonly payload: Readonly<Record<string, unknown>>;
-  readonly maxAttempts?: number;
-  readonly availableAt?: Date;
-}
-
-export interface TenantJobRecordWriter {
-  /**
-   * Must be called with the same transaction client as the business mutation.
-   * This stages durable work; it deliberately does not publish to a broker.
-   */
-  stage(client: PoolClient, input: StageTenantJobInput): Promise<string>;
-}
+import type {
+  StageTenantJobInput,
+  TenantJobRecordWriter,
+} from "./tenant-job-record-writer.js";
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const PURPOSE_PATTERN = /^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*){2,7}$/;
-const JOB_TYPE_PATTERN = /^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*){1,7}$/;
+const PURPOSE_PATTERN = /^[a-z][a-z0-9]*(?:\\.[a-z][a-z0-9]*){2,7}$/;
+const JOB_TYPE_PATTERN = /^[a-z][a-z0-9]*(?:\\.[a-z][a-z0-9]*){1,7}$/;
 const MAX_PAYLOAD_BYTES = 256 * 1024;
 
+/**
+ * Stages durable work in the caller's business transaction. Publishing is a
+ * separate concern: a commit cannot be observed by a broker before it exists.
+ */
+@Injectable()
 export class PostgresTenantJobRecordWriter implements TenantJobRecordWriter {
   async stage(client: PoolClient, input: StageTenantJobInput): Promise<string> {
     this.validate(input);
