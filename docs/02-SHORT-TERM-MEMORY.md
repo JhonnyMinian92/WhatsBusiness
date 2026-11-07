@@ -48,3 +48,16 @@
 - Validación GitHub: `environment/local` está 31 commits adelantada respecto de `master`, sin commits detrás; `environment/develop` permanece creada.
 - Archivos de instrucciones y grafos verificados por lectura posterior a la escritura.
 - Siguiente tarea técnica: inspección completa del repositorio y reconciliación de TASK-001..033 con código real, antes de asignar estados de implementación.
+
+
+## Ampliación del modelo de equipo (2026-11-06)
+- [x] Definir organigrama por departamentos y responsabilidades.
+- [x] Definir modos single-agent, lead+specialists, parallel workstreams, review-only e incident mode.
+- [x] Definir ownership de paquetes, paths exclusivos, aislamiento de worktrees y reglas para serializar escrituras.
+- [x] Definir playbooks para Product/PM, BA, Marketing, UX, Architecture, Engineering, Meta, Data, QA, Security, Privacy, SRE, Finance, Support y Documentation.
+- [x] Definir validación cruzada independiente, revisión adversarial, estados y gestión de hallazgos.
+- [x] Definir límites de autoridad, privilegio mínimo, stop conditions y acciones externas reservadas.
+- [x] Definir gates G0-G8, RAID, plantillas YAML de trabajo y revisión.
+- [ ] Aplicar el modelo a la primera auditoría técnica real y ajustar los roles/paquetes con evidencia del repositorio.
+
+Estado: documentación de gobierno ampliada; no implica que exista una infraestructura de ejecución multiagente ni que se hayan ejecutado agentes paralelos en esta sesión.
