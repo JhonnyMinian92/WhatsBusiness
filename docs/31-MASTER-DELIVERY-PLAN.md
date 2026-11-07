@@ -110,3 +110,12 @@ Después de G1 y contratos estables:
 ## 7. Métricas de avance
 
 Cada reporte incluye el denominador y evidencia: REQ mapeados/total; AC verificados/total; TASK implementados/verificados/total; tests passed/executed; S0-S3 abiertos; vulnerabilidades; metas SLO medidas; capabilities Meta documentadas/verificadas; gates pasados/total. Documentar no incrementa porcentaje de implementación.
+
+
+## Campaign Intelligence added to delivery roadmap (2026-11-06)
+- Ads integration in Phase 7 now has two layers: (A) safe campaign control/reporting and (B) Campaign Intelligence / Creative Lab after CRM + CAPI signal quality, consent, event provenance and approval guardrails are stable.
+- Phase 7A: Ads structures, Insights, Leads, CAPI, budgets and reconciliation.
+- Phase 7B: snapshots, KPI registry, Creative Lab, experiments, fatigue/recommendations, guarded budget optimization, Meta MCP drafts and business agent interoperability.
+- Phase 8 hardening must test PD-024, API-version drift, Meta policy changes, AI creative rights/claims, conversation ownership and budget anomalies.
+- Campaign Intelligence does not control Andromeda/GEM; it provides eligible diversified creatives, valid conversion signals and learns from attributed and business outcomes.
+- No auto-scaling live campaigns until benchmarked experiments, sample rules, account caps, approval and rollback have passed. TASK-067..080 proposed.
