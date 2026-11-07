@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "../../dist/apps/api",
+    "rootDir": "src",
+    "types": [
+      "node"
+    ],
+    "declaration": true,
+    "declarationMap": true,
+    "tsBuildInfoFile": "../../dist/apps/api/tsconfig.tsbuildinfo"
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "src/**/*.spec.ts"
+  ]
+}
