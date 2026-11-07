@@ -8,23 +8,26 @@ import {
 
 class InMemoryObjectStorage implements ObjectStorage {
   readonly values = new Map<string, Uint8Array>();
-  async put(key: string, body: Uint8Array): Promise<void> { this.values.set(key, body); }
-  async get(key: string): Promise<Uint8Array | null> { return this.values.get(key) ?? null; }
+  async put(key: string, body: Uint8Array): Promise<void> { this.values.set(key, Uint8Array.from(body)); }
+  async get(key: string): Promise<Uint8Array | null> {
+    const value = this.values.get(key);
+    return value === undefined ? null : Uint8Array.from(value);
+  }
   async delete(key: string): Promise<void> { this.values.delete(key); }
 }
 
 const tenantA = "11111111-1111-4111-8111-111111111111";
 const tenantB = "22222222-2222-4222-8222-222222222222";
-const metadata: ObjectStorageMetadata = {
+const body = new Uint8Array([137, 80, 78, 71]);
+const validMetadata: ObjectStorageMetadata = {
   contentType: "image/png",
-  checksumSha256: "a".repeat(64),
+  checksumSha256: "0f4636c78f65d3639ece5a064b5ae753e3408614a14fb18ab4d7540d2c248543",
 };
 
 test("object storage prefixes every object with its tenant namespace", async () => {
   const provider = new InMemoryObjectStorage();
   const storage = new TenantScopedObjectStorage(provider);
-  const body = new Uint8Array([137, 80, 78, 71]);
-  await storage.put(tenantA, "media", "inbox/attachment.png", body, metadata);
+  await storage.put(tenantA, "media", "inbox/attachment.png", body, validMetadata);
   assert.deepEqual(await storage.get(tenantA, "media", "inbox/attachment.png"), body);
   assert.equal(await storage.get(tenantB, "media", "inbox/attachment.png"), null);
   assert.deepEqual([...provider.values.keys()], [
@@ -32,15 +35,15 @@ test("object storage prefixes every object with its tenant namespace", async () 
   ]);
 });
 
-test("object storage rejects missing integrity metadata and traversal keys", async () => {
+test("object storage rejects traversal and content checksum mismatch", () => {
   const storage = new TenantScopedObjectStorage(new InMemoryObjectStorage());
-  assert.throws(() => storage.put(tenantA, "media", "../outside", new Uint8Array([1]), metadata));
-  assert.throws(() => storage.put(tenantA, "media", "file", new Uint8Array([1]), {
-    contentType: "image/png",
-    checksumSha256: "invalid",
-  }));
-  assert.throws(() => storage.put(tenantA, "media", "file", new Uint8Array([1]), {
+  assert.throws(() => storage.put(tenantA, "media", "../outside", body, validMetadata));
+  assert.throws(() => storage.put(tenantA, "media", "file.png", body, {
     contentType: "image/png",
     checksumSha256: "0".repeat(64),
+  }));
+  assert.throws(() => storage.put(tenantA, "media", "file.png", body, {
+    contentType: "image/png",
+    checksumSha256: "invalid",
   }));
 });
