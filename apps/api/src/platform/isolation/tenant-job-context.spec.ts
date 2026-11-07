@@ -22,7 +22,7 @@ test("job context is validated and immutable", () => {
   assert.equal(Object.isFrozen(context), true);
   assert.throws(() => new TenantJobContextFactory().create({
     ...record,
-    persistenceState: "pending" as "committed",
+    persistenceState: "pending" as unknown as "committed",
   }));
   assert.throws(() => new TenantJobContextFactory().create({
     ...record,
