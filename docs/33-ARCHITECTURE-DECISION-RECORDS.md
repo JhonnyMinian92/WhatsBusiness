@@ -122,3 +122,22 @@
 - Si un spike contradice una decisión, documentar resultados y proponer ADR superseding. No presentar una hipótesis como resultado.
 - No existe benchmark ni build de la plataforma realizado al corte del documento.
 - Cambios que implican proveedor de pago, coste recurrente, transferencia de datos o contrato necesitan aprobación del propietario.
+
+
+## ADR-021 — Campaign Intelligence and learning-plane separation
+- **Context:** Meta's delivery AI is proprietary and learns from eligible creative, audience, objective and event signals; WhatsBusiness must learn from advertiser/business outcomes without claiming to control Meta ranking.
+- **Decision:** separate Meta Delivery Plane from WhatsBusiness Intelligence Plane. Build Campaign Intelligence from Insights, CRM/CAPI events, revenue and margin, with provenance, quality gates and controlled experiments.
+- **Alternatives:** pretend to optimize Andromeda directly; optimize only CTR/Meta-reported ROAS; allow free-form LLM mutations. Rejected because internals are inaccessible, vanity metrics misalign business value, and unconstrained mutations are unsafe.
+- **Consequences:** implement CampaignSnapshot, CreativeVariant, Experiment/TestCell, OptimizationRecommendation, OutcomeLedger and Policy/Approval integration. Reports distinguish provider attribution from incrementality.
+- **Safety:** AI drafts only. External writes pass policy/capability, simulation, approval, idempotency, audit and reconciliation.
+- **Reversibility:** modular; provider Insights adapters and experiment logic are replaceable.
+- **Review trigger:** Meta exposes new official interfaces, attribution model changes, account eligibility shifts, or benchmark reveals inadequate sample/decision quality.
+
+## ADR-022 — Creative testing, budget guardrail and official Meta-only channel policy
+- **Context:** owner asks for new diverse ads and never to increase budget by more than 20%; Meta campaign learning can be disrupted by edits and OpenWA relies on unofficial browser automation.
+- **Decision:** enforce PD-024: maximum +20% per budget change and maximum +20% cumulative rolling 24h against window baseline. Preserve winning/learning ad sets; new creative tests use isolated test cells or Meta-supported experiments. Only official Meta APIs can send WhatsApp/Meta channel actions.
+- **Alternatives:** raise budgets in arbitrary steps; put every creative into a winner adset; use WhatsApp Web automation as fallback. Rejected due learning fragmentation, uncertain impact and compliance/account risk.
+- **Clarification:** 20% is an internal owner guardrail, not a Meta universal threshold or guaranteed anti-reset rule. Meta's 20% Ad Set Budget Sharing is a different feature.
+- **Consequences:** budget guardrail service, experiment budget accounting, creative provenance/preview, approvals and automated no-go tests.
+- **Security:** no agent can bypass the cap, approval or tenant boundary; no OpenWA/browser session in production.
+- **Review trigger:** owner explicitly changes the cap, Meta changes official learning/budget guidance or API feature contracts, or legal/security review requires stricter rules.
