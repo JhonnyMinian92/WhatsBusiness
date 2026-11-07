@@ -165,3 +165,15 @@ TASK-046 y TASK-064 nombran “frontend foundation” sin ID ni entregable acept
 - Tests: policy allow/deny, catalog/database consistency, role template invariants, authorization guard y role assignment escalation tests.
 - CI Source run #67 [42385036275](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42385036275), commit `53e50dc00daccc7c64c7931e468e6ef0af132940` — SUCCESS.
 - No se exponen IAM-007..020 porque docs/49 aún los define catalog-only. Append-only audit, step-up/MFA, approval persistence and outbox belong to TASK-005.
+### Handoff TASK-005 — approval, step-up and audit core (2026-11-07)
+
+**Estado del código:** implementado y CI-verified en PostgreSQL efímero; TASK-005 permanece `in_progress` hasta verificación real del IdP, contrato/outbox consumer, revisión independiente y aceptación del Product Owner.
+
+- Migration: `apps/api/migrations/0005-approval-audit-foundation.sql` — approval_requests/decisions, audit_stream_heads/events, RLS, grants column-scoped y state guards.
+- Code: `security/step-up-evidence.ts`; `approvals/approval-policy.ts`, `approval-request-hash.ts`, `approval-workflow.service.ts`; `audit/append-only-audit.repository.ts`, `authorization-decision-audit.service.ts`; OIDC claims `auth_time/acr/amr` after RS256/JWKS validation.
+- Action binding: canonical SHA-256 binds tenant/action/purpose/resource/snapshot; requester/idempotency unique; same key/different payload conflicts.
+- Decision: active actor identity re-resolved from issuer+subject; issuer-allowlisted recent step-up; requester cannot vote; distinct approvers and configurable quorum; decisions append-only; expires safely.
+- Consumption: exact approval hash, one-time state and caller-supplied durable DB staging callback in same transaction; no provider/HTTP I/O.
+- Audit: tenant SHA-256 hash chain, sequence lock/head consistency, sensitive allow and denied events, trigger-protected audit/approval decision immutability.
+- Validation: Source CI #112 [42387272987](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42387272987) — SUCCESS, commit `b38b78ab52dbb96262dc8078518fdf4f55fc5a2c`; integration test was enabled with `RUN_APPROVAL_INTEGRATION_TESTS=true` against ephemeral PostgreSQL.
+- Limits: step-up allowlist intentionally blank until real IdP values verified; IAM-018..020 remain catalog-only; no business outbox/consumer, no external chain anchoring, no production actions or data; owner policy thresholds/reviewer acceptance remain open.
