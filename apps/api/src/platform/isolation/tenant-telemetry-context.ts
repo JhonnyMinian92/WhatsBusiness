@@ -1,10 +1,8 @@
+import type { TenantPseudonymizer } from "./tenant-hmac-pseudonymizer.js";
+
 export interface TenantTelemetryIdentity {
   readonly tenantId: string;
   readonly correlationId: string;
-}
-
-export interface TenantPseudonymizer {
-  pseudonymize(tenantId: string): string;
 }
 
 export interface SafeMetricDimensions {
@@ -13,32 +11,55 @@ export interface SafeMetricDimensions {
   readonly component: string;
 }
 
+const ALLOWED_OPERATIONS = new Set([
+  "api.request",
+  "worker.execute",
+  "cache.get",
+  "cache.set",
+  "cache.delete",
+  "storage.get",
+  "storage.put",
+  "storage.delete",
+  "webhook.process",
+  "outbox.publish",
+]);
+const ALLOWED_COMPONENTS = new Set([
+  "api",
+  "worker",
+  "cache",
+  "storage",
+  "webhook",
+  "outbox",
+]);
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 /**
  * Separates high-cardinality tenant identity from metric dimensions.
- * Logs may carry a keyed pseudonym; raw tenant IDs never become metric labels.
+ * Logs carry a keyed HMAC pseudonym; raw tenant IDs never become metric labels.
  */
 export class TenantTelemetryContext {
   constructor(private readonly pseudonymizer: TenantPseudonymizer) {}
 
   logAttributes(identity: TenantTelemetryIdentity): Readonly<Record<string, string>> {
+    if (!UUID_PATTERN.test(identity.tenantId) || !UUID_PATTERN.test(identity.correlationId)) {
+      throw new Error("Valid tenant and correlation UUIDs are required for telemetry.");
+    }
+    const tenantRef = this.pseudonymizer.pseudonymize(identity.tenantId);
+    if (tenantRef === identity.tenantId || !/^hmacv1_[0-9a-f]{64}$/.test(tenantRef)) {
+      throw new Error("Tenant telemetry must use a versioned HMAC pseudonym.");
+    }
     return Object.freeze({
-      tenant_ref: this.pseudonymizer.pseudonymize(identity.tenantId),
+      tenant_ref: tenantRef,
       correlation_id: identity.correlationId,
     });
   }
 
   metricDimensions(dimensions: SafeMetricDimensions): Readonly<SafeMetricDimensions> {
-    assertBoundedIdentifier(dimensions.operation, "operation");
-    assertBoundedIdentifier(dimensions.component, "component");
-    if (!["success", "error", "denied"].includes(dimensions.outcome)) {
-      throw new Error("Unsupported telemetry outcome.");
+    if (!ALLOWED_OPERATIONS.has(dimensions.operation)
+      || !ALLOWED_COMPONENTS.has(dimensions.component)
+      || !["success", "error", "denied"].includes(dimensions.outcome)) {
+      throw new Error("Telemetry metric dimensions must use the bounded platform vocabulary.");
     }
     return Object.freeze({ ...dimensions });
-  }
-}
-
-function assertBoundedIdentifier(value: string, field: string): void {
-  if (!/^[a-z][a-z0-9_.-]{0,63}$/.test(value)) {
-    throw new Error(`Telemetry ${field} must be a bounded low-cardinality identifier.`);
   }
 }
