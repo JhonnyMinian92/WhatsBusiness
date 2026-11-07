@@ -6,7 +6,6 @@ import type {
 import type {
   TenantJobExecutionBoundary,
   TenantJobHandler,
-  TenantJobRuntimeLogger as ConsumerLogger,
 } from "../../application/tenant-job-ports.js";
 import type { TenantDatabaseTransactionBoundary } from "../postgres/postgres-tenant-job-execution-boundary.js";
 import { TenantJobContextAuthority } from "../../application/tenant-job-context.authority.js";
@@ -21,10 +20,10 @@ import { PostgresTenantJobContextResolver } from "../postgres/postgres-tenant-jo
 import { PostgresTenantJobExecutionBoundary } from "../postgres/postgres-tenant-job-execution-boundary.js";
 import { RabbitMqConnectionFactory, type RabbitMqWorkerChannels } from "./rabbitmq-connection.factory.js";
 import { RabbitMqTenantJobPublisher } from "./rabbitmq-tenant-job-publisher.js";
-import { RabbitMqTenantJobConsumerAdapter } from "./rabbitmq-tenant-job-consumer.js";
+import { RabbitMqTenantJobConsumerAdapter, type TenantJobConsumerErrorReporter } from "./rabbitmq-tenant-job-consumer.js";
 import { RabbitMqJobTopology, TENANT_JOB_RABBITMQ_TOPOLOGY } from "./rabbitmq-topology.js";
 
-export interface TenantJobRuntimeSessionLogger extends TenantJobRuntimeLogger, ConsumerLogger {
+export interface TenantJobRuntimeSessionLogger extends TenantJobRuntimeLogger, TenantJobConsumerErrorReporter {
   reconnecting(delayMs: number): void;
 }
 
@@ -116,7 +115,6 @@ export class RabbitMqPostgresTenantJobRuntimeSessionFactory implements TenantJob
     const supervisor = new TenantJobRuntimeSupervisor(
       dispatcherRepository,
       dispatcher,
-      clock,
       options.logger,
       options.supervisor,
     );
