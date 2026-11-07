@@ -28,7 +28,7 @@ Estas decisiones son la respuesta operativa a las preguntas abiertas del cuestio
 
 | ID | Área | Decisión adoptada | Condición / límite |
 |---|---|---|---|
-| PD-012 | Segmento inicial | PYMES ecuatorianas de comercio, servicios y negocios que gestionan atención/ventas por canales Meta; incluir agencias que administran varias empresas como segmento secundario de lanzamiento | Hipótesis de enfoque, no estudio de mercado ni TAM verificado. Validar con entrevistas, pilotos y conversión |
+| PD-012 | Segmento inicial | PYMES ecuatorianas de servicios y comercio; agencias como segmento secundario/canal de distribución | INEC REEM 2025 provisional registra 645,8 mil servicios + 388,9 mil comercio (≈85,9% del registro); esto apoya foco sectorial, no prueba uso de Meta, elegibilidad ni disposición a pagar. Discovery/pilotos obligatorios; ver docs/32 y TASK-066 |
 | PD-013 | Monetización | Suscripción por tenant + asientos/usuarios + consumo medido por módulo/uso | No fijar precios, mínimos, margen o impuestos hasta unit economics, costes y validación comercial |
 | PD-014 | Costes Meta | Mostrar y conciliar cargos Meta separadamente; trasladar al cliente el coste externo real de acuerdo con el contrato/plan, sin mezclarlo con la suscripción | No asumir recargos ni márgenes. Rate cards versionadas, moneda, mercado, vigencia y evidencia de factura |
 | PD-015 | Idioma y localización | Español de Ecuador (es-EC), USD y America/Guayaquil como defaults iniciales | Locale, moneda ISO-4217 y zona horaria IANA configurables por tenant; arquitectura internacionalizable |
