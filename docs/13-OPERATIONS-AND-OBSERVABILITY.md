@@ -96,3 +96,6 @@ A single VPS/Compose topology is suitable for development or explicitly accepted
 - conversation owner/lease state and double-response prevention.
 ### Alerts
 - budget cap breach attempt; unexpected spend velocity; loss of account permission/tier; API version sunset; creative rejected; high opt-out/negative signal; CRM/CAPI lag; insights stale; experiment overspend; Meta agent and WhatsBusiness reply collision.
+
+## 11. Cache y coordinación
+Valkey 9.1.x es la baseline recomendada para cache, rate limits y locks efímeros; PostgreSQL sigue siendo la fuente de verdad y RabbitMQ el broker durable. Se mantienen TTL bounded, tenant namespace, invalidación de grants, alertas de memoria/eviction y prohibición de cachear secretos/PII. La licencia y compatibilidad se validan en TASK-039 SP-09; ver docs/51 y ADR-025.
