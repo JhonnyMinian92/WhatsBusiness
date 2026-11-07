@@ -62,9 +62,12 @@ export class TenantJobConsumer {
         throw new TenantJobFailureError({ code: "JOB_PAYLOAD_INVALID", retryable: false });
       }
 
-      await this.execution.execute(context, async (client) => {
+      await this.execution.execute(context, async (client, executionContext) => {
+        if (executionContext !== context) {
+          throw new TenantJobFailureError({ code: "JOB_CONTEXT_BOUNDARY_MISMATCH", retryable: false });
+        }
         await this.repository.assertExecutionLease(client, claim.jobId, claim.leaseToken);
-        await handler.execute(client, context, claim.payload);
+        await handler.execute(client, executionContext, claim.payload);
         await this.repository.complete(client, claim.jobId, claim.leaseToken, this.consumerName);
       });
       return "processed";
