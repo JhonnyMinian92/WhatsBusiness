@@ -89,7 +89,8 @@ CREATE TABLE platform.approval_requests (
   ),
   CONSTRAINT approval_decision_timestamp_consistent CHECK (
     (status IN ('approved', 'rejected', 'consumed') AND decided_at IS NOT NULL)
-    OR status NOT IN ('approved', 'rejected', 'consumed')
+    OR status = 'expired'
+    OR (status IN ('pending', 'cancelled') AND decided_at IS NULL)
   ),
   CONSTRAINT approval_tenant_identity_unique UNIQUE (id, tenant_id),
   CONSTRAINT approval_requester_idempotency_unique
@@ -267,6 +268,11 @@ BEGIN
         RAISE EXCEPTION 'Only the requester may cancel a pending approval'
           USING ERRCODE = '42501';
       END IF;
+    ELSIF OLD.status = 'approved' AND NEW.status = 'expired' THEN
+      IF OLD.expires_at > clock_timestamp() THEN
+        RAISE EXCEPTION 'Approved request cannot expire before its expiry time'
+          USING ERRCODE = '23514';
+      END IF;
     ELSIF OLD.status = 'approved' AND NEW.status = 'consumed' THEN
       IF NEW.consumed_at IS NULL
          OR NEW.consumed_by_user_id IS NULL
@@ -407,6 +413,7 @@ CREATE POLICY approval_requests_read ON platform.approval_requests
         AND platform.has_permission(tenant_id, 'approvals.create')
       )
       OR platform.has_permission(tenant_id, 'approvals.decide')
+      OR platform.has_permission(tenant_id, action_key)
     )
   );
 CREATE POLICY approval_requests_create ON platform.approval_requests
@@ -440,7 +447,10 @@ ALTER TABLE platform.approval_decisions FORCE ROW LEVEL SECURITY;
 CREATE POLICY approval_decisions_read ON platform.approval_decisions
   FOR SELECT USING (
     tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
-    AND platform.has_permission(tenant_id, 'approvals.read')
+    AND (
+      platform.has_permission(tenant_id, 'approvals.read')
+      OR platform.has_permission(tenant_id, 'approvals.decide')
+    )
   );
 CREATE POLICY approval_decisions_create ON platform.approval_decisions
   FOR INSERT WITH CHECK (
