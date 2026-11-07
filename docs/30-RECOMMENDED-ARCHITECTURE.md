@@ -9,20 +9,20 @@ Construir un **monolito modular orientado a dominios**, con procesos API y worke
 
 | Capa | Tecnología elegida | Papel y límites |
 |---|---|---|
-| Lenguaje backend | TypeScript strict | Un solo lenguaje principal en API, workers, tooling y contratos |
-| Backend | NestJS sobre Node.js LTS soportado | API modular, dominio, guards/policies, adapters y workers |
-| Frontend | Angular, última major soportada al bootstrap | Panel SaaS, administración, CRM, Inbox y consola de operaciones |
-| Monorepo | Nx + pnpm | Grafo de proyectos, límites de módulos, build/test afectados y librerías compartidas |
+| Lenguaje backend | TypeScript 6.0.x strict | Un solo lenguaje principal en API, workers, tooling y frontend; validación runtime obligatoria |
+| Backend | Node.js 26.x Active LTS + NestJS 12.x | API modular, dominio, guards/policies, adapters y workers; ESM |
+| Frontend | Angular 22.x | Panel SaaS, administración, CRM, Inbox y consola de operaciones; compatible con Node 26 y TypeScript 6.0 |
+| Monorepo | Nx 24.0.4 + pnpm versionado exacto | Grafo de proyectos, límites de módulos, build/test afectados y librerías compartidas |
 | Persistencia OLTP | PostgreSQL | Fuente de verdad transaccional; integridad, migraciones y RLS |
-| Cache/coordinación | Redis | Cache, rate limit y locks efímeros; no es fuente de verdad |
-| Broker | RabbitMQ | Eventos y trabajos asíncronos, routing, acknowledgements y DLQ |
+| Cache/coordinación | Valkey 9.1.x | Cache, rate limit y locks efímeros con licencia BSD; no es fuente de verdad |
+| Broker | RabbitMQ 4.4.x | Eventos y trabajos asíncronos, routing, acknowledgements y DLQ |
 | Archivos | Object storage S3-compatible | Media, exportaciones y artefactos cifrados; proveedor intercambiable |
-| Identidad | OIDC + Keycloak self-hosted inicial | Login, MFA y SSO; autorización de negocio permanece en backend |
-| Edge | Traefik como ingress inicial | TLS, routing, límites básicos; WAF/anti-DDoS según topología |
+| Identidad | OIDC + Keycloak 26.8.x self-hosted inicial | Login, MFA y SSO; autorización de negocio permanece en backend |
+| Edge | Traefik 3.7.x como ingress inicial | TLS, routing, límites básicos; WAF/anti-DDoS según topología |
 | Contenedores | Docker | Imágenes inmutables y despliegue portable |
-| Desarrollo/piloto | Docker Compose | Entorno reproducible y piloto single-node con limitaciones explícitas |
-| Observabilidad | OpenTelemetry + Prometheus + Grafana; Loki/Tempo candidatos | Métricas, logs, trazas y correlación |
-| Contratos | OpenAPI + JSON Schema/AsyncAPI | Contratos versionados de HTTP y eventos |
+| Desarrollo/piloto | Docker Compose 5.7.0 | Entorno reproducible y piloto single-node con limitaciones explícitas |
+| Observabilidad | OpenTelemetry + Prometheus 3.16.0 + Grafana | Métricas, logs, trazas y correlación; Loki/Tempo se confirman tras medir |
+| Contratos | REST/JSON + OpenAPI 3.1.x; AsyncAPI + JSON Schema | Contratos versionados HTTP/eventos; ver ADR-023 |
 | Seguridad | OWASP ASVS 5.0.0 | Requisitos medibles, pruebas y evidencia |
 | Pruebas | Tooling compatible Nx/Nest/Angular, Testcontainers y Playwright | Unit, integration, contract, E2E, carga y accesibilidad |
 
@@ -66,7 +66,7 @@ Cada contexto expone APIs/eventos públicos y es dueño de sus tablas/migracione
 ## 4. Topología lógica de ejecución
 
 Angular Web → Traefik/Ingress → NestJS API modular → módulos de dominio y PostgreSQL.  
-NestJS API → Redis para cache/rate limit/coordinación efímera.  
+NestJS API → Valkey para cache/rate limit/coordinación efímera.  
 Cambios de dominio → transactional outbox → RabbitMQ → Worker Processes.  
 Meta APIs ↔ versioned Meta adapters.  
 Meta Webhooks → Webhook Ingress → Durable Inbox → RabbitMQ → Workers.  
@@ -94,7 +94,7 @@ Una agencia/partner no hereda datos de clientes. Los usuarios acceden mediante P
 
 ## 6. Eventos, consistencia y trabajos asíncronos
 
-- PostgreSQL es la fuente de verdad; Redis nunca sustituye transacciones/ledger.
+- PostgreSQL es la fuente de verdad; Valkey nunca sustituye transacciones/ledger.
 - Transactional outbox escribe cambio de dominio y evento en la misma transacción.
 - Publicación RabbitMQ at-least-once; consumers idempotentes y deduplicados por event_id/aggregate/version.
 - Orden únicamente por aggregate cuando sea requisito; no asumir orden global.
@@ -130,7 +130,7 @@ libs/
 - domain/ — modelos, value objects, policies y domain events
 - platform/database — PostgreSQL, migrations, transaction/tenant context
 - platform/messaging — outbox, inbox, RabbitMQ, retry/DLQ
-- platform/cache — Redis, rate limiting y locks
+- platform/cache — Valkey, rate limiting y locks
 - platform/identity — OIDC integration y actor context
 - platform/security — crypto abstractions, redaction y secrets interfaces
 - platform/observability — OpenTelemetry, metrics y correlation
@@ -216,7 +216,7 @@ accepted significa elección arquitectónica por delegación del propietario; no
 
 TASK-039 debe:
 1. Crear un prototipo desechable, no producto, del workspace Nx/Nest/Angular.
-2. Medir instalación limpia, cold/warm build, typecheck, tests, memoria idle/peak de API/worker/Keycloak/Postgres/Redis/Rabbit/observabilidad y tiempo de startup.
+2. Medir instalación limpia, cold/warm build, typecheck, tests, memoria idle/peak de API/worker/Keycloak/Postgres/Valkey/Rabbit/observabilidad y tiempo de startup.
 3. Verificar transacciones outbox + RabbitMQ, idempotencia, RLS con pooling y tenant context.
 4. Probar un webhook simulado, persistencia durable, ack, consumer, retry y DLQ.
 5. Probar migración/backup/restore de PostgreSQL y cifrado de backup.
@@ -250,3 +250,19 @@ Meta agent interoperability:
 - Social Technologies MCP puede ayudar al developer onboarding/configuración, no se expone como API runtime pública del cliente por defecto.
 
 El modelo canónico y reglas de ejecución se encuentran en [36-CAMPAIGN-INTELLIGENCE-AND-GUARDED-SCALING.md](36-CAMPAIGN-INTELLIGENCE-AND-GUARDED-SCALING.md).
+
+## 17. Evaluación comparativa y versiones soportadas
+
+La decisión técnica incluye comparación de TypeScript/Node frente a .NET, Java, Go y Python; Nest frente a frameworks HTTP menos opinionados; Angular frente a React/Vue; Nx/pnpm frente a alternativas; PostgreSQL, Valkey y RabbitMQ frente a alternativas; y evaluación de identidad, edge, contenedores y observabilidad.
+
+Ver [51-TECHNOLOGY-FIT-AND-VERSION-BASELINE.md](51-TECHNOLOGY-FIT-AND-VERSION-BASELINE.md) para:
+- matriz de adecuación por requisitos y trade-offs;
+- versión recomendada al corte 2026-11-06;
+- fuente oficial de soporte/compatibilidad;
+- evidencia documentada vs. evidencia empírica pendiente.
+
+No declarar una tecnología ganadora por benchmark hasta ejecutar SP-01..SP-10 bajo TASK-039. Todas las versiones exactas y digests de imágenes se fijan en los manifests/lockfiles del spike; patches y CVEs se revalidan al bootstrap.
+
+## 18. Decisión de protocolo API
+
+Se elige REST/JSON + OpenAPI para API pública, web app, integradores y webhooks; direct calls a use cases/ports para comunicación dentro del monolito; RabbitMQ para eventos y jobs; SSE/WebSocket solo para realtime que lo requiera. GraphQL no es API primaria inicial; gRPC queda reservado para servicios realmente separados si un benchmark justifica RPC/streaming. La comparación y triggers están en [52-REST-GRAPHQL-GRPC-PROTOCOL-DECISION.md](52-REST-GRAPHQL-GRPC-PROTOCOL-DECISION.md).
