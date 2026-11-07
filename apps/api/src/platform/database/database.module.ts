@@ -166,6 +166,6 @@ function configuredPoolSize(): number {
     },
     DatabaseService,
   ],
-  exports: [DatabaseService],
+  exports: [DatabaseService, DATABASE_POOL],
 })
 export class DatabaseModule {}
