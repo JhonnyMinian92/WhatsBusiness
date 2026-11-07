@@ -921,3 +921,93 @@ Estos puntos son trabajo de preparación/implementación que ahora queda explíc
 - Los endpoints que impliquen coste, data transfer, write externo, publicación, gasto o borrado se mantienen detrás de policy/approval.
 - Las capacidades Meta son dinámicas por API version, cuenta, país, scopes, asset tasks, App Review y access tier.
 - Product Owner conserva aprobación final de scope comercial, riesgo alto, costes, datos reales y producción.
+
+
+## 7.2 Matriz individual TASK → API ID / entregable
+
+La matriz anterior agrupa tareas por historia para facilitar lectura. Esta tabla desglosa las TASK del backlog una por una. "Sin API" significa que la tarea produce infraestructura, investigación, configuración, seguridad, benchmark o documentación, no que deba inventarse una ruta REST.
+
+| TASK | US | API IDs / entregable exacto | Tipo / evidencia de cierre |
+|---|---|---|---|
+| TASK-001 | US-001 | PLT-004..007, IAM-002..004 | Tenant model, lifecycle, constraints, migrations + API tests |
+| TASK-002 | US-001 | PLT-003..005 | Tenant context middleware/guard, negative cross-tenant tests |
+| TASK-003 | US-001 | Sin API REST; queue/cache/storage namespace and telemetry partitioning | Isolation infrastructure + tests |
+| TASK-004 | US-002 | IAM-007..017, IAM-018..020 | RBAC/ABAC policy matrix + allow/deny tests |
+| TASK-005 | US-002 | IAM-018..020, OPS-001..002 | Step-up, approval separation, immutable audit |
+| TASK-006 | US-003 | META-002..004, META-009 | OAuth state/PKCE/callback, replay and redirect tests |
+| TASK-007 | US-003 | META-004, META-007..009 | Token vault adapter, rotation/revocation drill; secret refs never returned |
+| TASK-008 | US-003 | META-005..006 | Embedded Signup onboarding saga and authorized account evidence |
+| TASK-009 | US-004 | META-010..013 | Asset sync/registry, relationship and grant tests |
+| TASK-010 | US-004 | META-013..016 | Capability descriptor, explainability and version matrix |
+| TASK-011 | US-005 | WA-001..005, WA-009 | WhatsApp adapter send/read contract tests |
+| TASK-012 | US-005 | WA-006..007 | Secure media lifecycle, MIME/size/malware/expiry tests |
+| TASK-013 | US-005 | WA-004..005, WA-008, WH-002, INB-005 | Delivery state machine, duplicate/out-of-order receipts and reconciliation |
+| TASK-014 | US-006 | WAM-001..005 | Template CRUD/sync adapter and Meta status mapping |
+| TASK-015 | US-006 | WAM-006..007 | Template schema/revision/preview and approved-only sending tests |
+| TASK-016 | US-007 | WAF-001..008 | Flow versioning, encryption/Data Exchange and replay tests |
+| TASK-017 | US-008 | WAMK-001..003 | Marketing Messages adapter, eligibility and policy contract tests |
+| TASK-018 | US-008 | WAMK-004..007 | Rate card, cost ledger and reconciliation tests |
+| TASK-019 | US-009 | FB-001..014, WH-003 | Pages/Messenger adapters, Page task/scope and messaging-window tests |
+| TASK-020 | US-010 | IG-001 | Instagram login-mode selection, account type, scopes and capability matrix |
+| TASK-021 | US-010 | IG-002..012, WH-004 | Publish/comments/DM/insights contract tests by login mode |
+| TASK-022 | US-011 | LEAD-001..004, LEAD-009, WH-005 | Leadgen webhook, historical retrieval, checkpoint and dedupe tests |
+| TASK-023 | US-011 | LEAD-005..008, CRM-002, CRM-005..007 | Lead provenance/lifecycle, routing and consent tests |
+| TASK-024 | US-012 | ADS-001..012, ADS-014..020, ADS-006 | Campaign/adset/creative/ad draft, validate and approval path |
+| TASK-025 | US-012 | ADS-007..008, ADS-013, ADS-021..027, ADS-026, IAM-018..020 | Activation/pause, spend guardrail, kill switch and reconciliation tests |
+| TASK-026 | US-013 | CAPI-001..004 | Event ID, consent, action_source, dedupe and diagnostics |
+| TASK-027 | US-014 | WH-001..008 | Webhook signature/challenge, durable inbox, size/replay protection |
+| TASK-028 | US-014 | OPS-003..005 + internal events section | Event bus, consumer dedupe, DLQ/replay, backpressure and recovery |
+| TASK-029 | US-015 | PLT-001..002, OPS-003, OPS-006 | Traces, logs, metrics, SLO dashboards and alert tests |
+| TASK-030 | US-015 | OPS-001..002, OPS-008 | Append-only audit, access/export and tamper-evidence checks |
+| TASK-031 | US-016 | OPS-007..008 + CI security pipeline | Threat model, SAST/SCA/DAST/pentest plan and risk acceptance workflow |
+| TASK-032 | US-016 | PRIV-001..010 | Export, rectification, deletion, revocation and retention workflow tests |
+| TASK-033 | US-017 | TH-001..006, WH-007 | Threads adapter and conformance/version suite |
+| TASK-034 | Discovery/Platform | PLT-003..007, IAM-001..020; docs/37 | Functional identity/tenant specification and review; no code completion implied |
+| TASK-035 | CRM | CRM-001..017, SALES-001..014; docs/38 | CRM domain specification/review; contracts and AC validation |
+| TASK-036 | Inbox | INB-001..018, WA/FB/IG message operations; docs/39 | Canonical inbox/channel/handoff specification and review |
+| TASK-037 | Automation | AUTO-001..013 + internal workflow events; docs/40 | Deterministic workflow specification, retries/locks/kill-switch review |
+| TASK-038 | AI | AI-001..008, AGT-001..006; docs/41 | Provider-agnostic AI/security/usage specification; external provider remains gated |
+| TASK-039 | Architecture | Sin API REST; docs/45, SP-01..07, ADR-011..020 | Executed spike, measurements, evidence and architecture decision |
+| TASK-040 | Traceability | Sin API REST; docs/19, docs/47 | REQ/US/AC/TASK/API/contract/test/module/evidence reconciliation |
+| TASK-041 | SRE/FinOps | Sin API REST; docs/13, docs/31, docs/45 | SLO/RPO/RTO, workload/cost model and owner-approved VPS budget |
+| TASK-042 | US-018 | CRM-001..004, CRM-011..013 | Contact/profile/custom field schema, tenant and validation tests |
+| TASK-043 | US-018 | CRM-005..010 | Provider-scoped identity, collision, dedupe, merge and reversible merge tests |
+| TASK-044 | US-019 | CRM-014..017, SALES-001..014 | Pipeline/opportunities/activities, transitions and permission tests |
+| TASK-045 | US-020 | INB-001..005, INB-010..013, WA/FB/IG message operations | Canonical conversation/message model, channel extensions and adapter contract |
+| TASK-046 | US-020 | INB-001..005, INB-015..017 | Inbox UI/search/filter/composer; E2E, responsive and accessibility tests |
+| TASK-047 | US-021 | INB-006..014, INB-018 | Teams, assignments, internal notes, ownership leases and handoff race tests |
+| TASK-048 | US-022 | AUTO-001..007 | Workflow definition, versioning, builder, validation and simulation |
+| TASK-049 | US-022 | AUTO-008..013 + workflow events | Runtime/scheduler, locks, retries, DLQ, cancellation and kill switch |
+| TASK-050 | US-023 | AI-001..004 | AI Gateway/provider adapters, usage ledger, redaction and budgets |
+| TASK-051 | US-023 | AI-005..008, INB-013, AGT-002 | Rule chatbot, reply suggestion and human handoff; no auto-send |
+| TASK-052 | US-024 | IAM-001..012, BILL-001..002, PAR-007 | Tenant lifecycle, plans/entitlements and support JIT |
+| TASK-053 | US-018/020 | CRM-005..010, META-011..015, INB-001..005 | BSUID/phone identity namespaces and WAAC/PMA/WABA asset relation fixtures |
+| TASK-054 | US-003 | META-005..006, META-010..015 | Embedded Signup v4 adapter/evaluation, eligible paths and authorized account test |
+| TASK-055 | US-008 | WAMK-001..003, META-014..016 | Marketing Messages route, pricing/eligibility, sunset migration and tests |
+| TASK-056 | Cross-Meta | META-013..016, OPS-009..011 | API version/access tier/capability/sunset registry with dated evidence |
+| TASK-057 | US-008/026 | WAMK-004..007, BILL-003..005 | Max Pricing/cost lifecycle, rate cards and reconciled amount tests |
+| TASK-058 | US-025 | PAR-001..007, IAM-005, IAM-018..020 | Partner/agency grants, scoped access, JIT separation and revocation tests |
+| TASK-059 | US-016 | PRIV-001..010, OPS-001..002 | Data inventory, retention engine, DSR and subprocessor/transfer legal evidence |
+| TASK-060 | Performance/SRE | Sin API REST; scripts/benchmark artifacts, OPS-003/006 observability | Workload, p50/p95/p99/RPS/queue age/saturation and capacity report |
+| TASK-061 | SRE/Security | Sin API REST; restore reports/runbooks, OPS-003/006 observability | Encrypted backup/restore, key recovery, failover and measured RPO/RTO |
+| TASK-062 | US-027 | DEV-001..011 | Public API credentials, scopes, signed outbound webhooks, retries and rotation |
+| TASK-063 | US-026 | BILL-001..007, AI-004, WAMK-005 | Plans, entitlements, immutable usage ledger and invoice integration port |
+| TASK-064 | Web UX | Sin API REST; frontend a11y tests | WCAG 2.2 AA user journeys and manual audit |
+| TASK-065 | US-014/032 | OPS-009..011, META-016 | Official change/policy evidence, sunset calendar and impact assessment |
+| TASK-066 | US-028 | Sin API REST; research artifacts and pilot analytics | ICP/market interview evidence, willingness-to-pay and pilot metrics |
+| TASK-067 | US-029 | CI-001..008, CI-003..004 | Campaign Intelligence model, metric taxonomy, snapshots and recommendation lifecycle |
+| TASK-068 | US-029 | CAPI-001..004, SALES-010..014, CI-001..003 | CRM closed-loop conversion event and CAPI pipeline |
+| TASK-069 | US-030 | CI-014..017, ADS-014..017 | Creative assets, provenance, rights/brand/policy review |
+| TASK-070 | US-030 | CI-009..013 | Controlled test cells, hypothesis, budget, overlap and stop rules |
+| TASK-071 | US-029 | ADS-013, ADS-026, CI-005..007, IAM-018..020 | +20% operation/rolling-24h guardrail, concurrency, approval and kill switch |
+| TASK-072 | US-029 | ADS-022..027, CI-001..003, CI-018 | Insights ingestion, snapshots, checkpoints, freshness and diagnostics |
+| TASK-073 | US-030 | ADS-016..017, META-014..016, CI-017 | Advantage+ Creative/preview capability adapter and paused-first gates when required |
+| TASK-074 | US-031 | AGT-001..004, CI-005..007, IAM-018..020 | Meta Ads MCP/tool interoperability through draft/approval gateway |
+| TASK-075 | US-031 | INB-010..013, AGT-001..003, FB/IG/WA handoff | Meta Business Agent interoperability, lease/echo suppression/handoff |
+| TASK-076 | US-032 | OPS-009..011, META-014..016 | Meta API/policy/feature change impact intelligence |
+| TASK-077 | US-029 | CI-003..013 | Incrementality/attribution evaluation, holdout, confidence and caveats |
+| TASK-078 | US-029 | CI-001..004, CI-018, ADS-024..025 | Campaign health/outcomes dashboard, freshness, CRM revenue/margin |
+| TASK-079 | US-030 | CI-014..018, ADS-014..017 | Creative fatigue evidence, new variant pipeline and approval |
+| TASK-080 | US-031 | AGT-001..006, IAM-018..020, OPS-001..002 | Secure tool execution gateway/MCP, budgets, idempotency, audit and kill switch |
+
+**Importante:** la matriz es una asignación de diseño inicial. Si al ejecutar la tarea un API ID se divide, fusiona o cambia, el agente debe actualizar docs/47, el OpenAPI/AsyncAPI aplicable, docs/19 y el backlog en el mismo cambio revisado. No se permite que el código diverja silenciosamente de esta matriz.
