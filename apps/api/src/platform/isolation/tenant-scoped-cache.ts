@@ -26,8 +26,9 @@ export class TenantScopedCache {
     }
   }
 
-  get(tenantId: string, resource: string, key: string): Promise<Uint8Array | null> {
-    return this.store.get(this.namespaces.cacheKey(tenantId, resource, key));
+  async get(tenantId: string, resource: string, key: string): Promise<Uint8Array | null> {
+    const value = await this.store.get(this.namespaces.cacheKey(tenantId, resource, key));
+    return value === null ? null : Uint8Array.from(value);
   }
 
   async set(
@@ -47,7 +48,7 @@ export class TenantScopedCache {
     }
     await this.store.set(
       this.namespaces.cacheKey(tenantId, resource, key),
-      value,
+      Uint8Array.from(value),
       options.ttlSeconds,
     );
   }
