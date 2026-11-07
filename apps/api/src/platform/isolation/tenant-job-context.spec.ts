@@ -60,5 +60,12 @@ test("every worker execution re-enters authorized transaction-local tenant conte
 test("forged in-memory context cannot enter the worker executor", async () => {
   const database = { withTenantContext: async () => "unexpected" } as unknown as DatabaseService;
   const executor = new TenantJobExecutor(database);
-  assert.throws(() => executor.execute({ ...record }, async () => "unexpected"));
+  const forgedContext = {
+    tenantId: record.tenantId,
+    actorUserId: record.actorUserId,
+    purpose: record.purpose,
+    correlationId: record.correlationId,
+    jobId: record.jobId,
+  };
+  assert.throws(() => executor.execute(forgedContext, async () => "unexpected"));
 });
