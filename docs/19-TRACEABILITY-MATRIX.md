@@ -249,7 +249,7 @@ Source CI run #112 [42387272987](https://github.com/JhonnyMinian92/WhatsBusiness
 |---|---|---|---|---|
 | Cache keys no colisionan entre tenants y TTL bounded | US-001; TASK-003 | TenantResourceNamespace, TenantScopedCache, CacheStore | tenant-resource-namespace.spec.ts, tenant-scoped-cache.spec.ts | implemented; CI pending |
 | Object keys quedan bajo prefijo tenant y rechazan traversal | US-001; TASK-003 | TenantScopedObjectStorage, ObjectStorage | tenant-scoped-object-storage.spec.ts | implemented; CI pending |
-| Cada ejecución worker revalida membership/tenant vía DB | US-001; TASK-003 | TenantJobContextFactory, TenantJobExecutor, DatabaseService.withTenantContext | tenant-job-context.spec.ts | primitive implemented; PostgreSQL worker integration pending |
-| Telemetría no filtra tenant ID en metric labels | US-001; TASK-003 | TenantTelemetryContext, TenantPseudonymizer | tenant-telemetry-context.spec.ts | implemented; HMAC adapter pending |
+| Cada ejecución worker revalida membership/tenant vía DB | US-001; TASK-003 | TenantJobContextResolver, TenantJobRecordReader, TenantJobExecutor, DatabaseService.withTenantContext | tenant-job-context.spec.ts | primitive implemented; PostgreSQL worker integration pending |
+| Telemetría no filtra tenant ID en metric labels | US-001; TASK-003 | TenantTelemetryContext, HmacTenantPseudonymizer | tenant-telemetry-context.spec.ts | implemented; secret manager adapter/wiring pending |
 
 No se afirma runtime completo: adapters Valkey/object storage, outbox/inbox consumer, retry/DLQ/replay, broker validation, pool Node A→B, HMAC secret-backed pseudonymization y review independiente siguen pendientes. TASK-003 no está verified ni accepted.
