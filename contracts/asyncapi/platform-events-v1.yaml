@@ -3,7 +3,7 @@ info:
   title: WhatsBusiness Platform Events
   version: 1.0.0
   description: >
-    Full internal domain event catalog, 55 versioned event types with explicit publish and subscribe operations. Delivery is at-least-once.
+    Full internal domain event catalog, 69 versioned event types with explicit publish and subscribe operations. Delivery is at-least-once.
     This contract does not claim producers, consumers, broker topology or runtime behavior exist.
 defaultContentType: application/json
 servers:
@@ -672,6 +672,174 @@ channels:
       description: 'Consumer side of the logical event route. Delivery is at-least-once; validate schema and tenant authorization, persist deduplication, and acknowledge only after durable processing.'
       message:
         $ref: '#/components/messages/MetaChangeImpactAnalyzed'
+  'crm.contact.updated.v1':
+    description: 'Producer crm-contact-service; consumers crm-contact-projections, inbox, campaign intelligence; TASK-042, TASK-043. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishCrmContactUpdated
+      message:
+        $ref: '#/components/messages/CrmContactUpdated'
+    subscribe:
+      operationId: consumeCrmContactUpdated
+      summary: 'Consume crm.contact.updated.'
+      description: 'Consumer side of the logical event route. Delivery is at-least-once; validate schema and tenant authorization, persist deduplication, and acknowledge only after durable processing.'
+      message:
+        $ref: '#/components/messages/CrmContactUpdated'
+  'crm.identity.merge_requested.v1':
+    description: 'Producer crm-identity-service; consumers identity review and audit; TASK-043, TASK-053. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishCrmIdentityMergeRequested
+      message:
+        $ref: '#/components/messages/CrmIdentityMergeRequested'
+    subscribe:
+      operationId: consumeCrmIdentityMergeRequested
+      summary: 'Consume crm.identity.merge_requested.'
+      description: 'Consumer side of the logical event route. Delivery is at-least-once; validate schema and tenant authorization, persist deduplication, and acknowledge only after durable processing.'
+      message:
+        $ref: '#/components/messages/CrmIdentityMergeRequested'
+  'crm.identity.merge_reversed.v1':
+    description: 'Producer crm-identity-service; consumers CRM projections and audit; TASK-043, TASK-053. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishCrmIdentityMergeReversed
+      message:
+        $ref: '#/components/messages/CrmIdentityMergeReversed'
+    subscribe:
+      operationId: consumeCrmIdentityMergeReversed
+      summary: 'Consume crm.identity.merge_reversed.'
+      description: 'Consumer side of the logical event route. Delivery is at-least-once; validate schema and tenant authorization, persist deduplication, and acknowledge only after durable processing.'
+      message:
+        $ref: '#/components/messages/CrmIdentityMergeReversed'
+  'crm.lead.created.v1':
+    description: 'Producer crm-lead-service; consumers lead routing and sales pipeline; TASK-023, TASK-042. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishCrmLeadCreated
+      message:
+        $ref: '#/components/messages/CrmLeadCreated'
+    subscribe:
+      operationId: consumeCrmLeadCreated
+      summary: 'Consume crm.lead.created.'
+      description: 'Consumer side of the logical event route. Delivery is at-least-once; validate schema and tenant authorization, persist deduplication, and acknowledge only after durable processing.'
+      message:
+        $ref: '#/components/messages/CrmLeadCreated'
+  'crm.lead.disqualified.v1':
+    description: 'Producer crm-lead-service; consumers sales pipeline and campaign intelligence; TASK-023, TASK-042. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishCrmLeadDisqualified
+      message:
+        $ref: '#/components/messages/CrmLeadDisqualified'
+    subscribe:
+      operationId: consumeCrmLeadDisqualified
+      summary: 'Consume crm.lead.disqualified.'
+      description: 'Consumer side of the logical event route. Delivery is at-least-once; validate schema and tenant authorization, persist deduplication, and acknowledge only after durable processing.'
+      message:
+        $ref: '#/components/messages/CrmLeadDisqualified'
+  'crm.lead.converted.v1':
+    description: 'Producer crm-lead-service; consumers CRM contact and Sales opportunity projections; TASK-023, TASK-042, TASK-044. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishCrmLeadConverted
+      message:
+        $ref: '#/components/messages/CrmLeadConverted'
+    subscribe:
+      operationId: consumeCrmLeadConverted
+      summary: 'Consume crm.lead.converted.'
+      description: 'Consumer side of the logical event route. Delivery is at-least-once; validate schema and tenant authorization, persist deduplication, and acknowledge only after durable processing.'
+      message:
+        $ref: '#/components/messages/CrmLeadConverted'
+  'crm.lead.assigned.v1':
+    description: 'Producer crm-lead-service; consumers lead routing and notifications; TASK-023, TASK-042. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishCrmLeadAssigned
+      message:
+        $ref: '#/components/messages/CrmLeadAssigned'
+    subscribe:
+      operationId: consumeCrmLeadAssigned
+      summary: 'Consume crm.lead.assigned.'
+      description: 'Consumer side of the logical event route. Delivery is at-least-once; validate schema and tenant authorization, persist deduplication, and acknowledge only after durable processing.'
+      message:
+        $ref: '#/components/messages/CrmLeadAssigned'
+  'crm.opportunity.lost.v1':
+    description: 'Producer crm-sales-service; consumers Campaign Intelligence and CAPI suppression/projections; TASK-044, TASK-068. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishCrmOpportunityLost
+      message:
+        $ref: '#/components/messages/CrmOpportunityLost'
+    subscribe:
+      operationId: consumeCrmOpportunityLost
+      summary: 'Consume crm.opportunity.lost.'
+      description: 'Consumer side of the logical event route. Delivery is at-least-once; validate schema and tenant authorization, persist deduplication, and acknowledge only after durable processing.'
+      message:
+        $ref: '#/components/messages/CrmOpportunityLost'
+  'crm.activity.created.v1':
+    description: 'Producer crm-activity-service; consumers CRM timeline projections; TASK-042, TASK-044. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishCrmActivityCreated
+      message:
+        $ref: '#/components/messages/CrmActivityCreated'
+    subscribe:
+      operationId: consumeCrmActivityCreated
+      summary: 'Consume crm.activity.created.'
+      description: 'Consumer side of the logical event route. Delivery is at-least-once; validate schema and tenant authorization, persist deduplication, and acknowledge only after durable processing.'
+      message:
+        $ref: '#/components/messages/CrmActivityCreated'
+  'inbox.conversation.updated.v1':
+    description: 'Producer inbox-service; consumers Inbox projections and routing; TASK-045, TASK-046. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishInboxConversationUpdated
+      message:
+        $ref: '#/components/messages/InboxConversationUpdated'
+    subscribe:
+      operationId: consumeInboxConversationUpdated
+      summary: 'Consume inbox.conversation.updated.'
+      description: 'Consumer side of the logical event route. Delivery is at-least-once; validate schema and tenant authorization, persist deduplication, and acknowledge only after durable processing.'
+      message:
+        $ref: '#/components/messages/InboxConversationUpdated'
+  'inbox.message.accepted.v1':
+    description: 'Producer channel-adapter-processor; consumers Inbox submission state projection; TASK-045. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishInboxMessageAccepted
+      message:
+        $ref: '#/components/messages/InboxMessageAccepted'
+    subscribe:
+      operationId: consumeInboxMessageAccepted
+      summary: 'Consume inbox.message.accepted.'
+      description: 'Consumer side of the logical event route. Delivery is at-least-once; validate schema and tenant authorization, persist deduplication, and acknowledge only after durable processing.'
+      message:
+        $ref: '#/components/messages/InboxMessageAccepted'
+  'inbox.message.failed.v1':
+    description: 'Producer channel-adapter-processor; consumers Inbox delivery state and retry policy; TASK-045. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishInboxMessageFailed
+      message:
+        $ref: '#/components/messages/InboxMessageFailed'
+    subscribe:
+      operationId: consumeInboxMessageFailed
+      summary: 'Consume inbox.message.failed.'
+      description: 'Consumer side of the logical event route. Delivery is at-least-once; validate schema and tenant authorization, persist deduplication, and acknowledge only after durable processing.'
+      message:
+        $ref: '#/components/messages/InboxMessageFailed'
+  'inbox.ownership.expired.v1':
+    description: 'Producer inbox-lease-scheduler; consumers Inbox assignment and bot suppression; TASK-047, TASK-075. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishInboxOwnershipExpired
+      message:
+        $ref: '#/components/messages/InboxOwnershipExpired'
+    subscribe:
+      operationId: consumeInboxOwnershipExpired
+      summary: 'Consume inbox.ownership.expired.'
+      description: 'Consumer side of the logical event route. Delivery is at-least-once; validate schema and tenant authorization, persist deduplication, and acknowledge only after durable processing.'
+      message:
+        $ref: '#/components/messages/InboxOwnershipExpired'
+  'inbox.handoff.requested.v1':
+    description: 'Producer inbox-service; consumers human routing and bot suppression; TASK-047, TASK-075. Logical route; queue topology is consumer-specific.'
+    publish:
+      operationId: publishInboxHandoffRequested
+      message:
+        $ref: '#/components/messages/InboxHandoffRequested'
+    subscribe:
+      operationId: consumeInboxHandoffRequested
+      summary: 'Consume inbox.handoff.requested.'
+      description: 'Consumer side of the logical event route. Delivery is at-least-once; validate schema and tenant authorization, persist deduplication, and acknowledge only after durable processing.'
+      message:
+        $ref: '#/components/messages/InboxHandoffRequested'
 components:
   messages:
     PlatformTenantCreated:
@@ -1224,6 +1392,146 @@ components:
         location: '$message.payload#/correlationId'
       payload:
         $ref: '../schemas/domain-events-v1.schema.json#/$defs/MetaChangeImpactAnalyzed'
+    CrmContactUpdated:
+      name: 'crm.contact.updated'
+      title: 'crm.contact.updated'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      correlationId:
+        description: 'Correlation identifier propagated across the event flow.'
+        location: '$message.payload#/correlationId'
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmContactUpdated'
+    CrmIdentityMergeRequested:
+      name: 'crm.identity.merge_requested'
+      title: 'crm.identity.merge_requested'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      correlationId:
+        description: 'Correlation identifier propagated across the event flow.'
+        location: '$message.payload#/correlationId'
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmIdentityMergeRequested'
+    CrmIdentityMergeReversed:
+      name: 'crm.identity.merge_reversed'
+      title: 'crm.identity.merge_reversed'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      correlationId:
+        description: 'Correlation identifier propagated across the event flow.'
+        location: '$message.payload#/correlationId'
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmIdentityMergeReversed'
+    CrmLeadCreated:
+      name: 'crm.lead.created'
+      title: 'crm.lead.created'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      correlationId:
+        description: 'Correlation identifier propagated across the event flow.'
+        location: '$message.payload#/correlationId'
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmLeadCreated'
+    CrmLeadDisqualified:
+      name: 'crm.lead.disqualified'
+      title: 'crm.lead.disqualified'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      correlationId:
+        description: 'Correlation identifier propagated across the event flow.'
+        location: '$message.payload#/correlationId'
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmLeadDisqualified'
+    CrmLeadConverted:
+      name: 'crm.lead.converted'
+      title: 'crm.lead.converted'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      correlationId:
+        description: 'Correlation identifier propagated across the event flow.'
+        location: '$message.payload#/correlationId'
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmLeadConverted'
+    CrmLeadAssigned:
+      name: 'crm.lead.assigned'
+      title: 'crm.lead.assigned'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      correlationId:
+        description: 'Correlation identifier propagated across the event flow.'
+        location: '$message.payload#/correlationId'
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmLeadAssigned'
+    CrmOpportunityLost:
+      name: 'crm.opportunity.lost'
+      title: 'crm.opportunity.lost'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      correlationId:
+        description: 'Correlation identifier propagated across the event flow.'
+        location: '$message.payload#/correlationId'
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmOpportunityLost'
+    CrmActivityCreated:
+      name: 'crm.activity.created'
+      title: 'crm.activity.created'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      correlationId:
+        description: 'Correlation identifier propagated across the event flow.'
+        location: '$message.payload#/correlationId'
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmActivityCreated'
+    InboxConversationUpdated:
+      name: 'inbox.conversation.updated'
+      title: 'inbox.conversation.updated'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      correlationId:
+        description: 'Correlation identifier propagated across the event flow.'
+        location: '$message.payload#/correlationId'
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxConversationUpdated'
+    InboxMessageAccepted:
+      name: 'inbox.message.accepted'
+      title: 'inbox.message.accepted'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      correlationId:
+        description: 'Correlation identifier propagated across the event flow.'
+        location: '$message.payload#/correlationId'
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxMessageAccepted'
+    InboxMessageFailed:
+      name: 'inbox.message.failed'
+      title: 'inbox.message.failed'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      correlationId:
+        description: 'Correlation identifier propagated across the event flow.'
+        location: '$message.payload#/correlationId'
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxMessageFailed'
+    InboxOwnershipExpired:
+      name: 'inbox.ownership.expired'
+      title: 'inbox.ownership.expired'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      correlationId:
+        description: 'Correlation identifier propagated across the event flow.'
+        location: '$message.payload#/correlationId'
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxOwnershipExpired'
+    InboxHandoffRequested:
+      name: 'inbox.handoff.requested'
+      title: 'inbox.handoff.requested'
+      summary: 'Internal domain event; at-least-once delivery; idempotent consumer required.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      correlationId:
+        description: 'Correlation identifier propagated across the event flow.'
+        location: '$message.payload#/correlationId'
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxHandoffRequested'
   schemas:
     PlatformTenantCreated:
       $ref: '../schemas/domain-events-v1.schema.json#/$defs/PlatformTenantCreated'
@@ -1335,3 +1643,31 @@ components:
       $ref: '../schemas/domain-events-v1.schema.json#/$defs/MetaChangeDetected'
     MetaChangeImpactAnalyzed:
       $ref: '../schemas/domain-events-v1.schema.json#/$defs/MetaChangeImpactAnalyzed'
+    CrmContactUpdated:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmContactUpdated'
+    CrmIdentityMergeRequested:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmIdentityMergeRequested'
+    CrmIdentityMergeReversed:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmIdentityMergeReversed'
+    CrmLeadCreated:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmLeadCreated'
+    CrmLeadDisqualified:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmLeadDisqualified'
+    CrmLeadConverted:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmLeadConverted'
+    CrmLeadAssigned:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmLeadAssigned'
+    CrmOpportunityLost:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmOpportunityLost'
+    CrmActivityCreated:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/CrmActivityCreated'
+    InboxConversationUpdated:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxConversationUpdated'
+    InboxMessageAccepted:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxMessageAccepted'
+    InboxMessageFailed:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxMessageFailed'
+    InboxOwnershipExpired:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxOwnershipExpired'
+    InboxHandoffRequested:
+      $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxHandoffRequested'
