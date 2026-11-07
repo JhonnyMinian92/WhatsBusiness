@@ -127,3 +127,16 @@ Tasks TASK-053..065 are proposed until code/tests/evidence exist. API changes an
 | Validar hipótesis ICP servicios/comercio/agencias con base oficial y evidencia cualitativa | US-028 / PD-012 | TASK-066 | REEM methodology/data, interview synthesis, pilot metrics, eligibility-adjusted market model and explicit uncertainty |
 
 REEM 2025 numbers are macro context only. They do not prove addressable customers, Meta usage, intent or willingness-to-pay.
+
+
+## 11. Campaign Intelligence y agentic Meta
+| Requisito | Historia | Tareas | Contexto | Evidencia esperada |
+|---|---|---|---|---|
+| Aprendizaje de campañas desde Meta insights + CRM/CAPI business outcomes, sin afirmar control de Andromeda | US-029 | TASK-067,068,072,077,078 | Campaign Intelligence / CAPI / CRM | snapshots con provenance, KPI definitions, quality gates, attributed-vs-incremental reporting |
+| Aumento máximo de presupuesto +20% por acción y rolling-24h | US-029 | TASK-071 | Policy & Approval / Campaign execution | server-side tests concurrentes, no bypass, amount/currency correctness and audit |
+| Creatividades diversas con provenance, rights, brand, preview and approvals | US-030 | TASK-069,073,079 | Creative Lab / Ads adapters | variant lineage, near-duplicate tests, preview and paused-first when required |
+| Controlled A/B/test cells preserving winners and learning | US-030 | TASK-070 | Experiments / Campaigns | control/variant, sample/stopping rules, overlap and learning impact evidence |
+| Meta Ads MCP drafts and Meta Business Agent interoperability | US-031 | TASK-074,075,080 | Agent Gateway / Inbox / Ads | role/purpose/tenant checks, approval/audit, single conversation owner and echo suppression |
+| Meta policy/API/feature drift mapped to affected assets/tenants/tasks | US-032 | TASK-076 | Meta Control Plane / Operations | dated official evidence, capability registry update, tests and migration task |
+
+Andromeda/GEM are internal Meta systems, not a WhatsBusiness API surface. All TASK-067..080 remain proposed; this matrix is intent, not delivered evidence.
