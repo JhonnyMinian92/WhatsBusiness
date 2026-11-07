@@ -188,3 +188,10 @@ Una TASK que no crea endpoint debe declarar por qué (spike, benchmark, research
 | Meta adapters | Cada producto/login/version/operation | docs/09 + docs/49 + docs/32 | Fuente oficial fechada, scopes, grants, tier, eligibility, fixtures y account evidence |
 
 No cerrar una TASK porque el API ID o el schema exista. El commit de implementación debe incluir código, tests ejecutados y evidencia; las revisiones independientes y aceptación del propietario mantienen sus estados propios.
+
+
+## 12. Handoff normalizado de tareas y auditoría de arquitectura
+
+- [docs/53 — TASK work packages](53-TASK-WORK-PACKAGES.md): registro TASK-001..080 con owner role sugerido, dependencias, API IDs, eventos, DoD, pruebas y handoff. Las asignaciones reales/reviewers deben confirmarse antes de iniciar.
+- [docs/54 — TASK-039 execution & consistency report](54-TASK-039-EXECUTION-AND-CONSISTENCY-REPORT.md): evidencia estática, limitaciones runtime, hallazgos, gate G0 y acciones pendientes.
+- Los resúmenes DoD no son AC IDs formales. El agente debe enlazar AC existentes de la US y derivar Given/When/Then + TEST IDs antes de implementar.
