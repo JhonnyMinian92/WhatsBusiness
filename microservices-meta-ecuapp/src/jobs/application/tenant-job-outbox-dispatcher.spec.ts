@@ -19,6 +19,7 @@ function setup(publish: TenantJobPublisher["publish"]) {
     async releasePublication(...values) { calls.push({ method: "released", values }); return true; },
     async claimExecution() { return null; },
     async assertExecutionLease() {},
+    async renewExecutionLease() { return new Date(Date.now() + 30_000); },
     async complete() {},
     async fail() { return "retry_scheduled"; },
     async recover() { return { recoveredExecutionLeases: 0, recoveredDispatchLeases: 0, redispatchedStaleMessages: 0 }; },
