@@ -55,3 +55,13 @@ Los hallazgos con fuente, vigencia, confianza, efecto y límites están detallad
 - OBS-20261106-012: Google SRE recommends user-focused SLI/SLO and percentile latency measures; 99.9% availability maps to ~43.2 min/month, not evidence of this service's uptime.
 
 No observation implies access granted to our Meta App/account or successful product integration. External API facts are revalidated at implementation and release.
+
+
+### OBS-20261106-013 — INEC REEM 2025 y validación del ICP
+- Fuente: INEC, Principales Resultados REEM 2025 (abril 2026), URL incluida en docs/32.
+- Observación: base provisional 2025 reporta 1.204.276 empresas; sector servicios 645,8k y comercio 388,9k; metodología combina periodos y registros diferentes.
+- Advertencia: 50,2% pertenece al grupo RIMPE 2024 sin ventas ni plazas IESS en la clasificación; el salto 2022 refleja también el régimen obligatorio y no creación neta de empresas.
+- Confianza: alta para cifras oficiales; provisionalidad y cobertura limitan inferencias.
+- Impacto: respalda foco sectorial de discovery; no prueba Meta usage, buyer eligibility, TAM ni willingness-to-pay.
+- Estado: confirmado como contexto, no como estimación comercial.
+- Acción: TASK-066 / US-028 discovery and pilots.
