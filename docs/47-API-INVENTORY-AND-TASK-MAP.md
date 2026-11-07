@@ -314,7 +314,7 @@ La lista es la superficie de producto; los métodos nativos concretos se fijan e
 | LEAD-007 | POST /v1/tenants/{tenantId}/leads/{leadId}/assignments | Asigna lead a usuario/equipo con historial. | US-011/019; TASK-023,044 |
 | LEAD-008 | POST /v1/tenants/{tenantId}/leads/{leadId}/transitions | Cambia estado qualified/disqualified/converted con actor/motivo. | US-011/019; TASK-023,044 |
 | LEAD-009 | POST /v1/webhooks/meta/facebook/leadgen | Recibe evento Page leadgen después de validar autenticidad y persistencia. | US-011/014; TASK-022,027,028 |
-| LEAD-010 | POST /v1/tenants/{tenantId}/leads/{leadId}/convert | Convierte lead en contacto/oportunidad conservando provenance. | US-018/019; TASK-042,044 |
+| LEAD-010 (retirado; superseded by SALES-014) | — | Alias histórico; no representa una segunda operación HTTP. La conversión de lead pertenece al bounded context Sales. | US-018/019; TASK-042,044 |
 
 Los duplicados de webhook/retrieval se deduplican por ID de evento/submission y tenant/source. El payload original se conserva solo según política de retención y acceso.
 
@@ -768,7 +768,7 @@ Esta matriz es la referencia para verificar cobertura. Una TASK puede producir i
 | US-015 Observability/audit | TASK-029..030 | OPS-001..006, PLT-001/002 | trace/correlation, redaction, SLO and immutable audit |
 | US-016 Security/privacy | TASK-031..032,059 | PRIV-001..010, OPS-007/008 | threat controls, DSR, deletion evidence, legal review |
 | US-017 Threads | TASK-033 | TH-001..006, WH-007 | New adapter, version policy and conformance |
-| US-018 CRM contacts | TASK-042..043,053 | CRM-001..013, LEAD-010 | namespace identity, custom fields, reversible merge |
+| US-018 CRM contacts | TASK-042..043,053 | CRM-001..013; SALES-014 para conversión | namespace identity, custom fields, reversible merge |
 | US-019 Sales pipeline | TASK-044 | CRM-014..017, SALES-001..014 | configurable transitions, timeline, assignments |
 | US-020 Unified Inbox | TASK-045..046 | INB-001..005, INB-015..017, WA/FB/IG channel send/read | canonical model with native channel extension; UI E2E |
 | US-021 Teams/assignment/handoff | TASK-047 | INB-006..014, INB-018 | concurrent lease, private notes, no duplicate replies |
@@ -910,7 +910,7 @@ Este inventario se considera **listo para planificación de implementación**, n
 
 ### Estado actualizado de contratos después de docs/48–50
 
-- El catálogo HTTP contiene 289 operaciones REST propias y 8 rutas de webhook ingress. OpenAPI ya registra las 297 rutas con API ID, operationId y trazabilidad.
+- El catálogo HTTP contiene 288 operaciones REST propias y 8 rutas de webhook ingress (296 operaciones activas). LEAD-010 es alias retirado de SALES-014 y no cuenta como operación separada. OpenAPI ya registra las 297 rutas con API ID, operationId y trazabilidad.
 - Solo PLT-001..005 tienen schemas de diseño concretos; los demás se marcan catalog-only y siguen bloqueados para implementación hasta congelar payloads, errores, autorización y controles en docs/49.
 - AsyncAPI y JSON Schema definen 69 tipos de eventos v1.0.0 con envelope compartido y payloads mínimos cerrados. Esto no demuestra producers/consumers, outbox, broker, DLQ ni tests implementados.
 - docs/48 establece el estándar obligatorio anti-spaghetti y de reutilización; docs/49 define el freeze de contratos y gates Meta; docs/50 define eventos e idempotencia.
