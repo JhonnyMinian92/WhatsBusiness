@@ -103,3 +103,18 @@ Esta actualización es especificación documental. No crea evidencia de código,
 - docs/13: c27aa4c8f783e96b08b1815b5e0825296d261099
 
 Los SHAs anteriores identifican commits que modificaron cada documento; no equivalen a verificación de contenido/código de producto. Los siguientes cambios también deben añadirse aquí cuando se ejecuten.
+
+
+## 10. Registro adicional de sincronización documental (2026-11-06)
+| ID | Evento | Resultado |
+|---|---|---|
+| AUD-021 | Contrato de agentes y memoria central | AGENTS, docs/00, docs/01 y docs/02 alineados a PD-012..023 |
+| AUD-022 | Dominio, privacidad y seguridad | docs/06 y docs/08 incorporan monetización, partners, locale, ASVS y privacidad configurable |
+| AUD-023 | QA y SRE | docs/12 y docs/13 incorporan ASVS, WCAG, golden signals, percentiles y SLO candidatos |
+| AUD-024 | Backlog de evolución | TASK-053..065 añadidas; estados proposed |
+| AUD-025 | Historias | US-025..027 agregadas para partners, billing transparente y developer API |
+| AUD-026 | Trazabilidad | docs/19 enlaza PD-012..023, US-025..027 y TASK-053..065 |
+| AUD-027 | ADR formales | docs/33 formaliza ADR-011..020; spike pendiente |
+| AUD-028 | Índice documental | docs/README incluye docs/32 y docs/33 |
+
+No se han ejecutado builds, tests de producto, benchmarks, Meta account checks ni revisión legal durante estos cambios documentales.
