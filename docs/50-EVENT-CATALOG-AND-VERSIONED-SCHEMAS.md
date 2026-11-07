@@ -79,3 +79,21 @@ Cada TASK que produce/consume eventos debe:
 - registrar owner/reviewer, test names y evidencia real.
 
 La existencia del schema no marca TASK implementada/verified. El broker, storage, outbox, consumers, DLQ, replay y observabilidad requieren TASK-039 y pruebas de implementación posteriores.
+
+
+## 7. Operaciones AsyncAPI y reconciliación de propuestas
+
+El contrato `contracts/asyncapi/platform-events-v1.yaml` declara dos direcciones por canal lógico: `publish` para el productor y `subscribe` para el consumer group lógico. Los 55 mensajes referencian `correlationId` en `$message.payload#/correlationId`. Esta definición formaliza el contrato de ambos lados; no declara que los workers o las colas estén desplegados.
+
+### 7.1 Eventos mencionados en specs que aún no pertenecen a v1
+
+Las especificaciones de CRM (docs/38 §9) e Inbox (docs/39 §9) proponen nombres adicionales que todavía no tienen mapping de TASK/owner/consumer en docs/47 y por eso no se publican como parte de esta versión:
+
+- CRM/Sales: `crm.contact.updated`, `crm.identity.merge_requested`, `crm.identity.merge_reversed`, `crm.lead.created`, `crm.lead.disqualified`, `crm.lead.converted`, `crm.lead.assigned`, `crm.opportunity.lost`, `crm.activity.created`.
+- Inbox: `inbox.conversation.updated`, `inbox.message.accepted`, `inbox.message.failed`, `inbox.ownership.expired`, `inbox.handoff.requested`.
+
+El owner de dominio debe resolver si cada nombre requiere un evento independiente o si está cubierto por un evento/estado existente (por ejemplo delivery update, cambio de ownership o handoff completado). La decisión registra productor, consumer(s), aggregate/version, payload mínimo, compatibilidad, privacidad, idempotencia, TASK/AC y tests. No emitir nombres no registrados ni fabricar payloads para cerrar una cuenta de eventos. La reconciliación CRM/Sales debe fijar primero el owner de Opportunity; ver docs/56.
+
+### 7.2 Comprobaciones de contrato y límite de validación
+
+Comprobación estructural actual: 55 canales; 55 `publish`; 55 `subscribe`; 110 operationIds únicos; 55 referencias de mensajes; 55 tipos y 55 definiciones de payload con correspondencia uno a uno. JSON Schemas parseables como JSON y referencias de payload coherentes. No equivale a lint/parse oficial AsyncAPI, validación JSON Schema con fixtures, contract tests, compatibilidad, broker ni prueba de productores/consumers runtime. Los resultados y bloqueos se registran en docs/56.
