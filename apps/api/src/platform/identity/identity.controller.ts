@@ -2,8 +2,6 @@ import {
   BadRequestException,
   Controller,
   Get,
-  Param,
-  ParseUUIDPipe,
   Query,
   Req,
   UseGuards,
@@ -11,6 +9,12 @@ import {
 import type { OidcAuthenticatedRequest } from "./oidc-auth.guard.js";
 import { OidcAuthGuard } from "./oidc-auth.guard.js";
 import { IdentityService } from "./identity.service.js";
+import {
+  requireTenantAccessContext,
+  TenantAccessPurpose,
+  TenantContextGuard,
+  type TenantAuthenticatedRequest,
+} from "./tenant-context.guard.js";
 
 @Controller("v1")
 @UseGuards(OidcAuthGuard)
@@ -36,11 +40,10 @@ export class IdentityController {
   }
 
   @Get("tenants/:tenantId/context")
-  tenantContext(
-    @Req() request: OidcAuthenticatedRequest,
-    @Param("tenantId", new ParseUUIDPipe()) tenantId: string,
-  ) {
-    return this.identity.tenantContext(this.claims(request), tenantId);
+  @UseGuards(TenantContextGuard)
+  @TenantAccessPurpose("platform.tenant.context.read")
+  tenantContext(@Req() request: TenantAuthenticatedRequest) {
+    return this.identity.tenantContextResponse(requireTenantAccessContext(request));
   }
 
   private claims(request: OidcAuthenticatedRequest) {
