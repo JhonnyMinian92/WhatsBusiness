@@ -119,3 +119,11 @@ Los nombres de contextos son límites lógicos propuestos; no asignar paths o MO
 | PD-023 modular monolith with evidence-based extraction | Operable scale without premature distribution | ADR-015, TASK-039, docs/30 |
 
 Tasks TASK-053..065 are proposed until code/tests/evidence exist. API changes and product facts are revalidated at implementation and release. This matrix is traceability intent, not evidence of delivered functionality.
+
+
+## 10. Trazabilidad de market validation
+| Requisito | Historia | Tarea | Evidencia / salida |
+|---|---|---|---|
+| Validar hipótesis ICP servicios/comercio/agencias con base oficial y evidencia cualitativa | US-028 / PD-012 | TASK-066 | REEM methodology/data, interview synthesis, pilot metrics, eligibility-adjusted market model and explicit uncertainty |
+
+REEM 2025 numbers are macro context only. They do not prove addressable customers, Meta usage, intent or willingness-to-pay.
