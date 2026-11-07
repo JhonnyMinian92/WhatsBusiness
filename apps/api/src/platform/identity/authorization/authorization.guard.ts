@@ -4,6 +4,7 @@ import {
   ExecutionContext,
   ForbiddenException,
   Injectable,
+  Optional,
   SetMetadata,
   UseGuards,
 } from "@nestjs/common";
@@ -16,6 +17,7 @@ import {
 } from "../tenant-context.guard.js";
 import { isPermissionKey, type PermissionKey } from "./permission-catalog.js";
 import { AuthorizationService } from "./authorization.service.js";
+import { AuthorizationDecisionAuditService } from "../audit/authorization-decision-audit.service.js";
 
 export const REQUIRED_TENANT_PERMISSION = "whatsbusiness:required-tenant-permission";
 
@@ -54,9 +56,10 @@ export class AuthorizationGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly authorization: AuthorizationService,
+    @Optional() private readonly decisionAudit?: AuthorizationDecisionAuditService,
   ) {}
 
-  canActivate(execution: ExecutionContext): boolean {
+  async canActivate(execution: ExecutionContext): Promise<boolean> {
     const permission = this.reflector.get<PermissionKey>(
       REQUIRED_TENANT_PERMISSION,
       execution.getHandler(),
@@ -71,6 +74,9 @@ export class AuthorizationGuard implements CanActivate {
     const request = execution.switchToHttp().getRequest<TenantAuthenticatedRequest>();
     const subject = requireTenantAccessContext(request);
     const decision = this.authorization.authorizeTenantPermission(subject, permission);
+    if (this.decisionAudit) {
+      await this.decisionAudit.record(subject, permission, decision);
+    }
     if (!decision.allowed) {
       throw new ForbiddenException({
         code: "AUTHORIZATION_DENIED",
