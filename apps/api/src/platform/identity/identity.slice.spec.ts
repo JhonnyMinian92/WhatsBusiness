@@ -231,7 +231,38 @@ test("PostgreSQL RLS isolates tenants and clears SET LOCAL context on a reused c
     assert.equal("membershipId" in publicContext, false);
     assert.equal("authzVersion" in publicContext, false);
 
-    const versionBeforeMembershipChange = accessContext.authzVersion;
+    const currentVersionTransaction = await database.withTenantContextAtVersion(
+      userA,
+      tenantA,
+      accessContext.authzVersion,
+      (client) => client.query<{ id: string }>("SELECT id::text FROM platform.tenants WHERE id = $1", [tenantA]),
+    );
+    assert.deepEqual(currentVersionTransaction.rows.map((row) => row.id), [tenantA]);
+
+    await adminPool.query(
+      "DELETE FROM platform.role_permissions WHERE role_id = $1 AND permission_key = 'tenant.read'",
+      [roleA],
+    );
+    await assert.rejects(
+      database.withTenantContextAtVersion(
+        userA,
+        tenantA,
+        accessContext.authzVersion,
+        (client) => client.query("SELECT id FROM platform.tenants WHERE id = $1", [tenantA]),
+      ),
+      (error: unknown) => error instanceof NotFoundException
+        && (error.getResponse() as { code?: string }).code === "TENANT_AUTHORIZATION_STALE",
+    );
+    const refreshedAccessContext = await identity.authorizeTenantAccess(
+      claimsA,
+      tenantA,
+      "platform.tenant.context.read",
+      randomUUID(),
+    );
+    assert.ok(refreshedAccessContext.authzVersion > accessContext.authzVersion);
+    assert.deepEqual(refreshedAccessContext.permissionKeys, []);
+
+    const versionBeforeMembershipChange = refreshedAccessContext.authzVersion;
     await adminPool.query(
       "UPDATE platform.memberships SET status = 'suspended' WHERE id = $1",
       [membershipAId],
