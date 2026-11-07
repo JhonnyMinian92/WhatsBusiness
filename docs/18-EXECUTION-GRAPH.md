@@ -102,3 +102,32 @@ These are planning waves, not permission to ignore DAG edges.
 - A task's downstream tests and release gates must be listed in the traceability matrix.
 - Graph is a navigational model; inspect real code to map logical nodes to concrete paths.
 - If task decomposition changes materially, update Mermaid graph and task table together.
+
+
+## 7. Fases greenfield y nuevos work packages
+
+```mermaid
+flowchart TD
+  PD[PD-001..PD-011 confirmed] --> SPEC[Functional specification]
+  SPEC --> CRM[TASK-035 CRM]
+  SPEC --> INBOX[TASK-036 Omnichannel Inbox]
+  SPEC --> AUTO[TASK-037 Automation]
+  SPEC --> AI[TASK-038 AI Assistance]
+  SPEC --> BASE[TASK-034 Platform Identity]
+  BASE --> SPIKE[TASK-039 Architecture spike / ADRs]
+  CRM --> TRACE[TASK-040 Requirements traceability]
+  INBOX --> TRACE
+  AUTO --> TRACE
+  AI --> TRACE
+  SPIKE --> TRACE
+  TRACE --> OPS[TASK-041 SLO / VPS sizing / operations]
+  OPS --> FOUNDATION[Phase 1 platform foundation]
+  FOUNDATION --> CONTROL[Phase 2 Meta Control Plane]
+  CONTROL --> WH[Phase 3 WhatsApp + Inbox]
+  WH --> CRM2[Phase 4 CRM + Automation]
+  CRM2 --> SOCIAL[Phases 5–6 social channels]
+  SOCIAL --> ADS[Phase 7 Leads / Ads / CAPI]
+  ADS --> HARD[Phase 8 hardening]
+```
+
+TASK-034..041 se incorporan al DAG. Las tareas de especificación pueden avanzar en paralelo con ownership separado; TASK-039 depende de requisitos técnicos mínimos y no autoriza compromisos de gasto.
