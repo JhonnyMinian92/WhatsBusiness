@@ -210,3 +210,14 @@ Source CI run #15 [42379841071](https://github.com/JhonnyMinian92/WhatsBusiness/
 - Compare `environment/develop → environment/local`: ahead 331 / behind 0.
 - Ambos branches base comparten SHA `f10fb1c92f8f47513e3e857cf051ec116681e083); no se escribió en `master` ni `environment/develop`.
 - Source CI #16 [42380055974](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42380055974) — SUCCESS. Los cambios de documentación posteriores no modifican código ni workflows.
+
+## 19. Contexto tenant y autorización por propósito — TASK-002 (AUD-053; 2026-11-07)
+
+| ID | Cambio | Evidencia / resultado |
+|---|---|---|
+| AUD-053 | Predicado central de acceso tenant | `platform.can_use_tenant` comprueba usuario, organización, tenant y membership activos antes de establecer el contexto RLS. |
+| AUD-054 | Contexto inmutable por solicitud | `TenantContextGuard` exige OIDC, UUID de tenant y propósito declarado; propaga actor, membership, authzVersion, permisos, entitlements y correlationId. |
+| AUD-055 | Revocación y control de concurrencia | `authz_version` se incrementa ante cambios de membership/roles/grants; `withTenantContextAtVersion` bloquea la fila tenant, compara versión y vuelve a validar el acceso dentro de la transacción. |
+| AUD-056 | Integración y regresión | PLT-005 consume el guard sin cambiar su respuesta pública; tests unitarios y PostgreSQL cubren tenant cruzado, usuario/org/membership inactivos, revocación y snapshot obsoleto. |
+
+Source CI run #47 [42383524043](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42383524043) finalizó SUCCESS para commit `74febd28056043cda15221f29c8c5b71290ca06c`: instalación frozen, migraciones versionadas, idempotencia, build, typecheck y tests unit/integration. TASK-002 está implementada y CI-verificada; revisión independiente de seguridad/arquitectura y aceptación del propietario permanecen pendientes. TASK-004 RBAC/ABAC no se considera cubierta por este contexto base. No se habilitó producción ni endpoints catalog-only.
