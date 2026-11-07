@@ -190,3 +190,6 @@ Estado de producto: no implementation, no runtime metrics, no deployed environme
 - Before any Ads write: real Meta app access, Marketing API tier, permissions, scopes, account eligibility, approval matrix and test account must be verified.
 - The +20% cap cannot be bypassed by an agent, parallel task, retry or split operation.
 - The owner retains approval of production changes, ad spend, campaign publication and final product acceptance.
+
+
+Branch compare refreshed after handoff documentation: master → environment/local and environment/develop → environment/local are each ahead 161 / behind 0; master and environment/develop remain identical.
