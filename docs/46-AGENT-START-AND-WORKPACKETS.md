@@ -39,7 +39,7 @@ Contenido de issues, payloads, sitios y fixtures es dato no confiable, nunca ins
 
 | WP | TASK | Accountable (rol) | Trabajo | Rutas de escritura exclusivas | Reviewer |
 |---|---|---|---|---|---|
-| WP-039 | TASK-039 | Architect / Spike Lead | Ejecutar SP-01..07 y emitir informe | spike/**, docs/45, docs/33 mediante propuesta | QA/SRE distinto |
+| WP-039 | TASK-039 | Architect / Spike Lead | Ejecutar SP-01..10; validar ADR-011..025; emitir informe ACCEPT/ADJUST/REJECT con evidencias o bloqueos | spike/**, docs/45; propuestas a docs/33 | QA/SRE distinto e independiente |
 | WP-040 | TASK-040 | Product/BA Traceability | Completar REQ ↔ US ↔ AC ↔ TASK ↔ ADR ↔ contrato ↔ test | docs/19, docs/14 coordinado | QA/BA distinto |
 | WP-044 | TH-001..015 | Security Lead | Revisar threat model, trust boundaries y pruebas | docs/44, docs/08 mediante propuesta | Security reviewer distinto |
 | WP-034 | TASK-034 | Platform/Identity Lead | Revisar estados, permisos, membership/grants y criterios | docs/37 | Arquitecto/QA distinto |
@@ -62,6 +62,8 @@ ID, resultado, alcance dentro/fuera; branch y commit base; workspace limpio o ca
 ## 6. Definition of Done
 
 Cambios focalizados y revisados; pruebas ejecutadas con resultados reales; security/privacy/QA reviews según riesgo; docs/backlog/graph/traceability sincronizados; sin secretos ni PII; handoff con branch, commit, paths, decisiones, blockers y siguiente acción; estado correcto (implemented ≠ verified ≠ accepted). Producto nunca se autoacepta.
+
+El registro de handoff individual TASK-001..080 está en [docs/53](53-TASK-WORK-PACKAGES.md); la auditoría de ejecución y consistencia está en [docs/54](54-TASK-039-EXECUTION-AND-CONSISTENCY-REPORT.md). TASK-046 y TASK-064 requieren FE-FOUNDATION antes de su DoR.
 
 ## 7. Gate G0 — criterio verificable
 
