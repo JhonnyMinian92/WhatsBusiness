@@ -901,16 +901,14 @@ Este inventario se considera **listo para planificación de implementación**, n
 - Los paths propuestos son revisados para consistencia, duplicidad y naming por API Owner.
 - OpenAPI/AsyncAPI y la matriz docs/19 coinciden con este inventario.
 
-### Pendientes después de crear este documento
+### Estado actualizado de contratos después de docs/48–50
 
-La creación del catálogo **no ejecuta** las tareas siguientes:
-1. Expandir contracts/openapi/platform-v1.yaml con schemas de todos los endpoints priorizados, por fase.
-2. Crear AsyncAPI schemas por cada evento con payload, schemaVersion y compatibility policy.
-3. Convertir las filas de API IDs en work packets/issues con owner/reviewer reales.
-4. Añadir contract tests y validators al pipeline después del scaffold.
-5. Revalidar endpoint/version/permissions/limits con Meta por adapter al comenzar cada integración.
+- El catálogo HTTP contiene 289 operaciones REST propias y 8 rutas de webhook ingress. OpenAPI debe registrar las 297 rutas con API ID, operationId y trazabilidad.
+- Solo PLT-001..005 tienen schemas de diseño concretos; los demás se marcan catalog-only y siguen bloqueados para implementación hasta congelar payloads, errores, autorización y controles en docs/49.
+- AsyncAPI y JSON Schema definen 55 tipos de eventos v1.0.0 con envelope compartido y payloads mínimos cerrados. Esto no demuestra producers/consumers, outbox, broker, DLQ ni tests implementados.
+- docs/48 establece el estándar obligatorio anti-spaghetti y de reutilización; docs/49 define el freeze de contratos y gates Meta; docs/50 define eventos e idempotencia.
 
-Estos puntos son trabajo de preparación/implementación que ahora queda explícitamente identificado; no son razón para volver a inventar el diseño de cada agente.
+Sigue pendiente asignar owners/reviewers reales, ejecutar TASK-039/G0, completar schemas de negocio para las rutas catalog-only según prioridad, instalar validadores/contract tests en CI después del scaffold y probar adapters con app/cuenta autorizada. La documentación no sustituye esas evidencias.
 
 ---
 
