@@ -51,8 +51,17 @@ export class RabbitMqTenantJobConsumerAdapter {
       await this.consumer.handle(job, this.leaseSeconds);
       this.channel.ack(message, false);
     } catch (error) {
-      this.reporter.report(classifyConsumerTransportError(error));
-      this.channel.nack(message, false, false);
+      const code = classifyConsumerTransportError(error);
+      try {
+        this.reporter.report(code);
+      } catch {
+        // Telemetry is best-effort and must never prevent broker disposition.
+      }
+      try {
+        this.channel.nack(message, false, false);
+      } catch {
+        // A closed channel will be redelivered by RabbitMQ when its connection ends.
+      }
     }
   }
 }
