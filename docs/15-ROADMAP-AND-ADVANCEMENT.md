@@ -159,3 +159,10 @@ Estado actual:
 - Evidencia TASK-002: Source CI run #47 [42383524043](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42383524043), commit `74febd28056043cda15221f29c8c5b71290ca06c`.
 - Siguiente dependencia de autorización: TASK-004 RBAC/ABAC. TASK-003 debe cubrir jobs, cache, files y telemetry con namespaces tenant-safe. TASK-005 depende de TASK-004.
 - No calcular porcentaje global: la matriz completa de requisitos, criterios y evidencias aún no está reconciliada para todo el producto. G0-PRODUCTION permanece NO-GO.
+## Actualización — RBAC/ABAC / TASK-004 (2026-11-07)
+
+- TASK-004 incorpora migration 0004, catálogo tipado de permisos, role templates tenant least-privilege, policy evaluator RBAC/ABAC, guard declarativo HTTP y protección de asignación contra self-escalation.
+- Source CI run #67 [42385036275](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42385036275) — SUCCESS, commit `53e50dc00daccc7c64c7931e468e6ef0af132940`.
+- Estado técnico: núcleo implemented y CI-verified; no se declara tarea accepted/verified mientras estén pendientes review independiente, assignments persistentes y audit/approval workflows.
+- IAM-007..020 siguen catalog-only. No se añadieron rutas ni escrituras HTTP.
+- Próximo tramo: TASK-005 para step-up, aprobación independiente, append-only audit/outbox y protección de acciones privilegiadas; TASK-003 mantiene aislamiento operativo jobs/cache/files/telemetry pendiente.
