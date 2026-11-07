@@ -130,6 +130,8 @@ Los agentes pueden empezar análisis, revisión de especificaciones, validación
 
 ## Contratos ampliados
 
+El estado de validación, las propuestas de eventos pendientes y el GO/NO-GO arquitectónico se consolidan en [docs/56](56-ARCHITECTURE-REVIEW-AND-ACCEPTANCE-GATES.md). AsyncAPI define operaciones producer/consumer; su presencia no significa runtime desplegado.
+
 - OpenAPI: ../contracts/openapi/platform-v1.yaml (inventario completo de 297 operaciones/rutas; 5 design-frozen y 292 catalog-only, hasta congelar schemas).
 - AsyncAPI: ../contracts/asyncapi/platform-events-v1.yaml.
 - Envelope: ../contracts/schemas/event-envelope.schema.json.
@@ -155,3 +157,4 @@ Los agentes pueden empezar análisis, revisión de especificaciones, validación
 - [54 — TASK-039 execution and consistency audit](54-TASK-039-EXECUTION-AND-CONSISTENCY-REPORT.md)
 
 - [55 — OpenAPI contract completion plan by bounded context](55-OPENAPI-CONTRACT-COMPLETION-PLAN.md)
+- [56 — Architecture review, event reconciliation and acceptance gates](56-ARCHITECTURE-REVIEW-AND-ACCEPTANCE-GATES.md)
