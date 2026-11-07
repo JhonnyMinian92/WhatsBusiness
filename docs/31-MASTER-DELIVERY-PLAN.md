@@ -19,7 +19,7 @@
 ## 2. Fases y gates de salida
 
 ### Fase 0 — Descubrimiento, decisiones y arquitectura
-**Entregables:** decisión de negocio y segmentos; pricing model sin tarifas; localización; tenant/agency model; requisitos LOPDP y data inventory; historias/AC por módulo; ADR-011..020; architecture spike; threat model; data classification; catálogo API actual; coste/capacidad/SLO/RPO/RTO con evidencia; modelo de datos y contratos iniciales.
+**Entregables:** decisión de negocio y segmentos; pricing model sin tarifas; localización; tenant/agency model; requisitos LOPDP y data inventory; historias/AC por módulo; ADR-011..020; architecture spike; threat model; data classification; catálogo API actual; coste/capacidad/SLO/RPO/RTO con evidencia; modelo de datos y contratos iniciales; validación de ICP con REEM oficial, entrevistas y pilotos (TASK-066).
 
 **Gate G0:** arquitectura aprobada por el spike, requisitos bloqueantes identificados, riesgos legales y coste explicitados, pruebas de aislamiento diseñadas y plan de capacidad medible.
 
