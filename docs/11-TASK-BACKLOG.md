@@ -95,3 +95,21 @@ Los BUG-0001..BUG-0013 son escenarios de riesgo que deben probarse, no defectos 
 
 ## Controles de cambio
 CR-0001..CR-0020 son decisiones/validaciones pendientes enumeradas en el backlog inicial. No marcarlas cerradas sin decisión, responsable, impacto, evidencia y aprobación correspondiente.
+
+
+## EP-08 — Descubrimiento, especificación y arquitectura greenfield
+
+Estas tareas se añaden a la línea base porque el propietario confirmó greenfield, CRM, inbox y automatización IA. Son trabajo documental/arquitectónico, no implementación de producto.
+
+| Tarea | Entregable | Dependencias | DoD |
+|---|---|---|---|
+| TASK-034 | Especificación funcional de Platform Identity, tenants, planes y roles | PD-001, PD-010 | Flujos, permisos, estados y criterios de aceptación completos |
+| TASK-035 | Especificación funcional de CRM, contactos, leads, pipeline y actividades | PD-004 | Modelo, reglas, journeys, dedupe y criterios testeables |
+| TASK-036 | Especificación funcional de Inbox omnicanal y handoff humano | PD-004, PD-003 | Contratos canónicos, diferencias por canal, estados y UX documentados |
+| TASK-037 | Especificación de Automation Engine y chatbots basados en reglas | PD-005 | Triggers, condiciones, acciones, retries, versiones, pausa y audit definidos |
+| TASK-038 | Especificación de AI Assistance / AI Gateway | PD-005 | Proveedor desacoplado, seguridad, coste, evaluación y human approval definidos |
+| TASK-039 | Architecture spike y ADR-011..017 | PD-007, PD-008 | Build/deploy local/VPS de prueba, footprint medido, contratos y trade-offs documentados |
+| TASK-040 | Reconciliación completa de historias, requisitos y trazabilidad | TASK-034..039 | Cada requisito tiene ID, prioridad, owner, AC, tareas, módulos previstos y evidencia esperada |
+| TASK-041 | Definición operativa: SLO/RPO/RTO, capacidad, backups y presupuesto VPS | Q-013 | Objetivos cuantificados y validados por propietario |
+
+Estado inicial de TASK-034..041: proposed. TASK-039 no autoriza compra de servicios ni contratación de proveedores; cualquier coste recurrente requiere aprobación.
