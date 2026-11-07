@@ -22,6 +22,7 @@ export interface TenantJobRuntimeApplicationOptions {
   readonly initialReconnectDelayMs: number;
   readonly maximumReconnectDelayMs: number;
   readonly reconnectMultiplier: number;
+  readonly stableSessionDurationMs: number;
 }
 
 /** Re-establishes broker channels and consumers after disconnect; PostgreSQL owns recovery. */
@@ -55,13 +56,16 @@ export class TenantJobRuntimeApplication {
           signal.addEventListener("abort", abortSession, { once: true });
           const disconnected = session.waitForDisconnect();
           await session.start();
-          reconnectDelay = this.options.initialReconnectDelayMs;
+          const sessionStartedAt = Date.now();
 
           const completed = await Promise.race([
             session.run(sessionController.signal).then(() => "stopped" as const),
             disconnected.then(() => "disconnected" as const),
           ]);
 
+          if (Date.now() - sessionStartedAt >= this.options.stableSessionDurationMs) {
+            reconnectDelay = this.options.initialReconnectDelayMs;
+          }
           if (!signal.aborted && completed === "disconnected") {
             throw new Error("RABBITMQ_CONNECTION_CLOSED");
           }
@@ -108,7 +112,10 @@ function validateOptions(options: TenantJobRuntimeApplicationOptions): void {
     || options.maximumReconnectDelayMs < options.initialReconnectDelayMs
     || !Number.isFinite(options.reconnectMultiplier)
     || options.reconnectMultiplier < 1
-    || options.reconnectMultiplier > 10) {
+    || options.reconnectMultiplier > 10
+    || !Number.isSafeInteger(options.stableSessionDurationMs)
+    || options.stableSessionDurationMs < 1_000
+    || options.stableSessionDurationMs > 3_600_000) {
     throw new Error("Tenant job runtime reconnect configuration is invalid.");
   }
 }
