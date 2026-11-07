@@ -36,11 +36,7 @@ test("reopens worker sessions after disconnect and closes every session", async 
       if (sessions.length === 1) {
         queueMicrotask(() => session.disconnect());
       } else {
-        const abort = new AbortController();
         queueMicrotask(() => controller.abort());
-        const signal = controller.signal;
-        void abort;
-        void signal;
       }
       return session;
     },
@@ -48,7 +44,6 @@ test("reopens worker sessions after disconnect and closes every session", async 
   const controller = new AbortController();
   const application = new TenantJobRuntimeApplication(
     factory,
-    { now: () => new Date(0) },
     { next: () => 0 },
     {
       failed: (code) => calls.push("failed:" + code),
@@ -74,7 +69,6 @@ test("reopens worker sessions after disconnect and closes every session", async 
 test("rejects unsafe reconnect settings", () => {
   assert.throws(() => new TenantJobRuntimeApplication(
     { async open() { throw new Error("unused"); } },
-    { now: () => new Date(0) },
     { next: () => 0.5 },
     { failed() {}, reconnecting() {} },
     { initialReconnectDelayMs: 0, maximumReconnectDelayMs: 100, reconnectMultiplier: 2 },
