@@ -88,6 +88,5 @@
       "type": "object",
       "description": "Event-specific payload validated against the matching closed definition in domain-events-v1.schema.json."
     }
-  },
-  "unevaluatedProperties": true
+  }
 }
