@@ -148,6 +148,7 @@ BEGIN
         USING ERRCODE = '23514';
     END IF;
     NEW.finished_at := NULL;
+    NEW.error_code := NULL;
   ELSIF NEW.status = 'failed' AND OLD.status = 'processing' THEN
     IF NEW.attempts <> OLD.attempts OR NEW.available_at <= clock_timestamp() THEN
       RAISE EXCEPTION 'Failed jobs require a future retry time and stable attempt count'
@@ -161,6 +162,7 @@ BEGIN
         USING ERRCODE = '23514';
     END IF;
     NEW.finished_at := clock_timestamp();
+    NEW.error_code := NULL;
   ELSIF NEW.status = 'dead_letter' AND OLD.status IN ('processing', 'failed') THEN
     IF NEW.attempts <> OLD.attempts OR NEW.attempts < NEW.max_attempts THEN
       RAISE EXCEPTION 'A job can enter dead letter only after exhausting attempts'
