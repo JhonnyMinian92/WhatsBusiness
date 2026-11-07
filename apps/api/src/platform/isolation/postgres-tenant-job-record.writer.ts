@@ -83,7 +83,7 @@ export class PostgresTenantJobRecordWriter implements TenantJobRecordWriter {
       || !JOB_TYPE_PATTERN.test(input.jobType)
       || input.jobType.length > 128
       || typeof input.idempotencyKey !== "string"
-      || input.idempotencyKey.length < 16
+      || input.idempotencyKey.trim().length < 16
       || input.idempotencyKey.length > 255
       || !isPlainRecord(input.payload)
       || (input.maxAttempts !== undefined
