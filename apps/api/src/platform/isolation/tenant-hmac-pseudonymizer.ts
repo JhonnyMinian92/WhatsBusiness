@@ -1,0 +1,21 @@
+import { createHmac } from "node:crypto";
+
+export interface TenantPseudonymizer {
+  pseudonymize(tenantId: string): string;
+}
+
+/**
+ * HMAC-SHA-256 pseudonymizer. The key must be injected from a secret manager;
+ * never source it from tenant data, request input, or a committed .env file.
+ */
+export class HmacTenantPseudonymizer implements TenantPseudonymizer {
+  constructor(private readonly secret: Uint8Array) {
+    if (secret.byteLength < 32) {
+      throw new Error("Tenant telemetry HMAC key must contain at least 256 bits.");
+    }
+  }
+
+  pseudonymize(tenantId: string): string {
+    return `hmacv1_${createHmac("sha256", this.secret).update(tenantId).digest("hex")}`;
+  }
+}
