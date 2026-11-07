@@ -72,3 +72,20 @@ flowchart LR
 - Mostrar defectos abiertos por severidad y pruebas omitidas/flaky.
 - No estimar porcentajes si el denominador o evidencia no existe.
 - Cada sesión actualiza este documento, memoria corta, backlog y matriz de trazabilidad.
+
+
+## Roadmap actualizado tras respuestas del propietario
+
+La propuesta completa y los gates están en [31-MASTER-DELIVERY-PLAN.md](31-MASTER-DELIVERY-PLAN.md). Sustituye como secuenciación detallada al resumen previo de fases, manteniendo los principios de seguridad y aceptación de docs/20.
+
+- Fase 0: descubrimiento y arquitectura.
+- Fase 1: plataforma y developer experience.
+- Fase 2: Meta Control Plane.
+- Fase 3: WhatsApp + Inbox base.
+- Fase 4: CRM y automatización básica/IA asistiva.
+- Fase 5: Facebook Pages y Messenger.
+- Fase 6: Instagram y Threads.
+- Fase 7: Leads, Marketing API y CAPI.
+- Fase 8: hardening, operación y producción.
+
+Tareas nuevas TASK-034..041 en docs/11. Todas propuestas; ninguna implementada ni verificada. El owner confirmó greenfield, por lo que la auditoría técnica de código heredado queda cerrada como "no aplica"; se requiere auditoría de estructura/build/seguridad al crear la primera implementación.
