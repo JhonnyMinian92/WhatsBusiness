@@ -202,3 +202,34 @@ Tareas: TASK-052.
 
 ## Trazabilidad ampliada
 US-018..US-024 y TASK-042..052 amplían el alcance confirmado por el propietario. Los criterios se consideran baseline propuesta hasta revisión funcional detallada; ninguna historia está implementada por el hecho de documentarla.
+
+
+## Épica EP-12 — Partners, facturación transparente y plataforma de desarrolladores
+
+### US-025 — Acceso delegado de agencias/partners (P1)
+Como propietario de un negocio quiero permitir que una agencia gestione solo los activos y acciones autorizadas y poder revocar ese acceso.
+- AC-025-01: acceso a tenant cliente requiere grant explícito con ámbito, actor, rol, assets/acciones, purpose, expiración y aprobador.
+- AC-025-02: la agencia no hereda datos de un tenant por relación comercial o membership en otro tenant.
+- AC-025-03: cliente puede revocar grant inmediatamente; expiración y revocación se propagan a sesiones, cache, jobs y permisos.
+- AC-025-04: toda operación conserva identidad de agencia/actor y es auditable.
+- AC-025-05: soporte interno usa mecanismo JIT separado y no se confunde con acceso de partner.
+Tareas: TASK-058.
+
+### US-026 — Facturación, asientos y consumo transparente (P1)
+Como administrador de tenant quiero entender suscripción, usuarios, uso y cargos externos sin confundir costes de Meta con el precio del producto.
+- AC-026-01: subscription, seats, usage, IA, infraestructura y costes Meta externos tienen ledger y fuente independientes.
+- AC-026-02: cada cargo/estimación expone moneda, mercado, fecha, rate card/version y condición.
+- AC-026-03: estimate, max/upper bound, provider-reported actual y reconciled amount no se presentan como equivalentes.
+- AC-026-04: planes y capacidades se aplican mediante entitlements versionados.
+- AC-026-05: no se cobra tarifa no aprobada ni se inventa impuesto/markup.
+Tareas: TASK-057, TASK-063.
+
+### US-027 — API pública y webhooks para integradores (P1)
+Como desarrollador de un cliente quiero integrar WhatsBusiness mediante contratos versionados y eventos firmados.
+- AC-027-01: API pública documentada y versionada con OAuth/scopes o credenciales de servicio de alcance mínimo.
+- AC-027-02: credenciales se pueden rotar/revocar y nunca se muestran de nuevo en claro.
+- AC-027-03: webhooks firmados, con timestamp/replay protection, delivery attempts, retries, DLQ y reenvío controlado.
+- AC-027-04: rate limits por tenant/client y audit de acceso.
+- AC-027-05: eventos preservan schema version y compatibilidad explícita.
+Tareas: TASK-062.
+
