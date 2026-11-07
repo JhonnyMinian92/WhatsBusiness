@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { TenantResourceNamespace } from "./tenant-resource-namespace.js";
 
 export interface ObjectStorageMetadata {
@@ -34,8 +35,10 @@ export class TenantScopedObjectStorage {
     if (!/^[-\w.+]+\/[\w.+-]+$/.test(metadata.contentType)) {
       throw new Error("A valid MIME content type is required.");
     }
-    if (!/^[0-9a-f]{64}$/i.test(metadata.checksumSha256)) {
-      throw new Error("A SHA-256 checksum is required for stored objects.");
+    const actualChecksum = createHash("sha256").update(body).digest("hex");
+    if (!/^[0-9a-f]{64}$/i.test(metadata.checksumSha256)
+      || actualChecksum !== metadata.checksumSha256.toLowerCase()) {
+      throw new Error("Object SHA-256 checksum does not match its content.");
     }
     return this.storage.put(
       this.namespaces.objectKey(tenantId, resource, key),
