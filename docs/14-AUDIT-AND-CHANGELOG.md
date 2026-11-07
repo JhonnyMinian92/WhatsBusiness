@@ -232,3 +232,13 @@ Source CI run #47 [42383524043](https://github.com/JhonnyMinian92/WhatsBusiness/
 | AUD-061 | Guards y regresión | `AuthorizationGuard` + `@RequireTenantPermission`; suites allow/deny, catálogo, asignación y PostgreSQL. |
 
 Source CI run #67 [42385036275](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42385036275) finalizó SUCCESS para commit `53e50dc00daccc7c64c7931e468e6ef0af132940`: frozen install, migraciones e idempotencia, build, typecheck y tests. La entrega no habilita mutaciones ni IAM-007..020 (catalog-only). El audit append-only, step-up y workflow durable de approvals quedan para TASK-005. Revisión independiente y aceptación del propietario pendientes.
+## 21. Aprobaciones, autenticación reforzada y audit stream — TASK-005 (AUD-062; 2026-11-07)
+
+| ID | Cambio | Evidencia / resultado |
+|---|---|---|
+| AUD-062 | Evidencia step-up OIDC | `auth_time`, `acr`, `amr` se conservan después de validar firma RS256/JWKS; allowlists ACR/AMR vacías deniegan por defecto. |
+| AUD-063 | Approval workflow | Request hash canónico por tenant/action/purpose/resource/payload, idempotencia, quorum de aprobadores distintos, veto de autoaprobación, decisiones inmutables, caducidad y consumo único. |
+| AUD-064 | Audit SHA-256 stream | Secuencia y hash-chain por tenant; head monotónico ligado a evento; triggers append-only para audit_events y approval_decisions. |
+| AUD-065 | PostgreSQL adversarial integration | Requester + dos approvers sintéticos, step-up, quorum, idempotencia, acción/hash alterado, rollback, consumo único, hash verification y UPDATE/DELETE rechazados. |
+
+Source CI run #112 [42387272987](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42387272987) finalizó SUCCESS para commit `b38b78ab52dbb96262dc8078518fdf4f55fc5a2c`. Con `RUN_APPROVAL_INTEGRATION_TESTS=true` se verificaron instalación frozen, migraciones #1..#5 e idempotencia, build, typecheck y suites unitarias/PostgreSQL. TASK-005 continúa in_progress por revisión independiente/aceptación pendientes. No se añadió HTTP IAM catalog-only, no se conectó un IdP real, no existe consumer/outbox de negocio y el audit chain no tiene anclaje externo.
