@@ -265,6 +265,8 @@ Estado implemented; la ejecución CI de esta revisión, adapters/wiring de Valke
 | AUD-072 | Persistencia tenant job | `0006-tenant-job-outbox.sql` crea `platform.tenant_job_records`, RLS FORCE, ownership tenant/actor, payload JSON, estados y límites de intentos. |
 | AUD-073 | Resolución mínima de contexto | `platform.resolve_tenant_job_context(uuid)` retorna solo job_id, tenant_id, actor_user_id, purpose y correlation_id; no expone payload. |
 | AUD-074 | Adapter y wiring | `PostgresTenantJobRecordReader`, `IsolationModule`, `DatabaseModule` export de `DATABASE_POOL` y registro en `AppModule`. |
-| AUD-075 | Regresión | Nueva suite del adapter registrada; siete suites de aislamiento aparecen en `api:test`. CI de esta iteración pendiente de evidencia. |
+| AUD-075 | Regresión | Suites del reader y writer registradas; ocho suites de aislamiento aparecen en `api:test`. CI de esta iteración pendiente de evidencia. |
+| AUD-076 | Staging transaccional | `PostgresTenantJobRecordWriter.stage(client, input)` inserta el job usando el mismo PoolClient de la mutación de negocio; valida UUID, purpose, job type, payload JSON, tamaño 256 KiB e intentos bounded. |
+| AUD-077 | State machine | Trigger PostgreSQL impide alterar identidad/payload, restringe transiciones, incrementa attempts en claim y fija timestamps terminales. |
 
 La implementación no constituye aún un outbox dispatcher ni consumer: faltan publicación confirmada, inbox, deduplicación, backoff, DLQ, replay y pruebas integradas con broker. El registro y su función SQL tampoco sustituyen la revalidación de autorización por `TenantJobExecutor`. TASK-003 permanece in_progress; no se declara verificado ni aceptado.
