@@ -10,13 +10,13 @@ Se definen **55 tipos de evento internos** en AsyncAPI y JSON Schema. Son evento
 | Contexto | Tipos de eventos | Responsabilidad |
 |---|---|---|
 | Platform | platform.tenant.created, platform.tenant.suspended, platform.membership.changed, platform.grant.revoked | Lifecycle de tenant, membership y grants |
-| Meta control plane | meta.connection.created, meta.credentials.expiring, meta.connection.revoked, meta.assets.sync_requested, meta.assets.synced, meta.capability.changed, meta.webhook.received, meta.change.detected, meta.change.impact_analyzed | Conexiones, assets, capabilities, ingress y cambios externos |
+| Meta control plane | meta.connection.created, meta.credentials.expiring, meta.connection.revoked, meta.assets.sync_requested, meta.assets.synced, meta.capability.changed, meta.webhook.received, meta.change.detected, meta.change.impact.analyzed | Conexiones, assets, capabilities, ingress y cambios externos |
 | WhatsApp | whatsapp.message.send_requested, whatsapp.message.delivery_updated, whatsapp.template.status_changed | Mensajes salientes/estado y templates |
 | Leads/CRM | lead.received, lead.deduplicated, lead.qualified, crm.contact.created, crm.identity.linked, crm.identity.merged, crm.opportunity.stage_changed, crm.opportunity.won | Captación, identidades y revenue lifecycle |
 | Inbox | inbox.conversation.created, inbox.message.received, inbox.message.send_requested, inbox.message.delivery_updated, inbox.assignment.changed, inbox.ownership.acquired, inbox.handoff.completed | Conversación, delivery, asignación y handoff |
 | Automation | automation.execution.requested, automation.step.completed, automation.dead_letter | Ejecución, step y dead-letter |
 | AI | ai.suggestion.requested, ai.suggestion.created, ai.feedback.received | Sugerencias/feedback, sin autorización de auto-envío |
-| Ads/Campaign Intelligence/Creative | ads.draft.created, ads.campaign.approval_requested, ads.budget.change.approved, ads.insights.snapshot.created, campaign.recommendation.created, campaign.recommendation.approved, campaign.recommendation.executed, creative.variant.created, creative.reviewed | Draft, approval, budget, insights, recommendation y revisión |
+| Ads/Campaign Intelligence/Creative | ads.draft.created, ads.campaign.approval.requested, ads.budget.change.approved, ads.insights.snapshot.created, campaign.recommendation.created, campaign.recommendation.approved, campaign.recommendation.executed, creative.variant.created, creative.reviewed | Draft, approval, budget, insights, recommendation y revisión |
 | Privacy | privacy.request.created, privacy.deletion.completed | Solicitudes de derechos y borrado verificable |
 | Developer webhooks | developer.webhook.delivery.requested, developer.webhook.delivered, developer.webhook.failed | Entrega, retry y DLQ de callbacks |
 | Agent tools | agent.tool.requested, agent.tool.approved, agent.tool.completed, agent.tool.denied | Gateway de tools, aprobación, resultado y deny |
