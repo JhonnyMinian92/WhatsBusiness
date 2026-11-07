@@ -2,7 +2,7 @@
 
 Plataforma SaaS multi-tenant para integrar oficialmente los productos y APIs del ecosistema Meta: CRM, Inbox omnicanal, automatizaciones y asistencia IA gobernada.
 
-<badge>GO-CODE aprobado</badge> La rama `environment/local` ya contiene el workspace inicial NestJS + Angular. **GO-PRODUCTION continúa NO-GO**: no hay despliegue, datos de clientes, credenciales reales, mensajes reales, mutaciones Ads ni proveedores IA externos autorizados.
+**Estado: GO-CODE aprobado.** La rama `environment/local` ya contiene el workspace inicial NestJS + Angular. **GO-PRODUCTION continúa NO-GO**: no hay despliegue, datos de clientes, credenciales reales, mensajes reales, mutaciones Ads ni proveedores IA externos autorizados.
 
 ## Quick start
 
