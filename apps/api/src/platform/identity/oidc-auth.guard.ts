@@ -9,6 +9,7 @@ interface JwtHeader { readonly alg?: unknown; readonly kid?: unknown; }
 interface JwtPayload {
   readonly iss?: unknown; readonly sub?: unknown; readonly aud?: unknown;
   readonly exp?: unknown; readonly nbf?: unknown; readonly azp?: unknown; readonly name?: unknown;
+  readonly auth_time?: unknown; readonly acr?: unknown; readonly amr?: unknown;
 }
 interface JsonWebKeyRecord {
   readonly kid?: string; readonly kty?: string; readonly use?: string;
@@ -22,6 +23,9 @@ export interface OidcClaims {
   readonly audience: readonly string[];
   readonly expiresAt: number;
   readonly displayName: string | null;
+  readonly authTime: number | null;
+  readonly authenticationContext: string | null;
+  readonly authenticationMethods: readonly string[];
 }
 export interface OidcAuthenticatedRequest extends Request { oidcClaims?: OidcClaims; }
 
@@ -64,6 +68,10 @@ export class OidcJwtVerifier {
         ? payload.aud as string[]
         : [];
 
+    const authTime = payload.auth_time;
+    const authenticationContext = payload.acr;
+    const authenticationMethods = payload.amr;
+
     if (
       payload.iss !== config.issuer ||
       typeof payload.sub !== "string" ||
@@ -74,7 +82,25 @@ export class OidcJwtVerifier {
       !Number.isFinite(payload.exp) ||
       payload.exp <= now ||
       (payload.nbf !== undefined && (typeof payload.nbf !== "number" || payload.nbf > now)) ||
-      (audience.length > 1 && payload.azp !== config.audience)
+      (audience.length > 1 && payload.azp !== config.audience) ||
+      (authTime !== undefined && (
+        typeof authTime !== "number" ||
+        !Number.isSafeInteger(authTime) ||
+        authTime < 0 ||
+        authTime > now + 60
+      )) ||
+      (authenticationContext !== undefined && (
+        typeof authenticationContext !== "string" ||
+        authenticationContext.length === 0 ||
+        authenticationContext.length > 512
+      )) ||
+      (authenticationMethods !== undefined && (
+        !Array.isArray(authenticationMethods) ||
+        authenticationMethods.length > 20 ||
+        !authenticationMethods.every((method) =>
+          typeof method === "string" && method.length > 0 && method.length <= 128
+        )
+      ))
     ) {
       throw new UnauthorizedException("Bearer token claims are invalid or expired.");
     }
@@ -87,6 +113,13 @@ export class OidcJwtVerifier {
       displayName: typeof payload.name === "string" && payload.name.trim().length > 0
         ? payload.name.trim().slice(0, 200)
         : null,
+      authTime: typeof authTime === "number" ? authTime : null,
+      authenticationContext: typeof authenticationContext === "string"
+        ? authenticationContext
+        : null,
+      authenticationMethods: Array.isArray(authenticationMethods)
+        ? authenticationMethods as string[]
+        : [],
     };
   }
 
