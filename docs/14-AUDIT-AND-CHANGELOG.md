@@ -242,3 +242,17 @@ Source CI run #67 [42385036275](https://github.com/JhonnyMinian92/WhatsBusiness/
 | AUD-065 | PostgreSQL adversarial integration | Requester + dos approvers sintéticos, step-up, quorum, idempotencia, acción/hash alterado, rollback, consumo único, hash verification y UPDATE/DELETE rechazados. |
 
 Source CI run #112 [42387272987](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42387272987) finalizó SUCCESS para commit `b38b78ab52dbb96262dc8078518fdf4f55fc5a2c`. Con `RUN_APPROVAL_INTEGRATION_TESTS=true` se verificaron instalación frozen, migraciones #1..#5 e idempotencia, build, typecheck y suites unitarias/PostgreSQL. TASK-005 continúa in_progress por revisión independiente/aceptación pendientes. No se añadió HTTP IAM catalog-only, no se conectó un IdP real, no existe consumer/outbox de negocio y el audit chain no tiene anclaje externo.
+
+
+## 22. Aislamiento operativo multi-tenant — TASK-003 (AUD-066; 2026-11-07)
+
+| ID | Cambio | Evidencia / resultado |
+|---|---|---|
+| AUD-066 | Namespace común por tenant | TenantResourceNamespace genera cache/object namespaces con validación UUID, resource ID y rechazo de traversal. |
+| AUD-067 | Cache tenant-scoped | TenantScopedCache decora CacheStore, obliga tenant prefix y aplica TTL bounded. |
+| AUD-068 | Object storage tenant-scoped | TenantScopedObjectStorage decora ObjectStorage, fuerza tenants/{tenantId}/... y valida MIME/checksum. |
+| AUD-069 | Contexto seguro de worker | TenantJobContextFactory valida registro persistido; TenantJobExecutor reentra por DatabaseService.withTenantContext en cada intento. |
+| AUD-070 | Telemetría segura | TenantTelemetryContext requiere pseudonymizer inyectado y evita tenant IDs en metric labels. |
+| AUD-071 | Regresión automatizada | Cinco suites unitarias registradas en api:test: namespace, cache, object storage, worker context y telemetry. |
+
+Estado implemented; la ejecución CI de esta revisión, adapters/wiring de Valkey/object storage, outbox/inbox/consumer, pool Node A→B, HMAC pseudonymizer y revisión independiente permanecen pendientes. No afirmar verificación operativa ni producción.
