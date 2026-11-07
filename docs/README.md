@@ -113,7 +113,7 @@ La estructura documental y el sistema de instrucciones para agentes se encuentra
 
 ## Readiness vigente
 
-Los agentes pueden empezar análisis, revisión de especificaciones, validación de contratos y TASK-039. No se ha aprobado todavía el scaffold definitivo: se requiere evidencia del spike y review de G0. Las validaciones legales, financieras, Meta y VPS siguen siendo gates específicos; no se simulan.
+GO-CODE aprobado el 2026-11-07: está autorizado crear el workspace fuente e implementar el primer slice de foundation en environment/local. GO-PRODUCTION permanece cerrado. La evidencia parcial de TASK-039 y sus límites están registrados en docs/57; no se simulan benchmarks, revisión independiente, aceptación legal ni pruebas de producción.
 
 
 ## Inventario maestro de APIs
@@ -132,7 +132,7 @@ Los agentes pueden empezar análisis, revisión de especificaciones, validación
 
 El estado de validación, las propuestas de eventos pendientes y el GO/NO-GO arquitectónico se consolidan en [docs/56](56-ARCHITECTURE-REVIEW-AND-ACCEPTANCE-GATES.md). AsyncAPI define operaciones producer/consumer; su presencia no significa runtime desplegado.
 
-- OpenAPI: ../contracts/openapi/platform-v1.yaml (inventario completo de 297 operaciones/rutas; 5 design-frozen y 292 catalog-only, hasta congelar schemas).
+- OpenAPI: ../contracts/openapi/platform-v1.yaml (296 operaciones activas; 5 design-frozen y 291 catalog-only; LEAD-010 es alias histórico superseded by SALES-014, hasta congelar schemas).
 - AsyncAPI: ../contracts/asyncapi/platform-events-v1.yaml.
 - Envelope: ../contracts/schemas/event-envelope.schema.json.
 - Payloads de dominio: ../contracts/schemas/domain-events-v1.schema.json.
@@ -158,3 +158,4 @@ El estado de validación, las propuestas de eventos pendientes y el GO/NO-GO arq
 
 - [55 — OpenAPI contract completion plan by bounded context](55-OPENAPI-CONTRACT-COMPLETION-PLAN.md)
 - [56 — Architecture review, event reconciliation and acceptance gates](56-ARCHITECTURE-REVIEW-AND-ACCEPTANCE-GATES.md)
+- [57 — Implementation kickoff and GO-CODE decision](57-IMPLEMENTATION-KICKOFF-AND-G0-DECISION.md)
