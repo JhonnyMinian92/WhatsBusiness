@@ -246,3 +246,46 @@ Como equipo de producto quiero confirmar con evidencia qué empresas necesitan W
 - AC-028-05: TAM/SAM/SOM separa unidades registradas de empresas elegibles, alcanzables y dispuestas a pagar; toda extrapolación documenta método y supuestos.
 - AC-028-06: no se aprueba lista de precios ni forecast de ingresos con solo REEM o entrevistas cualitativas.
 Tareas: TASK-066.
+
+
+## Épica EP-14 — Campaign Intelligence y aprendizaje continuo
+
+### US-029 — Aprendizaje continuo y optimización de campañas con guardrails (P0)
+Como marketer/owner quiero que WhatsBusiness analice el rendimiento de Meta y los resultados comerciales para recomendar el siguiente experimento y escalar con límites verificables.
+- AC-029-01: snapshots de campañas, ad sets, anuncios, creativos, presupuestos, delivery status, Insights y API version se almacenan con timestamp y provenance.
+- AC-029-02: métricas reportadas por Meta se separan de eventos CRM/CAPI y de revenue/margen reconciliados.
+- AC-029-03: cada recomendación incluye hipótesis, KPI principal, ventana, muestra, incertidumbre, evidencia y riesgos.
+- AC-029-04: la plataforma no expone ni simula score interno de Andromeda/GEM; la selección y ranking pertenecen a Meta.
+- AC-029-05: los cambios de presupuesto cumplen máximo +20% por operación y máximo +20% acumulado sobre baseline rolling 24h.
+- AC-029-06: no escala si la señal es insuficiente/obsoleta, delivery tiene restricción o aprendizaje inestable, budget cap, consent, policy o margen impiden la acción.
+- AC-029-07: los anuncios ganadores permanecen protegidos; la nueva creatividad prueba primero en test cell aislada y no altera el ad set maduro por defecto.
+- AC-029-08: cambios externos requieren draft, simulación/preflight, aprobación, execution, reconciliation, audit y rollback/stop policy.
+- AC-029-09: resultado posterior actualiza el historial experimental y la siguiente hipótesis sin afirmar causalidad cuando solo hay atribución.
+Tareas: TASK-067, TASK-068, TASK-071, TASK-072, TASK-077, TASK-078.
+
+### US-030 — Creative Lab y experimentos de anuncios (P1)
+Como marketer quiero generar, versionar y probar creatividades diversas sin perder los anuncios ganadores ni incumplir lineamientos.
+- AC-030-01: cada CreativeVariant conserva concepto, oferta, hook, formato, CTA, placement, asset provenance, prompt/model, brand kit y claims evidence.
+- AC-030-02: se puede crear test cell con control/variantes, métrica primaria, presupuesto, fecha, muestra/stop criteria y audiencia no solapada según capabilities.
+- AC-030-03: los previews por placement y creative feature se revisan; creatives generados con IA quedan paused hasta aprobación cuando así lo exige API/feature vigente.
+- AC-030-04: el motor evita near-duplicate creatives y explica qué hipótesis/variable diferencia cada variante.
+- AC-030-05: detecta Creative Fatigue/Creative Limited mediante insights y recomendaciones disponibles en API; nunca inventa métricas si no hay datos.
+- AC-030-06: promover/retirar un creative deja snapshots y audit y no reemplaza automáticamente un ganador sin aprobación.
+Tareas: TASK-069, TASK-070, TASK-073, TASK-079.
+
+### US-031 — Interoperabilidad con agentes y herramientas Meta (P1)
+Como administrador quiero que agentes humanos/IA y asistentes nativos Meta colaboren sin duplicar respuestas, acciones o permisos.
+- AC-031-01: todo agente/tool call se registra con actor/provider, purpose, tenant, conversation/campaign ownership, scope y approval state.
+- AC-031-02: los agentes Meta Ads/MCP pueden aportar drafts/preview/insights cuando API/cuenta sea elegible; la publicación sigue approval gate.
+- AC-031-03: Meta Business Agent y WhatsBusiness tienen ownership/handoff explícito de conversación; se previenen loops y double replies.
+- AC-031-04: MCP expone herramientas mediante scopes mínimos, schemas, rate limits, audit y human confirmation para external writes.
+- AC-031-05: no se conecta OpenWA/WhatsApp Web automation ni herramientas que evadan APIs/permisos oficiales.
+Tareas: TASK-074, TASK-075, TASK-080.
+
+### US-032 — Inteligencia de cambios Meta y políticas (P0 platform operations)
+Como operador de plataforma quiero detectar cambios de API, features, permisos y políticas y conocer su impacto antes de que rompan integraciones o campañas.
+- AC-032-01: cada cambio tiene fuente oficial, date, product/API version, effective date, capability, country/account availability y confidence.
+- AC-032-02: cambios se mapean a adapters, tests, tenants/capabilities, campaigns and runbooks affected.
+- AC-032-03: feature flags/capabilities se habilitan por evidencia versionada y no por suposiciones.
+- AC-032-04: alerts pueden generar draft migration tasks/PRs, pero no modificar permisos ni publicar en Meta sin aprobación.
+Tareas: TASK-076.
