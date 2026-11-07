@@ -78,3 +78,23 @@ No usar herencia rígida basada solo en canal. Usar discriminated unions y compo
 - Capability: sendText, sendTemplate, uploadMedia, readInsights, publishReel, retrieveLead, createCampaign, etc.
 - Native extension: producto, API version, raw schema version, payload ref.
 Un comando se valida contra capabilities disponibles; no exponer operación que el tenant no puede ejecutar.
+
+
+## 9. CRM, Inbox y automatización — agregados adicionales
+- OrganizationMembership, Team, TeamMembership, Entitlement, Plan, SubscriptionRef, SupportAccessGrant.
+- Contact, ContactIdentity, ContactFieldDefinition, ContactFieldValue, ContactMerge, Company, Lead, Opportunity, Pipeline, PipelineStage, Activity, Task, Note, Tag, Assignment.
+- Conversation, ConversationParticipant, ChannelAccountRef, Message, MessagePart, AttachmentRef, DeliveryReceipt, ConversationAssignment, InternalNote, Handoff, PresenceLease.
+- WorkflowDefinition, WorkflowVersion, WorkflowTrigger, WorkflowCondition, WorkflowAction, WorkflowExecution, WorkflowStepExecution, WorkflowSchedule, AutomationLimit.
+- AIProviderConfig, AIModelCapability, PromptTemplate, PromptVersion, AIInvocation, AISuggestion, AIFeedback, AIBudgetLedger.
+
+## 10. Invariantes CRM/Inbox/IA
+- Contact identity is tenant-scoped and provider-scoped; merging identities must be auditable and reversible.
+- Canonical conversation/message types preserve channel-specific capabilities and native payload references; no false feature parity.
+- Internal notes, agent metadata and prompts never enter outbound provider payloads.
+- Message composer checks channel capability, recipient state, consent, policy window and asset grants at send time.
+- A conversation may have one active assignment policy at a time; concurrent agent sends use idempotency and conflict detection.
+- Automation definitions are versioned; executions pin an immutable version and record input/output references, retries and decisions.
+- Automation re-evaluates permissions, consent and policy at execution time; approval at design time is not blanket execution permission.
+- AI output is untrusted content. It cannot override system policy, authorization, consent or tenant boundaries.
+- AI suggestions are drafts by default. Sending, publishing, spend, deletion and permission changes require explicit human authorization.
+- AI provider calls enforce tenant budgets, data minimization, retention controls, timeout, fallback and kill switch.
