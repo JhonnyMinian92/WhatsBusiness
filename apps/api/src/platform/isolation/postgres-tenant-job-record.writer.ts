@@ -6,8 +6,8 @@ import type {
 } from "./tenant-job-record-writer.js";
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const PURPOSE_PATTERN = /^[a-z][a-z0-9]*(?:\\.[a-z][a-z0-9]*){2,7}$/;
-const JOB_TYPE_PATTERN = /^[a-z][a-z0-9]*(?:\\.[a-z][a-z0-9]*){1,7}$/;
+const PURPOSE_PATTERN = /^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*){2,7}$/;
+const JOB_TYPE_PATTERN = /^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*){1,7}$/;
 const MAX_PAYLOAD_BYTES = 256 * 1024;
 
 /**
