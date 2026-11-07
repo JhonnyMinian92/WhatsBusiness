@@ -87,3 +87,41 @@ Estado: documentación de gobierno ampliada; no implica que exista una infraestr
 - Greenfield confirmado por el propietario; el árbol auditado no contiene código fuente.
 - Stack y topología son propuestas, no implementaciones ni pruebas.
 - No se afirma que existan agentes independientes ejecutando en paralelo.
+
+
+## Handoff — decisiones delegadas y arquitectura adoptada (2026-11-06)
+
+### Objetivo
+El propietario autorizó aplicar todas las recomendaciones y delegó las mejores decisiones técnicas, con exigencia de evidencia y sin inventar métricas.
+
+### Trabajo confirmado en GitHub en environment/local
+- Actualizado docs/29 con decisiones PD-012..PD-023: ICP inicial, modelo comercial, costes Meta, locale, tenant/agency model, privacidad, aprobaciones, conectores, infraestructura y gobierno de releases.
+- Creado docs/32 con fuentes/evidencia Meta, LOPDP/SPDP, OWASP ASVS 5.0.0 y SRE.
+- Actualizado docs/30 con modular monolith, stack adoptada, límites de dominio, layout de repo, aislamiento, eventos, Meta adapters y ADR-011..020 accepted as direction.
+- Actualizado docs/31 con fases 0–8 y gates.
+- Actualizado docs/05 para evitar contradicción sobre microservicios.
+- Actualizado docs/09 con Meta v27, Embedded Signup v4, BSUID, WAAC/PMA, Marketing Messages API sunset y Access Tier.
+
+### Decisiones de diseño
+- Modular monolith + API/worker/scheduler; extracción de microservicios solo con evidencia.
+- NestJS/TypeScript, Angular, Nx/pnpm, PostgreSQL, Redis, RabbitMQ, OIDC/Keycloak, Docker, OpenTelemetry.
+- Ecuador PYMES de comercio/servicios; agencias secundarias; hipótesis pendiente de discovery de mercado.
+- Subscription per tenant + seats + usage; Meta pass-through separado. Sin pricing inventado.
+- es-EC/USD/America-Guayaquil defaults configurables.
+- Shared PG tenant_id + server-side auth + RLS; agency grants revocables; DB dedicada enterprise.
+- Data minimization/configurable retention; legal review pendiente; no periodos inventados.
+- Meta identities provider-scoped (BSUID), account graph flexible (WAAC/PMA), Marketing Messages API.
+- Seguridad ASVS 5.0.0; UI WCAG 2.2 AA.
+- Candidate SLO 99.9%, RPO 15m, RTO 4h; no SLA ni performance measure.
+
+### Próximo bloque prioritario
+1. Synchronize backlog, traceability, questionnaire, QA, SRE, privacy and agent instructions.
+2. Run static consistency/read-after-write validation of all changed docs.
+3. Complete TASK-039 architecture spike; only then begin production scaffold, unless owner explicitly requests a specific implementation slice.
+4. Create detailed requirements and acceptance criteria for the first vertical slice.
+
+### Estado real
+- Greenfield; no backend/frontend implementation.
+- No product tests, benchmark, VPS sizing, restore drill, pentest, Meta App Review, real Business account validation or production deployment performed.
+- No parallel independent agent execution was available in this interaction; roles are documented, not simulated as real reviewers.
+- Branch remains environment/local; master/develop untouched.
