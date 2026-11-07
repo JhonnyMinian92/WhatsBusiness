@@ -140,7 +140,7 @@ Source workspace validation #42376234089 y Contract validation #42376234088 fina
 - No se implementan mutaciones ni rutas IAM-007..020: permanecen catalog-only y bloqueadas hasta congelar sus schemas y controles en docs/49.
 - El catálogo de roles no se asigna ni persiste automáticamente. Falta el caso de uso transaccional para crear/revocar membership_roles, concurrencia/idempotencia y reconciliación.
 - Los hechos ABAC de asset, consentimiento y capability deben ser resueltos por adapters/use cases confiables; no se aceptan como evidencia de confianza procedente directamente del cliente.
-- Las denegaciones sensibles todavía no generan un registro append-only durable. La auditoría, step-up/MFA, approvals workflow, doble control y outbox corresponden a TASK-005.
+- Las denegaciones sensibles/críticas evaluadas por AuthorizationGuard y las acciones de approval se registran en el audit stream append-only de TASK-005. No toda denegación pre-tenant-context queda en ese ledger; el outbox/consumer y el workflow HTTP permanecen pendientes.
 - La política de rol/permiso es una baseline técnica inicial least-privilege derivada de docs/37 y PD-019; la matriz final y reglas operativas requieren revisión independiente y aceptación del propietario.
 ## 10. TASK-005 — Step-up, approvals y auditoría durable (2026-11-07)
 
