@@ -57,3 +57,18 @@ CR-0001 a CR-0020 están enumerados en el backlog como decisiones/validaciones p
 | AUD-011 | Validación de rama | environment/local comparada con master: ahead 31, behind 0; archivos documentales y agent instructions presentes |
 
 Esta auditoría confirma la creación y lectura posterior de los documentos; no certifica implementación de código ni ejecución de pruebas del producto.
+
+
+## 8. Decisiones y cambios posteriores (2026-11-06)
+| ID | Evento | Resultado |
+|---|---|---|
+| AUD-012 | Respuestas Q-001..Q-010 del propietario | Baseline parcial registrada en PD-001..PD-011 |
+| CR-0021 | Confirmación SaaS + plataforma interna EcuApp | Aprobada por propietario |
+| CR-0022 | Confirmación greenfield | Aprobada por propietario |
+| CR-0023 | Confirmación alcance completo de Meta | Aprobada como alcance objetivo; elegibilidad externa pendiente |
+| CR-0024 | Confirmación CRM + inbox omnicanal + panel web | Aprobada por propietario |
+| CR-0025 | IA inicial básica y extensible | Aprobada: chatbots y sugerencias; capacidades avanzadas no asumidas |
+| ADR-011..017 | Stack/infraestructura recomendadas | Proposed; requieren architecture spike |
+| AUD-013 | Documentos 29–31 creados | Verificados por lectura GitHub posterior a escritura |
+
+Esta actualización es especificación documental. No crea evidencia de código, pruebas, Meta App Review, despliegue ni ejecución multiagente.
