@@ -100,3 +100,20 @@ For every non-trivial feature, assess Product/BA, domain/marketing, architecture
 - Unanswered discovery questions do not block unrelated work. Record the blocker and continue all safe independent tasks.
 - Greenfield is confirmed. Do not search for legacy source code as a prerequisite; build the approved product from zero after architecture spike and requirements readiness.
 - CRM, omnichannel Inbox, rules-based automation and basic AI assistance are first-class domains. Initial AI may suggest and assist; sensitive external actions require human approval by default.
+
+
+## Adopted product and architecture baseline — 2026-11-06
+- Canonical decisions are in docs/29-OWNER-DECISIONS.md, PD-001..PD-023. Do not reopen delegated choices without new evidence.
+- Architecture: modular monolith, bounded contexts, API/worker/scheduler roles, TypeScript/NestJS, Angular, Nx/pnpm, PostgreSQL, Redis, RabbitMQ, OIDC/Keycloak, Docker and OpenTelemetry. See docs/30-RECOMMENDED-ARCHITECTURE.md.
+- ADR-011..020 are accepted as direction by owner delegation; TASK-039 architecture spike remains required before production bootstrap. Pin supported versions in lockfiles at implementation.
+- Initial segment: Ecuadorian SMEs in commerce/services, agencies secondary. This is a hypothesis, not market research. Do not claim TAM, revenue, conversion or demand without evidence.
+- Commercial baseline: subscription per tenant + seats + measured usage. Meta external costs are separate, transparent pass-through. Do not invent prices, markup, tax or margin.
+- Default locale: es-EC, USD, America/Guayaquil; tenant configurable.
+- Shared PostgreSQL tenancy uses tenant_id + server-side authorization + RLS defense-in-depth. Agencies require explicit, revocable, audited grants; never inherit customer data.
+- Privacy: data minimization, classification, configurable retention and export/delete workflows. Do not invent retention periods or legal compliance claims. LOPDP, transfers, roles and contracts require qualified review before live-data production.
+- Official Meta APIs only. Current version, scopes, access tier, asset grants, pricing, limits and eligibility must be revalidated per operation before implementation. Read docs/32-RESEARCH-AND-EVIDENCE-REGISTER.md and docs/09-API-INTEGRATION-CATALOG.md.
+- WhatsApp contact identities must support provider-scoped IDs such as BSUID; phone is not a universal primary key. Asset model must tolerate WAAC/PMA and legacy WABA relations. WhatsApp marketing uses Marketing Messages API; do not create new dependency on Cloud API marketing with announced 2027-10-13 sunset.
+- Security baseline: OWASP ASVS 5.0.0; explicit tenant-isolation, webhook, OAuth, AI tool and spend controls. Accessibility target for principal UI journeys: WCAG 2.2 AA.
+- Operations: measure latency/traffic/errors/saturation and p50/p95/p99. SLO candidates are not SLAs; capacity requires benchmark. Single VPS/Compose is not high availability.
+- Work only on environment/local. Do not modify master/environment/develop, publish releases or deploy production without explicit owner approval. Real messaging blasts, ad spend, irreversible deletion and external publication remain gated.
+- Delegated technical autonomy does not authorize recurring spend, legal/privacy acceptance, high-impact security exceptions, vendor contracts or production actions.
