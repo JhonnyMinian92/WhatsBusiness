@@ -11,6 +11,17 @@ import {
   AuthorizationService,
 } from "./authorization/authorization.service.js";
 import { TenantAuthorizationPolicyEvaluator } from "./authorization/tenant-authorization-policy.js";
+import { AppendOnlyAuditRepository } from "./audit/append-only-audit.repository.js";
+import { AuthorizationDecisionAuditService } from "./audit/authorization-decision-audit.service.js";
+import { ApprovalWorkflowService } from "./approvals/approval-workflow.service.js";
+import {
+  APPROVAL_POLICY_RESOLVER,
+  DefaultApprovalPolicyResolver,
+} from "./approvals/approval-policy.js";
+import {
+  OidcStepUpEvidenceVerifier,
+  STEP_UP_EVIDENCE_VERIFIER,
+} from "./security/step-up-evidence.js";
 
 @Module({
   imports: [DatabaseModule],
@@ -28,6 +39,17 @@ import { TenantAuthorizationPolicyEvaluator } from "./authorization/tenant-autho
       useExisting: TenantAuthorizationPolicyEvaluator,
     },
     AuthorizationService,
+    AppendOnlyAuditRepository,
+    AuthorizationDecisionAuditService,
+    ApprovalWorkflowService,
+    {
+      provide: APPROVAL_POLICY_RESOLVER,
+      useClass: DefaultApprovalPolicyResolver,
+    },
+    {
+      provide: STEP_UP_EVIDENCE_VERIFIER,
+      useClass: OidcStepUpEvidenceVerifier,
+    },
   ],
 })
 export class IdentityModule {}
