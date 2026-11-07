@@ -9,6 +9,7 @@ import type {
   TenantJobRuntimeRepository,
 } from "./tenant-job-ports.js";
 import { TenantJobHandlerRegistry } from "./tenant-job-handler.registry.js";
+import { TenantJobExecutionLeaseHeartbeat } from "./tenant-job-execution-lease-heartbeat.js";
 
 export type TenantJobConsumeOutcome =
   | "processed"
@@ -26,6 +27,7 @@ export class TenantJobConsumer {
     private readonly clock: Clock,
     private readonly random: RandomSource,
     private readonly consumerName: string,
+    private readonly heartbeat = new TenantJobExecutionLeaseHeartbeat(repository),
   ) {
     if (!/^[a-z][a-z0-9.-]{1,95}$/.test(consumerName)) {
       throw new Error("Tenant job consumer name is invalid.");
@@ -67,7 +69,12 @@ export class TenantJobConsumer {
           throw new TenantJobFailureError({ code: "JOB_CONTEXT_BOUNDARY_MISMATCH", retryable: false });
         }
         await this.repository.assertExecutionLease(client, claim.jobId, claim.leaseToken);
-        await handler.execute(client, executionContext, claim.payload);
+        await this.heartbeat.execute(
+          claim.jobId,
+          claim.leaseToken,
+          leaseSeconds,
+          (signal) => handler.execute(client, executionContext, claim.payload, signal),
+        );
         await this.repository.complete(client, claim.jobId, claim.leaseToken, this.consumerName);
       });
       return "processed";
