@@ -244,3 +244,17 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 
 - Validación adicional de idempotencia: Source CI run #16 [42380055974](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42380055974) ejecutó `pnpm db:migrate` dos veces en la misma base PostgreSQL efímera; migraciones, build, typecheck y tests finalizaron SUCCESS. Commit `84bab54d78b5246174dab6a6a9eb9173d0149476`.
 - La documentación de TASK-001 quedó sincronizada en docs/58, docs/11 y docs/14. Último commit de sincronización del backlog: `22d8ce9f7c9235e469d03d4959953537a4482291`.
+
+## Handoff — TASK-002 Tenant Context y autorización fail-closed (2026-11-07)
+
+- Rama: `environment/local`. No se modificaron `master` ni `environment/develop`.
+- Migración añadida: `apps/api/migrations/0003-tenant-context-authorization.sql`.
+- `platform.can_use_tenant` comprueba usuario, organización, tenant y membership activos; `withTenantContext` solo establece `app.tenant_id` después de autorizar.
+- `withTenantContextAtVersion` valida authzVersion con `FOR NO KEY UPDATE`, vuelve a comprobar autorización y rechaza snapshots obsoletos.
+- `TenantContextGuard` exige principal OIDC, tenant UUID y propósito estático. El contexto actor/tenant/membership/roles/permisos/entitlements/correlation queda inmutable y scoped al request.
+- role_permissions incorpora tenant_id y FK compuesta; triggers versionan los cambios de membership/roles/grants.
+- PLT-005 consume el guard y conserva su schema público. No se implementaron APIs catalog-only ni se concedieron permisos de escritura de producto.
+- Tests agregados: unitarios del guard y PostgreSQL/RLS para cross-tenant, estados inactivos, revocación y stale authz snapshot.
+- Source CI #47 [42383524043](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42383524043) pasó en commit `74febd28056043cda15221f29c8c5b71290ca06c`: frozen install, migraciones e idempotencia, build, typecheck y test suite.
+- Estado: TASK-002 implemented y CI-verified; revisión independiente y aceptación del PO pendientes. TASK-004 RBAC/ABAC es el siguiente bloque crítico; TASK-003 aislamiento operativo queda también pendiente.
+- No se han usado cuentas/datos reales, acciones Meta, mensajes reales, gasto publicitario, proveedor IA externo ni despliegues.
