@@ -167,6 +167,16 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
     );
 
     const completion = await publishAndClaim(dispatcherPool, workerPool, completionJobId);
+    const staleRenewal = await workerPool.query<{ lease_expires_at: Date | null }>(
+      "SELECT platform.renew_tenant_job_execution_lease($1, $2, 30) AS lease_expires_at",
+      [completionJobId, randomUUID()],
+    );
+    assert.equal(staleRenewal.rows[0]?.lease_expires_at, null);
+    const renewed = await workerPool.query<{ lease_expires_at: Date | null }>(
+      "SELECT platform.renew_tenant_job_execution_lease($1, $2, 30) AS lease_expires_at",
+      [completionJobId, completion.leaseToken],
+    );
+    assert.ok(renewed.rows[0]?.lease_expires_at);
 
     const wrongContext = await assert.rejects(
       withTenantContext(workerPool, otherActorUserId, otherTenantId, async (client) => {
