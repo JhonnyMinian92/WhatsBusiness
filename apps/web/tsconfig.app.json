@@ -6,9 +6,18 @@
     "module": "preserve",
     "moduleResolution": "bundler",
     "experimentalDecorators": true,
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
+    "lib": [
+      "ES2022",
+      "DOM"
+    ]
   },
   "include": [
     "src/**/*.ts"
-  ]
+  ],
+  "angularCompilerOptions": {
+    "strictTemplates": true,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true
+  }
 }
