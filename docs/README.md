@@ -164,3 +164,7 @@ El estado de validación, las propuestas de eventos pendientes y el GO/NO-GO arq
 ## 58 — Identity/Tenant/Membership implementation
 
 [58 — Implementación inicial de Identity, Tenant y Membership](58-IDENTITY-TENANCY-IMPLEMENTATION.md) documenta OIDC/JWKS, PostgreSQL transaccional, RLS, APIs PLT-003..005, pruebas sintéticas y límites pendientes.
+
+## 59 — Política de reintentos de trabajos multi-tenant
+
+[59 — Política de reintentos para trabajos multi-tenant](59-TENANT-JOB-RETRY-POLICY.md) documenta la política pura de backoff/jitter, clasificación de errores, pruebas registradas y límites pendientes del dispatcher/consumer.
