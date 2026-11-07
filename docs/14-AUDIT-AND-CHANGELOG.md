@@ -201,3 +201,12 @@ Source CI run #15 [42379841071](https://github.com/JhonnyMinian92/WhatsBusiness/
 
 
 | AUD-051 | Idempotencia de migraciones en CI | Source CI run #16 [42380055974](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42380055974) ejecutó pnpm db:migrate dos veces consecutivas en PostgreSQL 18.6 efímero; ambas pasaron, junto con frozen install, build, typecheck y tests unitarios/integración. Commit `84bab54d78b5246174dab6a6a9eb9173d0149476`. |
+
+
+## 18. Branch isolation after TASK-001 (AUD-052; 2026-11-07)
+
+- Commit inspeccionado en la punta de `environment/local`: `a0d2211702110b2aaee4a92a4c6e012c1effcd13`.
+- Compare `master → environment/local`: ahead 331 / behind 0.
+- Compare `environment/develop → environment/local`: ahead 331 / behind 0.
+- Ambos branches base comparten SHA `f10fb1c92f8f47513e3e857cf051ec116681e083); no se escribió en `master` ni `environment/develop`.
+- Source CI #16 [42380055974](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42380055974) — SUCCESS. Los cambios de documentación posteriores no modifican código ni workflows.
