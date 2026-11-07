@@ -73,6 +73,13 @@ CREATE POLICY tenants_authorization_version_update ON platform.tenants
   USING (id = NULLIF(current_setting('app.tenant_id', true), '')::uuid)
   WITH CHECK (id = NULLIF(current_setting('app.tenant_id', true), '')::uuid);
 
+-- Once the request has passed can_use_tenant, transaction-local context
+-- remains visible to triggers even if that same transaction revokes the
+-- membership that originally authorized the request.
+CREATE POLICY tenants_transaction_context_read ON platform.tenants
+  FOR SELECT
+  USING (id = NULLIF(current_setting('app.tenant_id', true), '')::uuid);
+
 
 CREATE OR REPLACE FUNCTION platform.bump_authz_after_membership_change()
 RETURNS trigger
