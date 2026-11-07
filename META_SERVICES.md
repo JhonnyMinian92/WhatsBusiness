@@ -1630,3 +1630,26 @@ La calidad del producto dependerá tanto de la integración de endpoints como de
 
 **Fecha de investigación: 6 de noviembre de 2026.**  
 **Nota de mantenimiento:** revisar mensualmente la documentación, changelogs, permisos, rate cards y políticas de Meta. Todas las estimaciones y precios son una base de planificación y deben verificarse contra el contrato, la cuenta y la versión efectiva al momento de implementar.
+
+
+---
+
+## Actualización de arquitectura y cambios de plataforma — 2026-11-06
+
+Este catálogo conserva el alcance de investigación original. Para diseño actual y cambios temporales, consultar primero:
+- docs/09-API-INTEGRATION-CATALOG.md — operación/capability matrix.
+- docs/32-RESEARCH-AND-EVIDENCE-REGISTER.md — fuente, fecha, confianza y efecto arquitectónico.
+- docs/29-OWNER-DECISIONS.md — decisiones de producto adoptadas.
+- docs/30-RECOMMENDED-ARCHITECTURE.md y docs/33-ARCHITECTURE-DECISION-RECORDS.md — arquitectura/ADRs.
+
+### Cambios relevantes identificados a fecha de corte
+1. Meta publicó el anuncio Graph API v27.0 / Marketing API v27.0 en noviembre de 2026. La versión se administra por producto/adapter y se revalida al implementar; este catálogo no fija una versión global.
+2. Marketing API Access Tier (Limited/Full) se modela de forma separada de OAuth scopes como ads_management, asset tasks/grants y estado App Review.
+3. Embedded Signup v4 es la dirección de onboarding unificado a evaluar para WhatsApp, Messenger e Instagram Direct, sujeto a habilitación/eligibilidad en la app.
+4. WhatsApp soporta identificadores de usuario que no son número de teléfono, incluyendo BSUID. La identidad de contacto debe tener provider namespace y tipo; el teléfono es atributo opcional, no clave universal.
+5. La evolución del modelo de cuentas WhatsApp requiere modelar recursos de números, mensajería, plantillas y billing con relaciones explícitas (WAAC/PMA) y compatibilidad con recursos legacy WABA.
+6. Meta anunció sunset para marketing traffic en Cloud API el 2027-10-13; el producto nuevo debe usar Marketing Messages API para marketing WhatsApp y no añadir nueva dependencia del endpoint legado.
+7. Max Pricing requiere separar precio máximo/upper bound, estimate, provider-reported charge y reconciled invoice.
+8. La política WhatsApp exige experiencia esperada, respeto a opt-outs y escalamiento; implementar enforcement policy por canal/categoría/propósito/ventana, no un booleano universal.
+
+Los hallazgos anteriores deben revalidarse contra documentación/changelog oficial vigente, versión específica y cuenta de prueba antes de implementar. La fecha de corte no implica que el repositorio tenga acceso, permisos ni aprobación Meta.
