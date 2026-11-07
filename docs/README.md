@@ -80,3 +80,6 @@ La estructura documental y el sistema de instrucciones para agentes se encuentra
 29. [Decisiones del propietario](29-OWNER-DECISIONS.md) — baseline explícita, interpretación y preguntas abiertas.
 30. [Arquitectura recomendada](30-RECOMMENDED-ARCHITECTURE.md) — stack y límites propuestos.
 31. [Plan maestro por fases](31-MASTER-DELIVERY-PLAN.md) — fases, gates y paralelismo seguro.
+
+
+32. [Registro de investigación y evidencia](32-RESEARCH-AND-EVIDENCE-REGISTER.md) — hallazgos Meta, LOPDP/SPDP, ASVS 5.0.0 y prácticas SRE con fecha, fuente y límites de validez.
