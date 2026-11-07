@@ -44,7 +44,7 @@ No aceptar tenant context únicamente desde header. No usar request header para 
 
 ## 4. Contrato de eventos
 
-Cada evento interno cumple contracts/schemas/event-envelope.schema.json:
+Cada evento interno cumple contracts/schemas/event-envelope.schema.json y se registra en AsyncAPI con operación `publish` para el productor y `subscribe` para el consumer group lógico. El mensaje declara el correlationId mediante `$message.payload#/correlationId`:
 - id: ID único del evento.
 - type: nombre estable domain.event.
 - schemaVersion: versión semántica del payload.
