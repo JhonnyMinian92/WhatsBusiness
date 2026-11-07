@@ -134,3 +134,71 @@ Tareas: TASK-033.
 
 ## Trazabilidad
 El backlog detallado, dependencias, bugs y CR por tarea está en `11-TASK-BACKLOG.md`. Una historia solo pasa a Done cuando todas sus tareas, criterios, pruebas, documentación y controles están cerrados.
+
+
+## Épica EP-08 — CRM y relación comercial
+### US-018 — Contactos e identidades omnicanal (P1)
+Como usuario comercial quiero mantener un perfil de contacto unificado sin perder la identidad ni procedencia de cada canal.
+- AC-018-01: un contacto puede asociar múltiples identidades externas por canal, con unicidad scoped por tenant/proveedor.
+- AC-018-02: reglas de merge/dedupe conservan historial, fuente, timestamps y posibilidad de deshacer merges.
+- AC-018-03: campos personalizados tienen tipo, validación, permisos y versionado.
+- AC-018-04: todas las consultas y búsquedas respetan tenant y permisos de campo.
+Tareas: TASK-042, TASK-043.
+
+### US-019 — Pipeline, oportunidades y actividades (P1)
+Como equipo comercial quiero gestionar leads y oportunidades en un pipeline configurable.
+- AC-019-01: pipelines, etapas, motivos de pérdida y campos se configuran por tenant.
+- AC-019-02: transiciones registran actor, fecha, origen y motivo.
+- AC-019-03: tareas, notas, recordatorios y actividades aparecen en timeline.
+- AC-019-04: asignación y visibilidad respetan equipos/roles.
+Tareas: TASK-044.
+
+## Épica EP-09 — Inbox omnicanal y colaboración
+### US-020 — Bandeja unificada multicanal (P0)
+Como agente quiero atender conversaciones de los canales Meta desde una bandeja común sin perder capacidades nativas.
+- AC-020-01: cada conversación mantiene tenant, canal, cuenta/asset, contacto e identificadores externos.
+- AC-020-02: mensajes, medios, errores y estados conservan discriminación y payload nativo versionado.
+- AC-020-03: filtros, búsqueda, estados y asignación no mezclan tenants ni canales.
+- AC-020-04: la interfaz indica capacidades, ventanas y restricciones aplicables por canal.
+- AC-020-05: operaciones no soportadas se deshabilitan con explicación, no se simulan.
+Tareas: TASK-045, TASK-046.
+
+### US-021 — Equipos, asignación y handoff (P1)
+Como supervisor quiero distribuir conversaciones y permitir colaboración entre agentes.
+- AC-021-01: asignación manual y reglas de distribución con límites por equipo/tenant.
+- AC-021-02: handoff bot-humano y agente-agente registra motivo, actor y contexto.
+- AC-021-03: notas internas y menciones nunca se envían al contacto.
+- AC-021-04: concurrencia evita respuestas duplicadas y muestra presencia/lock con expiración.
+Tareas: TASK-047.
+
+## Épica EP-10 — Automatización e IA asistiva
+### US-022 — Automatizaciones basadas en reglas (P1)
+Como administrador quiero crear automatizaciones versionadas que reaccionen a eventos y ejecuten acciones autorizadas.
+- AC-022-01: workflow contiene trigger, conditions, actions, version, status y owner.
+- AC-022-02: dry-run/simulation muestra acciones y efectos antes de activar.
+- AC-022-03: retries, timeout, idempotency, DLQ, pausa y kill switch están disponibles.
+- AC-022-04: permisos, consentimiento, ventanas y límites se revalidan en el momento de ejecutar.
+- AC-022-05: cada ejecución conserva trazabilidad y coste.
+Tareas: TASK-048, TASK-049.
+
+### US-023 — Chatbots y sugerencias IA (P1)
+Como agente/administrador quiero usar chatbots básicos y sugerencias de respuesta con control humano.
+- AC-023-01: AI Gateway soporta proveedores intercambiables sin acoplar dominio.
+- AC-023-02: sugerencia se muestra como borrador; no se envía sin acción humana explícita.
+- AC-023-03: chatbot puede operar con reglas/flows y derivar a humano.
+- AC-023-04: límites por tenant, coste, latencia, redacción de datos y kill switch.
+- AC-023-05: prompts/versiones, resultado y feedback se auditan sin almacenar secretos.
+- AC-023-06: prompt injection y contenido de usuario/adjuntos se tratan como datos no confiables.
+Tareas: TASK-050, TASK-051.
+
+## Épica EP-11 — SaaS y administración de plataforma
+### US-024 — Administración de tenants y planes (P1)
+Como operador de plataforma quiero administrar organizaciones, membresías, límites y planes sin acceder indebidamente a datos de clientes.
+- AC-024-01: provisioning/suspension/reactivation de tenant es auditado y reversible donde sea posible.
+- AC-024-02: planes y entitlements habilitan límites/capacidades sin hardcode disperso.
+- AC-024-03: uso medido separa consumo Meta, infraestructura y coste IA.
+- AC-024-04: acceso de soporte requiere justificación, alcance temporal y auditoría.
+Tareas: TASK-052.
+
+## Trazabilidad ampliada
+US-018..US-024 y TASK-042..052 amplían el alcance confirmado por el propietario. Los criterios se consideran baseline propuesta hasta revisión funcional detallada; ninguna historia está implementada por el hecho de documentarla.
