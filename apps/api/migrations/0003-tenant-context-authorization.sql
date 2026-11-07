@@ -114,36 +114,49 @@ CREATE TRIGGER membership_roles_authz_version
   FOR EACH ROW
   EXECUTE FUNCTION platform.bump_authz_after_membership_role_change();
 
+-- Carry tenant ownership on the permission edge so authorization versioning
+-- never has to bypass the roles table's row-level security policy.
+ALTER TABLE platform.role_permissions ADD COLUMN tenant_id uuid;
+
+UPDATE platform.role_permissions AS role_permission
+   SET tenant_id = role.tenant_id
+  FROM platform.roles AS role
+ WHERE role.id = role_permission.role_id;
+
+ALTER TABLE platform.role_permissions
+  ALTER COLUMN tenant_id SET NOT NULL,
+  DROP CONSTRAINT role_permissions_role_id_fkey,
+  ADD CONSTRAINT role_permissions_role_tenant_fk
+    FOREIGN KEY (role_id, tenant_id)
+    REFERENCES platform.roles(id, tenant_id)
+    ON DELETE CASCADE;
+
+DROP POLICY role_permissions_active_member_read ON platform.role_permissions;
+CREATE POLICY role_permissions_active_member_read ON platform.role_permissions
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM platform.roles AS role
+      WHERE role.id = role_permissions.role_id
+        AND role.tenant_id = role_permissions.tenant_id
+    )
+  );
+
 CREATE OR REPLACE FUNCTION platform.bump_authz_after_role_permission_change()
 RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = pg_catalog, platform
 AS $function$
-DECLARE
-  affected_role_id uuid;
-  affected_tenant_id uuid;
 BEGIN
-  IF TG_OP <> 'INSERT' THEN
-    affected_role_id := OLD.role_id;
-    SELECT tenant_id INTO affected_tenant_id
-      FROM platform.roles WHERE id = affected_role_id;
-    IF affected_tenant_id IS NOT NULL THEN
-      PERFORM platform.bump_tenant_authorization_version(affected_tenant_id);
-    END IF;
+  IF TG_OP = 'DELETE' THEN
+    PERFORM platform.bump_tenant_authorization_version(OLD.tenant_id);
+    RETURN OLD;
   END IF;
 
-  IF TG_OP <> 'DELETE' THEN
-    affected_role_id := NEW.role_id;
-    SELECT tenant_id INTO affected_tenant_id
-      FROM platform.roles WHERE id = affected_role_id;
-    IF affected_tenant_id IS NOT NULL
-       AND (TG_OP = 'INSERT' OR affected_role_id IS DISTINCT FROM OLD.role_id) THEN
-      PERFORM platform.bump_tenant_authorization_version(affected_tenant_id);
-    END IF;
+  PERFORM platform.bump_tenant_authorization_version(NEW.tenant_id);
+  IF TG_OP = 'UPDATE' AND NEW.tenant_id IS DISTINCT FROM OLD.tenant_id THEN
+    PERFORM platform.bump_tenant_authorization_version(OLD.tenant_id);
   END IF;
-
-  IF TG_OP = 'DELETE' THEN RETURN OLD; END IF;
   RETURN NEW;
 END;
 $function$;
