@@ -229,6 +229,9 @@ test("PostgreSQL RLS isolates tenants and clears SET LOCAL context on a reused c
       audience: ["whatsbusiness-web"],
       expiresAt: Math.floor(Date.now() / 1000) + 300,
       displayName: "Synthetic A",
+      authTime: Math.floor(Date.now() / 1000) - 30,
+      authenticationContext: "urn:synthetic:loa:2",
+      authenticationMethods: ["pwd", "otp"],
     };
     const accessContext = await identity.authorizeTenantAccess(
       claimsA,
