@@ -56,14 +56,14 @@ El test PostgreSQL se omite localmente cuando no se suministran DATABASE_URL y M
 
 - Auto-registro, invitations, alta/suspensión/revocación y mutaciones de Tenant/Membership.
 - OIDC discovery dinámico, logout, refresh token, introspection y revocation endpoint.
-- Matriz RBAC/ABAC completa, seed de roles/permisos, step-up, aprobación y auditoría append-only.
+- Mutaciones de membership/role assignment, partner/JIT grants, consumers/workers y APIs HTTP IAM continúan pendientes. El núcleo RBAC/ABAC está documentado en §9 y el núcleo approval/audit/step-up en §10.
 - PartnerTenantGrant, PlatformGrant JIT y revocación/invalidación de grants.
 - Worker tenant context, cache/storage/jobs/telemetry multi-tenant.
 - Outbox/consumer y recuperación crash/replay.
 - OIDC dev realm reproducible y E2E HTTP de extremo a extremo.
 - UI de login y tenant selector Angular.
 
-Source workspace validation #42376234089 y Contract validation #42376234088 finalizaron SUCCESS en el commit 0e0927bdcae658d4e4b1ccae28a5c5f89cf4b183. El primero pasó frozen install, migración PostgreSQL, build, typecheck y pruebas unitarias/RLS; el segundo pasó OpenAPI, AsyncAPI y JSON Schema. El lockfile generado quedó confirmado en el commit d81593601101d97623684ea02f04539fd29f3e2f. TASK-001, TASK-002 y TASK-004 permanecen in_progress hasta revisión independiente; TASK-005 sigue proposed. TASK-005 sigue proposed. Esta implementación no es aceptación productiva ni revisión independiente.
+Source workspace validation #42376234089 y Contract validation #42376234088 finalizaron SUCCESS en el commit 0e0927bdcae658d4e4b1ccae28a5c5f89cf4b183. El primero pasó frozen install, migración PostgreSQL, build, typecheck y pruebas unitarias/RLS; el segundo pasó OpenAPI, AsyncAPI y JSON Schema. El lockfile generado quedó confirmado en el commit d81593601101d97623684ea02f04539fd29f3e2f. TASK-001, TASK-002, TASK-004 y TASK-005 tienen slices implementados y CI-verified, pero permanecen in_progress globalmente hasta revisión independiente de arquitectura/seguridad y aceptación del propietario. Esta implementación no es aceptación productiva ni revisión independiente.
 
 
 ## 7. TASK-001 — Tenant ownership y lifecycle (2026-11-07)
@@ -142,3 +142,43 @@ Source workspace validation #42376234089 y Contract validation #42376234088 fina
 - Los hechos ABAC de asset, consentimiento y capability deben ser resueltos por adapters/use cases confiables; no se aceptan como evidencia de confianza procedente directamente del cliente.
 - Las denegaciones sensibles todavía no generan un registro append-only durable. La auditoría, step-up/MFA, approvals workflow, doble control y outbox corresponden a TASK-005.
 - La política de rol/permiso es una baseline técnica inicial least-privilege derivada de docs/37 y PD-019; la matriz final y reglas operativas requieren revisión independiente y aceptación del propietario.
+## 10. TASK-005 — Step-up, approvals y auditoría durable (2026-11-07)
+
+**Estado:** núcleo de backend implementado y CI-verified en PostgreSQL efímero; no se declara `verified`/`accepted` globalmente. Revisión independiente y aceptación del Product Owner pendientes.
+
+### Evidencia step-up basada en OIDC
+
+- `OidcJwtVerifier` conserva `auth_time`, `acr` y `amr` solo después de validar la firma RS256/JWKS y el resto de claims del token.
+- `OidcStepUpEvidenceVerifier` exige `auth_time` reciente y una coincidencia con `STEP_UP_ALLOWED_ACR` o `STEP_UP_ALLOWED_AMR`. `STEP_UP_MAX_AGE_SECONDS` tiene default de 300 segundos y límites configurados.
+- Las allowlists están vacías en `.env.example` intencionalmente: sin valores confirmados del Identity Provider, el step-up falla cerrado. No se ha validado aún un token de un IdP real. Los significados ACR/AMR dependen del contrato del proveedor; no se infiere MFA solo por un texto arbitrario.
+- Antes de aceptar una decisión, el flujo vuelve a resolver `issuer + subject`, verifica que el usuario local esté activo y que su identidad coincida con el actor del contexto; también verifica expiración del token.
+
+### Workflow de aprobación
+
+- `ApprovalPolicyResolver` separa la política de quorum de la persistencia. La baseline actual requiere una aprobación independiente para acciones críticas y dos aprobadores distintos para publicación de Ads, cambio de presupuesto, exportaciones y borrado de datos.
+- La baseline de quorum/expiración es configuración técnica inicial, no una aprobación final de umbrales o gobierno por el propietario. No hay montos monetarios hardcodeados.
+- Las solicitudes enlazan tenant, actor solicitante, action key, purpose, resource type/id y hash SHA-256 del snapshot canónico de la acción. El payload original no se persiste en la tabla de approvals.
+- La idempotencia es por tenant + solicitante + idempotency key; reutilizar la key para una acción distinta devuelve conflicto.
+- Cada decisión se registra una sola vez por aprobador; requester no puede aprobar su propia solicitud. Las decisiones y sus evidencias de step-up son inmutables. Los cambios de estado se controlan en PostgreSQL y el quorum se aplica de forma transaccional.
+- `consumeAndStage` consume una única aprobación aprobada para el hash exacto y permite al caso de uso escribir un comando/outbox local en la misma transacción. No llama proveedores ni ejecuta HTTP externo.
+
+### Auditoría append-only
+
+- `AppendOnlyAuditRepository` agrega eventos por tenant, bloquea el stream head, avanza secuencia y SHA-256 hash-chain; verifica orden, previous_hash, event_hash y head.
+- PostgreSQL restringe insert/update del stream head a la secuencia siguiente asociada a un evento existente. Triggers rechazan UPDATE/DELETE de audit_events y approval_decisions.
+- `AuthorizationDecisionAuditService` persiste denegaciones y decisiones permitidas sensibles/críticas en el guard HTTP. Las decisiones normales permitidas no generan evento de bajo valor.
+- El hash-chain aporta evidencia de alteración para el rol runtime; no es un anclaje externo ni una garantía criptográfica de no repudio contra administradores privilegiados de la base.
+
+### Pruebas y CI
+
+- Unit: claims step-up ausentes, obsoletos, futuros, ACR/AMR no allowlisted, policy no configurada; hash canónico del snapshot; hash de auditoría determinista; quorum 1/2 y roles.
+- PostgreSQL efímero: crea requester y dos approvers; prueba idempotencia/conflicto, no autoaprobación, dos votos distintos, step-up, reintento idempotente, quorum, acción/hash alterado, rollback del consumo, consumo único, hash-chain y rechazo de UPDATE/DELETE.
+- El test de integración se ejecuta solo con `RUN_APPROVAL_INTEGRATION_TESTS=true` y en la base efímera de Source CI. Limpia todos sus datos sintéticos; no usa cuentas ni datos de clientes.
+- Source CI run [#112](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42387272987), commit `b38b78ab52dbb96262dc8078518fdf4f55fc5a2c` — SUCCESS: frozen install, migraciones, idempotencia, build, typecheck y suite unit/integration; `RUN_APPROVAL_INTEGRATION_TESTS=true` estuvo activo.
+
+### Límites explícitos
+
+- IAM-018..020 y demás operaciones de approval/audit permanecen catalog-only en OpenAPI; no se añadió ruta HTTP ni se modificó el contract gate.
+- `consumeAndStage` no está conectado todavía a una outbox de negocio ni a consumers; su integration test usa una tabla temporal sintética. No se ejecuta publicación de campañas, gasto, mensajes, exports ni borrados.
+- Step-up queda deshabilitado operativamente hasta que se configuren y verifiquen los valores ACR/AMR y la disponibilidad real de `auth_time` en el IdP escogido.
+- No existe revisión legal de retención, anclaje externo del audit chain ni validación independiente de doble control. No se declara producción lista; GO-PRODUCTION continúa NO-GO.
