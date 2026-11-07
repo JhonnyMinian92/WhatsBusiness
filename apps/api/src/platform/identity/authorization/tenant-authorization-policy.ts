@@ -56,6 +56,8 @@ export interface ConsentEvidence {
 export interface ApprovalEvidence {
   readonly status: "approved" | "pending" | "rejected" | "unknown";
   readonly approverId?: string;
+  readonly approverIds?: readonly string[];
+  readonly requiredApprovals?: number;
 }
 
 export interface CapabilityEvidence {
@@ -166,10 +168,19 @@ export class TenantAuthorizationPolicyEvaluator implements AuthorizationPolicyEv
     }
     if (approvalRequired) {
       const approval = evidence.approval;
-      if (!approval || approval.status !== "approved" || !approval.approverId) {
+      const approverIds = approval?.approverIds
+        ?? (approval?.approverId ? [approval.approverId] : []);
+      const requiredApprovals = approval?.requiredApprovals ?? 1;
+      if (
+        !approval
+        || approval.status !== "approved"
+        || !Number.isSafeInteger(requiredApprovals)
+        || requiredApprovals < 1
+        || new Set(approverIds).size < requiredApprovals
+      ) {
         return deny("APPROVAL_NOT_GRANTED");
       }
-      if (approval.approverId === input.subject.actorId) {
+      if (approverIds.includes(input.subject.actorId)) {
         return deny("SELF_APPROVAL_FORBIDDEN");
       }
     }
