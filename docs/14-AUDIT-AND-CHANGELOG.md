@@ -251,8 +251,8 @@ Source CI run #112 [42387272987](https://github.com/JhonnyMinian92/WhatsBusiness
 | AUD-066 | Namespace común por tenant | TenantResourceNamespace genera cache/object namespaces con validación UUID, resource ID y rechazo de traversal. |
 | AUD-067 | Cache tenant-scoped | TenantScopedCache decora CacheStore, obliga tenant prefix y aplica TTL bounded. |
 | AUD-068 | Object storage tenant-scoped | TenantScopedObjectStorage decora ObjectStorage, fuerza tenants/{tenantId}/... y valida MIME/checksum. |
-| AUD-069 | Contexto seguro de worker | TenantJobContextFactory valida registro persistido; TenantJobExecutor reentra por DatabaseService.withTenantContext en cada intento. |
-| AUD-070 | Telemetría segura | TenantTelemetryContext requiere pseudonymizer inyectado y evita tenant IDs en metric labels. |
-| AUD-071 | Regresión automatizada | Cinco suites unitarias registradas en api:test: namespace, cache, object storage, worker context y telemetry. |
+| AUD-069 | Contexto seguro de worker | TenantJobContextResolver recupera registro comprometido por jobId; TenantJobExecutor solo acepta contextos emitidos por resolver y reentra por DatabaseService.withTenantContext. |
+| AUD-070 | Telemetría segura | HmacTenantPseudonymizer usa clave inyectada de 256 bits; TenantTelemetryContext exige HMAC versionado y vocabulario métrico allowlisted. |
+| AUD-071 | Regresión automatizada | Siete suites unitarias registradas en api:test: namespace, cache, object storage, worker context y telemetry. |
 
 Estado implemented; la ejecución CI de esta revisión, adapters/wiring de Valkey/object storage, outbox/inbox/consumer, pool Node A→B, HMAC pseudonymizer y revisión independiente permanecen pendientes. No afirmar verificación operativa ni producción.
