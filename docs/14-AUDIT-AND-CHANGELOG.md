@@ -256,3 +256,15 @@ Source CI run #112 [42387272987](https://github.com/JhonnyMinian92/WhatsBusiness
 | AUD-071 | Regresión automatizada | Seis suites unitarias registradas en api:test: namespace, cache, object storage, worker context y telemetry. |
 
 Estado implemented; la ejecución CI de esta revisión, adapters/wiring de Valkey/object storage, outbox/inbox/consumer, pool Node A→B, HMAC pseudonymizer y revisión independiente permanecen pendientes. No afirmar verificación operativa ni producción.
+
+
+## 23. Registro durable de trabajos multi-tenant — TASK-003 (AUD-072; 2026-11-07)
+
+| ID | Cambio | Evidencia / resultado |
+|---|---|---|
+| AUD-072 | Persistencia tenant job | `0006-tenant-job-outbox.sql` crea `platform.tenant_job_records`, RLS FORCE, ownership tenant/actor, payload JSON, estados y límites de intentos. |
+| AUD-073 | Resolución mínima de contexto | `platform.resolve_tenant_job_context(uuid)` retorna solo job_id, tenant_id, actor_user_id, purpose y correlation_id; no expone payload. |
+| AUD-074 | Adapter y wiring | `PostgresTenantJobRecordReader`, `IsolationModule`, `DatabaseModule` export de `DATABASE_POOL` y registro en `AppModule`. |
+| AUD-075 | Regresión | Nueva suite del adapter registrada; siete suites de aislamiento aparecen en `api:test`. CI de esta iteración pendiente de evidencia. |
+
+La implementación no constituye aún un outbox dispatcher ni consumer: faltan publicación confirmada, inbox, deduplicación, backoff, DLQ, replay y pruebas integradas con broker. El registro y su función SQL tampoco sustituyen la revalidación de autorización por `TenantJobExecutor`. TASK-003 permanece in_progress; no se declara verificado ni aceptado.
