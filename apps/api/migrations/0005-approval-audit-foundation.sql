@@ -145,7 +145,7 @@ CREATE TABLE platform.audit_events (
   purpose text NOT NULL,
   outcome text NOT NULL
     CHECK (outcome IN ('allowed', 'denied', 'approval_requested', 'approval_approved',
-      'approval_rejected', 'approval_expired', 'approval_consumed')),
+      'approval_rejected', 'approval_vote_recorded', 'approval_expired', 'approval_consumed')),
   reason_code text,
   correlation_id uuid NOT NULL,
   request_hash char(64),
@@ -413,6 +413,16 @@ CREATE POLICY approval_requests_change ON platform.approval_requests
   FOR UPDATE USING (
     tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
     AND platform.has_permission(tenant_id, 'approvals.decide')
+  )
+  WITH CHECK (
+    tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
+  );
+
+CREATE POLICY approval_requests_consume ON platform.approval_requests
+  FOR UPDATE USING (
+    tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
+    AND status = 'approved'
+    AND platform.has_permission(tenant_id, action_key)
   )
   WITH CHECK (
     tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
