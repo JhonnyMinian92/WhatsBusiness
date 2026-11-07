@@ -17,13 +17,19 @@ const operations = [];
 for (const [route, pathItem] of Object.entries(openapi.paths ?? {})) {
   for (const method of ["get", "post", "put", "patch", "delete", "options", "head"]) {
     const operation = pathItem?.[method];
-    if (operation) operations.push({ route, method, operationId: operation.operationId });
+    if (operation) operations.push({ route, method, operationId: operation.operationId, apiId: operation["x-api-id"], supersedesApiIds: operation["x-supersedes-api-ids"] ?? [] });
   }
 }
 const operationIds = operations.map((operation) => operation.operationId);
-assert(operations.length > 0, "OpenAPI has no HTTP operations");
+assert(operations.length === 296, `Expected 296 active HTTP operations, found ${operations.length}`);
 assert(operationIds.every(Boolean), "Every OpenAPI operation must define operationId");
 assert(new Set(operationIds).size === operationIds.length, "OpenAPI operationId values must be unique");
+const apiIds = operations.map((operation) => operation.apiId);
+assert(apiIds.every(Boolean), "Every OpenAPI operation must define x-api-id");
+assert(new Set(apiIds).size === apiIds.length, "OpenAPI x-api-id values must be unique");
+assert(!apiIds.includes("LEAD-010"), "LEAD-010 is retired and must not define a second HTTP operation");
+const salesConversion = operations.filter((operation) => operation.apiId === "SALES-014");
+assert(salesConversion.length === 1 && salesConversion[0].supersedesApiIds.includes("LEAD-010"), "SALES-014 must explicitly supersede retired LEAD-010");
 
 const channels = asyncapi.channels ?? {};
 const channelNames = Object.keys(channels);
