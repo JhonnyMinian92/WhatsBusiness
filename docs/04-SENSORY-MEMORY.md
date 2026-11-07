@@ -39,3 +39,19 @@
 - Para evidencia de producción usar identificadores pseudonimizados y referencia segura al artefacto.
 - Contradicciones se resuelven consultando fuente oficial más reciente; registrar quién resolvió.
 - Una observación confirmada que cambie requisitos crea CR y actualiza memoria central, catálogo, backlog y tests.
+
+
+## Observaciones investigadas y promovidas a diseño (2026-11-06)
+Los hallazgos con fuente, vigencia, confianza, efecto y límites están detallados en docs/32-RESEARCH-AND-EVIDENCE-REGISTER.md. Resumen:
+- OBS-20261106-003: Meta Graph API/Marketing API v27.0 announcement; versions must be per adapter.
+- OBS-20261106-004: Meta Marketing API Access Tier differs from OAuth ads_management scope.
+- OBS-20261106-005: Embedded Signup v4 unified onboarding direction; validate app eligibility.
+- OBS-20261106-006: BSUID and WhatsApp usernames; provider-scoped identity, phone is not universal.
+- OBS-20261106-007: WAAC/PMA account model evolution; asset graph must retain legacy WABA support.
+- OBS-20261106-008: WhatsApp Cloud API marketing sunset announced for 2027-10-13; use Marketing Messages API for new marketing path.
+- OBS-20261106-009: Max Pricing creates distinction between max, estimate, provider-reported actual and reconciled charges.
+- OBS-20261106-010: Ecuador LOPDP/RGLOPDP/SPDP framework; legal implementation specifics need qualified review.
+- OBS-20261106-011: OWASP ASVS 5.0.0 as security requirements catalog.
+- OBS-20261106-012: Google SRE recommends user-focused SLI/SLO and percentile latency measures; 99.9% availability maps to ~43.2 min/month, not evidence of this service's uptime.
+
+No observation implies access granted to our Meta App/account or successful product integration. External API facts are revalidated at implementation and release.
