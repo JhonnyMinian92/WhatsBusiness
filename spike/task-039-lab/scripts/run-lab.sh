@@ -92,10 +92,13 @@ pass "Valkey authenticated SET/GET with TTL"
 OIDC="http://127.0.0.1:18080/realms/lab"
 curl -fsS "$OIDC/.well-known/openid-configuration" | jq -e '.issuer and .jwks_uri and .token_endpoint' >/dev/null
 curl -fsS "$OIDC/protocol/openid-connect/certs" | jq -e '.keys | length > 0' >/dev/null
-TOKEN_RESPONSE="$(curl -fsS -X POST "$OIDC/protocol/openid-connect/token" \
+TOKEN_RESPONSE="$(curl -sS -X POST "$OIDC/protocol/openid-connect/token" \
   -d grant_type=password -d client_id=lab-cli -d username=lab.user \
   --data-urlencode 'password=LabOnly-Password-Change-Me')"
-jq -e '.access_token | strings | length > 0' <<<"$TOKEN_RESPONSE" >/dev/null || fail "Keycloak did not issue synthetic token"
+if ! jq -e '.access_token | strings | length > 0' <<<"$TOKEN_RESPONSE" >/dev/null; then
+  echo "$TOKEN_RESPONSE" | jq . >> "$REPORT" 2>/dev/null || echo "$TOKEN_RESPONSE" >> "$REPORT"
+  fail "Keycloak did not issue synthetic token: $(jq -r '.error_description // .error // "unknown"' <<<"$TOKEN_RESPONSE")"
+fi
 pass "Keycloak OIDC discovery, JWKS and synthetic login"
 
 docker compose exec -T postgres pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc > results/postgres-lab.dump
