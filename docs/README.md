@@ -139,3 +139,17 @@ Los agentes pueden empezar análisis, revisión de especificaciones, validación
 
 51. [Evaluación comparativa del stack y baseline de versiones](51-TECHNOLOGY-FIT-AND-VERSION-BASELINE.md) — compara lenguajes/frameworks, frontend, monorepo, base de datos, cache, broker, identidad, edge, despliegue y observabilidad; fija versiones recomendadas a 2026-11-06 y distingue evidencia documental de benchmark pendiente.
 52. [Decisión REST vs GraphQL vs gRPC](52-REST-GRAPHQL-GRPC-PROTOCOL-DECISION.md) — REST/JSON para API síncrona, llamadas locales entre módulos, RabbitMQ/AsyncAPI para async y triggers para considerar GraphQL/gRPC.
+
+
+## Architecture readiness and agent work packages
+
+- [45 — Architecture Spike runbook (TASK-039)](45-ARCHITECTURE-SPIKE-RUNBOOK.md)
+- [46 — Agent kickoff, readiness and work packets](46-AGENT-START-AND-WORKPACKETS.md)
+- [47 — API inventory and TASK map](47-API-INVENTORY-AND-TASK-MAP.md)
+- [48 — Coding architecture and reuse standard](48-CODING-ARCHITECTURE-AND-REUSE-STANDARD.md)
+- [49 — API contract readiness and Meta adapter gates](49-API-CONTRACT-READINESS-AND-META-ADAPTER-GATES.md)
+- [50 — Event catalog and versioned schemas](50-EVENT-CATALOG-AND-VERSIONED-SCHEMAS.md)
+- [51 — Technology fit and version baseline](51-TECHNOLOGY-FIT-AND-VERSION-BASELINE.md)
+- [52 — REST, GraphQL and gRPC protocol decision](52-REST-GRAPHQL-GRPC-PROTOCOL-DECISION.md)
+- [53 — Individual TASK-001..080 work packages](53-TASK-WORK-PACKAGES.md)
+- [54 — TASK-039 execution and consistency audit](54-TASK-039-EXECUTION-AND-CONSISTENCY-REPORT.md)
