@@ -191,9 +191,9 @@ Source workspace validation #42376234089 y Contract validation #42376234088 fina
 
 - platform/isolation/tenant-resource-namespace.ts centraliza namespaces por UUID de tenant para cache y object storage; valida identificadores, limita claves y rechaza traversal/path absolutos.
 - TenantScopedCache decora un puerto CacheStore, obliga a componer todas las claves con tenant/resource y aplica TTL positivo y bounded. La serialización de dominio queda explícita como bytes.
-- TenantScopedObjectStorage decora un puerto ObjectStorage, aplica prefijo tenants/{tenantId}/{resource}/..., valida contenido no vacío, MIME y SHA-256. El bucket/provider debe completar políticas privadas, TLS, cifrado y autorización.
+- TenantScopedObjectStorage decora un puerto ObjectStorage, aplica prefijo tenants/{tenantId}/{resource}/..., valida contenido no vacío y MIME, calcula SHA-256 sobre una copia inmutable del contenido y rechaza checksum distinto. El bucket/provider debe completar políticas privadas, TLS, cifrado y autorización.
 - TenantJobContextResolver recibe solo un jobId, recupera el registro canónico mediante TenantJobRecordReader y rechaza registros no comprometidos; TenantJobExecutor acepta únicamente contextos creados por el resolver (WeakSet privado) y vuelve a entrar por DatabaseService.withTenantContext en cada intento, de modo que PostgreSQL revalida actor, membership, tenant y RLS dentro de la transacción.
-- TenantTelemetryContext usa pseudónimo inyectado para logs y mantiene tenant/correlation fuera de dimensiones métricas; solo admite operation/component/outcome acotados.
+- TenantTelemetryContext depende del puerto TenantPseudonymizer; HmacTenantPseudonymizer implementa HMAC-SHA-256 con clave copiada y de al menos 256 bits, y mantiene tenant/correlation fuera de dimensiones métricas mediante vocabulario allowlisted.
 - Los puertos cache/storage permiten adapters intercambiables; no se agregó dependencia de proveedor ni se simula que Valkey, S3 o RabbitMQ estén conectados.
 
 ### Pruebas añadidas
@@ -208,7 +208,7 @@ Source workspace validation #42376234089 y Contract validation #42376234088 fina
 ### Límites y siguientes pasos
 
 - Aún falta implementar adapters reales de Valkey y object storage, inyectarlos mediante módulos de infraestructura y verificar ACL/TLS/encryption/bucket policy.
-- Falta outbox/inbox y consumer durables; la factory requiere que el caller lea un registro comprometido y validado, no que confíe en el payload del broker. Falta demostrar schema validation, tenant/aggregate match, dedupe, retry, DLQ y replay.
+- Falta outbox/inbox y consumer durables; TenantJobContextResolver depende de TenantJobRecordReader, cuyo adapter PostgreSQL debe leer exclusivamente registros comprometidos y validados, nunca el payload del broker. Falta demostrar schema validation, tenant/aggregate match, dedupe, retry, DLQ y replay.
 - Falta resolver la identidad del actor del job desde un principal de servicio/actor persistido con política explícita; withTenantContext actualmente exige usuario/membership activos y por tanto falla cerrado para actors no provisionados.
 - Falta probar en PostgreSQL real pool reuse A→B, rollback y ausencia de contexto desde el executor, además de integración real con Valkey y proveedor de objetos.
 - El algoritmo HMAC está implementado, pero falta el adapter de secret manager y su wiring operativo; no configurar una clave desde el repositorio ni desde datos del tenant.
