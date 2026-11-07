@@ -161,7 +161,7 @@ No Ads integration, optimizer, AI agent execution, performance benchmark or live
 | AUD-044 | Documentation read-back | docs/29, docs/32..36, stories, backlog, graph, traceability, index y agent contract releídos; markers PD/US/TASK/ADR presentes |
 
 ### Git branch isolation at final validation
-- Compare master → environment/local: ahead 156 / behind 0.
+- Compare master → environment/local: ahead 161 / behind 0.
 - Compare environment/develop → environment/local: ahead 156 / behind 0.
 - Compare master → environment/develop: identical, ahead 0 / behind 0.
 - No merge, production deployment, live campaign change or code implementation was performed.
