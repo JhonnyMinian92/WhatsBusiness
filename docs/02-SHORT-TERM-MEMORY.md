@@ -258,3 +258,14 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Source CI #47 [42383524043](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42383524043) pasó en commit `74febd28056043cda15221f29c8c5b71290ca06c`: frozen install, migraciones e idempotencia, build, typecheck y test suite.
 - Estado: TASK-002 implemented y CI-verified; revisión independiente y aceptación del PO pendientes. TASK-004 RBAC/ABAC es el siguiente bloque crítico; TASK-003 aislamiento operativo queda también pendiente.
 - No se han usado cuentas/datos reales, acciones Meta, mensajes reales, gasto publicitario, proveedor IA externo ni despliegues.
+## Handoff — TASK-004 RBAC/ABAC y catálogo de permisos (2026-11-07)
+
+- Rama `environment/local`; no se modificaron `master` ni `environment/develop`.
+- Migration `0004-authorization-permission-catalog.sql` siembra permission keys/risk_class con `ON CONFLICT DO NOTHING`; no crea grants ni assignments.
+- Código: `apps/api/src/platform/identity/authorization/permission-catalog.ts`, `tenant-role-catalog.ts`, `tenant-authorization-policy.ts`, `authorization.service.ts`, `authorization.guard.ts`, `tenant-role-assignment.policy.ts`.
+- Nueve role templates tenant least-privilege; platform roles quedan fuera. No se materializan ni asignan automáticamente.
+- Policy evaluator default-deny y polimórfico: membership, tenant, purpose, permission, entitlement, ownership, state, asset grant, consent, independent approval y capability freshness.
+- Role assignment policy exige `tenant_owner`, impide autoasignación, cross-tenant, platform roles y privilege escalation; solicita approval evidence independiente.
+- No se implementan IAM-007..020 ni mutaciones; siguen catalog-only. Auditoría append-only, approvals workflow/step-up y outbox siguen para TASK-005.
+- Source CI #67 [42385036275](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42385036275) SUCCESS en commit `53e50dc00daccc7c64c7931e468e6ef0af132940`: install frozen, migraciones e idempotencia, build, typecheck y tests.
+- Estado: núcleo TASK-004 implemented y CI-verified; tarea global in_progress hasta revisión independiente, integración con assignments/audit y aceptación del propietario. Siguiente work package crítico: TASK-005 approvals/audit; también queda TASK-003 aislamiento jobs/cache/files/telemetry.
