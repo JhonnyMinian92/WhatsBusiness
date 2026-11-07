@@ -1,0 +1,37 @@
+{
+  "name": "whatsbusiness",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.34.9",
+  "engines": {
+    "node": ">=26.13.0 <27",
+    "pnpm": "10.34.9"
+  },
+  "scripts": {
+    "build": "nx run-many --target=build --all",
+    "test": "nx run-many --target=test --all",
+    "typecheck": "nx run-many --target=typecheck --all"
+  },
+  "dependencies": {
+    "@nestjs/common": "12.4.0",
+    "@nestjs/core": "12.4.0",
+    "@nestjs/platform-express": "12.4.0",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2",
+    "@angular/common": "22.2.0",
+    "@angular/compiler": "22.2.0",
+    "@angular/core": "22.2.0",
+    "@angular/platform-browser": "22.2.0",
+    "zone.js": "0.16.0"
+  },
+  "devDependencies": {
+    "@angular/build": "22.2.0",
+    "@angular/cli": "22.2.0",
+    "@angular/compiler-cli": "22.2.0",
+    "@types/express": "5.0.3",
+    "@types/node": "26.0.0",
+    "nx": "24.0.4",
+    "tsx": "4.20.6",
+    "typescript": "6.0.3"
+  }
+}
