@@ -80,7 +80,7 @@ export class DatabaseService implements OnModuleDestroy {
     work: (client: PoolClient) => Promise<T>,
   ): Promise<T> {
     return this.transaction(async (client) => {
-      await client.query("SELECT set_config('app.user_id', $1, true)");
+      await client.query("SELECT set_config('app.user_id', $1, true)", [userId]);
       const authorization = await client.query<{ allowed: boolean }>(
         "SELECT platform.can_use_tenant($1) AS allowed",
         [tenantId],
