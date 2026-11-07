@@ -143,3 +143,14 @@ No bloquean el diseño ni los tests sintéticos: nombres comerciales, tarifas fi
 - El contexto autorizado no equivale a RBAC/ABAC completo. TASK-004 debe implementar decisión allow/deny por action/resource/asset/owner/purpose/state/consent/entitlement/capability.
 - TASK-003 (jobs/cache/files/telemetry isolation), TASK-005 (step-up/approval/audit), PartnerTenantGrant, PlatformGrant JIT y propagación a workers siguen pendientes.
 - No se han ejecutado pruebas con cuentas/datos reales ni se declara revisión independiente o aceptación del Product Owner. G0-PRODUCTION permanece bloqueado.
+
+## 14. Estado real RBAC/ABAC — TASK-004 (2026-11-07)
+
+- Se agregó un catálogo canónico de permission keys con risk_class en migración 0004. La migración no concede permisos a usuarios ni asigna roles.
+- Se definieron templates tenant least-privilege versionados: tenant_owner, tenant_admin, integration_admin, marketing_manager, inbox_supervisor, agent, analyst, compliance_auditor y developer_api_integrator. Platform roles quedan separados.
+- El evaluator RBAC/ABAC combina permission, tenant, membership, purpose, entitlement, resource owner/state, asset grant, consent, independent approval y frescura de capability externa.
+- `TenantRoleAssignmentPolicy` evita autoasignación y privilege escalation; solo tenant_owner puede asignar templates tenant, con aprobación independiente para roles.assign.
+- Las plantillas son definición de código, no assignments persistentes; no hay endpoint de mutación habilitado.
+- IAM-007..020 permanecen catalog-only hasta freeze completo de request/response/error, authorization, idempotency, audit y tests conforme a docs/49.
+- Denegaciones sensibles aún requieren append-only audit/outbox y workflow durable de aprobación/step-up: TASK-005. Los datos legales/de consentimiento y capabilities deben venir de adaptadores confiables, no del request del usuario.
+- Source CI run #67 [42385036275](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42385036275) pasó migrations/idempotency/build/typecheck/unit/integration. Revisión independiente y aceptación del Product Owner siguen pendientes.
