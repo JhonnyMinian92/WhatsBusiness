@@ -168,3 +168,6 @@ El estado de validación, las propuestas de eventos pendientes y el GO/NO-GO arq
 ## 59 — Política de reintentos de trabajos multi-tenant
 
 [59 — Política de reintentos para trabajos multi-tenant](59-TENANT-JOB-RETRY-POLICY.md) documenta la política pura de backoff/jitter, clasificación de errores, pruebas registradas y límites pendientes del dispatcher/consumer.
+## 60 — Runtime durable de tenant jobs
+
+[60 — Runtime durable de tenant jobs en microservices-meta-ecuapp](60-TENANT-JOBS-RUNTIME.md) documenta dispatcher, consumer, leases/fencing, inbox, roles PostgreSQL, RabbitMQ quorum, configuración, pruebas y gates que siguen abiertos.
