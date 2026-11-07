@@ -153,7 +153,7 @@ Los schemas de Meta deben validarse por producto, versión, login mode, permiso 
 | Correspondencias canal ↔ tipo ↔ definición | 69 / 69 |
 | Correlation ID declarado en mensajes | 69 |
 
-Los 69 payloads componen el envelope JSON Schema draft 2020-12; cada tipo fija `type`, `schemaVersion: 1.0.0`, `tenantId` UUID, agregado y datos específicos. Los objetos de payload y agregado se cierran frente a propiedades no declaradas. El envelope genérico permite tenantId null para eventos globales futuros, pero las 69 definiciones actuales lo hacen obligatorio y no nulo.
+Los 69 payloads componen el envelope JSON Schema draft 2020-12; cada tipo fija `type`, `schemaVersion: 1.0.0`, `tenantId` UUID, agregado y datos específicos. Los objetos de payload y agregado se cierran frente a propiedades no declaradas. Se retiró `unevaluatedProperties: true` del envelope base para que el cierre de cada schema compuesto rechace campos desconocidos sin bloquear campos específicos. El envelope genérico permite tenantId null para eventos globales futuros, pero las 69 definiciones actuales lo hacen obligatorio y no nulo.
 
 El mensaje expone la correlación desde `$message.payload#/correlationId`. El routing key lógico es `<event-type>.v1`; las colas/topología física siguen siendo específicas por consumer.
 
@@ -163,7 +163,7 @@ Los 14 eventos adicionales de docs/38 y docs/39 se incorporaron a AsyncAPI y JSO
 
 ### 7.3 Validación que falta
 
-Se actualizaron los JSON schemas, canales, mensajes y referencias para 69 eventos. La consistencia se verificará con validadores automatizados añadidos al pipeline; no se ejecutó aún:
+Se actualizaron los JSON schemas, canales, mensajes y referencias para 69 eventos. Se añadió `.github/workflows/contracts-validation.yml` con Redocly, AsyncAPI CLI y AJV 2020-12; `scripts/validate-contracts.mjs` comprueba los 69 canales, 138 operationIds, resolución de referencias y genera fixtures positivos/negativos por evento (tenant no nulo y rechazo de propiedades extra). El workflow aún no tiene resultado confirmado; no se ejecutó aún:
 - parser/linter oficial OpenAPI;
 - parser/linter oficial AsyncAPI;
 - validador JSON Schema con resolución externa y fixtures positivos/negativos;
