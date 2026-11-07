@@ -29,7 +29,8 @@ INSERT INTO app.webhook_inbox (id, tenant_id, external_event_id, payload)
 VALUES ('dddddddd-dddd-4ddd-8ddd-dddddddddddd',
         '11111111-1111-4111-8111-111111111111',
         'synthetic-event-001',
-        '{"source":"lab","synthetic":true}'::jsonb);
+        '{"source":"lab","synthetic":true}'::jsonb)
+ON CONFLICT (tenant_id, external_event_id) DO NOTHING;
 
 DO $$
 BEGIN
@@ -38,7 +39,8 @@ BEGIN
     VALUES ('eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
             '11111111-1111-4111-8111-111111111111',
             'synthetic-event-001',
-            '{"source":"lab","synthetic":true}'::jsonb);
+            '{"source":"lab","synthetic":true}'::jsonb)
+ON CONFLICT (tenant_id, external_event_id) DO NOTHING;
     RAISE EXCEPTION 'Webhook inbox accepted a duplicate event';
   EXCEPTION WHEN unique_violation THEN
     RAISE NOTICE 'PASS: duplicate webhook event rejected';
@@ -49,7 +51,8 @@ INSERT INTO app.outbox_events (id, tenant_id, aggregate_type, aggregate_id, even
 VALUES ('ffffffff-ffff-4fff-8fff-ffffffffffff',
         '11111111-1111-4111-8111-111111111111',
         'Contact', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
-        'crm.contact.created', '{"synthetic":true}'::jsonb);
+        'crm.contact.created', '{"synthetic":true}'::jsonb)
+ON CONFLICT (id) DO NOTHING;
 COMMIT;
 
 -- Same database session, next transaction: SET LOCAL must not leak.

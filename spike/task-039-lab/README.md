@@ -6,14 +6,14 @@ Laboratorio **aislado, sintético y desechable** para recopilar evidencia de inf
 
 - Docker Engine compatible con Docker Compose v2.
 - Bash, curl, jq, Git y utilidades POSIX.
-- Acceso a Internet para descargar las imágenes fijadas en \`compose.yaml\`.
+- Acceso a Internet para descargar las imágenes fijadas en `compose.yaml`.
 - Recomendado: 4 CPU, 8 GB RAM y 15 GB libres para ejecutar todos los servicios cómodamente. Esto es un requisito práctico del laboratorio, no una estimación de producción.
 
 ## Inicio rápido
 
 Desde la raíz del repositorio:
 
-\`\`\`bash
+```bash
 cd spike/task-039-lab
 cp .env.example .env
 # Edita .env y cambia todas las contraseñas locales.
@@ -21,31 +21,31 @@ docker compose config
 docker compose pull
 docker compose up -d
 ./scripts/run-lab.sh
-\`\`\`
+```
 
-El script valida Compose, espera a los cuatro servicios y ejecuta pruebas sintéticas de PostgreSQL/RLS, RabbitMQ/DLX, Valkey, Keycloak/OIDC y backup/restore. Los resultados se guardan en \`results/test-evidence.md\`; el dump PostgreSQL se guarda en \`results/postgres-lab.dump\`. Ambos están excluidos de Git.
+El script valida Compose, espera a los cuatro servicios y ejecuta pruebas sintéticas de PostgreSQL/RLS, RabbitMQ/DLX, Valkey, Keycloak/OIDC y backup/restore. Los resultados se guardan en `results/test-evidence.md`; el dump PostgreSQL se guarda en `results/postgres-lab.dump`. Ambos están excluidos de Git.
 
 Para observar servicios:
 
-\`\`\`bash
+```bash
 docker compose ps
 docker compose logs --tail=100
 docker stats
-\`\`\`
+```
 
 Para detener sin borrar datos:
 
-\`\`\`bash
+```bash
 docker compose down
-\`\`\`
+```
 
 Para borrar volúmenes y reiniciar desde cero (destructivo):
 
-\`\`\`bash
+```bash
 CONFIRM_DELETE_LAB_VOLUMES=yes ./scripts/reset-lab.sh
-\`\`\`
+```
 
-Después del reset, vuelve a ejecutar \`docker compose up -d\` y \`./scripts/run-lab.sh\`.
+Después del reset, vuelve a ejecutar `docker compose up -d` y `./scripts/run-lab.sh`.
 
 ## Servicios y puertos locales
 
@@ -56,15 +56,15 @@ Después del reset, vuelve a ejecutar \`docker compose up -d\` y \`./scripts/run
 | Valkey | valkey/valkey:9.1.0 | 16389 | autenticación, SET/GET y TTL |
 | Keycloak | quay.io/keycloak/keycloak:26.8.2 | 18080 | OIDC discovery, JWKS y login sintético |
 
-Todos los puertos se enlazan exclusivamente a \`127.0.0.1\`. No expongas el laboratorio a Internet ni uses credenciales reales. Keycloak usa modo dev y un usuario/cliente sintético; no representa configuración de producción.
+Todos los puertos se enlazan exclusivamente a `127.0.0.1`. No expongas el laboratorio a Internet ni uses credenciales reales. Keycloak usa modo dev y un usuario/cliente sintético; no representa configuración de producción.
 
 ## Datos sintéticos
 
-- Tenant A: \`11111111-1111-4111-8111-111111111111\`.
-- Tenant B: \`22222222-2222-4222-8222-222222222222\`.
-- Dos contactos ficticios, eventos y payloads marcados \`synthetic\`.
-- Usuario OIDC: \`lab.user\`; cliente público de prueba: \`lab-cli\`.
-- Password del usuario de prueba: \`LabOnly-Password-Change-Me\`. Cambia las credenciales locales antes de usar el laboratorio; nunca reutilices esta contraseña.
+- Tenant A: `11111111-1111-4111-8111-111111111111`.
+- Tenant B: `22222222-2222-4222-8222-222222222222`.
+- Dos contactos ficticios, eventos y payloads marcados `synthetic`.
+- Usuario OIDC: `lab.user`; cliente público de prueba: `lab-cli`.
+- Password del usuario de prueba: `LabOnly-Password-Change-Me`. Cambia las credenciales locales antes de usar el laboratorio; nunca reutilices esta contraseña.
 
 No se conectan cuentas Meta, números WhatsApp, clientes reales, proveedores IA, presupuestos ni secretos de producción.
 
@@ -87,20 +87,20 @@ No se conectan cuentas Meta, números WhatsApp, clientes reales, proveedores IA,
 
 ## Notas técnicas
 
-- PostgreSQL aplica RLS a las tablas tenant-scoped. El rol \`app_runtime\` no es superuser ni tiene \`BYPASSRLS\`.
-- El contexto se configura con \`SET LOCAL app.tenant_id\`; la prueba confirma que no sobrevive al COMMIT en la misma sesión.
-- La tabla \`webhook_inbox\` usa unicidad \`(tenant_id, external_event_id)\` para demostrar deduplicación en la base de datos.
+- PostgreSQL aplica RLS a las tablas tenant-scoped. El rol `app_runtime` no es superuser ni tiene `BYPASSRLS`.
+- El contexto se configura con `SET LOCAL app.tenant_id`; la prueba confirma que no sobrevive al COMMIT en la misma sesión.
+- La tabla `webhook_inbox` usa unicidad `(tenant_id, external_event_id)` para demostrar deduplicación en la base de datos.
 - RabbitMQ usa la API de management para publicar un mensaje persistente, rechazarlo sin requeue y comprobar su llegada a la DLQ.
 - El restore se realiza en una base de datos distinta dentro del mismo contenedor. No es un disaster-recovery drill.
-- Las imágenes usan tags versionados, no \`latest\`. Registrar los digests reales de cada ejecución antes de aceptar SP-10.
+- Las imágenes usan tags versionados, no `latest`. Registrar los digests reales de cada ejecución antes de aceptar SP-10.
 
 ## Evidencia que debe adjuntarse a TASK-039
 
 1. Commit exacto del laboratorio y archivos de configuración.
-2. \`results/test-evidence.md\`, salida de comandos y logs relevantes.
+2. `results/test-evidence.md`, salida de comandos y logs relevantes.
 3. Versiones del host, Docker/Compose, imágenes y sus digests.
 4. Métricas de recursos y limitaciones del entorno.
 5. Resultado separado por SP, sin convertir una prueba parcial en PASS global.
 6. Reviewer independiente y decisión ACCEPT/ADJUST/REJECT por ADR.
 
-Este laboratorio no cambia el gate definido en \`docs/45\`, \`docs/54\` y \`docs/56\`.
+Este laboratorio no cambia el gate definido en `docs/45`, `docs/54` y `docs/56`.

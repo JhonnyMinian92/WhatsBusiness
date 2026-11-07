@@ -71,6 +71,8 @@ rabbit_api PUT '/api/queues/%2F/lab.events.q' '{"durable":true,"auto_delete":fal
 rabbit_api PUT '/api/queues/%2F/lab.events.dlq' '{"durable":true,"auto_delete":false,"arguments":{}}' >/dev/null
 rabbit_api POST '/api/bindings/%2F/e/lab.events/q/lab.events.q' '{"routing_key":"lab.event","arguments":{}}' >/dev/null
 rabbit_api POST '/api/bindings/%2F/e/lab.dlx/q/lab.events.dlq' '{"routing_key":"lab.dead","arguments":{}}' >/dev/null
+curl -fsS -u "$RABBIT_AUTH" -X DELETE "$RABBIT_URL/api/queues/%2F/lab.events.q/contents" >/dev/null
+curl -fsS -u "$RABBIT_AUTH" -X DELETE "$RABBIT_URL/api/queues/%2F/lab.events.dlq/contents" >/dev/null
 PAYLOAD='{"eventId":"synthetic-001","tenantId":"11111111-1111-4111-8111-111111111111","synthetic":true}'
 PUBLISH_BODY="$(jq -n --arg payload "$PAYLOAD" '{properties:{delivery_mode:2},routing_key:"lab.event",payload:$payload,payload_encoding:"string"}')"
 PUBLISHED="$(rabbit_api POST '/api/exchanges/%2F/lab.events/publish' "$PUBLISH_BODY")"
@@ -109,6 +111,7 @@ pass "PostgreSQL logical dump restored into a fresh database; 2 seed contacts ve
   echo
   echo "## Service images"
   docker compose images
+  for image_id in $(docker compose images -q | sort -u); do docker image inspect --format '{{.RepoTags}} {{.RepoDigests}}' "$image_id"; done
   echo
   echo "## Runtime snapshot"
   docker stats --no-stream
