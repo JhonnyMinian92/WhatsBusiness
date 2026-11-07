@@ -23,7 +23,7 @@ El HTTP foundation existente sigue temporalmente en `apps/api` mientras se migra
 3. RabbitMQ recibe solamente `{ version: 1, jobId }`; el payload canónico permanece en PostgreSQL.
 4. El publisher usa mensajes persistentes, `mandatory=true` y publisher confirms antes de marcar la fila publicada.
 5. El consumer usa manual ACK y prefetch acotado. ACK solo después del commit de la transacción de negocio, inbox y estado terminal/retry.
-6. La expiración de leases permite recuperar dispatchers/workers caídos. Los fencing tokens evitan que un worker antiguo confirme después de perder su lease.
+6. La expiración de leases permite recuperar dispatchers/workers caídos. Los fencing tokens evitan que un worker antiguo confirme después de perder su lease; los handlers largos renuevan el lease con el token actual y reciben AbortSignal si la renovación falla.
 7. Los handlers no hacen I/O de proveedor dentro de la transacción de ejecución; deben stagear esos side effects en outbox.
 8. At-least-once implica duplicados. No se promete exactly-once end-to-end.
 
