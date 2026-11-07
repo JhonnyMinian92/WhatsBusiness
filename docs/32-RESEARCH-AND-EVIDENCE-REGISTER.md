@@ -123,3 +123,32 @@
 - Guardar snapshots sanitized de docs/contracts, versión consultada, fecha, app mode, permiso y resultado de cuenta.
 - La señal externa se promueve a decisión solo cuando la evidencia es oficial o corroborada; cada cambio crea CR/ADR/TASK y actualiza docs/01, docs/09, backlog y tests.
 - No almacenar tokens, identificadores personales reales, conversaciones ni payloads sensibles en el registro de investigación.
+
+
+## 6. Market evidence — Ecuador (INEC, corte 2026-11-06)
+
+### MKT-OBS-001 — Registro Estadístico de Empresas REEM 2025
+- **Fuente oficial:** INEC, Principales Resultados REEM 2025, publicado abril de 2026: https://www.ecuadorencifras.gob.ec/documentos/web-inec/Estadisticas_Economicas/Registro_Empresas_Establecimientos/2025/Semestre_I/Principales_Resultados_REEM_2025.pdf
+- **Página/slide:** “Cobertura”, “Conformación del REEM 2025”, “Evolución del número de empresas” y “Dinámica empresarial según sector/tamaño”.
+- **Hecho:** 1.204.276 empresas en base provisional 2025; 1.196.545 en base definitiva 2024.
+- **Hecho adicional:** 2025 provisional registra alrededor de 645,8 mil empresas de servicios y 388,9 mil de comercio. Sumadas: 1.034,7 mil, equivalentes a aproximadamente 85,9% de las 1.204.276 unidades REEM (cálculo derivado de cifras del gráfico/tablas de INEC). Entre 2024 y 2025 la variación publicada fue +3,2% en servicios y -4,4% en comercio.
+- **Composición que limita la interpretación:** 50,2% de las 1.204.276 unidades (604.993) corresponde al grupo RIMPE 2024 que no reporta ventas ni plazas de empleo registradas en el IESS en la clasificación de esa base; 37,4% está asociado a plazas de empleo registrado 2025, 7,2% a ventas y empleo en actividades productivas, 4,3% a ventas 2024 y fracciones menores a otros grupos.
+- **Metodología:** la base 2025 es provisional y combina registros 2024 (ventas, RIMPE, comercio exterior) con plazas de empleo IESS 2025. INEC indica que el aumento de empresas desde 2022 se vio afectado por la obligatoriedad del RIMPE y no debe interpretarse como creación neta equivalente de empresas.
+- **Confianza:** alta para cifras oficiales y definiciones; provisionalidad y metodología deben acompañar cualquier uso.
+- **Efecto en PD-012:** servicios y comercio son un foco razonable para discovery por peso sectorial. No convertir los 1,034,700 registros en TAM/SAM/SOM ni clientes alcanzables; excluir/segmentar informalidad, actividad, capacidad de pago, uso real de Meta, necesidad y elegibilidad.
+- **Estado:** confirmado como base contextual; disposición a pagar y demanda del producto no medidas.
+
+### MKT-OBS-002 — Indicadores TIC nacionales, no empresariales
+- **Fuente oficial:** INEC, TIC 2025: https://www.ecuadorencifras.gob.ec/tecnologias-de-la-informacion-y-comunicacion-tic/
+- **Hecho:** en julio de 2025, 80,1% de personas de 5 años o más utilizó internet en los últimos 12 meses; 71,3% de hogares reportó acceso a internet.
+- **Límite:** son indicadores de personas/hogares, no de adopción digital de empresas ni del uso comercial de WhatsApp/Meta. No usarlos como tasa de adopción del ICP.
+
+### Implicaciones de producto/mercado
+1. Priorizar flujos para pequeños equipos de servicios y comercio: onboarding simple, Inbox, CRM liviano, multiusuario, plantillas y seguimiento de leads.
+2. Hacer que agencias sean canal secundario con partner access explícito y multiempresa.
+3. Diseñar onboarding y operación de bajo costo para microempresas, pero probar la disposición a pagar antes de fijar precio por seats/usage.
+4. Segmentar por actividad real, señales de contacto/conversación, ventas, número de agentes y madurez digital; no solo por tamaño INEC.
+5. No usar cifras macro del REEM para proyecciones de ingresos, market share o unit economics.
+
+### TASK-066 — validación de ICP y product-market evidence
+Antes de cerrar pricing/packaging y comprometer inversión comercial, realizar discovery cualitativo con negocios de servicios, comercio y agencias; recoger job-to-be-done, canal actual, volumen, fricciones, decisor, alternativas, willingness-to-pay y criterios de compra. Complementar con pilotos instrumentados. El tamaño de muestra y los resultados deben documentarse como investigación exploratoria, no como inferencia estadística salvo diseño muestral representativo.
