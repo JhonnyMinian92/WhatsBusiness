@@ -203,7 +203,7 @@ Source workspace validation #42376234089 y Contract validation #42376234088 fina
 - Object storage tenant A/B aislado, prefijos esperados y validación de integridad/path.
 - Job context inmutable, propósito/UUID inválido denegado y ejecución que delega obligatoriamente a withTenantContext.
 - Telemetría: pseudónimo para logs, ausencia de tenant ID en métricas y rechazo de labels arbitrarios.
-- Las siete suites .spec.ts (incluyendo HMAC) se registraron en el target api:test.
+- Las seis suites .spec.ts (incluyendo HMAC) se registraron en el target api:test.
 
 ### Límites y siguientes pasos
 
