@@ -30,7 +30,7 @@ No vender la idea de que podemos "programar Andromeda". La ventaja de WhatsBusin
 
 **Fuentes:**  
 - Meta Engineering, 2026-10-28: https://engineering.fb.com/2026/10/28/ml-applications/meta-andromeda-next-gen-ads-retrieval-gpu-co-design/
-- Andromeda 2024: https://engineering.fb.com/2024/11/12/production-engineering/meta-andromeda-ai-ads-recommendation-system/
+- Andromeda 2024: https://engineering.fb.com/2024/12/02/production-engineering/meta-andromeda-advantage-automation-next-gen-personalized-ads-retrieval-engine/
 
 ### Implicaciones para WhatsBusiness
 - Una campaña no puede controlar Andromeda; puede controlar su elegibilidad, el objetivo de optimización, el presupuesto, los parámetros autorizados y la variedad/calidad de anuncios que aporta.
@@ -183,3 +183,14 @@ El optimizador debe vigilar también salud de cuenta, calidad, rechazados, frecu
 9. Vigilar cambios de API, políticas, creative features, delivery y pricing con fecha y cuenta verificada.
 10. Tratar las sugerencias de Meta como recomendaciones a evaluar, no órdenes automáticas.
 
+
+
+## 11. Andromeda 2024 launch: why creative volume and Advantage+ matter
+Meta's original Andromeda launch (2024-12-02) described retrieval selecting from tens of millions of ad candidates into thousands of relevant candidates before ranking. The same article linked Advantage+ to automated audience creation, budget allocation, placements and creative generation, increasing the eligible ad pool. Meta also described +6% recall and +8% ad quality on selected segments in that deployment; those are Meta-reported internal/selected-segment results, not guarantees.
+
+Meta stated the next evolution was expected to support more diverse retrieval candidates. The 2026 Andromeda article demonstrates the continuation of that direction: larger creative candidate pools and better semantic/contextual matching.
+
+**Source:** https://engineering.fb.com/2024/12/02/production-engineering/meta-andromeda-advantage-automation-next-gen-personalized-ads-retrieval-engine/
+
+### Practical implication
+Creative Lab must measure diversity at the concept/visual/hook/offer/format level and prevent batches of near-duplicates. A high count of ads does not automatically improve outcomes; only eligible, policy-compliant, high-quality variants give Meta additional meaningful candidates.
