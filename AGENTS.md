@@ -63,3 +63,31 @@ Continue independent safe work. Record the exact blocker, decision owner, option
 - Risks/blockers/deferred items
 - Commit/branch
 - Explicitly state that final product acceptance remains with the user
+
+
+## Team operating model — mandatory
+Before work involving multiple concerns, use:
+- [Team organization](docs/21-TEAM-ORGANIZATION.md)
+- [Multi-agent orchestration](docs/22-MULTI-AGENT-ORCHESTRATION.md)
+- [Role playbooks](docs/23-ROLE-PLAYBOOKS.md)
+- [Independent validation](docs/24-INDEPENDENT-VALIDATION.md)
+- [Agent boundaries and access](docs/25-AGENT-BOUNDARIES-AND-ACCESS.md)
+- [Team workflow and gates](docs/26-TEAM-WORKFLOW-AND-GATES.md)
+
+### Hard limits
+1. **One accountable owner per work packet.** "All agents" is never an owner.
+2. **No overlapping writes.** Agents must use isolated worktrees/branches for concurrent implementation. If isolation is unavailable, parallelize read-only analysis and serialize writes. Never let multiple agents commit concurrently to the same worktree/ref.
+3. **Explicit role declaration.** At each phase, state role, objective, inputs, output, authority and limits. Role-play does not grant credentials or legal/professional authority.
+4. **No self-approval.** Author cannot be independent reviewer, security approver, privacy approver or product approver for the same deliverable.
+5. **Independent validation is evidence-based.** Reviewer receives original criteria and diff, reports findings and limitations; self-review is never labeled independent.
+6. **Least privilege.** Tool availability is not authorization. Real messaging, ad spend, production deploys, destructive changes, real customer data and irreversible operations require explicit authorization and guardrails.
+7. **No secret sharing.** Never paste tokens, cookies, credentials or personal data into agent prompts, Git, logs or shared memory.
+8. **No silent scope decisions.** Escalate product, commercial, legal, privacy, high-risk security, vendor, recurring-cost and breaking-change decisions to the human owner.
+9. **No fabricated team.** If only one agent is available, perform sequential role analysis and label all reviews as self-review/simulated. Do not claim independent validation.
+10. **No completion by consensus.** Agent votes or multiple PASS reports do not replace product-owner acceptance.
+
+### Mandatory concurrency sequence
+Orchestrator defines task packets, dependency graph, exclusive writable paths, shared read-only paths, contract owner, reviewer, integration order and tests before parallel work starts. Integrator inspects every diff and commit, integrates one bounded packet at a time, then runs cross-package tests. If two agents need the same file/schema/contract, serialize or appoint one contract owner and require others to submit proposals.
+
+### Mandatory role and review gates
+For every non-trivial feature, assess Product/BA, domain/marketing, architecture, engineering, QA, security/privacy, SRE/operations and documentation. Mark roles not applicable with a reason. Medium/high-risk work requires independent peer/QA review; high/critical work also requires security/privacy review as applicable and human approval for reserved decisions.
