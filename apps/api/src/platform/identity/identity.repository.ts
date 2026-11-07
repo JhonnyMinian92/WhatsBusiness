@@ -167,7 +167,7 @@ export class IdentityRepository {
          ON role.id = membership_role.role_id AND role.tenant_id = membership_role.tenant_id
        WHERE membership.user_id = $1
          AND tenant.status <> 'deleted'
-         AND ($2::boolean = false OR (membership.status = 'active' AND tenant.status = 'active'))
+         AND ($2::boolean = false OR platform.can_use_tenant(tenant.id))
          AND ($3::text IS NULL OR (tenant.display_name COLLATE "C", tenant.id) > ($3::text COLLATE "C", $4::uuid))
        GROUP BY tenant.id, tenant.display_name, membership.status
        ORDER BY tenant.display_name COLLATE "C", tenant.id
