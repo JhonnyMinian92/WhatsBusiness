@@ -151,7 +151,7 @@ Los schemas de Meta deben validarse por producto, versión, login mode, permiso 
 | Operaciones `publish` | 55 |
 | Operaciones `subscribe` | 55 |
 | operationIds únicos | 110 |
-| Referencias de mensajes de canal | 55 |
+| Mensajes de canal únicos (referencias publish + subscribe) | 55 (110 referencias) |
 | Definiciones de payload JSON Schema | 55 |
 | Tipos de evento únicos | 55 |
 | Correspondencias canal ↔ tipo ↔ definición | 55 / 55 |
