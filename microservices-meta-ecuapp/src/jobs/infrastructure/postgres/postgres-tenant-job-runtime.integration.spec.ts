@@ -45,7 +45,7 @@ async function stageJob(
   jobType: string,
   payload: Record<string, unknown>,
 ): Promise<string> {
-  return withTenantContext(workerPool, actorUserId, tenantId, async (client) => {
+  return withTenantContext(runtimePool, actorUserId, tenantId, async (client) => {
     const requestHash = "a".repeat(64);
     const result = await client.query<{ id: string }>(
       [
@@ -146,6 +146,26 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
       "inbox.message.process", { messageId: "synthetic-message-1", version: 1 },
     );
     insertedJobs.push(completionJobId);
+
+    await assert.rejects(
+      runtimePool.query("SELECT * FROM platform.claim_tenant_job_publications(1, 30)"),
+      (error: unknown) => typeof error === "object" && error !== null && "code" in error
+        && (error as { code: string }).code === "42501",
+    );
+    await assert.rejects(
+      workerPool.query("SELECT * FROM platform.claim_tenant_job_publications(1, 30)"),
+      (error: unknown) => typeof error === "object" && error !== null && "code" in error
+        && (error as { code: string }).code === "42501",
+    );
+    await assert.rejects(
+      dispatcherPool.query(
+        "SELECT * FROM platform.claim_tenant_job_execution($1, 30)",
+        [completionJobId],
+      ),
+      (error: unknown) => typeof error === "object" && error !== null && "code" in error
+        && (error as { code: string }).code === "42501",
+    );
+
     const completion = await publishAndClaim(dispatcherPool, workerPool, completionJobId);
 
     const wrongContext = await assert.rejects(
