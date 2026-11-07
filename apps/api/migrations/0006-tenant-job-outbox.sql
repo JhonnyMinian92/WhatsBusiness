@@ -32,8 +32,10 @@ CREATE INDEX tenant_job_records_dispatch_idx
 CREATE INDEX tenant_job_records_tenant_created_idx
   ON platform.tenant_job_records (tenant_id, created_at DESC, id DESC);
 
+-- RLS protects all runtime-role table access. FORCE is intentionally omitted so the
+-- table-owner SECURITY DEFINER resolver can expose only the five metadata columns;
+-- the runtime role is neither owner nor BYPASSRLS and has no direct broad access.
 ALTER TABLE platform.tenant_job_records ENABLE ROW LEVEL SECURITY;
-ALTER TABLE platform.tenant_job_records FORCE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_job_records_tenant_read ON platform.tenant_job_records
   FOR SELECT USING (
