@@ -37,3 +37,8 @@ Plataforma SaaS multi-tenant y plataforma interna EcuApp para integrar oficialme
 - Arquitectura y ADR: docs/30-RECOMMENDED-ARCHITECTURE.md y docs/33-ARCHITECTURE-DECISION-RECORDS.md.
 - Ejecución: docs/31-MASTER-DELIVERY-PLAN.md y docs/46-AGENT-START-AND-WORKPACKETS.md.
 - Integraciones Meta: docs/09-API-INTEGRATION-CATALOG.md y META_SERVICES.md; revalidar datos volátiles en fuentes oficiales.
+
+
+## API inventory
+
+El inventario maestro de APIs propias, webhooks, eventos internos, integraciones externas Meta y la correlación completa con las tareas está en [docs/47-API-INVENTORY-AND-TASK-MAP.md](docs/47-API-INVENTORY-AND-TASK-MAP.md).

@@ -165,3 +165,15 @@ Los IDs REQ-0001..REQ-0012 se reservan como requisitos paraguas para que la traz
 | REQ-0012 | Governed campaign/agent tool execution | US-029..032 | TASK-067..080 | docs/36, docs/41, docs/44 | approval gateway, PD-024, audit, lease, kill switch |
 
 No REQ is declared verified by this register alone. On implementation, extend each row with code module IDs, test IDs, evidence artifact path, owner, reviewer and release gate.
+
+
+## 13. API coverage reference
+
+El inventario de rutas y correlación detallada vive en [docs/47-API-INVENTORY-AND-TASK-MAP.md](47-API-INVENTORY-AND-TASK-MAP.md). Todo API ID debe relacionarse con:
+- REQ-xxxx → US-xxx → AC-xxx → TASK-xxx.
+- HTTP OpenAPI operationId, internal event/schema, inbound/outbound webhook cuando aplique.
+- Bounded context, module owner y adapter Meta operation.
+- Permission + tenant scope + purpose + capability + approval.
+- Unit/integration/contract/security/E2E test IDs y evidence artifact.
+
+Una TASK que no crea endpoint debe declarar por qué (spike, benchmark, research, security, accessibility, legal review o traceability) y entregar su evidencia no-HTTP.

@@ -114,3 +114,10 @@ La estructura documental y el sistema de instrucciones para agentes se encuentra
 ## Readiness vigente
 
 Los agentes pueden empezar análisis, revisión de especificaciones, validación de contratos y TASK-039. No se ha aprobado todavía el scaffold definitivo: se requiere evidencia del spike y review de G0. Las validaciones legales, financieras, Meta y VPS siguen siendo gates específicos; no se simulan.
+
+
+## Inventario maestro de APIs
+
+47. [Inventario maestro de APIs y matriz TASK](47-API-INVENTORY-AND-TASK-MAP.md) — catálogo de endpoints HTTP propios por bounded context, propósito/uso/cuándo/flujo, webhooks, eventos internos, familias de APIs Meta externas y correlación US-001..032 / TASK-001..080.
+
+**Regla:** docs/47 es la fuente de planificación para API IDs y mapping. docs/09 es el catálogo de APIs Meta externas. contracts/openapi y contracts/asyncapi son los schemas normativos que deben ampliarse por fase y siempre mantenerse sincronizados con docs/47.

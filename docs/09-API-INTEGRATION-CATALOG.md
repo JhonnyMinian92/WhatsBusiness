@@ -126,3 +126,8 @@ Ningún adapter puede declararse listo solo porque el endpoint aparezca en el ca
 La capability efectiva se calcula por intersección de autorización del actor, tenant policy, consent/legal basis, entitlement, OAuth scope, asset grant/task, App Review/access tier, elegibilidad de cuenta/país, versión API y approval aplicable. Falta de evidencia = disabled/deny, no asumir que funciona.
 
 Los archivos contractuales de cada adapter y fixtures se guardan por producto/versión. Antes de implementar un endpoint se vuelve a consultar la referencia oficial; docs/32 y META_SERVICES.md no sustituyen esa consulta ni la prueba con cuenta autorizada.
+
+
+## 9. Inventario de endpoints de producto y trazabilidad
+
+El catálogo de qué construye WhatsBusiness y cómo se correlaciona con las TASK no vive en esta matriz Meta. Su fuente maestra es [47-API-INVENTORY-AND-TASK-MAP.md](47-API-INVENTORY-AND-TASK-MAP.md). Este documento 09 debe consultarse para las operaciones externas de Meta; docs/47 para las rutas propias, eventos, webhooks, secuencias y mapping a US/TASK.

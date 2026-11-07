@@ -147,3 +147,8 @@ For every non-trivial feature, assess Product/BA, domain/marketing, architecture
 - docs/46 autoriza preparación y el Architecture Spike desechable ahora. No autoriza scaffold de producción antes de TASK-039/G0 ni operaciones reales, gasto recurrente o despliegue.
 - Readiness y estados están en docs/11, docs/15, docs/19, docs/31 y docs/46. No inferir que una tarea está completa por existir una especificación.
 - El entorno de esta auditoría no tenía pnpm ni Docker/Compose; los agentes deben registrar el entorno real y no reutilizar esos datos como mediciones del VPS.
+
+
+## Mandatory API catalog and task traceability
+
+Before creating/changing an endpoint, event, webhook or adapter, consult docs/47-API-INVENTORY-AND-TASK-MAP.md. Use the API IDs there, and map each work item to US/AC/TASK, OpenAPI operationId or event schema, permission/tenant scope, idempotency, audit, tests and evidence. Do not add unregistered endpoints or mark a TASK done because a route is merely documented. Update docs/47, docs/09, docs/19 and contracts together when an API changes.

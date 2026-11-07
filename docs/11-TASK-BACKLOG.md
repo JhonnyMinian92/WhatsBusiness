@@ -221,3 +221,44 @@ La tabla separa artefactos de especificación de ejecución/verificación. La cr
 | TASK-061 | docs/45 | plan de restore/DR | restore drill no ejecutado |
 
 La tabla usa "implementado (documentación)" solo para indicar que el entregable documental existe; no cambia el estado de implementación de producto. Ninguna tarea se marca verified o accepted por la creación de especificaciones.
+
+
+## API inventory mapping (2026-11-06)
+
+La referencia maestra de rutas y operaciones es [docs/47-API-INVENTORY-AND-TASK-MAP.md](47-API-INVENTORY-AND-TASK-MAP.md). Para cerrar cada tarea, el agente debe enlazar en su work packet el/los API IDs correspondientes, OpenAPI operationIds, event schema IDs, permisos, audit, idempotency y tests.
+
+| Grupo de TASK | API IDs de docs/47 | Notas |
+|---|---|---|
+| TASK-001..005 | PLT, IAM | Tenancy, membership, RBAC/ABAC, approvals, audit |
+| TASK-006..010,054,056 | META | OAuth/ESU, credentials, assets, capability/version registry |
+| TASK-011..013 | WA | WhatsApp messaging/media/delivery |
+| TASK-014..015 | WAM | Templates, revisions, preview |
+| TASK-016 | WAF | WhatsApp Flows/Data Exchange |
+| TASK-017..018,055,057 | WAMK | Marketing Messages, eligibility, cost/rate cards |
+| TASK-019 | FB | Pages and Messenger |
+| TASK-020..021 | IG | Instagram login modes and product surfaces |
+| TASK-022..023 | LEAD | Lead Ads retrieval, lifecycle, routing |
+| TASK-024..025,071..073 | ADS | Campaigns, creatives, spend guardrails, Insights |
+| TASK-026,068 | CAPI | Conversion events and dedupe |
+| TASK-027..028 | WH + OPS | Inbound webhook, durable inbox, event processing, DLQ |
+| TASK-029..030 | OPS | Observability and audit |
+| TASK-031..032,059 | PRIV + OPS | Security, privacy requests, retention and deletion |
+| TASK-033 | TH | Threads adapter |
+| TASK-034 | PLT, IAM | Platform identity and tenancy specification |
+| TASK-035,042..043,053 | CRM, LEAD | Contacts, identity graph, merge/dedupe |
+| TASK-036,045..047 | INB + WA/FB/IG | Omnichannel conversations, assignment, handoff |
+| TASK-037,048..049 | AUTO | Workflow builder/runtime |
+| TASK-038,050..051 | AI, AGT | AI gateway and assistive bot |
+| TASK-039 | No product endpoint | Architecture spike evidence; see docs/45 |
+| TASK-040 | No product endpoint | Traceability reconciliation; see docs/19 and docs/47 |
+| TASK-041,060..061 | No product endpoint | SRE/FinOps, benchmark, restore/DR evidence |
+| TASK-052,058 | IAM, PAR, BILL | Tenant lifecycle, partner grants, support JIT |
+| TASK-057,063 | WAMK, BILL, AI | Usage/cost ledgers and entitlement/billing |
+| TASK-062 | DEV | Public API credentials, signed outbound webhooks |
+| TASK-064 | No backend endpoint | WCAG/UI accessibility tests |
+| TASK-065,076 | OPS, META | Meta change intelligence and impact registry |
+| TASK-066 | No product endpoint | Product/market discovery |
+| TASK-067..070,077..079 | CI, ADS, CAPI | Campaign intelligence, experiments, creative lab |
+| TASK-074..075,080 | AGT, INB, CI | Meta agent interoperability, handoff and tool gateway |
+
+La matriz de docs/47 define la relación por US y por API ID. Esta tabla es un índice rápido, no sustituye las dependencias, acceptance criteria y evidence requeridas por la fila original de TASK.
