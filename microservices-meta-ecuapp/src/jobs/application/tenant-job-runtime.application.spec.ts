@@ -54,7 +54,7 @@ test("reopens worker sessions after disconnect and closes every session", async 
       failed: (code) => calls.push("failed:" + code),
       reconnecting: () => calls.push("reconnecting"),
     },
-    { initialReconnectDelayMs: 100, maximumReconnectDelayMs: 100, reconnectMultiplier: 2 },
+    { initialReconnectDelayMs: 100, maximumReconnectDelayMs: 100, reconnectMultiplier: 2, stableSessionDurationMs: 30_000 },
   );
 
   const run = application.run(controller.signal);
@@ -76,6 +76,6 @@ test("rejects unsafe reconnect settings", () => {
     { async open() { throw new Error("unused"); } },
     { next: () => 0.5 },
     { failed() {}, reconnecting() {} },
-    { initialReconnectDelayMs: 0, maximumReconnectDelayMs: 100, reconnectMultiplier: 2 },
+    { initialReconnectDelayMs: 0, maximumReconnectDelayMs: 100, reconnectMultiplier: 2, stableSessionDurationMs: 30_000 },
   ));
 });
