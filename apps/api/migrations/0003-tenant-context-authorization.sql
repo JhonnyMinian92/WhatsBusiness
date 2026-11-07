@@ -5,7 +5,6 @@ CREATE OR REPLACE FUNCTION platform.can_use_tenant(p_tenant_id uuid)
 RETURNS boolean
 LANGUAGE sql
 STABLE
-SECURITY DEFINER
 SET search_path = pg_catalog, platform
 AS $function$
   SELECT EXISTS (
@@ -62,9 +61,18 @@ AS $function$
      SET authz_version = authz_version + 1
    WHERE id = p_tenant_id
      AND status <> 'deleted'
+     AND id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
 $function$;
 
 REVOKE ALL ON FUNCTION platform.bump_tenant_authorization_version(uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION platform.bump_tenant_authorization_version(uuid) TO whatsbusiness_app;
+GRANT UPDATE (authz_version) ON platform.tenants TO whatsbusiness_app;
+
+CREATE POLICY tenants_authorization_version_update ON platform.tenants
+  FOR UPDATE
+  USING (id = NULLIF(current_setting('app.tenant_id', true), '')::uuid)
+  WITH CHECK (id = NULLIF(current_setting('app.tenant_id', true), '')::uuid);
+
 
 CREATE OR REPLACE FUNCTION platform.bump_authz_after_membership_change()
 RETURNS trigger
