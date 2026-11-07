@@ -196,8 +196,16 @@ AS $function$
 BEGIN
   IF NEW.tenant_id IS DISTINCT FROM OLD.tenant_id
      OR NEW.last_sequence <> OLD.last_sequence + 1
-     OR NEW.last_hash IS NOT DISTINCT FROM OLD.last_hash THEN
-    RAISE EXCEPTION 'Audit stream head must advance exactly one sequence'
+     OR NEW.last_hash IS NOT DISTINCT FROM OLD.last_hash
+     OR NOT EXISTS (
+       SELECT 1
+         FROM platform.audit_events AS event
+        WHERE event.tenant_id = NEW.tenant_id
+          AND event.sequence_number = NEW.last_sequence
+          AND event.previous_hash = OLD.last_hash
+          AND event.event_hash = NEW.last_hash
+     ) THEN
+    RAISE EXCEPTION 'Audit stream head must advance exactly one matching event'
       USING ERRCODE = '23514';
   END IF;
   NEW.updated_at := clock_timestamp();
@@ -479,6 +487,8 @@ CREATE POLICY audit_stream_head_read ON platform.audit_stream_heads
 CREATE POLICY audit_stream_head_create ON platform.audit_stream_heads
   FOR INSERT WITH CHECK (
     tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
+    AND last_sequence = 0
+    AND last_hash = repeat('0', 64)
     AND platform.can_use_tenant(tenant_id)
   );
 CREATE POLICY audit_stream_head_advance ON platform.audit_stream_heads
