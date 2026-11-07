@@ -131,3 +131,32 @@ Estado inicial de TASK-034..041: proposed. TASK-039 no autoriza compra de servic
 | TASK-052 | US-024 | Tenant lifecycle, plans, entitlements and support access | TASK-001,004,041 | privilege, audit, entitlement tests | PD-001 |
 
 All tasks proposed; module paths and service ownership are finalized only after repository bootstrap and architecture spike. TASK-034..041 cover discovery/architecture; TASK-042..052 cover product capabilities.
+
+
+## EP-10 — Meta changes, partner access, compliance, performance and SaaS growth
+
+All tasks below are proposed until an implementation exists and evidence is attached. They do not mark code as implemented. Priority P0 means foundational/security or a time-bound external dependency; P1 means required product capability after its prerequisites.
+
+| Tarea | Prioridad | Historia / dominio | Alcance y entregable | Dependencias | DoD / evidencia |
+|---|---|---|---|---|---|
+| TASK-053 | P0 | US-018, US-020 / CRM + Asset Registry | Identity graph provider-scoped; BSUID and legacy phone identifiers; WAAC/PMA plus legacy WABA resource associations | TASK-034,042,045 | Contract fixtures; no phone-as-primary-key; no automatic merge across identifier namespaces; reversible identity merge; migration tests |
+| TASK-054 | P0 | US-003 / Meta Control Plane | Embedded Signup v4 adapter/evaluation; unified onboarding for eligible WhatsApp, Messenger and Instagram Direct paths | TASK-006..010,039 | Official docs/version review; eligibility matrix; sandbox and real authorized account evidence; rollback/legacy compatibility |
+| TASK-055 | P0 | US-008 / WhatsApp Marketing | Marketing Messages API adapter, pricing/eligibility and campaign routing; no new dependency on Cloud API marketing legacy; migration readiness before 2027-10-13 | TASK-010,017,018,039,056 | Contract tests, category/policy checks, rate card source/version, migration plan, deadline alerts, authorized test-account evidence |
+| TASK-056 | P0 | Cross-Meta / Capability Registry | Meta product API version, changelog, sunset and access-tier registry. Distinguish OAuth scopes, asset tasks/grants, app mode/review and Marketing API Access Tier | TASK-010,039 | Per-operation capability matrix, version compatibility fixtures, deprecation alert, source/date and tier evidence; never hardcode one global Graph version |
+| TASK-057 | P1 | US-008 / Cost Ledger | WhatsApp Max Pricing and external cost lifecycle: estimate, maximum/upper bound, actual provider-reported and reconciled invoice | TASK-017,018,055 | Currency, market, category, versioned rate card, precision tests, reconciliation report; no treating max price as actual charge |
+| TASK-058 | P1 | US-024 / Platform + Partner Access | Agency/partner organizations, delegated grants to customer tenants, scoped roles/actions/assets, expiry/revocation and audit | TASK-001,004,034,052 | Cross-tenant deny tests; client revocation; no inherited data; JIT support separation; audit and expiry tests |
+| TASK-059 | P0 | US-016 / Privacy & Compliance | Data inventory, retention policy engine, rights workflow, export/rectification/deletion and subprocessors/transfers inventory | TASK-031,032,030 | Data-flow map; retention configurable; deletion covers DB/object/cache/search/queue/derived artifacts; legal sign-off for actual retention, LOPDP roles and transfers before live data |
+| TASK-060 | P0 | TASK-039,041 / Performance Engineering | Workload model and benchmark suite for API, webhook ingress, DB, queue and workers; VPS capacity sizing and scaling thresholds | TASK-039,041,001,027,028 | Reproducible test scripts; hardware/version/config; baseline p50/p95/p99, RPS, concurrency, queue age, saturation, error rate and recovery; report limits and cost; no capacity claim without evidence |
+| TASK-061 | P0 | US-015/016 / SRE + Security | Backup/restore, DR, key recovery, failover and RPO/RTO drills for database, object storage, broker and configuration | TASK-029,030,031,039,060 | Restore from encrypted backup on clean host; consistency checks; measured RPO/RTO; runbook, owner and evidence; production gate |
+| TASK-062 | P1 | US-024 / Developer Platform | Public versioned API, tenant-scoped API credentials/OAuth clients where appropriate, signed outbound webhooks, retries and customer event subscriptions | TASK-001,004,027,028,029 | OpenAPI docs, scopes, key rotation/revocation, HMAC signature/replay tests, delivery attempts, idempotency, rate limit, portal docs |
+| TASK-063 | P1 | US-024 / Billing & Usage | Plans and entitlements engine, subscription/seat/usage ledgers, quotas, trial/suspension states and invoice integration port | TASK-034,041,052 | Entitlements not scattered in code; immutable usage ledger; plan change proration requirements; no pricing/tax implementation before unit economics/legal review |
+| TASK-064 | P1 | PD-006 / Web UX | WCAG 2.2 AA coverage for primary journeys: connect account, inbox handling, CRM, automation and admin | Frontend foundation, TASK-034,036,046 | Keyboard-only journeys, screen-reader semantics, contrast, focus, error messaging, automated checks plus manual audit; defects triaged |
+| TASK-065 | P1 | US-014 / Meta Platform Operations | Current Meta API changelog and policy review process with version sunset calendar, alert ownership and tenant capability impact assessment | TASK-027,029,056 | Dated evidence for each product; change impact mapped to adapters/tests/tenants; deprecation action owner and migration status |
+
+### Prioritization and deadline control
+- TASK-053..056 are P0 because identity/model drift, onboarding and API version/sunset decisions affect the shape of foundational contracts.
+- TASK-059 and TASK-061 are P0 release blockers for real customer data and production, respectively; configurable scaffolding can proceed before final legal advice.
+- TASK-060 is mandatory before capacity sizing or any scalability claim.
+- TASK-055 has an external date 2027-10-13 announced by Meta for sunset of marketing traffic on the legacy Cloud API route. Revalidate the official date and migration requirements at implementation and release.
+- TASK-062/063/064/065 are P1; sequence by dependency and observed customer value.
+- The task list is not a calendar commitment and does not imply the product is implemented.
