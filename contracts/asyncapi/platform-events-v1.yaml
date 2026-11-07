@@ -8,7 +8,7 @@ info:
 defaultContentType: application/json
 servers:
   local:
-    url: rabbitmq:5672
+    url: amqp://rabbitmq:5672
     protocol: amqp
     description: Local development broker; topology and credentials are environment-specific.
 channels:
