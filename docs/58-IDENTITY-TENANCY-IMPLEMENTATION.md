@@ -8,10 +8,12 @@
 - Valida access tokens OIDC JWT RS256 con kid, firma RSA, issuer exacto, audience, expiración y nbf opcional usando JWKS remoto cacheado y refrescado ante rotación de key.
 - Resuelve User por el par (issuer, subject); email no es identificador y no existe auto-provisioning por login. Solo un usuario local active puede continuar.
 - Usa PostgreSQL Pool, transacciones explícitas y contexto de actor/tenant con set_config(..., true); no conserva el contexto en la sesión que vuelve al pool.
+- TASK-002 valida usuario global activo, organización activa, tenant activo y membership activa antes de establecer app.tenant_id.
 - Añade migraciones versionadas de Organization, User, Tenant, Membership, Role, Permission, MembershipRole y Entitlement.
 - TASK-001 amplía el modelo tenant: ownership Organization inmutable, FK Organization→Tenant con RESTRICT, estados de lifecycle controlados por trigger, timestamps de suspensión/cierre/borrado, tenant deleted como tombstone inmutable y no visible bajo RLS.
 - Fuerza RLS sobre tablas tenant-scoped y exige que el rol runtime sea LOGIN, NOSUPERUSER, NOBYPASSRLS y no-owner.
 - Implementa tres APIs autenticadas de solo lectura: GET /v1/me, GET /v1/tenants y GET /v1/tenants/{tenantId}/context.
+- GET /v1/tenants/{tenantId}/context usa TenantContextGuard y exige un propósito de acceso declarado; PLT-005 conserva su contrato público.
 - Normaliza errores HTTP como application/problem+json con correlation ID y redacción de fallos internos.
 
 ## 2. Invariantes de autorización
@@ -77,3 +79,31 @@ Source workspace validation #42376234089 y Contract validation #42376234088 fina
 - No se añadieron endpoints PLT-006/007: siguen catalog-only y bloqueados por docs/49; no se inventaron contratos.
 - Commits de implementación: e716c772a124afe176f274f0f3398fb764a13890, c1b9082d4fb6f7ee3b8c685191aa7657acc8969f, a03177a185ec4bfcd7df3582f181c443efeeeafa, e5c5fd7280c8a34cefef4c8eadb6ab395898c1c7, f87fcb0cb3ca1680e71673a46b4f6f45b23406af, 6cbe06c83ffddfe2d5f356a43f5ee16b82e36aab, 479a8234d2f6b78b0bb8e6474c39e4a388034c3a, 84bab54d78b5246174dab6a6a9eb9173d0149476.
 - Source CI: [run 42379649591](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42379649591), [run 42379841071](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42379841071) y [run 42380055974](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42380055974) — SUCCESS. La ejecución #42379457502 falló inicialmente por una aserción de test, no por migración/build/typecheck; el SQLSTATE esperado se corrigió y las dos ejecuciones posteriores pasaron.
+
+## 8. TASK-002 — Resolución segura de Tenant Context (2026-11-07)
+
+**Estado:** implemented y CI-verified; revisión independiente de arquitectura/seguridad y aceptación del propietario pendientes.
+
+### Controles implementados
+
+- `0003-tenant-context-authorization.sql` introduce `platform.can_use_tenant(uuid)` como predicado de autorización con permisos controlados. Comprueba que usuario global, organización, tenant y membership estén activos.
+- `DatabaseService.withTenantContext` establece primero `app.user_id`, ejecuta la comprobación de acceso y solo después establece `app.tenant_id`. El UUID enviado por el cliente no concede acceso.
+- `DatabaseService.withTenantContextAtVersion` comprueba la versión de autorización esperada, bloquea la fila tenant durante la operación sensible con `FOR NO KEY UPDATE`, vuelve a validar el acceso y rechaza snapshots obsoletos con `TENANT_AUTHORIZATION_STALE`.
+- RLS permite al rol runtime actualizar únicamente `authz_version` y solo dentro del tenant transaction-local validado. Los triggers incrementan la versión ante cambios de membership, membership_roles, roles y role_permissions; el lifecycle de Tenant también invalida los snapshots.
+- `role_permissions` incorpora `tenant_id`, una FK compuesta `(role_id, tenant_id)` y una política RLS que preservan el ownership del tenant en los grants.
+- `TenantContextGuard` exige principal OIDC verificado, `tenantId` UUID y metadata `@TenantAccessPurpose(...)`. Construye un contexto inmutable por request con actor, tenant, membership, authzVersion, roles, permisos, entitlements, configuración regional, propósito y correlationId.
+- `IdentityService` y el contrato `TenantAccessContext` permanecen independientes del guard HTTP. `ApiProblemFilter` conserva el correlationId en errores. No se usa contexto mutable global ni singleton por tenant.
+- PLT-005 conserva su respuesta pública. membershipId, authzVersion, actorId y purpose se mantienen internos y no se exponen.
+
+### Validación añadida
+
+- Unit tests del guard: OIDC ausente, tenantId inválido, propósito ausente/inválido, contexto inmutable y propagación de X-Correlation-ID.
+- PostgreSQL/RLS: cross-tenant devuelve 404; usuarios deshabilitados, membership suspendida/revocada, organización suspendida y tenant suspendido no pueden establecer contexto.
+- Versionado: la revocación de un role_permission invalida el snapshot previo; transacciones con versión actual funcionan y una versión obsoleta falla. Se valida también el bump usando el rol runtime restringido.
+- Source CI run [#47](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42383524043), commit `74febd28056043cda15221f29c8c5b71290ca06c` — SUCCESS: instalación frozen, migraciones PostgreSQL, segunda ejecución idempotente, build, typecheck y suite unit/integration.
+
+### Límites que permanecen
+
+- El guard es reusable; PLT-005 es la única ruta actual que lo consume. Las futuras rutas tenant-scoped deben declarar propósito y usar `withTenantContext` o `withTenantContextAtVersion` en el boundary transaccional.
+- TASK-002 no implementa la matriz RBAC/ABAC por acción/asset/purpose. El contexto proporciona los datos, pero las decisiones allow/deny corresponden a TASK-004.
+- No se habilitaron mutaciones HTTP de Tenant/Membership/Role, PartnerTenantGrant, PlatformGrant JIT, workers, cache/files/jobs ni endpoints catalog-only. TASK-003 y TASK-004/005 siguen pendientes.
