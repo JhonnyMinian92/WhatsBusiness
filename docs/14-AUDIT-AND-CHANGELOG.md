@@ -262,7 +262,7 @@ Estado implemented; la ejecución CI de esta revisión, adapters/wiring de Valke
 
 | ID | Cambio | Evidencia / resultado |
 |---|---|---|
-| AUD-072 | Persistencia tenant job | `0006-tenant-job-outbox.sql` crea `platform.tenant_job_records`, RLS habilitada, ownership tenant/actor, payload JSON, estados y límites de intentos. Runtime solo tiene INSERT; lectura de metadata via SECURITY DEFINER y no tiene SELECT/UPDATE directo. |
+| AUD-072 | Persistencia tenant job | `0006-tenant-job-outbox.sql` crea `platform.tenant_job_records`, RLS habilitada, ownership tenant/actor, payload JSON, estados y límites de intentos. Runtime tiene INSERT y SELECT(id) exclusivamente para `RETURNING`; la lectura de metadata se hace via SECURITY DEFINER y no tiene SELECT de payload ni UPDATE directo. |
 | AUD-073 | Resolución mínima de contexto | `platform.resolve_tenant_job_context(uuid)` retorna solo job_id, tenant_id, actor_user_id, purpose y correlation_id; no expone payload. |
 | AUD-074 | Adapter y wiring | `PostgresTenantJobRecordReader`, `IsolationModule`, `DatabaseModule` export de `DATABASE_POOL` y registro en `AppModule`. |
 | AUD-075 | Regresión | Suites del reader y writer registradas; ocho suites de aislamiento aparecen en `api:test`. CI de esta iteración pendiente de evidencia. |
