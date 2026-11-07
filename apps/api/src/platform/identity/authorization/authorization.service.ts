@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import type { TenantAccessContext } from "../tenant-access-context.js";
 import type {
   AuthorizationConditions,
@@ -23,7 +23,10 @@ export interface AuthorizeTenantAction {
 
 @Injectable()
 export class AuthorizationService {
-  constructor(private readonly evaluator: AuthorizationPolicyEvaluator) {}
+  constructor(
+    @Inject(AUTHORIZATION_POLICY_EVALUATOR)
+    private readonly evaluator: AuthorizationPolicyEvaluator,
+  ) {}
 
   authorize(input: AuthorizeTenantAction): AuthorizationDecision {
     return this.evaluator.evaluate(input);
