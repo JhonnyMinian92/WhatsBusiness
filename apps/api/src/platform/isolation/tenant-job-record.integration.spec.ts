@@ -25,6 +25,8 @@ test("PostgreSQL tenant jobs enforce transactional staging, idempotency, least p
   const organizationId = randomUUID();
   const tenantId = randomUUID();
   const actorUserId = randomUUID();
+  const otherTenantId = randomUUID();
+  const otherActorUserId = randomUUID();
   const issuer = "https://issuer.synthetic.test/realms/tenant-jobs";
   const correlationId = randomUUID();
   const jobType = "inbox.message.process";
@@ -41,12 +43,20 @@ test("PostgreSQL tenant jobs enforce transactional staging, idempotency, least p
       [actorUserId, issuer, randomUUID()],
     );
     await adminPool.query(
+      "INSERT INTO platform.users (id, oidc_issuer, oidc_subject, display_name, status) VALUES ($1, $2, $3, 'Other Synthetic Job Actor', 'active')",
+      [otherActorUserId, issuer, randomUUID()],
+    );
+    await adminPool.query(
       "INSERT INTO platform.tenants (id, organization_id, slug, display_name, status) VALUES ($1, $2, $3, 'Synthetic Job Tenant', 'active')",
       [tenantId, organizationId, "jobs-" + tenantId.slice(0, 8)],
     );
     await adminPool.query(
-      "INSERT INTO platform.memberships (tenant_id, user_id, status) VALUES ($1, $2, 'active')",
-      [tenantId, actorUserId],
+      "INSERT INTO platform.tenants (id, organization_id, slug, display_name, status) VALUES ($1, $2, $3, 'Other Synthetic Job Tenant', 'active')",
+      [otherTenantId, organizationId, "jobs-other-" + otherTenantId.slice(0, 8)],
+    );
+    await adminPool.query(
+      "INSERT INTO platform.memberships (tenant_id, user_id, status) VALUES ($1, $2, 'active'), ($3, $4, 'active')",
+      [tenantId, actorUserId, otherTenantId, otherActorUserId],
     );
 
     const jobInput = {
@@ -94,6 +104,13 @@ test("PostgreSQL tenant jobs enforce transactional staging, idempotency, least p
     });
     assert.deepEqual(executed, { actor_id: actorUserId, tenant_id: tenantId });
 
+    const crossTenantRead = await database.withTenantContext(
+      otherActorUserId,
+      otherTenantId,
+      (client) => client.query("SELECT id FROM platform.tenant_job_records WHERE id = $1", [jobId]),
+    );
+    assert.equal(crossTenantRead.rowCount, 0);
+
     await assert.rejects(
       runtimePool.query("SELECT payload FROM platform.tenant_job_records WHERE id = $1", [jobId]),
       (error: unknown) => typeof error === "object" && error !== null && "code" in error
@@ -113,13 +130,19 @@ test("PostgreSQL tenant jobs enforce transactional staging, idempotency, least p
       /synthetic transaction rollback/,
     );
     await assert.rejects(resolver.resolve(rolledBackId));
+
+    await adminPool.query(
+      "UPDATE platform.memberships SET status = 'revoked', revoked_at = now() WHERE tenant_id = $1 AND user_id = $2",
+      [tenantId, actorUserId],
+    );
+    await assert.rejects(executor.execute(context, async () => "must-not-run"));
   } finally {
     try {
-      await adminPool.query("DELETE FROM platform.tenant_job_records WHERE tenant_id = $1", [tenantId]);
-      await adminPool.query("DELETE FROM platform.memberships WHERE tenant_id = $1", [tenantId]);
-      await adminPool.query("DELETE FROM platform.tenants WHERE id = $1", [tenantId]);
+      await adminPool.query("DELETE FROM platform.tenant_job_records WHERE tenant_id = ANY($1::uuid[])", [[tenantId, otherTenantId]]);
+      await adminPool.query("DELETE FROM platform.memberships WHERE tenant_id = ANY($1::uuid[])", [[tenantId, otherTenantId]]);
+      await adminPool.query("DELETE FROM platform.tenants WHERE id = ANY($1::uuid[])", [[tenantId, otherTenantId]]);
       await adminPool.query("DELETE FROM platform.organizations WHERE id = $1", [organizationId]);
-      await adminPool.query("DELETE FROM platform.users WHERE id = $1", [actorUserId]);
+      await adminPool.query("DELETE FROM platform.users WHERE id = ANY($1::uuid[])", [[actorUserId, otherActorUserId]]);
     } finally {
       await database.onModuleDestroy();
       await adminPool.end();
