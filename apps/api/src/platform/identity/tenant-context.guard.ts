@@ -13,27 +13,13 @@ import { randomUUID } from "node:crypto";
 import type { Response } from "express";
 import type { OidcAuthenticatedRequest } from "./oidc-auth.guard.js";
 import { IdentityService } from "./identity.service.js";
+import type { TenantAccessContext } from "./tenant-access-context.js";
 
 export const TENANT_ACCESS_PURPOSE = "whatsbusiness:tenant-access-purpose";
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const PURPOSE_PATTERN = /^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*){2,7}$/;
 
-export interface TenantAccessContext {
-  readonly actorId: string;
-  readonly tenantId: string;
-  readonly membershipId: string;
-  readonly membershipStatus: "active";
-  readonly authzVersion: number;
-  readonly roleKeys: readonly string[];
-  readonly permissionKeys: readonly string[];
-  readonly entitlementKeys: readonly string[];
-  readonly locale: string;
-  readonly timezone: string;
-  readonly currency: string;
-  readonly purpose: string;
-  readonly correlationId: string;
-}
 
 export interface TenantAuthenticatedRequest extends OidcAuthenticatedRequest {
   correlationId?: string;
