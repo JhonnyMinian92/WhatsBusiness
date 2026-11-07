@@ -154,3 +154,14 @@ TASK-046 y TASK-064 nombran “frontend foundation” sin ID ni entregable acept
 - API IDs: PLT-003..005 existing contracts only; no new catalog-only endpoint was implemented.
 - CI: Source workflow run #47 [42383524043](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42383524043), commit `74febd28056043cda15221f29c8c5b71290ca06c` — SUCCESS.
 - Remaining scope: TASK-004 permission matrix and action/asset ABAC; TASK-003 jobs/cache/files/telemetry; TASK-005 approvals/step-up/audit. Worker, partner and support JIT contexts remain outside this work packet.
+### Handoff TASK-004 — RBAC/ABAC core (2026-11-07)
+
+**Estado del código:** núcleo implementado y CI-verified; TASK-004 continúa `in_progress` hasta revisión independiente, persistencia de assignments donde contract freeze lo permita, auditoría de denegaciones privilegiadas y aceptación del Product Owner.
+
+- Migration: `apps/api/migrations/0004-authorization-permission-catalog.sql` — inserta global permission catalog/risk class; no crea roles ni grants.
+- Domain/application: `authorization/permission-catalog.ts`, `tenant-role-catalog.ts`, `tenant-authorization-policy.ts`, `authorization.service.ts`, `tenant-role-assignment.policy.ts`.
+- HTTP: `authorization.guard.ts` ofrece `RequirePermission` y `RequireTenantPermission`, composite de TenantContextGuard + purpose + permission.
+- Role assignment: exige `tenant_owner`, prohíbe self-assignment/cross-tenant/platform role y no permite asignar permisos por encima del actor; exige approval evidence independiente.
+- Tests: policy allow/deny, catalog/database consistency, role template invariants, authorization guard y role assignment escalation tests.
+- CI Source run #67 [42385036275](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42385036275), commit `53e50dc00daccc7c64c7931e468e6ef0af132940` — SUCCESS.
+- No se exponen IAM-007..020 porque docs/49 aún los define catalog-only. Append-only audit, step-up/MFA, approval persistence and outbox belong to TASK-005.
