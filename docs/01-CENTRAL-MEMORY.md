@@ -23,6 +23,16 @@
 | ADR-008 | Campaign execution con dry-run, aprobación, límites y kill switch | Aprobada |
 | ADR-009 | Policy engine por canal, categoría, consentimiento, ventana y jurisdicción | Aprobada |
 | ADR-010 | API versioning por producto y compatibilidad explícita | Aprobada |
+| ADR-011 | TypeScript + NestJS + Node LTS | Accepted as direction |
+| ADR-012 | Angular para web app | Accepted as direction |
+| ADR-013 | PostgreSQL OLTP; tenant_id + RLS y autorización backend | Accepted as direction |
+| ADR-014 | RabbitMQ + transactional outbox/inbox | Accepted as direction |
+| ADR-015 | Modular monolith con API/worker/scheduler roles | Accepted as direction |
+| ADR-016 | OIDC + Keycloak self-hosted inicial | Accepted as direction |
+| ADR-017 | Docker; Compose en dev/piloto, topología HA tras spike | Accepted as direction |
+| ADR-018 | OpenTelemetry + Prometheus + Grafana | Accepted as direction |
+| ADR-019 | AI Gateway independiente y aprobación humana | Accepted as direction |
+| ADR-020 | Nx + pnpm monorepo con boundaries | Accepted as direction |
 
 ## Superficies seleccionadas
 - WhatsApp Cloud API + Business Management API + Embedded Signup + Flows + Marketing Messages API.
@@ -94,3 +104,6 @@ Solo promover una afirmación a esta memoria si tiene fuente/evidencia, fecha, a
 - Producción: 99.9% API / RPO 15m / RTO 4h como objetivos candidatos, no SLA ni resultados medidos. Un VPS single-node no ofrece HA.
 - Meta: adaptar versiones por producto; soportar BSUID y WAAC/PMA; evaluar Embedded Signup v4; usar Marketing Messages API para WhatsApp marketing y respetar sunset anunciado para 2027-10-13. Ver docs/32.
 - No existe implementación ni evidencia de tests de producto aún.
+
+
+Los ADR-011..020 están formalizados en docs/33-ARCHITECTURE-DECISION-RECORDS.md. Accepted as direction no equivale a implementación ni a aprobación de coste/proveedor.
