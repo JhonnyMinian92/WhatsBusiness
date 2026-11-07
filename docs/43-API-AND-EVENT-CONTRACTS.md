@@ -88,3 +88,11 @@ Validar payloads positivos/negativos, campos desconocidos, enum drift y errores.
 - contracts/asyncapi/platform-events-v1.yaml: envoltorio y eventos de plataforma.
 - contracts/schemas/event-envelope.schema.json: JSON Schema de evento.
 - Las nuevas rutas se agregan al spec con owner y AC, no solo como comentario en PR.
+
+## 10. Congelación y estado de contratos
+
+La lista completa de API IDs se refleja en OpenAPI. Solo operaciones design-frozen tienen contrato de diseño suficiente para implementación; catalog-only requiere completar parámetros, request/response/error schemas, autorización, tenant boundary, idempotency/audit y tests antes de codificar. Ver [docs/49](49-API-CONTRACT-READINESS-AND-META-ADAPTER-GATES.md).
+
+Los eventos internos v1.0.0 están definidos por [docs/50](50-EVENT-CATALOG-AND-VERSIONED-SCHEMAS.md), AsyncAPI y domain-events-v1.schema.json. Los payloads son mínimos, cerrados y basados en referencias. No incluir PII ni raw webhook payload. El envelope no sustituye la autorización del consumer.
+
+La reutilización de transportes, validators, outbox/inbox, retry, dedupe y error mapping es obligatoria cuando ya exista una implementación cohesionada; consultar docs/48. Ningún módulo debe crear una segunda implementación privada por comodidad.
