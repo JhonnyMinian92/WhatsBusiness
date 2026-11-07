@@ -45,7 +45,7 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     services:
       rabbitmq:
         image: rabbitmq:4.4.0-management-alpine
@@ -89,16 +89,19 @@ jobs:
         with:
           ref: ${{ github.head_ref || github.ref_name }}
           persist-credentials: false
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 10.34.9
           run_install: false
+
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
           node-version-file: .node-version
           package-manager-cache: false
+
       - name: Synchronize lockfile and verify frozen installation
         id: install
         shell: bash
@@ -114,15 +117,18 @@ jobs:
           else
             echo "lockfile_changed=false" >> "$GITHUB_OUTPUT"
           fi
-      - name: Provision restricted database runtime role
+
+      - name: Provision restricted API database role
         run: |
           psql "$MIGRATION_DATABASE_URL" --set=ON_ERROR_STOP=1 <<'SQL'
           CREATE ROLE whatsbusiness_app
             LOGIN PASSWORD 'ci-runtime-password'
             NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
           SQL
+
       - name: Apply versioned PostgreSQL migrations
         run: pnpm db:migrate
+
       - name: Provision least-privilege job runtime logins
         run: |
           psql "$MIGRATION_DATABASE_URL" --set=ON_ERROR_STOP=1 <<'SQL'
@@ -135,47 +141,22 @@ jobs:
             NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT NOBYPASSRLS;
           GRANT whatsbusiness_job_worker_role TO whatsbusiness_job_worker;
           SQL
+
       - name: Verify versioned migrations are idempotent
         run: pnpm db:migrate
-      - name: Configure quorum dead-lettering with at-least-once confirms
-        run: |
-          docker exec "${{ job.services.rabbitmq.id }}" rabbitmqctl set_policy \
-            --apply-to quorum_queues \
-            --priority 50 \
-            whatsbusiness-jobs-quorum-dlx \
-            '^whatsbusiness\\.jobs\\.worker\\.v1
-      - name: Typecheck all applications
-        run: pnpm typecheck
-      - name: Run unit and PostgreSQL RLS integration tests
-        run: pnpm test
-      - name: Require lockfile synchronization in pull requests
-        if: github.event_name == 'pull_request'
-        shell: bash
-        run: |
-          if [[ -n "$(git status --porcelain -- pnpm-lock.yaml)" ]]; then
-            echo "::error::pnpm-lock.yaml is out of date. Regenerate and commit it with the dependency change."
-            exit 1
-          fi
-      - name: Commit verified lockfile on the authorized branch
-        if: github.event_name == 'push' && steps.install.outputs.lockfile_changed == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add pnpm-lock.yaml
-          git commit -m "build: commit validated pnpm lockfile"
-          AUTH_HEADER="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
-          git -c "http.extraheader=AUTHORIZATION: basic $AUTH_HEADER" push origin "HEAD:environment/local"
- \
-            '{"dead-letter-exchange":"whatsbusiness.jobs.dlx","dead-letter-routing-key":"jobs.dead","dead-letter-strategy":"at-least-once","overflow":"reject-publish","delivery-limit":5,"max-length-bytes":268435456}'
+
+      - name: Configure durable quorum dead-letter policy
+        run: docker exec "${{ job.services.rabbitmq.id }}" rabbitmqctl set_policy --apply-to quorum_queues --priority 50 whatsbusiness-jobs-quorum-dlx '^whatsbusiness\.jobs\.worker\.v1$' '{"dead-letter-exchange":"whatsbusiness.jobs.dlx","dead-letter-routing-key":"jobs.dead","dead-letter-strategy":"at-least-once","overflow":"reject-publish","delivery-limit":5,"max-length-bytes":268435456}'
+
       - name: Build all applications
         run: pnpm build
+
       - name: Typecheck all applications
         run: pnpm typecheck
-      - name: Run unit and PostgreSQL RLS integration tests
+
+      - name: Run unit and PostgreSQL/RabbitMQ integration tests
         run: pnpm test
+
       - name: Require lockfile synchronization in pull requests
         if: github.event_name == 'pull_request'
         shell: bash
@@ -184,6 +165,7 @@ jobs:
             echo "::error::pnpm-lock.yaml is out of date. Regenerate and commit it with the dependency change."
             exit 1
           fi
+
       - name: Commit verified lockfile on the authorized branch
         if: github.event_name == 'push' && steps.install.outputs.lockfile_changed == 'true'
         env:
