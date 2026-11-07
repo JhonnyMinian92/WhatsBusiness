@@ -193,7 +193,7 @@ Source workspace validation #42376234089 y Contract validation #42376234088 fina
 - TenantScopedCache decora un puerto CacheStore, obliga a componer todas las claves con tenant/resource y aplica TTL positivo y bounded. La serialización de dominio queda explícita como bytes.
 - TenantScopedObjectStorage decora un puerto ObjectStorage, aplica prefijo tenants/{tenantId}/{resource}/..., valida contenido no vacío y MIME, calcula SHA-256 sobre una copia inmutable del contenido y rechaza checksum distinto. El bucket/provider debe completar políticas privadas, TLS, cifrado y autorización.
 - TenantJobContextResolver recibe solo un jobId, recupera el registro canónico mediante TenantJobRecordReader y rechaza registros no comprometidos; TenantJobExecutor acepta únicamente contextos creados por el resolver (WeakSet privado) y vuelve a entrar por DatabaseService.withTenantContext en cada intento, de modo que PostgreSQL revalida actor, membership, tenant y RLS dentro de la transacción.
-- `0006-tenant-job-outbox.sql` crea `platform.tenant_job_records` con ownership tenant/actor, payload JSON, estados y límites de intentos, índices y RLS. `platform.resolve_tenant_job_context(uuid)` expone al rol runtime solo job/tenant/actor/purpose/correlation, nunca el payload. `PostgresTenantJobRecordReader` implementa el puerto mediante esa función y `IsolationModule` registra resolver, reader y executor.
+- `0006-tenant-job-outbox.sql` crea `platform.tenant_job_records` con ownership tenant/actor, payload JSON, estados y límites de intentos, índices y RLS. El trigger SQL hace inmutable la identidad/payload y controla transiciones queued→processing→succeeded/failed/dead_letter, intentos y timestamps. `platform.resolve_tenant_job_context(uuid)` expone al rol runtime solo job/tenant/actor/purpose/correlation, nunca el payload. `PostgresTenantJobRecordReader` implementa el puerto mediante esa función; `PostgresTenantJobRecordWriter.stage(client, input)` inserta en la misma transacción que la mutación de negocio. `IsolationModule` registra reader, writer, resolver y executor.
 - TenantTelemetryContext depende del puerto TenantPseudonymizer; HmacTenantPseudonymizer implementa HMAC-SHA-256 con clave copiada y de al menos 256 bits, y mantiene tenant/correlation fuera de dimensiones métricas mediante vocabulario allowlisted.
 - Los puertos cache/storage permiten adapters intercambiables; no se agregó dependencia de proveedor ni se simula que Valkey, S3 o RabbitMQ estén conectados.
 
@@ -204,12 +204,12 @@ Source workspace validation #42376234089 y Contract validation #42376234088 fina
 - Object storage tenant A/B aislado, prefijos esperados y validación de integridad/path.
 - Job context inmutable, propósito/UUID inválido denegado y ejecución que delega obligatoriamente a withTenantContext.
 - Telemetría: pseudónimo para logs, ausencia de tenant ID en métricas y rechazo de labels arbitrarios.
-- Las seis suites iniciales .spec.ts (incluyendo HMAC) y la suite del adapter PostgreSQL se registraron en el target api:test: siete suites de aislamiento.
+- Las seis suites iniciales .spec.ts (incluyendo HMAC), la suite del reader PostgreSQL y la suite del writer transaccional se registraron en el target api:test: ocho suites de aislamiento.
 
 ### Límites y siguientes pasos
 
 - Aún falta implementar adapters reales de Valkey y object storage, inyectarlos mediante módulos de infraestructura y verificar ACL/TLS/encryption/bucket policy.
-- El registro durable de jobs ya existe, pero aún no hay publisher transaccional/outbox dispatcher, inbox de mensajes externos ni consumer. Falta demostrar schema validation del payload, tenant/aggregate match, dedupe, retry con backoff, DLQ y replay.
+- El registro durable se puede stagear en la misma transacción de negocio, pero aún no hay publisher/outbox dispatcher, inbox de mensajes externos ni consumer. Falta schema validation versionada del payload, tenant/aggregate match, dedupe, retry con backoff orquestado, DLQ y replay. La tabla tiene estados y límites de intentos, pero no debe confundirse con un broker ni con el dispatcher.
 - Falta resolver la identidad del actor del job desde un principal de servicio/actor persistido con política explícita; withTenantContext actualmente exige usuario/membership activos y por tanto falla cerrado para actors no provisionados.
 - Falta probar en PostgreSQL real pool reuse A→B, rollback y ausencia de contexto desde el executor; falta integración real con Valkey, proveedor de objetos y broker.
 - El algoritmo HMAC está implementado, pero falta el adapter de secret manager y su wiring operativo; no configurar una clave desde el repositorio ni desde datos del tenant.
