@@ -99,7 +99,7 @@ function canonicalizeJson(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(canonicalizeJson);
   if (value !== null && typeof value === "object") {
     const record = value as Record<string, unknown>;
-    const canonical: Record<string, unknown> = {};
+    const canonical = Object.create(null) as Record<string, unknown>;
     for (const key of Object.keys(record).sort()) {
       canonical[key] = canonicalizeJson(record[key]);
     }
