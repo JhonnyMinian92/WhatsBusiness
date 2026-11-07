@@ -278,13 +278,6 @@ export class ApprovalWorkflowService {
           return this.toSummary({ ...request, status: "expired" }, counts.approved_count);
         }
 
-        if (request.status !== "pending") {
-          throw new ConflictException({
-            code: "APPROVAL_NOT_PENDING",
-            detail: "La solicitud ya no admite decisiones.",
-          });
-        }
-
         const existingDecision = await client.query<ApprovalDecisionRow>(
           "SELECT approver_user_id::text, decision FROM platform.approval_decisions WHERE approval_id = $1 AND tenant_id = $2 AND approver_user_id = $3",
           [request.id, subject.tenantId, subject.actorId],
@@ -299,6 +292,13 @@ export class ApprovalWorkflowService {
           const counts = await this.approvalCounts(client, request.id, subject.tenantId);
           const current = await this.getRequestStatus(client, request.id, subject.tenantId);
           return this.toSummary({ ...request, status: current }, counts.approved_count);
+        }
+
+        if (request.status !== "pending") {
+          throw new ConflictException({
+            code: "APPROVAL_NOT_PENDING",
+            detail: "La solicitud ya no admite decisiones.",
+          });
         }
 
         await client.query(
