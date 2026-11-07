@@ -253,6 +253,6 @@ Source CI run #112 [42387272987](https://github.com/JhonnyMinian92/WhatsBusiness
 | AUD-068 | Object storage tenant-scoped | TenantScopedObjectStorage decora ObjectStorage, fuerza tenants/{tenantId}/... y valida MIME/checksum. |
 | AUD-069 | Contexto seguro de worker | TenantJobContextResolver recupera registro comprometido por jobId; TenantJobExecutor solo acepta contextos emitidos por resolver y reentra por DatabaseService.withTenantContext. |
 | AUD-070 | Telemetría segura | HmacTenantPseudonymizer usa clave inyectada de 256 bits; TenantTelemetryContext exige HMAC versionado y vocabulario métrico allowlisted. |
-| AUD-071 | Regresión automatizada | Siete suites unitarias registradas en api:test: namespace, cache, object storage, worker context y telemetry. |
+| AUD-071 | Regresión automatizada | Seis suites unitarias registradas en api:test: namespace, cache, object storage, worker context y telemetry. |
 
 Estado implemented; la ejecución CI de esta revisión, adapters/wiring de Valkey/object storage, outbox/inbox/consumer, pool Node A→B, HMAC pseudonymizer y revisión independiente permanecen pendientes. No afirmar verificación operativa ni producción.
