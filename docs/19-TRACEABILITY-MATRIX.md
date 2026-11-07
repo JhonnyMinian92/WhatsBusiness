@@ -84,3 +84,38 @@ Do not convert missing evidence into a percentage of completion.
 | SaaS/planes/entitlements | US-024 | TASK-052 | Platform Identity/Billing | tenant lifecycle, entitlements, support audit |
 
 Los nombres de contextos son límites lógicos propuestos; no asignar paths o MOD IDs hasta que exista el repositorio de código y se complete el architecture spike.
+
+
+## 8. Trazabilidad nueva — decisiones delegadas y cambios de plataforma
+
+| Requisito / resultado | Historia | Tareas | Contexto | Evidencia requerida |
+|---|---|---|---|---|
+| BSUID y nuevos IDs WhatsApp sin teléfono como clave universal; WAAC/PMA + legacy WABA | US-018, US-020 | TASK-053 | CRM / Asset Registry / Meta adapters | versioned fixtures, namespace uniqueness, no unsafe auto-merge, migration and reversible identity test |
+| Onboarding unificado WhatsApp/Messenger/Instagram Direct donde sea elegible | US-003 | TASK-054 | Meta Control Plane | official source/version, app eligibility and real authorized account test |
+| WhatsApp marketing adapter y sunset legacy path | US-008 | TASK-055 | WhatsApp Integration / Cost Ledger | contract tests, policy, migration plan before Meta announced 2027-10-13 sunset |
+| API version, changelog, sunset, scope, asset grant y Marketing API Access Tier | US-004, US-017 | TASK-056, TASK-065 | Capability Registry / Operations | dated official evidence, deny matrix, change impact record and deprecation alerts |
+| Diferenciar estimación, máximo, coste real y conciliación en Max Pricing | US-008, US-026 | TASK-057 | Billing & Usage / Cost Ledger | decimal/currency/rate-card tests and statement reconciliation |
+| Acceso agency-to-client tenant explícito, temporal, revocable y auditado | US-025 | TASK-058 | Platform Identity / Partner Access | actor/tenant/asset/action grants, expiry/revoke, BOLA and audit tests |
+| Retención configurable, data inventory y derechos LOPDP | US-016 | TASK-059 | Privacy & Compliance | end-to-end export/delete, derived-data purge, legal review evidence |
+| Carga, saturación y capacidad reproducibles | US-015 | TASK-060 | SRE / Performance | scripts, hardware/config, p50/p95/p99, throughput, concurrency, queue age and error report |
+| Backup/restore, HA, DR, RPO/RTO measured | US-015, US-016 | TASK-061 | SRE / Security | clean-host restore, consistency check, measured RPO/RTO and signed runbook |
+| API pública y webhooks firmados | US-027 | TASK-062 | Developer Platform / Event Platform | OpenAPI, scopes, signatures, replay/retry/DLQ, rotation and rate-limit tests |
+| Suscripción, asientos, entitlements y uso independiente | US-026, US-024 | TASK-063 | Billing & Usage / Platform | immutable ledgers, entitlement tests, no unapproved rates/tax |
+| Accesibilidad WCAG 2.2 AA en journeys clave | PD-006 / UX | TASK-064 | Angular Web / UX | automated checks + manual keyboard/screen-reader audit |
+| Revisión recurrente de changelogs/deprecations Meta | US-017 | TASK-065 | Meta Platform Operations | date/source/product/version/owner, mapped tasks and tests |
+
+## 9. Traceability of adopted decisions
+| Decision | Requirement/user outcome | Documentation / control |
+|---|---|---|
+| PD-012 initial Ecuador SME/agency hypothesis | Product positioning and discovery | docs/29, docs/06; customer interview/pilot evidence still required |
+| PD-013/014 subscription + seats + usage, Meta pass-through | Transparent monetization/cost visibility | US-026, TASK-057, TASK-063 |
+| PD-015 es-EC/USD/America-Guayaquil | Tenant localization and billing display | docs/29, docs/06; locale tests required |
+| PD-016/017 shared tenant isolation + explicit partner grants | No cross-tenant access | US-001, US-025, TASK-058; security tests |
+| PD-018 privacy minimization/configurable retention | Rights, export, deletion | US-016, TASK-059; legal review required |
+| PD-019 default-deny and human approval | Safe messaging, campaigns and admin | US-002, US-005, US-012, US-023; approval and policy tests |
+| PD-020 API/webhooks-first integrations | Extensible customer integration | US-027, TASK-062 |
+| PD-021 VPS portability and benchmark-first sizing | Portable deployment | TASK-039, TASK-060, TASK-061 |
+| PD-022 protected branches/production | Controlled release | AGENTS.md, docs/25, docs/29 |
+| PD-023 modular monolith with evidence-based extraction | Operable scale without premature distribution | ADR-015, TASK-039, docs/30 |
+
+Tasks TASK-053..065 are proposed until code/tests/evidence exist. API changes and product facts are revalidated at implementation and release. This matrix is traceability intent, not evidence of delivered functionality.
