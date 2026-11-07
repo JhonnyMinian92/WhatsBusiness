@@ -74,3 +74,16 @@ No liberar si hay vulnerabilidades críticas/altas sin mitigación aceptada, sec
 - No fijar plazos de retención ni asumir que consentimiento es siempre base legitimadora. Revisión especializada LOPDP/RGLOPDP/SPDP antes de tratar datos reales en producción.
 - No enviar conversaciones/leads/PII a proveedores IA externos hasta aprobar base legal, contrato, región, tratamiento, retención y configuración.
 - Soporte entre tenants usa grant JIT, finalidad, step-up, duración corta y audit; nunca acceso global implícito.
+
+
+## 11. Seguridad específica de campañas, creativos y agentes
+- Ads writes solo mediante backend service identity; tokens de Meta jamás se exponen a prompts, frontend o tools sin control.
+- AI Agent Tool Gateway usa allowlist de herramientas, JSON schema validation, purpose binding, tenant and asset scope, rate limits, budget ceilings, approval IDs, idempotency and audit.
+- El agente no puede cambiar su propio rol, permission scopes, budget cap, approval matrix ni kill switch.
+- Campaign external writes exigen snapshot, preflight, account spend limit, policy, approval y reconciliación de respuesta ambigua.
+- PD-024 es enforced server-side con concurrency control/serializable lock y rolling window; no aceptar cambios duplicados/parallel tool calls para bypass del cap.
+- Creatives AI: conservar source/model/prompt, derechos, consentimiento de persona/voz, claim evidence, brand kit, preview y aprobación. AI feature eligibility debe validarse; si Meta requiere PAUSED first, mantenerlo hasta approval.
+- Prohibir generación/publicación de claims engañosos, precio no verificado, testimonios sintéticos presentados como reales, imágenes de personas sin derechos y targeting/personalization que viole política/ley.
+- No usar CAPI/CRM para enviar datos personales sin legal basis/consent/purpose y minimización; hash no equivale a anonimización.
+- Business Agent/MCP external connectors deben aplicar scopes mínimos y prevenir double replies, action replay y prompt injection.
+- OpenWA/WhatsApp Web/browser automation no forma parte del runtime autorizado.
