@@ -263,7 +263,21 @@ test("PostgreSQL RLS isolates tenants and clears SET LOCAL context on a reused c
     assert.ok(refreshedAccessContext.authzVersion > accessContext.authzVersion);
     assert.deepEqual(refreshedAccessContext.permissionKeys, []);
 
-    const versionBeforeMembershipChange = refreshedAccessContext.authzVersion;
+    await database.withTenantContextAtVersion(
+      userA,
+      tenantA,
+      refreshedAccessContext.authzVersion,
+      (client) => client.query("SELECT platform.bump_tenant_authorization_version($1)", [tenantA]),
+    );
+    const contextAfterExplicitVersionBump = await identity.authorizeTenantAccess(
+      claimsA,
+      tenantA,
+      "platform.tenant.context.read",
+      randomUUID(),
+    );
+    assert.ok(contextAfterExplicitVersionBump.authzVersion > refreshedAccessContext.authzVersion);
+
+    const versionBeforeMembershipChange = contextAfterExplicitVersionBump.authzVersion;
     await adminPool.query(
       "UPDATE platform.memberships SET status = 'suspended' WHERE id = $1",
       [membershipAId],
