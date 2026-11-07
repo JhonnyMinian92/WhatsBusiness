@@ -79,5 +79,80 @@ AS $function$
   LIMIT 1
 $function$;
 
+
+CREATE OR REPLACE FUNCTION platform.enforce_tenant_job_transition()
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path = pg_catalog, platform
+AS $function$
+BEGIN
+  IF NEW.id IS DISTINCT FROM OLD.id
+     OR NEW.tenant_id IS DISTINCT FROM OLD.tenant_id
+     OR NEW.actor_user_id IS DISTINCT FROM OLD.actor_user_id
+     OR NEW.purpose IS DISTINCT FROM OLD.purpose
+     OR NEW.correlation_id IS DISTINCT FROM OLD.correlation_id
+     OR NEW.job_type IS DISTINCT FROM OLD.job_type
+     OR NEW.payload IS DISTINCT FROM OLD.payload
+     OR NEW.max_attempts IS DISTINCT FROM OLD.max_attempts
+     OR NEW.created_at IS DISTINCT FROM OLD.created_at THEN
+    RAISE EXCEPTION 'Tenant job identity and payload are immutable'
+      USING ERRCODE = '23514';
+  END IF;
+
+  IF OLD.status IN ('succeeded', 'dead_letter') THEN
+    RAISE EXCEPTION 'Terminal tenant jobs are immutable'
+      USING ERRCODE = '23514';
+  END IF;
+
+  IF NEW.status = 'processing' AND OLD.status IN ('queued', 'failed') THEN
+    IF OLD.available_at > clock_timestamp()
+       OR NEW.attempts <> OLD.attempts + 1
+       OR NEW.attempts > NEW.max_attempts THEN
+      RAISE EXCEPTION 'Tenant job is not eligible for this processing attempt'
+        USING ERRCODE = '23514';
+    END IF;
+    NEW.finished_at := NULL;
+  ELSIF NEW.status = 'failed' AND OLD.status = 'processing' THEN
+    IF NEW.attempts <> OLD.attempts OR NEW.available_at <= clock_timestamp() THEN
+      RAISE EXCEPTION 'Failed jobs require a future retry time and stable attempt count'
+        USING ERRCODE = '23514';
+    END IF;
+    NEW.finished_at := NULL;
+  ELSIF NEW.status = 'succeeded' AND OLD.status = 'processing' THEN
+    IF NEW.attempts <> OLD.attempts THEN
+      RAISE EXCEPTION 'Successful jobs cannot alter attempt count'
+        USING ERRCODE = '23514';
+    END IF;
+    NEW.finished_at := clock_timestamp();
+  ELSIF NEW.status = 'dead_letter' AND OLD.status IN ('processing', 'failed') THEN
+    IF NEW.attempts <> OLD.attempts OR NEW.attempts < NEW.max_attempts THEN
+      RAISE EXCEPTION 'A job can enter dead letter only after exhausting attempts'
+        USING ERRCODE = '23514';
+    END IF;
+    NEW.finished_at := clock_timestamp();
+  ELSE
+    RAISE EXCEPTION 'Invalid tenant job transition: % -> %', OLD.status, NEW.status
+      USING ERRCODE = '23514';
+  END IF;
+
+  IF NEW.error_code IS NOT NULL AND NEW.error_code !~ '^[A-Z][A-Z0-9_]{1,95}
+GRANT EXECUTE ON FUNCTION platform.resolve_tenant_job_context(uuid) TO whatsbusiness_app;
+ THEN
+    RAISE EXCEPTION 'Tenant job error code is invalid'
+      USING ERRCODE = '23514';
+  END IF;
+
+  NEW.updated_at := clock_timestamp();
+  RETURN NEW;
+END;
+$function$;
+
+CREATE TRIGGER tenant_job_records_transition_guard
+  BEFORE UPDATE ON platform.tenant_job_records
+  FOR EACH ROW
+  EXECUTE FUNCTION platform.enforce_tenant_job_transition();
+
+REVOKE ALL ON FUNCTION platform.enforce_tenant_job_transition() FROM PUBLIC;
+
 REVOKE ALL ON FUNCTION platform.resolve_tenant_job_context(uuid) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION platform.resolve_tenant_job_context(uuid) TO whatsbusiness_app;
