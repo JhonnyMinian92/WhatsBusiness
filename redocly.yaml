@@ -1,1 +1,2 @@
-extends: minimal
+extends:
+  - minimal
