@@ -1,5 +1,5 @@
 import type { PoolClient } from "pg";
-import { DatabaseService } from "../database/database.module.js";
+import type { DatabaseService } from "../database/database.module.js";
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const PURPOSE_PATTERN = /^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*){2,7}$/;
