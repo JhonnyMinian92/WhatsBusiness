@@ -117,8 +117,8 @@ Contextos de CRM, Inbox, Automation e AI Assistance se incorporan como dominios 
 ## 9. Decisión de despliegue y consistencia actualizada (2026-11-06)
 
 - Los bounded contexts son límites lógicos y de propiedad, no equivalen inicialmente a un proceso/microservicio cada uno.
-- NestJS modular monolith, Angular web, PostgreSQL, Redis, RabbitMQ y OIDC/Keycloak forman la baseline adoptada en docs/30.
-- PostgreSQL es fuente de verdad; transactional outbox/inbox y RabbitMQ gestionan la entrega asíncrona. Redis es efímero.
+- NestJS modular monolith, Angular web, PostgreSQL, Valkey, RabbitMQ y OIDC/Keycloak forman la baseline adoptada en docs/30.
+- PostgreSQL es fuente de verdad; transactional outbox/inbox y RabbitMQ gestionan la entrega asíncrona. Valkey es efímero.
 - Multi-tenancy compartido usa tenant_id + autorización backend + RLS transaccional. DB/cluster dedicado queda como tier de aislamiento enterprise.
 - Docker Compose es para desarrollo/piloto single-node, no una declaración de HA. Topología productiva requiere redundancia y pruebas de failover.
 - Los ADR-011..020 están aceptados como dirección técnica por delegación, pero TASK-039 debe medir footprint, build, pooling/RLS, queue, backup y restore antes de scaffold de producción.
@@ -131,3 +131,17 @@ Campaigns & Measurement incluye Campaign Intelligence and Creative Lab. Campaign
 External AI tools (Meta Ads MCP, Meta Business Agent, WhatsBusiness MCP) are adapters behind a single Agent Tool Gateway. The gateway enforces actor/tenant/purpose/asset capabilities, policy, budget cap PD-024, approval, idempotency and audit. Agents cannot possess unrestricted API tokens or mutate Meta directly.
 
 See docs/36-CAMPAIGN-INTELLIGENCE-AND-GUARDED-SCALING.md and ADR-021/022 in docs/33.
+
+## 11. Decisión comparativa del stack y protocolo (2026-11-06)
+
+La selección ya no se presenta como una lista de tecnología. La justificación, alternativas, versión recomendada y evidencia pendiente están en [docs/51](51-TECHNOLOGY-FIT-AND-VERSION-BASELINE.md) y [docs/52](52-REST-GRAPHQL-GRPC-PROTOCOL-DECISION.md).
+
+- Backend: TypeScript 6.0 strict + Node.js 26 Active LTS + NestJS 12.x.
+- Frontend: Angular 22.x; matriz oficial compatible con Node 26 y TypeScript 6.0.
+- Workspace: Nx 24.x + pnpm; boundaries automáticos obligatorios.
+- Datos y mensajería: PostgreSQL 18.x, Valkey 9.1.x para cache efímera, RabbitMQ 4.4.x para trabajo durable.
+- Identidad/edge/dev: OIDC + Keycloak 26.8.x, Traefik 3.7.x, Docker/Compose para laboratorio y piloto.
+- API: REST/JSON + OpenAPI como superficie síncrona; RabbitMQ/AsyncAPI para eventos y jobs; direct use-case calls dentro del monolito.
+- GraphQL y gRPC no son protocolos primarios del primer release. Son opciones futuras sujetas a los triggers de docs/52.
+
+Esta decisión es una baseline documentada, no un benchmark completado. TASK-039 debe verificar build, compatibilidad exacta, RLS/pooling, broker, restore, footprint y las alternativas/protocolos antes de G0.
