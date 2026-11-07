@@ -112,6 +112,26 @@ test("PostgreSQL tenant jobs enforce transactional staging, idempotency, least p
     assert.equal(crossTenantRead.rowCount, 0);
 
     await assert.rejects(
+      adminPool.query("UPDATE platform.tenant_job_records SET status = 'succeeded' WHERE id = $1", [jobId]),
+      (error: unknown) => typeof error === "object" && error !== null && "code" in error
+        && (error as { code: string }).code === "23514",
+    );
+    await adminPool.query(
+      "UPDATE platform.tenant_job_records SET status = 'processing', attempts = 1 WHERE id = $1",
+      [jobId],
+    );
+    await adminPool.query(
+      "UPDATE platform.tenant_job_records SET status = 'succeeded' WHERE id = $1",
+      [jobId],
+    );
+    await assert.rejects(
+      adminPool.query("UPDATE platform.tenant_job_records SET status = 'queued' WHERE id = $1", [jobId]),
+      (error: unknown) => typeof error === "object" && error !== null && "code" in error
+        && (error as { code: string }).code === "23514",
+    );
+
+
+    await assert.rejects(
       runtimePool.query("SELECT payload FROM platform.tenant_job_records WHERE id = $1", [jobId]),
       (error: unknown) => typeof error === "object" && error !== null && "code" in error
         && (error as { code: string }).code === "42501",
