@@ -190,13 +190,18 @@ test("PostgreSQL RLS isolates tenants and clears SET LOCAL context on a reused c
     await adminPool.query("UPDATE platform.tenants SET status = 'closing' WHERE id = $1", [tenantA]);
     await adminPool.query("UPDATE platform.tenants SET status = 'deleted' WHERE id = $1", [tenantA]);
 
+    const deletedTenantVisibility = await database.withUserContext(userA, (client) =>
+      client.query("SELECT id FROM platform.tenants WHERE id = $1", [tenantA]),
+    );
+    assert.deepEqual(deletedTenantVisibility.rows, []);
+
     await assert.rejects(
       adminPool.query("UPDATE platform.tenants SET status = 'active' WHERE id = $1", [tenantA]),
       (error: unknown) => typeof error === "object" && error !== null && "code" in error
         && (error as { code: string }).code === "23514",
     );
     await assert.rejects(
-      adminPool.query("UPDATE platform.tenants SET organization_id = $2 WHERE id = $1", [tenantB, organizationId]),
+      adminPool.query("UPDATE platform.tenants SET organization_id = $2 WHERE id = $1", [tenantB, randomUUID()]),
       (error: unknown) => typeof error === "object" && error !== null && "code" in error
         && (error as { code: string }).code === "23514",
     );
