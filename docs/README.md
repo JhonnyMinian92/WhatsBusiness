@@ -153,3 +153,5 @@ Los agentes pueden empezar análisis, revisión de especificaciones, validación
 - [52 — REST, GraphQL and gRPC protocol decision](52-REST-GRAPHQL-GRPC-PROTOCOL-DECISION.md)
 - [53 — Individual TASK-001..080 work packages](53-TASK-WORK-PACKAGES.md)
 - [54 — TASK-039 execution and consistency audit](54-TASK-039-EXECUTION-AND-CONSISTENCY-REPORT.md)
+
+- [55 — OpenAPI contract completion plan by bounded context](55-OPENAPI-CONTRACT-COMPLETION-PLAN.md)
