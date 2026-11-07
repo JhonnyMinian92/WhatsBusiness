@@ -8,7 +8,7 @@
 3. [Memoria central](01-CENTRAL-MEMORY.md) y [memoria de sesión](02-SHORT-TERM-MEMORY.md).
 4. [Grafo de ejecución](18-EXECUTION-GRAPH.md) — dependencias y orden seguro.
 5. [Matriz de trazabilidad](19-TRACEABILITY-MATRIX.md) — requisitos → tareas → código → pruebas → evidencia.
-6. [Criterios de producto terminado](20-PRODUCT-ACCEPTANCE.md) — la definición objetiva de 100 % y aprobación del propietario.
+6. [Criterios de producto terminado](20-PRODUCT-ACCEPTANCE.md) — la definición objetiva de 100 % y aprobación del propietario.\n7. [Organización del equipo](21-TEAM-ORGANIZATION.md) — departamentos, ownership y organigrama.\n8. [Orquestación multiagente](22-MULTI-AGENT-ORCHESTRATION.md) — concurrencia, work packets, integración y handoff.\n9. [Playbooks de roles](23-ROLE-PLAYBOOKS.md) — cómo adoptar y abandonar roles sin confundir autoridad.\n10. [Validación independiente](24-INDEPENDENT-VALIDATION.md) — revisión cruzada, adversarial y hallazgos.\n11. [Límites y accesos](25-AGENT-BOUNDARIES-AND-ACCESS.md) — acciones permitidas, prohibidas y escalamiento.\n12. [Flujo de equipo y gates](26-TEAM-WORKFLOW-AND-GATES.md) — ciclo completo, plantillas y puertas de calidad.
 
 ## Reglas rectoras
 1. Trabajo activo exclusivamente en `environment/local`, salvo instrucción expresa del propietario.
@@ -44,7 +44,7 @@
 | [17-AGENT-OPERATING-MODEL.md](17-AGENT-OPERATING-MODEL.md) | Protocolo de ejecución de agentes |
 | [18-EXECUTION-GRAPH.md](18-EXECUTION-GRAPH.md) | Grafo de dependencias y orden de ejecución |
 | [19-TRACEABILITY-MATRIX.md](19-TRACEABILITY-MATRIX.md) | Matriz de impacto y evidencia |
-| [20-PRODUCT-ACCEPTANCE.md](20-PRODUCT-ACCEPTANCE.md) | Definition of complete y aprobación final |
+| [20-PRODUCT-ACCEPTANCE.md](20-PRODUCT-ACCEPTANCE.md) | Definition of complete y aprobación final |\n| [21-TEAM-ORGANIZATION.md](21-TEAM-ORGANIZATION.md) | Departamentos, organigrama y ownership |\n| [22-MULTI-AGENT-ORCHESTRATION.md](22-MULTI-AGENT-ORCHESTRATION.md) | Concurrencia, coordinación e integración |\n| [23-ROLE-PLAYBOOKS.md](23-ROLE-PLAYBOOKS.md) | Playbooks para asumir múltiples roles |\n| [24-INDEPENDENT-VALIDATION.md](24-INDEPENDENT-VALIDATION.md) | Revisión cruzada independiente y adversarial |\n| [25-AGENT-BOUNDARIES-AND-ACCESS.md](25-AGENT-BOUNDARIES-AND-ACCESS.md) | Límites, permisos y autoridad |\n| [26-TEAM-WORKFLOW-AND-GATES.md](26-TEAM-WORKFLOW-AND-GATES.md) | Flujo, ceremonias, gates y plantillas |
 
 ## Memoria de producto de origen
 [META_SERVICES.md](../META_SERVICES.md) conserva la investigación inicial. Es referencia histórica/técnica, no prueba de que una API siga vigente ni de que la cuenta tenga acceso. Validar todo dato volátil con fuentes oficiales antes de implementar.
