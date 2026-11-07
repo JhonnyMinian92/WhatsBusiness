@@ -232,3 +232,11 @@ The current commit, files sampled, findings and no-go conclusions are documented
 - Budget 20% is owner guardrail PD-024, not Meta policy.
 - Andromeda/GEM are internal delivery systems; no claims of direct control or queryable internal score.
 - Reference repository conclusions are based on inspected files, not full security/performance audits.
+
+
+### META-OBS-020 — Original Andromeda launch and Advantage+ creative-pool interaction
+- Source: Meta Engineering, 2024-12-02, https://engineering.fb.com/2024/12/02/production-engineering/meta-andromeda-advantage-automation-next-gen-personalized-ads-retrieval-engine/
+- Findings: Andromeda retrieval selects a smaller set from tens of millions of ad candidates before ranking. Meta described Advantage+ automation of audience creation, budget allocation, placements and creative generation as increasing the eligible ad pool. The launch article reported +6% retrieval recall and +8% ad quality on selected segments and stated a future direction toward more diverse retrieved candidates.
+- Limits: historical system and selected-segment results; do not apply the 2024 uplift as a current guarantee or forecast. The 2026 system supersedes architecture specifics.
+- Design: Creative Lab should create meaningful variation in concept/visual/hook/offer/format and track diversity, but not maximize number of ads at the expense of quality or spend fragmentation.
+- State: Meta-public technical history, promoted as design context.
