@@ -209,6 +209,9 @@ Reglas de dependencias:
 | ADR-018 | OpenTelemetry + Prometheus + Grafana | accepted | Instrumentación vendor-neutral; centralización de logs/traces se mide |
 | ADR-019 | AI Gateway provider-agnostic y human approval by default | accepted | Control de datos, costes, portabilidad y seguridad |
 | ADR-020 | Nx + pnpm monorepo con boundaries | accepted | Grafo, dependencias y CI por proyectos; spike valida tooling y build time |
+| ADR-023 | REST-first + direct use-case calls + RabbitMQ async | accepted | HTTP/OpenAPI para clientes; GraphQL/gRPC solo con triggers medidos |
+| ADR-024 | Baseline de versiones compatible al 2026-11-06 | accepted as recommendation | Node26/TS6/Nest12/Angular22/Nx24; builds/benchmarks todavía pendientes |
+| ADR-025 | Valkey 9.1 como cache sobre Redis | accepted as recommendation | Licencia BSD y cache efímera; validar comandos, cliente, HA y rendimiento |
 
 accepted significa elección arquitectónica por delegación del propietario; no significa que haya pasado el architecture spike. Una decisión se puede superseder por un ADR con evidencia, migración y autorización correspondiente.
 
