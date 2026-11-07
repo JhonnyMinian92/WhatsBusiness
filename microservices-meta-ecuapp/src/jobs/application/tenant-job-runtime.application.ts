@@ -53,12 +53,13 @@ export class TenantJobRuntimeApplication {
           if (signal.aborted) break;
 
           signal.addEventListener("abort", abortSession, { once: true });
+          const disconnected = session.waitForDisconnect();
           await session.start();
           reconnectDelay = this.options.initialReconnectDelayMs;
 
           const completed = await Promise.race([
             session.run(sessionController.signal).then(() => "stopped" as const),
-            session.waitForDisconnect().then(() => "disconnected" as const),
+            disconnected.then(() => "disconnected" as const),
           ]);
 
           if (!signal.aborted && completed === "disconnected") {
