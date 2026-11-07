@@ -219,3 +219,14 @@ Este mapeo documenta la implementación; no implica revisión independiente ni a
 | PLT-005 no filtra datos internos de autorización | US-001/002; TASK-002 | `IdentityService.tenantContextResponse`, `IdentityController` | assert membershipId/authzVersion absent from public DTO; existing PLT-005 contract retained | implemented / CI-verified |
 
 CI source: run #47 [42383524043](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42383524043), commit `74febd28056043cda15221f29c8c5b71290ca06c` — SUCCESS. Revisión independiente y aceptación del propietario siguen pendientes. RBAC/ABAC por acción/asset/purpose pertenece a TASK-004 y no se considera terminado por la existencia del snapshot.
+## Evidence map — TASK-004 RBAC/ABAC (2026-11-07)
+
+| Resultado / criterio | Historia / tarea | Código / contrato | Evidencia automatizada | Estado |
+|---|---|---|---|---|
+| Permisos tipados y risk class persistido | US-002; TASK-004 | Migration 0004 + `permission-catalog.ts` | PostgreSQL compara todas las keys/risk_class con el catálogo TypeScript | implemented / CI-verified |
+| Role templates tenant y separación de plataforma | US-002; TASK-004 | `tenant-role-catalog.ts` | uniqueness, permission key integrity, no platform roles y Agent least-privilege | implemented / CI-verified |
+| RBAC/ABAC default-deny | US-002; TASK-004 | `TenantAuthorizationPolicyEvaluator`, `AuthorizationService` | allow/deny para membership/tenant/purpose/permission/entitlement/owner/state/asset/consent/approval/capability freshness | implemented / CI-verified |
+| Guard de transporte y declarative permission | US-002; TASK-004 | `AuthorizationGuard`, `RequirePermission`, `RequireTenantPermission` | allow/deny/missing metadata guard tests | implemented / CI-verified |
+| Role assignment anti-escalation | US-002; TASK-004 | `TenantRoleAssignmentPolicy` | self assignment, non-owner, cross-tenant, platform role, overprivilege and independent approval tests | implemented / CI-verified |
+
+Source CI run #67 [42385036275](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42385036275), commit `53e50dc00daccc7c64c7931e468e6ef0af132940` — SUCCESS. No se declaran APIs IAM-007..020 implementadas, ni assignments persistentes, audit durable o approval workflow; TASK-005 debe cerrar los controles operativos que dependen de estos resultados.
