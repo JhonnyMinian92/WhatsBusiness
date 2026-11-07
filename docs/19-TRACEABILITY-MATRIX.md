@@ -140,3 +140,6 @@ REEM 2025 numbers are macro context only. They do not prove addressable customer
 | Meta policy/API/feature drift mapped to affected assets/tenants/tasks | US-032 | TASK-076 | Meta Control Plane / Operations | dated official evidence, capability registry update, tests and migration task |
 
 Andromeda/GEM are internal Meta systems, not a WhatsBusiness API surface. All TASK-067..080 remain proposed; this matrix is intent, not delivered evidence.
+
+
+| Tool/agent authorization, approval and audit gateway | US-031 | TASK-080 | Agent Tool Gateway / Policy & Approval | allowlisted tool schemas, scopes/purpose/tenant checks, idempotency, budget cap, redaction, audit, kill switch and replay tests |
