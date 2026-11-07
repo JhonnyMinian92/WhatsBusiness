@@ -141,3 +141,24 @@ La correspondencia semántica y el estado real de las preguntas originales se en
 
 ## Aclaración de numeración de respuestas
 Las diez respuestas recibidas correspondieron al cuestionario abreviado presentado en el chat, cuyas etiquetas no coincidían con la numeración Q-001..Q-020 de este documento. Para evitar falsa trazabilidad, no se deben tratar como respuestas a las preguntas originales con el mismo número. La correspondencia semántica está normalizada en PD-001..PD-011 en [29-OWNER-DECISIONS.md](29-OWNER-DECISIONS.md). Las preguntas originales de segmento de clientes, monetización, localización, aislamiento, retención, aprobaciones, integraciones y producción permanecen abiertas salvo aclaración explícita posterior.
+
+
+## Resolución por delegación expresa del propietario (2026-11-06)
+El propietario indicó que se apliquen todas las recomendaciones y que el arquitecto sea responsable de las mejores decisiones técnicas/producto documentables. En consecuencia, las preguntas de discovery ya no quedan genéricamente abiertas; sus respuestas de baseline están en PD-012..PD-023 de docs/29.
+
+| Tema original | Decisión aplicada | Lo que sigue pendiente |
+|---|---|---|
+| Q-002 Segmentos/agencias | PYMES de comercio/servicios en Ecuador; agencias como segmento secundario | Validación empírica de ICP, entrevistas, conversión, retención y demanda |
+| Q-003 Monetización | Suscripción tenant + seats + usage; costes Meta por separado | Tarifas, márgenes, impuestos, unit economics y pricing research |
+| Q-009 Idioma/moneda/zona | es-EC, USD, America/Guayaquil defaults configurables | Locales adicionales y reglas fiscales por país |
+| Q-013 Capacidad/SLO | 99.9%, RPO 15m, RTO 4h como objetivos candidatos de planificación | Hardware, workload, benchmark, HA, restore tests, coste y aceptación SLO |
+| Q-014 Aislamiento/agencias | PostgreSQL shared tenant_id + auth + RLS; dedicated DB enterprise; partner grants | Threat model, architecture spike y pruebas cross-tenant |
+| Q-015 Privacidad | Minimización, retención configurable y workflows de derechos | Plazos, roles, transfers, subencargados, contratos y revisión legal/DPD |
+| Q-016 Acciones sensibles | Default deny, policy engine, human approval para gasto/mensajes masivos/borrados/permisos | Thresholds monetarios, doble aprobación y matriz final de roles |
+| Q-017 Integraciones | Primero API pública, webhooks firmados y contratos EcuApp | Conectores concretos según demanda real y due diligence proveedor |
+| Q-018 Producción | Gates G0-G8 y evidencias Meta, QA, Security, SRE, Privacy | Accesos/app review, pentest, benchmark, DR y aceptación |
+| Q-019 Git/release | Solo environment/local para trabajo; master/develop y producción protegidas | Ninguna; sigue requiriendo autorización explícita para cada release/merge/deploy |
+| Q-011 Stack | Nx/pnpm, NestJS, Angular, PostgreSQL, Redis, RabbitMQ, OIDC/Keycloak, Docker, OpenTelemetry | TASK-039 spike y pinning de versiones |
+| Q-012 Infraestructura | VPS/self-host portable Docker; single-node solo dev/piloto | Proveedor, recursos, presupuesto y topología HA por benchmark |
+
+La autorización por delegación no convierte hipótesis de mercado en estadística, no determina asesoría legal, no compromete gastos o vendors y no habilita operaciones productivas. Ver docs/29, docs/30, docs/31 y docs/32 como fuente canónica.
