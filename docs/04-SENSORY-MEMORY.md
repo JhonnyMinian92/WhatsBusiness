@@ -65,3 +65,27 @@ No observation implies access granted to our Meta App/account or successful prod
 - Impacto: respalda foco sectorial de discovery; no prueba Meta usage, buyer eligibility, TAM ni willingness-to-pay.
 - Estado: confirmado como contexto, no como estimación comercial.
 - Acción: TASK-066 / US-028 discovery and pilots.
+
+
+### OBS-20261106-014 — Andromeda/GEM and Ads Creative Studio
+- Sources: Meta Engineering 2026-10-13 and 2026-10-28, Meta Newsroom 2026-10-06; URLs in docs/32 and docs/34.
+- Observation: centralized recommendation and retrieval AI, broad creative diversification, creative performance insights and agent-assisted campaign work.
+- Impact: WhatsBusiness needs campaign intelligence, creative lab, signal-quality pipeline and controlled experiments, not claims of direct model control.
+- State: confirmed as Meta-published direction; advertiser account access per feature varies.
+
+### OBS-20261106-015 — Learning and 20% budget rule distinction
+- Source: Meta campaign optimization guidance https://developers.meta.com/vr/resources/optimize-ad-campaign/ and Meta Ad Set Budget Sharing help center.
+- Observation: learning is ad-set level, ~50 optimization events/7d contextual guidance, overlap can fragment learning, edits may restart learning. No universal official 20% budget increase cap found.
+- State: owner guardrail PD-024 adopted as product policy, not Meta policy.
+
+### OBS-20261106-016 — Meta Ads MCP / Business Agent / Social Technologies MCP
+- Sources: Meta Newsroom 2026-10-06; Meta Business Agent 2026-06-03; Meta Developer News.
+- Observation: agent tools can draft campaigns, create/preview creative and provide insights, Business Agent Platform connects messaging agents to CRM/order systems and supports human handoff; Social Technologies MCP helps app setup.
+- Impact: internal Agent Tool Gateway with scopes, approvals, logs and conversation ownership; don't expose raw provider tokens to the LLM.
+- State: public announcement confirmed; app/account access and exact channel features require per-tenant validation.
+
+### OBS-20261106-017 — Reference software benchmark
+- Sources: Chatwoot, Twilio Node SDK, NdoleStudio/httpsms, capcom6/android-sms-gateway and open-wa/wa-automate-nodejs repositories, file paths and limitations in docs/35.
+- Observation: reusable patterns around inbox/channel abstraction, conversation/message state, automation queue locking/retry, SDK errors/pagination, device gateway expiry/backpressure, plugin/MCP tooling.
+- Impact: adopt patterns, not code; OpenWA remains no-go for official WhatsApp production transport.
+- State: source-level spot inspection; not full audits/performance benchmarks.
