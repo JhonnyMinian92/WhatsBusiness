@@ -134,3 +134,8 @@ Los agentes pueden empezar análisis, revisión de especificaciones, validación
 - AsyncAPI: ../contracts/asyncapi/platform-events-v1.yaml.
 - Envelope: ../contracts/schemas/event-envelope.schema.json.
 - Payloads de dominio: ../contracts/schemas/domain-events-v1.schema.json.
+
+## Evaluación tecnológica y protocolo API (docs/51–52)
+
+51. [Evaluación comparativa del stack y baseline de versiones](51-TECHNOLOGY-FIT-AND-VERSION-BASELINE.md) — compara lenguajes/frameworks, frontend, monorepo, base de datos, cache, broker, identidad, edge, despliegue y observabilidad; fija versiones recomendadas a 2026-11-06 y distingue evidencia documental de benchmark pendiente.
+52. [Decisión REST vs GraphQL vs gRPC](52-REST-GRAPHQL-GRPC-PROTOCOL-DECISION.md) — REST/JSON para API síncrona, llamadas locales entre módulos, RabbitMQ/AsyncAPI para async y triggers para considerar GraphQL/gRPC.
