@@ -311,3 +311,11 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Commits: `c27a8578f56ef2e740a56d907e5fdc963a0a5b46`, `aa5c37273011ba354a1b574a8a519fd0d623960a`, `98c5b0fdf23416f1ca55ceffaed881b07827e237`, `4890949ae83db4d5b5626c4fd23aad62e1c8d5b3`.
 - Verificación: no se ejecutaron build/typecheck/tests localmente; GitHub no reportó workflow runs para el commit de documentación consultado. Mantener estado `in_progress`.
 - Próximo paso: diseñar e implementar claim/lease con fencing y recuperación de `processing` abandonados; después dispatcher con publisher confirms, consumer inbox/dedupe y ACK posterior al commit, DLQ/replay auditado.
+## Handoff — backend microservices-meta-ecuapp runtime (2026-11-07)
+
+- Proyecto backend creado y registrado como package/workspace Nx `microservices-meta-ecuapp`; no se creó `app-meta-ecuapp` porque el alcance actual es backend.
+- Runtime durable: PostgreSQL outbox/leases/fencing/inbox, dispatcher pool + worker pool y logins separados, RabbitMQ confirm publisher/manual ACK/quorum DLX, session reconnect/backoff, bootstrap con handler registration obligatorio, graceful drain al parar consumer.
+- El contrato de ejecución reusa `DatabaseService.withTenantContext` mediante `databaseFactory(workerPool)`; evita una implementación duplicada de RLS.
+- Se añadió `docs/60-TENANT-JOBS-RUNTIME.md`. La migración 0007 se consolidó completa tras detectar SQL duplicado/incompleto por readback.
+- Estado de calidad: falta corrida final Source CI para el último commit; no declarar build/typecheck/tests verdes. TASK-003 in_progress, GO-PRODUCTION NO-GO.
+- Siguientes pendientes: heartbeat/renew lease para tareas largas, replay autorizado con approval/audit, pool reuse A→B, crash/fencing tests, observabilidad y handlers Meta reales.
