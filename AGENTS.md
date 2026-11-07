@@ -91,3 +91,12 @@ Orchestrator defines task packets, dependency graph, exclusive writable paths, s
 
 ### Mandatory role and review gates
 For every non-trivial feature, assess Product/BA, domain/marketing, architecture, engineering, QA, security/privacy, SRE/operations and documentation. Mark roles not applicable with a reason. Medium/high-risk work requires independent peer/QA review; high/critical work also requires security/privacy review as applicable and human approval for reserved decisions.
+
+
+## Owner decisions and technical autonomy
+- Read [docs/29-OWNER-DECISIONS.md](docs/29-OWNER-DECISIONS.md), [docs/30-RECOMMENDED-ARCHITECTURE.md](docs/30-RECOMMENDED-ARCHITECTURE.md), and [docs/31-MASTER-DELIVERY-PLAN.md](docs/31-MASTER-DELIVERY-PLAN.md) before planning new work.
+- The owner authorizes the architect to recommend the stack and agents to resolve reversible technical choices using the best-supported option. Record rationale and alternatives in ADRs; continue independent work.
+- Do not ask the owner to choose routine implementation details. Ask only for product/business scope, recurring spend/vendor commitments, privacy/legal/data retention, high-impact security, production actions, destructive changes, and breaking contracts.
+- Unanswered discovery questions do not block unrelated work. Record the blocker and continue all safe independent tasks.
+- Greenfield is confirmed. Do not search for legacy source code as a prerequisite; build the approved product from zero after architecture spike and requirements readiness.
+- CRM, omnichannel Inbox, rules-based automation and basic AI assistance are first-class domains. Initial AI may suggest and assist; sensitive external actions require human approval by default.
