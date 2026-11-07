@@ -97,6 +97,7 @@ export class TenantJobRuntimeProcess {
           initialReconnectDelayMs: boundedInteger(environment, "TENANT_JOB_RECONNECT_INITIAL_MS", 500, 100, 60_000),
           maximumReconnectDelayMs: boundedInteger(environment, "TENANT_JOB_RECONNECT_MAXIMUM_MS", 30_000, 100, 300_000),
           reconnectMultiplier: boundedNumber(environment, "TENANT_JOB_RECONNECT_MULTIPLIER", 2, 1, 10),
+          stableSessionDurationMs: boundedInteger(environment, "TENANT_JOB_RECONNECT_STABLE_SESSION_MS", 30_000, 1_000, 3_600_000),
         },
       );
 
