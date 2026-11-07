@@ -166,3 +166,10 @@ Estado actual:
 - Estado técnico: núcleo implemented y CI-verified; no se declara tarea accepted/verified mientras estén pendientes review independiente, assignments persistentes y audit/approval workflows.
 - IAM-007..020 siguen catalog-only. No se añadieron rutas ni escrituras HTTP.
 - Próximo tramo: TASK-005 para step-up, aprobación independiente, append-only audit/outbox y protección de acciones privilegiadas; TASK-003 mantiene aislamiento operativo jobs/cache/files/telemetry pendiente.
+## Actualización — TASK-005 Approval / Step-up / Audit (2026-11-07)
+
+- Migration 0005 crea solicitudes/decisiones de aprobación y ledger append-only hash-chain por tenant, con RLS, grants limitados y transiciones restringidas por triggers.
+- Backend: step-up OIDC con claims firmados y allowlist fail-closed; approval workflow idempotente/hash-bound/quorum; self-approval bloqueada; consumo transaccional; auditoría sensible/denegaciones.
+- Source CI run #112 [42387272987](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42387272987) — SUCCESS, commit `b38b78ab52dbb96262dc8078518fdf4f55fc5a2c`, integración PostgreSQL efímera activa.
+- Limitaciones: sin IdP real ni ACR/AMR allowlist activa, IAM-018..020 catalog-only, sin outbox/consumers de negocio y sin revisión/anclaje externo del hash-chain. No se permiten acciones externas.
+- TASK-001/002/004/005 tienen slices implementados y CI-verified; no están accepted/verified globalmente. TASK-003 (aislamiento jobs/cache/files/telemetry), assignments persistentes, grants agency/JIT y workers permanecen en backlog.
