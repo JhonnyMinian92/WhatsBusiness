@@ -142,7 +142,9 @@ Estado de producto: no implementation, no runtime metrics, no deployed environme
 
 
 ### Validation result at handoff
-- master → environment/local: 108 ahead / 0 behind.
-- environment/develop → environment/local: 108 ahead / 0 behind.
-- master and environment/develop: identical.
+- master → environment/local: ahead, 0 behind at validation checkpoint.
+- environment/develop → environment/local: ahead, 0 behind at validation checkpoint.
+- master and environment/develop: identical at validation checkpoint.
 - Read-after-write checks completed for all changed documentation groups; see docs/14 AUD-029.
+
+- INEC REEM 2025 macro evidence added to docs/32; US-028/TASK-066 created to validate ICP and willingness-to-pay before pricing.
