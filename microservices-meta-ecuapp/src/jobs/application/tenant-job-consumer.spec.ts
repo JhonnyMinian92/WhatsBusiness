@@ -32,6 +32,7 @@ function setup(options: { handlerFails?: boolean; claimAvailable?: boolean } = {
     async releasePublication() { return true; },
     async claimExecution() { return options.claimAvailable === false ? null : claim; },
     async assertExecutionLease() { events.push("assert-lease"); },
+    async renewExecutionLease() { return new Date(Date.now() + 30_000); },
     async complete() { events.push("complete"); },
     async fail(_jobId, _lease, failure) {
       events.push("fail:" + failure.code);
