@@ -128,6 +128,7 @@ test("PostgreSQL RLS isolates tenants and clears SET LOCAL context on a reused c
       "VALUES ($1, $2, 'tenant-a', 'Synthetic Tenant A', 'active'),",
       "       ($3, $2, 'tenant-b', 'Synthetic Tenant B', 'active')",
     ].join("\n"), [tenantA, organizationId, tenantB]);
+    await adminPool.query("SELECT set_config('app.tenant_id', $1, false)", [tenantA]);
     await adminPool.query("UPDATE platform.tenants SET status = 'suspended' WHERE id = $1", [tenantA]);
     await adminPool.query("UPDATE platform.tenants SET status = 'active' WHERE id = $1", [tenantA]);
     await adminPool.query(
