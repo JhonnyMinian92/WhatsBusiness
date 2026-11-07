@@ -49,6 +49,7 @@ El payload y los IDs de tenant/actor nunca se toman del mensaje AMQP. El mensaje
 - `0006-tenant-job-outbox.sql`: staging transaccional e idempotencia por tenant/actor/job type/key; hash SHA-256 del request canónico.
 - `0007-tenant-job-runtime.sql`: leases separados de dispatch/ejecución, fencing tokens, constraints, inbox, claim, mark/release, complete, fail y recovery.
 - `0008-tenant-job-database-roles.sql`: roles de grupo `whatsbusiness_job_dispatcher_role` y `whatsbusiness_job_worker_role`; sin LOGIN ni privilegios de superusuario.
+- `0009-tenant-job-lease-renewal.sql`: renueva expiry solo con el fencing token actual y un lease aún vigente; el rol worker es el único que recibe EXECUTE.
 - API login: inserta jobs mediante el mismo client de la transacción; no reclama jobs ni puede leer payload.
 - Dispatcher login: publica/reconcilia; no lee payload ni reclama ejecución.
 - Worker login: resuelve metadata, reclama por jobId opaco, obtiene payload mediante función acotada y completa/falla bajo lease; no reclama publicaciones.
@@ -97,7 +98,7 @@ Suites fuente registradas en Nx:
 - Application lifecycle: desconexión, reconnect y cierre de sesión.
 - Bootstrap: handlers obligatorios, env y TLS.
 - Publisher/consumer RabbitMQ: confirms, unroutable, ACK/NACK y drain.
-- PostgreSQL gated: roles separados, claims, fencing, inbox/rollback, retry, dead-letter, lease expiry y denegación de acceso directo al payload.
+- PostgreSQL gated: roles separados, claims, fencing, renovación de lease con token válido/obsoleto, inbox/rollback, retry, dead-letter, lease expiry y denegación de acceso directo al payload.
 - RabbitMQ gated: quorum queue, confirm, mandatory return y DLX.
 
 Source CI declara PostgreSQL 18.6 y RabbitMQ 4.4 para pruebas de integración. Al documentar esta revisión no hay un resultado SUCCESS comprobado de la última iteración; debe verificarse el run asociado al commit más reciente. La ausencia de errores de TypeScript en esta documentación no equivale a build pass.
