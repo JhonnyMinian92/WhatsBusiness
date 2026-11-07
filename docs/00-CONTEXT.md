@@ -86,7 +86,7 @@ Consultar [29-OWNER-DECISIONS.md](29-OWNER-DECISIONS.md) como fuente canónica.
 - IA inicial: chatbots y sugerencias de respuesta; automatización básica extensible.
 - Hosting objetivo: VPS/servidor propio.
 - Entrega: por fases, dominios y límites bien separados.
-- Stack: recomendación del arquitecto autorizada; propuesta aún no congelada.
+- Stack: dirección técnica adoptada en ADR-011..020; architecture spike TASK-039 valida footprint, compatibilidad y operación antes del scaffold de producción.
 - Agentes: continuar trabajo independiente; resolver decisiones técnicas reversibles y documentarlas; escalar bloqueos de negocio, coste, datos, seguridad, cumplimiento y breaking changes.
 
 La interpretación de la aclaración de IA está registrada en PD-005. No añadir alcance de RAG, voz o agentes autónomos sin nueva decisión.
