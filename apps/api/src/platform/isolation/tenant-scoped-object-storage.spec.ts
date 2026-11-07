@@ -34,8 +34,8 @@ test("object storage prefixes every object with its tenant namespace", async () 
 
 test("object storage rejects missing integrity metadata and traversal keys", async () => {
   const storage = new TenantScopedObjectStorage(new InMemoryObjectStorage());
-  await assert.rejects(storage.put(tenantA, "media", "../outside", new Uint8Array([1]), metadata));
-  await assert.rejects(storage.put(tenantA, "media", "file", new Uint8Array([1]), {
+  assert.throws(() => storage.put(tenantA, "media", "../outside", new Uint8Array([1]), metadata));
+  assert.throws(() => storage.put(tenantA, "media", "file", new Uint8Array([1]), {
     contentType: "image/png",
     checksumSha256: "invalid",
   }));
