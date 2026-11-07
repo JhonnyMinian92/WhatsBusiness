@@ -302,3 +302,12 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Añadidos `PostgresTenantJobRecordWriter.stage(client, input)` para insertar jobs idempotentemente (tenant/actor/job type/key + SHA-256 request canónico) dentro de la transacción de negocio y guard SQL de transiciones/attempts. Ocho suites unitarias y una suite PostgreSQL gated (`RUN_TENANT_JOB_INTEGRATION_TESTS=true`) están registradas en `apps/api/project.json`; la integración cubre cross-tenant RLS y revocación de membership.
 - No se afirma CI/test pass de esta iteración. Publisher/outbox dispatcher, inbox/consumer, schema validation, dedupe/retry/backoff/DLQ/replay, adapters reales Valkey/object storage/broker, pool A→B PostgreSQL, secret manager y wiring de telemetría siguen pendientes.
 - TASK-003 sigue `in_progress` (implementación parcial); GO-PRODUCTION continúa NO-GO.
+
+## Estado de continuación WhatsBusiness (2026-11-07)
+
+- Rama de trabajo: `environment/local`; no modificar `master` ni `environment/develop`.
+- TASK-003 tiene namespaces/cache/storage multi-tenant, HMAC telemetry, PostgreSQL job staging y contexto seguro de worker; continúa incompleta.
+- Nuevo slice: `TenantJobRetryPolicy` con backoff exponencial bounded/equal-jitter y clasificación fail-closed; tests registrados en `apps/api/project.json`; documentación `docs/59-TENANT-JOB-RETRY-POLICY.md`.
+- Commits: `c27a8578f56ef2e740a56d907e5fdc963a0a5b46`, `aa5c37273011ba354a1b574a8a519fd0d623960a`, `98c5b0fdf23416f1ca55ceffaed881b07827e237`, `4890949ae83db4d5b5626c4fd23aad62e1c8d5b3`.
+- Verificación: no se ejecutaron build/typecheck/tests localmente; GitHub no reportó workflow runs para el commit de documentación consultado. Mantener estado `in_progress`.
+- Próximo paso: diseñar e implementar claim/lease con fencing y recuperación de `processing` abandonados; después dispatcher con publisher confirms, consumer inbox/dedupe y ACK posterior al commit, DLQ/replay auditado.
