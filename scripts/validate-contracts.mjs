@@ -116,6 +116,8 @@ const materialize = (schema, stack = new Set()) => {
   if (schema.type === "string") {
     if (schema.format === "uuid") return "00000000-0000-4000-8000-000000000001";
     if (schema.format === "date-time") return "2026-01-01T00:00:00Z";
+    if (schema.pattern === "^-?\\d+(\\.\\d{1,4})?$") return "1.25";
+    if (schema.pattern === "^[A-Z]{3}$") return "USD";
     if (schema.pattern === "^[A-Z0-9_]+$") return "REASON_CODE";
     return "sample";
   }
