@@ -2,11 +2,11 @@
 
 **Fecha de preparación:** 2026-11-06 (America/Guayaquil).  
 **Rama objetivo:** environment/local.  
-**Estado:** los agentes pueden iniciar paquetes de preparación y el Architecture Spike; el scaffold definitivo de producción queda condicionado al gate G0/TASK-039.
+**Estado (actualizado 2026-11-07): GO-CODE aprobado para workspace fuente y primer slice de foundation en environment/local; GO-PRODUCTION continúa NO-GO. La decisión del propietario y las excepciones técnicas están registradas en docs/57.
 
 ## 1. Decisión de inicio
 
-**GO condicionado para trabajo preparatorio y spike.**
+**GO-CODE: autorización explícita para comenzar el código fuente y el primer vertical slice.** No declara TASK-039 completamente verificada ni autoriza producción.
 
 La documentación funcional y de contratos inicial está disponible en docs/37..45. No interpretar el estado como producto implementado, spike aprobado, Meta habilitado o producción lista.
 
@@ -17,10 +17,12 @@ Permitido desde ahora:
 - Implementar harnesses, fixtures sintéticas y scripts aislados del producto cuando el paquete esté asignado.
 - Preparar CI/security pipeline como propuesta reproducible.
 
-Condicionado a salida de TASK-039/G0:
-- Scaffold definitivo Nx/NestJS/Angular.
-- Migraciones y módulos de producto que dependan de decisión de arquitectura.
-- Primer vertical slice integrado en la rama principal de trabajo.
+Autorizado por GO-CODE:
+- Workspace Nx/pnpm con apps NestJS API y Angular Web en environment/local.
+- Foundation slice incremental y verificable.
+- Primer slice funcional: health y, a continuación, OIDC/User/Tenant/Membership/PostgreSQL RLS/API de contexto/UI de tenant.
+
+No autorizado por este gate: despliegue productivo, datos reales, Meta mutations/mensajes/ads, proveedor IA externo o costes recurrentes.
 
 Siempre requiere aprobación humana específica: gasto recurrente/proveedor, uso de datos reales, proveedor IA externo, Meta App Review/permisos, mensajes reales, Ads spend/publicación, eliminación irreversible, merge a ramas protegidas y deploy productivo.
 
@@ -67,26 +69,25 @@ El registro de handoff individual TASK-001..080 está en [docs/53](53-TASK-WORK-
 
 ## 7. Gate G0 — criterio verificable
 
-G0 puede pasar cuando:
-1. TASK-039 tiene informe y evidencias SP-01..07 o excepciones con razón y aprobación competente.
-2. Especificaciones 37..43 recibieron review; issues se registraron con IDs.
-3. REQ/US/AC/TASK/contract/test mapping no tiene huérfanos críticos.
-4. Threat model 44 tuvo revisión independiente y los riesgos tenant/OAuth/webhook/AI/spend tienen pruebas previstas.
-5. ADR-011..020 se confirman o ajustan con evidencia del spike.
-6. Excepciones residuales se clasifican con owner, expiración y control compensatorio.
-7. Decisión de iniciar scaffold se documenta con commit específico.
+G0 se divide para evitar que readiness de producción bloquee el inicio del desarrollo:
 
-G0 no requiere que Meta ya haya aprobado todos los productos, que exista pricing final o que estén cerradas todas las decisiones legales de producción; esas son gates por capability/uso de datos/producción.
+**G0-CODE — PASS por autorización del propietario (2026-11-07).** Se permite workspace, CI, scaffold y foundation slice en environment/local. Condiciones: datos sintéticos; contratos no congelados siguen sin implementación; cada slice añade pruebas; autorización y tenant access fail-closed; review de seguridad antes de abrir rutas protegidas; no deploy ni efectos externos. TASK-039 queda `partially_verified`, no `verified` ni `accepted`.
+
+**G0-PRODUCTION — BLOCKED.** Requiere pruebas reales pool Node/PostgreSQL RLS, outbox/consumer crash/replay, webhook HTTP firmado y ACK durable, OIDC issuer/audience/membership, clean-host restore/RPO/RTO, VPS footprint/benchmarks, Valkey hardening, SBOM/CVE, contratos/traceability por slice, revisión independiente QA/SRE/Security, revisión legal/privacy y approvals de proveedor/Meta/costes donde aplique.
+
+La elegibilidad Meta, pricing y review legal no bloquean compilar y probar foundation con datos sintéticos; sí bloquean su uso productivo cuando correspondan.
 
 ## 8. Primer vertical slice posterior a G0
 
-1. NestJS API + Angular shell + CI mínimo.
-2. OIDC dev realm y User/Tenant/Membership.
-3. PostgreSQL migrations + transaction-local tenant context + RLS.
-4. GET /v1/me y GET /v1/tenants/{tenantId}/context.
-5. Audit/outbox y tests cross-tenant.
-6. UI de selección de tenant/context.
-7. E2E y evidencia de operación local.
+1. Workspace Nx/pnpm y CI con lockfile generado/fijado.
+2. NestJS API health/readiness y Angular shell accesible.
+3. OIDC dev realm y validación issuer/audience/JWKS.
+4. User / Identity / Tenant / Membership y autorización server-side.
+5. PostgreSQL migrations + transaction-local tenant context + RLS con pool Node real.
+6. GET /v1/me, GET /v1/tenants y GET /v1/tenants/{tenantId}/context.
+7. Audit/outbox y tests cross-tenant.
+8. UI de selección de tenant/context.
+9. E2E y evidencia reproducible local/CI.
 
 No iniciar primero con envío de mensajes, Ads o agentes autónomos; dependen de authorization, capability, audit, webhook, policy y approval.
 
@@ -103,10 +104,10 @@ Todos los agentes deben leer y cumplir [docs/48](48-CODING-ARCHITECTURE-AND-REUS
 ## 11. Paquetes de contratos y gates
 
 - WP-043 debe usar [docs/49](49-API-CONTRACT-READINESS-AND-META-ADAPTER-GATES.md) y [docs/50](50-EVENT-CATALOG-AND-VERSIONED-SCHEMAS.md).
-- El inventario HTTP tiene 289 operaciones REST propias más 8 webhooks. Solo PLT-001..005 tienen schemas de diseño concretos; las demás son catalog-only y no autorizan a inferir payloads.
-- AsyncAPI/JSON Schema definen 55 tipos de eventos v1.0.0 con payload mínimo. Productores/consumidores, outbox, broker, DLQ y pruebas siguen pendientes de implementación.
+- El inventario HTTP tiene 288 operaciones REST propias más 8 webhooks. Solo PLT-001..005 tienen schemas de diseño concretos; las demás son catalog-only y no autorizan a inferir payloads.
+- AsyncAPI/JSON Schema definen 69 tipos de eventos v1.0.0 con payload mínimo. Productores/consumidores, outbox, broker, DLQ y pruebas siguen pendientes de implementación.
 - La matriz pública de scopes Meta es parcial. Meta App Review, elegibilidad de app/cuenta/país y scopes concedidos no se han probado.
-- No hay evidencia de TASK-039 ni G0. El scaffold definitivo sigue bloqueado por los criterios de sección 7; estos documentos no alteran ese gate.
+- TASK-039 tiene evidencia parcial (run #5); G0-CODE está aprobado por instrucción del propietario y G0-PRODUCTION continúa bloqueado.
 
 ## 12. Decisión tecnológica y protocolo que deben leer los agentes
 
