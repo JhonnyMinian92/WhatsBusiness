@@ -61,3 +61,29 @@
 - [ ] Aplicar el modelo a la primera auditoría técnica real y ajustar los roles/paquetes con evidencia del repositorio.
 
 Estado: documentación de gobierno ampliada; no implica que exista una infraestructura de ejecución multiagente ni que se hayan ejecutado agentes paralelos en esta sesión.
+
+
+## Handoff — respuestas iniciales del propietario y baseline (2026-11-06)
+
+### Decisiones recibidas
+- PD-001..PD-011 registradas en docs/29-OWNER-DECISIONS.md.
+- SaaS + plataforma interna EcuApp; greenfield; todo Meta; backend + web panel + CRM + omnichannel inbox; IA básica extensible; VPS; stack recomendada por arquitectura; entrega por fases; agentes autónomos para decisiones técnicas reversibles y trabajo no bloqueado.
+- Aclaración de IA interpretada como "con visión para automatización con IA"; confirmación literal pendiente solo si la interpretación fuera incorrecta.
+
+### Entregables de esta iteración
+- docs/29: decisiones confirmadas y pendientes.
+- docs/30: arquitectura y stack propuesta (NestJS/TypeScript, Angular, PostgreSQL, Redis, RabbitMQ, Docker Compose/VPS, OIDC candidato, observabilidad).
+- docs/31: fases 0–8 y gates de salida.
+- Cuestionario actualizado con 10/20 respuestas recibidas.
+
+### Próximo trabajo
+1. Completar requisitos funcionales detallados de CRM, Inbox, automatización y panel.
+2. Reconciliar las 17 historias/33 tareas originales con el alcance nuevo y ampliar criterios de aceptación.
+3. Convertir ADR-011..017 de propuestas a decisiones solo tras architecture spike y evaluación operativa.
+4. Resolver preguntas pendientes que bloquean diseño comercial, retención, sizing y producción.
+5. No crear código de producto hasta que la arquitectura/stack tengan evidencia suficiente; el propietario sí autorizó continuar la especificación y el trabajo técnico no bloqueado.
+
+### Estado real
+- Greenfield confirmado por el propietario; el árbol auditado no contiene código fuente.
+- Stack y topología son propuestas, no implementaciones ni pruebas.
+- No se afirma que existan agentes independientes ejecutando en paralelo.
