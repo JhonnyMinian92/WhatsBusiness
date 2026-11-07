@@ -12,6 +12,7 @@ test("runs recovery before dispatch and stops cleanly on abort", async () => {
     async releasePublication() { return true; },
     async claimExecution() { return null; },
     async assertExecutionLease() {},
+    async renewExecutionLease() { return new Date(Date.now() + 30_000); },
     async complete() {},
     async fail() { return "retry_scheduled"; },
     async recover() {
