@@ -121,3 +121,16 @@ Los agentes pueden empezar análisis, revisión de especificaciones, validación
 47. [Inventario maestro de APIs y matriz TASK](47-API-INVENTORY-AND-TASK-MAP.md) — catálogo de endpoints HTTP propios por bounded context, propósito/uso/cuándo/flujo, webhooks, eventos internos, familias de APIs Meta externas y correlación US-001..032 / TASK-001..080.
 
 **Regla:** docs/47 es la fuente de planificación para API IDs y mapping. docs/09 es el catálogo de APIs Meta externas. contracts/openapi y contracts/asyncapi son los schemas normativos que deben ampliarse por fase y siempre mantenerse sincronizados con docs/47.
+
+## Normas finales de implementación y contratos (docs/48–50)
+
+48. [Estándar de arquitectura, calidad y reutilización](48-CODING-ARCHITECTURE-AND-REUSE-STANDARD.md) — reglas obligatorias para evitar código espagueti, duplicación, dependencias circulares y servicios/componentes con demasiadas responsabilidades.
+49. [Readiness OpenAPI y gates de adapters Meta](49-API-CONTRACT-READINESS-AND-META-ADAPTER-GATES.md) — congelación de schemas por operación, scopes documentados, versión por adapter y fail-closed capability checks.
+50. [Catálogo de eventos y schemas versionados](50-EVENT-CATALOG-AND-VERSIONED-SCHEMAS.md) — tipos de evento, payloads, envelope, idempotencia y evolución.
+
+## Contratos ampliados
+
+- OpenAPI: ../contracts/openapi/platform-v1.yaml (inventario completo de 297 operaciones/rutas; 5 design-frozen y 292 catalog-only, hasta congelar schemas).
+- AsyncAPI: ../contracts/asyncapi/platform-events-v1.yaml.
+- Envelope: ../contracts/schemas/event-envelope.schema.json.
+- Payloads de dominio: ../contracts/schemas/domain-events-v1.schema.json.
