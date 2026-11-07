@@ -8,7 +8,7 @@ El roadmap mide implementación y verificación, no cantidad de documentación o
 - [x] Crear contrato común para Codex, Claude, Copilot y agentes compatibles.
 - [x] Crear grafo de dependencias y matriz de trazabilidad.
 - [x] Definir handoff, estados y criterios de aceptación final.
-- [ ] Auditar el repositorio real y reconciliar TASK-001..080 con código/tests.
+- [x] Auditar inicialmente el repositorio real y establecer el inventario de código/tests existente (AUD-046..052); reconciliación integral TASK-001..080 sigue en curso.
 - [ ] Validar alcance, historias, arquitectura y decisiones pendientes con el propietario.
 - [ ] Validar APIs/permisos/eligibilidad con fuentes oficiales y cuenta de prueba.
 - [ ] Aprobar threat model, privacidad, decisiones tecnológicas y SLO/RPO/RTO.
@@ -59,10 +59,10 @@ flowchart LR
 | Contrato universal y puentes de agentes | creado | AGENTS.md, CLAUDE.md, GEMINI.md, .github/copilot-instructions.md |
 | Grafo y trazabilidad | creados | docs/18 y docs/19 |
 | Criterios de producto terminado | definidos | docs/20 |
-| Auditoría del código fuente | pendiente | siguiente paso técnico |
-| TASK-001..080 | plan consolidado; estado de código sin reconciliar | docs/11 |
+| Auditoría del código fuente | parcial | AUD-046..052; falta revisión independiente y reconciliación integral |
+| TASK-001..080 | TASK-001/002/004/005 con slices implementados y CI-verified; TASK-003 y resto pendientes | docs/11, docs/58 |
 | APIs/permisos/App Review | no verificado | Meta app/business |
-| Producto implementado | no declarado | requiere auditoría y evidencia |
+| Producto implementado | foundation slices parciales; producto completo no declarado | Source CI #16/#47/#67/#112; docs/58 |
 | Aceptación final | pendiente | exclusiva del propietario |
 
 ## Reglas de reporte
@@ -173,3 +173,14 @@ Estado actual:
 - Source CI run #112 [42387272987](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42387272987) — SUCCESS, commit `b38b78ab52dbb96262dc8078518fdf4f55fc5a2c`, integración PostgreSQL efímera activa.
 - Limitaciones: sin IdP real ni ACR/AMR allowlist activa, IAM-018..020 catalog-only, sin outbox/consumers de negocio y sin revisión/anclaje externo del hash-chain. No se permiten acciones externas.
 - TASK-001/002/004/005 tienen slices implementados y CI-verified; no están accepted/verified globalmente. TASK-003 (aislamiento jobs/cache/files/telemetry), assignments persistentes, grants agency/JIT y workers permanecen en backlog.
+## Estado real de plataforma — 2026-11-07
+
+| Tarea | Estado técnico actual | Evidencia | Límites para cerrar |
+|---|---|---|---|
+| TASK-001 | Slice Tenant ownership/lifecycle implementado y CI-verified | Source CI #16; docs/58 §7 | Review independiente, aislamiento operativo y aceptación |
+| TASK-002 | Tenant context fail-closed, propósito y authzVersion implementados y CI-verified | Source CI #47; docs/58 §8 | Cobertura de todos los recursos/workers y review independiente |
+| TASK-003 | No iniciado | docs/11 | Namespaces jobs/cache/files/telemetry y pruebas de partición |
+| TASK-004 | Core RBAC/ABAC, catálogo/roles declarativos y anti-escalation implementados y CI-verified | Source CI #67; docs/58 §9 | Persistir assignments/administración y review independiente |
+| TASK-005 | Core step-up/approval/audit implementado y CI-verified con PostgreSQL efímero | Source CI #112; docs/58 §10 | IdP real, outbox/consumer, contratos IAM, auditoría/review independiente y owner acceptance |
+
+**Interpretación:** tener un slice implementado y pasar CI no completa US-001/002. El producto sigue en construcción y GO-PRODUCTION permanece NO-GO. No se declara porcentaje global mientras no se reconcilien todos los AC de US/TASK con módulos, tests y evidencias independientes.
