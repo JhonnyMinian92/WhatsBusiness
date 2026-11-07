@@ -114,6 +114,79 @@ CREATE TRIGGER membership_roles_authz_version
   FOR EACH ROW
   EXECUTE FUNCTION platform.bump_authz_after_membership_role_change();
 
+CREATE OR REPLACE FUNCTION platform.bump_authz_after_role_change()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, platform
+AS $function$
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    PERFORM platform.bump_tenant_authorization_version(OLD.tenant_id);
+    RETURN OLD;
+  END IF;
+
+  PERFORM platform.bump_tenant_authorization_version(NEW.tenant_id);
+  IF TG_OP = 'UPDATE' AND NEW.tenant_id IS DISTINCT FROM OLD.tenant_id THEN
+    PERFORM platform.bump_tenant_authorization_version(OLD.tenant_id);
+  END IF;
+  RETURN NEW;
+END;
+$function$;
+
+REVOKE ALL ON FUNCTION platform.bump_authz_after_role_change() FROM PUBLIC;
+
+CREATE TRIGGER roles_authz_version
+  AFTER INSERT OR UPDATE OR DELETE ON platform.roles
+  FOR EACH ROW
+  EXECUTE FUNCTION platform.bump_authz_after_role_change();
+
+CREATE OR REPLACE FUNCTION platform.bump_authz_after_permission_catalog_change()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, platform
+AS $function$
+DECLARE
+  affected_key text;
+  tenant_record record;
+BEGIN
+  IF TG_OP <> 'INSERT' THEN
+    affected_key := OLD.permission_key;
+    FOR tenant_record IN
+      SELECT DISTINCT tenant_id
+        FROM platform.role_permissions
+       WHERE permission_key = affected_key
+    LOOP
+      PERFORM platform.bump_tenant_authorization_version(tenant_record.tenant_id);
+    END LOOP;
+  END IF;
+
+  IF TG_OP <> 'DELETE' THEN
+    affected_key := NEW.permission_key;
+    FOR tenant_record IN
+      SELECT DISTINCT tenant_id
+        FROM platform.role_permissions
+       WHERE permission_key = affected_key
+    LOOP
+      IF TG_OP = 'INSERT' OR affected_key IS DISTINCT FROM OLD.permission_key THEN
+        PERFORM platform.bump_tenant_authorization_version(tenant_record.tenant_id);
+      END IF;
+    END LOOP;
+  END IF;
+
+  IF TG_OP = 'DELETE' THEN RETURN OLD; END IF;
+  RETURN NEW;
+END;
+$function$;
+
+REVOKE ALL ON FUNCTION platform.bump_authz_after_permission_catalog_change() FROM PUBLIC;
+
+CREATE TRIGGER permissions_authz_version
+  AFTER INSERT OR UPDATE OR DELETE ON platform.permissions
+  FOR EACH ROW
+  EXECUTE FUNCTION platform.bump_authz_after_permission_catalog_change();
+
 -- Carry tenant ownership on the permission edge so authorization versioning
 -- never has to bypass the roles table's row-level security policy.
 ALTER TABLE platform.role_permissions ADD COLUMN tenant_id uuid;
