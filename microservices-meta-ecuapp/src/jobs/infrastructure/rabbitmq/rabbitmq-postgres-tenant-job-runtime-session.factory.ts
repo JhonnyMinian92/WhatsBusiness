@@ -1,3 +1,4 @@
+import { randomInt } from "node:crypto";
 import type { Pool } from "pg";
 import type {
   TenantJobRuntimeLogger,
@@ -75,7 +76,7 @@ export class RabbitMqPostgresTenantJobRuntimeSessionFactory implements TenantJob
     const dispatcherRepository = new PostgresTenantJobRuntimeRepository(options.dispatcherPool);
     const workerRepository = new PostgresTenantJobRuntimeRepository(options.workerPool);
     const clock = { now: () => new Date() };
-    const random = { next: () => Math.random() };
+    const random = { next: () => randomInt(0, 1_000_000) / 1_000_000 };
     const retryPolicy = new TenantJobRetryPolicy({
       initialDelayMs: options.retryInitialDelayMs,
       maximumDelayMs: options.retryMaximumDelayMs,
