@@ -31,6 +31,14 @@ SET dead_letter_reason = 'attempts_exhausted'
 WHERE status = 'dead_letter';
 
 UPDATE platform.tenant_job_records
+SET status = 'dead_letter',
+    finished_at = clock_timestamp(),
+    dead_letter_reason = 'attempts_exhausted',
+    error_code = COALESCE(error_code, 'ATTEMPTS_EXHAUSTED')
+WHERE status IN ('queued', 'failed')
+  AND attempts >= max_attempts;
+
+UPDATE platform.tenant_job_records
 SET dispatch_status = 'published',
     published_at = COALESCE(finished_at, created_at),
     dispatch_after = COALESCE(finished_at, created_at)
@@ -177,14 +185,18 @@ BEGIN
     END IF;
     NEW.finished_at := clock_timestamp();
     NEW.error_code := NULL;
-  ELSIF NEW.status = 'dead_letter' AND OLD.status = 'processing' THEN
-    IF NEW.attempts <> OLD.attempts
+  ELSIF NEW.status = 'dead_letter' AND OLD.status IN ('processing', 'queued', 'failed') THEN
+    IF NEW.execution_lease_token IS NOT NULL
+       OR NEW.execution_lease_expires_at IS NOT NULL
        OR NOT (
-         (NEW.dead_letter_reason = 'permanent_failure')
-         OR (NEW.dead_letter_reason = 'attempts_exhausted' AND NEW.attempts >= NEW.max_attempts)
-       )
-       OR NEW.execution_lease_token IS NOT NULL
-       OR NEW.execution_lease_expires_at IS NOT NULL THEN
+         (OLD.status = 'processing'
+           AND NEW.dead_letter_reason = 'permanent_failure'
+           AND NEW.attempts = OLD.attempts)
+         OR
+         (NEW.dead_letter_reason = 'attempts_exhausted'
+           AND NEW.attempts = OLD.attempts
+           AND NEW.attempts >= NEW.max_attempts)
+       ) THEN
       RAISE EXCEPTION 'Dead-letter transition requires a permanent failure or exhausted attempts'
         USING ERRCODE = '23514';
     END IF;
@@ -226,7 +238,8 @@ SECURITY DEFINER
 SET search_path = pg_catalog, platform
 AS $function$
 BEGIN
-  IF p_limit < 1 OR p_limit > 500 OR p_lease_seconds < 5 OR p_lease_seconds > 900 THEN
+  IF p_limit IS NULL OR p_limit < 1 OR p_limit > 500
+     OR p_lease_seconds IS NULL OR p_lease_seconds < 5 OR p_lease_seconds > 900 THEN
     RAISE EXCEPTION 'Invalid tenant job dispatch claim bounds' USING ERRCODE = '22023';
   END IF;
 
@@ -303,7 +316,380 @@ AS $function$
 DECLARE
   changed integer;
 BEGIN
+  IF p_error_code IS NULL OR p_error_code !~ '^[A-Z][A-Z0-9_]{1,95}
+    RAISE EXCEPTION 'Invalid tenant job publication failure metadata' USING ERRCODE = '22023';
+  END IF;
+
+  UPDATE platform.tenant_job_records
+  SET dispatch_status = CASE WHEN p_blocked OR dispatch_attempts >= 32 THEN 'blocked' ELSE 'pending' END,
+      dispatch_after = CASE WHEN p_blocked OR dispatch_attempts >= 32
+        THEN dispatch_after ELSE p_retry_at END,
+      dispatch_lease_token = NULL,
+      dispatch_lease_expires_at = NULL,
+      dispatch_error_code = p_error_code
+  WHERE id = p_job_id
+    AND status IN ('queued', 'failed')
+    AND dispatch_status = 'publishing'
+    AND dispatch_lease_token = p_lease_token
+    AND dispatch_lease_expires_at > clock_timestamp();
+
+  GET DIAGNOSTICS changed = ROW_COUNT;
+  RETURN changed = 1;
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION platform.claim_tenant_job_execution(
+  p_job_id uuid,
+  p_lease_seconds integer
+)
+RETURNS TABLE (
+  job_id uuid,
+  tenant_id uuid,
+  actor_user_id uuid,
+  purpose text,
+  correlation_id uuid,
+  job_type text,
+  payload jsonb,
+  attempt integer,
+  max_attempts integer,
+  lease_token uuid,
+  lease_expires_at timestamptz
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, platform
+AS $function$
+DECLARE
+  candidate platform.tenant_job_records%ROWTYPE;
+  token uuid;
+BEGIN
+  IF p_lease_seconds IS NULL OR p_lease_seconds < 5 OR p_lease_seconds > 900 THEN
+    RAISE EXCEPTION 'Invalid tenant job execution lease bounds' USING ERRCODE = '22023';
+  END IF;
+
+  SELECT job.* INTO candidate
+  FROM platform.tenant_job_records AS job
+  WHERE job.id = p_job_id
+    AND (
+      (job.status IN ('queued', 'failed')
+        AND job.dispatch_status = 'published'
+        AND job.available_at <= clock_timestamp())
+    )
+  FOR UPDATE SKIP LOCKED;
+
+  IF NOT FOUND THEN
+    RETURN;
+  END IF;
+
+  IF candidate.attempts >= candidate.max_attempts THEN
+    UPDATE platform.tenant_job_records
+    SET status = 'dead_letter',
+        dead_letter_reason = 'attempts_exhausted',
+        error_code = COALESCE(error_code, 'ATTEMPTS_EXHAUSTED'),
+        execution_lease_token = NULL,
+        execution_lease_expires_at = NULL
+    WHERE id = candidate.id;
+    RETURN;
+  END IF;
+
+  token := gen_random_uuid();
+  UPDATE platform.tenant_job_records
+  SET status = 'processing',
+      attempts = attempts + 1,
+      execution_lease_token = token,
+      execution_lease_expires_at = clock_timestamp() + make_interval(secs => p_lease_seconds),
+      last_started_at = clock_timestamp(),
+      error_code = NULL,
+      dead_letter_reason = NULL
+  WHERE id = candidate.id
+  RETURNING id, tenant_id, actor_user_id, purpose, correlation_id, job_type, payload,
+    attempts, max_attempts, execution_lease_token, execution_lease_expires_at
+  INTO job_id, tenant_id, actor_user_id, purpose, correlation_id, job_type, payload,
+    attempt, max_attempts, lease_token, lease_expires_at;
+
+  RETURN NEXT;
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION platform.assert_tenant_job_execution_lease(
+  p_job_id uuid,
+  p_lease_token uuid
+)
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, platform
+AS $function$
+DECLARE
+  allowed boolean;
+BEGIN
+  SELECT job.status = 'processing'
+    AND job.execution_lease_token = p_lease_token
+    AND job.execution_lease_expires_at > clock_timestamp()
+    AND job.tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
+    AND job.actor_user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
+  INTO allowed
+  FROM platform.tenant_job_records AS job
+  WHERE job.id = p_job_id;
+
+  IF allowed IS DISTINCT FROM TRUE THEN
+    RAISE EXCEPTION 'Tenant job execution lease is invalid, expired or outside its tenant context'
+      USING ERRCODE = '40001';
+  END IF;
+  RETURN true;
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION platform.complete_tenant_job(
+  p_job_id uuid,
+  p_lease_token uuid,
+  p_consumer_name text
+)
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, platform
+AS $function$
+DECLARE
+  job platform.tenant_job_records%ROWTYPE;
+  inserted integer;
+BEGIN
+  IF p_consumer_name IS NULL OR p_consumer_name !~ '^[a-z][a-z0-9.-]{1,95}$' THEN
+    RAISE EXCEPTION 'Invalid tenant job consumer name' USING ERRCODE = '22023';
+  END IF;
+
+  PERFORM platform.assert_tenant_job_execution_lease(p_job_id, p_lease_token);
+  SELECT * INTO job FROM platform.tenant_job_records WHERE id = p_job_id FOR UPDATE;
+
+  INSERT INTO platform.tenant_job_inbox
+    (tenant_id, consumer_name, message_id, job_id, request_sha256)
+  VALUES
+    (job.tenant_id, p_consumer_name, p_job_id, p_job_id, job.request_sha256)
+  ON CONFLICT DO NOTHING;
+
+  GET DIAGNOSTICS inserted = ROW_COUNT;
+  IF inserted <> 1 THEN
+    RAISE EXCEPTION 'Tenant job was already recorded in the consumer inbox'
+      USING ERRCODE = '23505';
+  END IF;
+
+  UPDATE platform.tenant_job_records
+  SET status = 'succeeded',
+      execution_lease_token = NULL,
+      execution_lease_expires_at = NULL,
+      dead_letter_reason = NULL
+  WHERE id = p_job_id
+    AND status = 'processing'
+    AND execution_lease_token = p_lease_token
+    AND execution_lease_expires_at > clock_timestamp();
+
+  GET DIAGNOSTICS inserted = ROW_COUNT;
+  IF inserted <> 1 THEN
+    RAISE EXCEPTION 'Tenant job lease was lost before commit' USING ERRCODE = '40001';
+  END IF;
+  RETURN true;
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION platform.fail_tenant_job(
+  p_job_id uuid,
+  p_lease_token uuid,
+  p_error_code text,
+  p_retryable boolean,
+  p_retry_at timestamptz
+)
+RETURNS text
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, platform
+AS $function$
+DECLARE
+  job platform.tenant_job_records%ROWTYPE;
+BEGIN
   IF p_error_code IS NULL OR p_error_code !~ '^[A-Z][A-Z0-9_]{1,95}$'
+     OR p_retryable IS NULL
+     OR (p_retryable AND (p_retry_at IS NULL OR p_retry_at <= clock_timestamp())) THEN
+    RAISE EXCEPTION 'Invalid tenant job failure metadata' USING ERRCODE = '22023';
+  END IF;
+
+  SELECT * INTO job
+  FROM platform.tenant_job_records
+  WHERE id = p_job_id
+  FOR UPDATE;
+
+  IF NOT FOUND OR job.status <> 'processing'
+     OR job.execution_lease_token IS DISTINCT FROM p_lease_token
+     OR job.execution_lease_expires_at <= clock_timestamp() THEN
+    RAISE EXCEPTION 'Tenant job lease was lost before failure could be recorded'
+      USING ERRCODE = '40001';
+  END IF;
+
+  IF NOT p_retryable THEN
+    UPDATE platform.tenant_job_records
+    SET status = 'dead_letter',
+        dead_letter_reason = 'permanent_failure',
+        error_code = p_error_code,
+        execution_lease_token = NULL,
+        execution_lease_expires_at = NULL
+    WHERE id = p_job_id;
+    RETURN 'dead_letter';
+  END IF;
+
+  IF job.attempts >= job.max_attempts THEN
+    UPDATE platform.tenant_job_records
+    SET status = 'dead_letter',
+        dead_letter_reason = 'attempts_exhausted',
+        error_code = p_error_code,
+        execution_lease_token = NULL,
+        execution_lease_expires_at = NULL
+    WHERE id = p_job_id;
+    RETURN 'dead_letter';
+  END IF;
+
+  UPDATE platform.tenant_job_records
+  SET status = 'failed',
+      available_at = p_retry_at,
+      dispatch_status = 'pending',
+      dispatch_after = p_retry_at,
+      dispatch_lease_token = NULL,
+      dispatch_lease_expires_at = NULL,
+      error_code = p_error_code,
+      dead_letter_reason = NULL,
+      execution_lease_token = NULL,
+      execution_lease_expires_at = NULL
+  WHERE id = p_job_id;
+
+  RETURN 'retry_scheduled';
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION platform.recover_tenant_job_runtime(
+  p_limit integer,
+  p_stale_publish_seconds integer
+)
+RETURNS TABLE (
+  recovered_execution_leases integer,
+  recovered_dispatch_leases integer,
+  redispatched_stale_messages integer
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, platform
+AS $function$
+DECLARE
+  job platform.tenant_job_records%ROWTYPE;
+  recovered_exec integer := 0;
+  recovered_dispatch integer := 0;
+  recovered_stale integer := 0;
+  retry_time timestamptz;
+BEGIN
+  IF p_limit IS NULL OR p_limit < 1 OR p_limit > 500
+     OR p_stale_publish_seconds IS NULL
+     OR p_stale_publish_seconds < 30 OR p_stale_publish_seconds > 3600 THEN
+    RAISE EXCEPTION 'Invalid tenant job recovery bounds' USING ERRCODE = '22023';
+  END IF;
+
+  FOR job IN
+    SELECT candidate.*
+    FROM platform.tenant_job_records AS candidate
+    WHERE candidate.status = 'processing'
+      AND candidate.execution_lease_expires_at <= clock_timestamp()
+    ORDER BY candidate.execution_lease_expires_at, candidate.id
+    LIMIT p_limit
+    FOR UPDATE SKIP LOCKED
+  LOOP
+    IF job.attempts >= job.max_attempts THEN
+      UPDATE platform.tenant_job_records
+      SET status = 'dead_letter',
+          dead_letter_reason = 'attempts_exhausted',
+          error_code = 'WORKER_LEASE_EXPIRED',
+          execution_lease_token = NULL,
+          execution_lease_expires_at = NULL
+      WHERE id = job.id;
+    ELSE
+      retry_time := clock_timestamp() + interval '1 second';
+      UPDATE platform.tenant_job_records
+      SET status = 'failed',
+          available_at = retry_time,
+          dispatch_status = 'pending',
+          dispatch_after = retry_time,
+          dispatch_lease_token = NULL,
+          dispatch_lease_expires_at = NULL,
+          error_code = 'WORKER_LEASE_EXPIRED',
+          dead_letter_reason = NULL,
+          execution_lease_token = NULL,
+          execution_lease_expires_at = NULL
+      WHERE id = job.id;
+    END IF;
+    recovered_exec := recovered_exec + 1;
+  END LOOP;
+
+  WITH expired AS (
+    SELECT id
+    FROM platform.tenant_job_records
+    WHERE dispatch_status = 'publishing'
+      AND dispatch_lease_expires_at <= clock_timestamp()
+    ORDER BY dispatch_lease_expires_at, id
+    LIMIT p_limit
+    FOR UPDATE SKIP LOCKED
+  ),
+  changed AS (
+    UPDATE platform.tenant_job_records AS job
+    SET dispatch_status = CASE WHEN job.dispatch_attempts >= 32 THEN 'blocked' ELSE 'pending' END,
+        dispatch_after = clock_timestamp(),
+        dispatch_lease_token = NULL,
+        dispatch_lease_expires_at = NULL,
+        dispatch_error_code = 'PUBLISH_LEASE_EXPIRED'
+    FROM expired
+    WHERE job.id = expired.id
+    RETURNING job.id
+  )
+  SELECT count(*)::integer INTO recovered_dispatch FROM changed;
+
+  WITH stale AS (
+    SELECT id
+    FROM platform.tenant_job_records
+    WHERE status = 'queued'
+      AND dispatch_status = 'published'
+      AND published_at < clock_timestamp() - make_interval(secs => p_stale_publish_seconds)
+    ORDER BY published_at, id
+    LIMIT p_limit
+    FOR UPDATE SKIP LOCKED
+  ),
+  changed AS (
+    UPDATE platform.tenant_job_records AS job
+    SET dispatch_status = 'pending',
+        dispatch_after = clock_timestamp(),
+        dispatch_error_code = 'DELIVERY_NOT_OBSERVED'
+    FROM stale
+    WHERE job.id = stale.id
+    RETURNING job.id
+  )
+  SELECT count(*)::integer INTO recovered_stale FROM changed;
+
+  RETURN QUERY SELECT recovered_exec, recovered_dispatch, recovered_stale;
+END;
+$function$;
+
+REVOKE ALL ON FUNCTION platform.claim_tenant_job_publications(integer, integer) FROM PUBLIC;
+REVOKE ALL ON FUNCTION platform.mark_tenant_job_published(uuid, uuid) FROM PUBLIC;
+REVOKE ALL ON FUNCTION platform.release_tenant_job_publication(uuid, uuid, timestamptz, text, boolean) FROM PUBLIC;
+REVOKE ALL ON FUNCTION platform.claim_tenant_job_execution(uuid, integer) FROM PUBLIC;
+REVOKE ALL ON FUNCTION platform.assert_tenant_job_execution_lease(uuid, uuid) FROM PUBLIC;
+REVOKE ALL ON FUNCTION platform.complete_tenant_job(uuid, uuid, text) FROM PUBLIC;
+REVOKE ALL ON FUNCTION platform.fail_tenant_job(uuid, uuid, text, boolean, timestamptz) FROM PUBLIC;
+REVOKE ALL ON FUNCTION platform.recover_tenant_job_runtime(integer, integer) FROM PUBLIC;
+
+GRANT EXECUTE ON FUNCTION platform.claim_tenant_job_publications(integer, integer) TO whatsbusiness_app;
+GRANT EXECUTE ON FUNCTION platform.mark_tenant_job_published(uuid, uuid) TO whatsbusiness_app;
+GRANT EXECUTE ON FUNCTION platform.release_tenant_job_publication(uuid, uuid, timestamptz, text, boolean) TO whatsbusiness_app;
+GRANT EXECUTE ON FUNCTION platform.claim_tenant_job_execution(uuid, integer) TO whatsbusiness_app;
+GRANT EXECUTE ON FUNCTION platform.assert_tenant_job_execution_lease(uuid, uuid) TO whatsbusiness_app;
+GRANT EXECUTE ON FUNCTION platform.complete_tenant_job(uuid, uuid, text) TO whatsbusiness_app;
+GRANT EXECUTE ON FUNCTION platform.fail_tenant_job(uuid, uuid, text, boolean, timestamptz) TO whatsbusiness_app;
+GRANT EXECUTE ON FUNCTION platform.recover_tenant_job_runtime(integer, integer) TO whatsbusiness_app;
+
+     OR p_blocked IS NULL
      OR (NOT p_blocked AND (p_retry_at IS NULL OR p_retry_at <= clock_timestamp())) THEN
     RAISE EXCEPTION 'Invalid tenant job publication failure metadata' USING ERRCODE = '22023';
   END IF;
@@ -351,7 +737,7 @@ DECLARE
   candidate platform.tenant_job_records%ROWTYPE;
   token uuid;
 BEGIN
-  IF p_lease_seconds < 5 OR p_lease_seconds > 900 THEN
+  IF p_lease_seconds IS NULL OR p_lease_seconds < 5 OR p_lease_seconds > 900 THEN
     RAISE EXCEPTION 'Invalid tenant job execution lease bounds' USING ERRCODE = '22023';
   END IF;
 
