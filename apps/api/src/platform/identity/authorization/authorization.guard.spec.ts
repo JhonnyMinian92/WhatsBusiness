@@ -56,36 +56,36 @@ function executionFixture(permission?: string, context?: TenantAccessContext) {
   return { execution, reflector };
 }
 
-test("authorization guard allows a required permission granted to the active tenant context", () => {
+test("authorization guard allows a required permission granted to the active tenant context", async () => {
   const fixture = executionFixture("inbox.conversations.reply");
   const guard = new AuthorizationGuard(
     fixture.reflector as unknown as Reflector,
     new AuthorizationService(new TenantAuthorizationPolicyEvaluator()),
   );
-  assert.equal(guard.canActivate(fixture.execution), true);
+  assert.equal(await guard.canActivate(fixture.execution), true);
 });
 
-test("authorization guard denies a route with no permission declaration", () => {
+test("authorization guard denies a route with no permission declaration", async () => {
   const fixture = executionFixture();
   const guard = new AuthorizationGuard(
     fixture.reflector as unknown as Reflector,
     new AuthorizationService(new TenantAuthorizationPolicyEvaluator()),
   );
-  assert.throws(
-    () => guard.canActivate(fixture.execution),
+  await assert.rejects(
+    guard.canActivate(fixture.execution),
     (error: unknown) => error instanceof ForbiddenException
       && (error.getResponse() as { code?: string }).code === "TENANT_PERMISSION_REQUIRED",
   );
 });
 
-test("authorization guard denies when the actor lacks the declared permission", () => {
+test("authorization guard denies when the actor lacks the declared permission", async () => {
   const fixture = executionFixture("ads.publish.request");
   const guard = new AuthorizationGuard(
     fixture.reflector as unknown as Reflector,
     new AuthorizationService(new TenantAuthorizationPolicyEvaluator()),
   );
-  assert.throws(
-    () => guard.canActivate(fixture.execution),
+  await assert.rejects(
+    guard.canActivate(fixture.execution),
     (error: unknown) => error instanceof ForbiddenException
       && (error.getResponse() as { code?: string; reason?: string }).code === "AUTHORIZATION_DENIED"
       && (error.getResponse() as { reason?: string }).reason === "PERMISSION_NOT_GRANTED",
@@ -107,4 +107,24 @@ test("RequireTenantPermission composes tenant context, purpose and permission gu
     "tenant.read",
     "platform.tenant.members.read",
   )(ProtectedController.prototype, "action", descriptor));
+});
+
+test("authorization guard audits critical denials before returning forbidden", async () => {
+  const fixture = executionFixture("ads.publish.request");
+  const recorded: unknown[] = [];
+  const audit = {
+    async record(...args: unknown[]) { recorded.push(args); },
+  };
+  const guard = new AuthorizationGuard(
+    fixture.reflector as unknown as Reflector,
+    new AuthorizationService(new TenantAuthorizationPolicyEvaluator()),
+    audit as never,
+  );
+  await assert.rejects(
+    guard.canActivate(fixture.execution),
+    (error: unknown) => error instanceof ForbiddenException,
+  );
+  assert.equal(recorded.length, 1);
+  assert.equal(recorded[0]?.[1], "ads.publish.request");
+  assert.equal((recorded[0]?.[2] as { allowed: boolean }).allowed, false);
 });
