@@ -59,3 +59,15 @@ Documentación de Meta Developers, changelogs, Business Messaging policy, WhatsA
 
 ## Actualización
 Solo promover una afirmación a esta memoria si tiene fuente/evidencia, fecha, alcance, responsable y aprobación. Registrar el cambio en `14-AUDIT-AND-CHANGELOG.md`.
+
+
+## Operación multiagente
+- Contrato común obligatorio: [../AGENTS.md](../AGENTS.md).
+- Adaptadores de instrucciones: [../CLAUDE.md](../CLAUDE.md), [../GEMINI.md](../GEMINI.md), [../.github/copilot-instructions.md](../.github/copilot-instructions.md).
+- Modelo operativo: [17-AGENT-OPERATING-MODEL.md](17-AGENT-OPERATING-MODEL.md).
+- Navegación por dependencias: [18-EXECUTION-GRAPH.md](18-EXECUTION-GRAPH.md).
+- Trazabilidad de evidencia: [19-TRACEABILITY-MATRIX.md](19-TRACEABILITY-MATRIX.md).
+- Criterios de terminación y aprobación: [20-PRODUCT-ACCEPTANCE.md](20-PRODUCT-ACCEPTANCE.md).
+- Prioridad de instrucciones: instrucción vigente del propietario > contrato AGENTS.md > memoria central/ADR aprobados > requisitos > código y evidencia > backlog/memorias temporales > investigación externa > inferencias del agente.
+- La petición explícita del propietario de implementar o corregir autoriza ese trabajo; no equivale a aprobar un despliegue, gasto real, acción irreversible ni aceptación final del producto.
+- Estados separados y obligatorios: implemented, verified y accepted. La aceptación final es exclusiva del propietario.
