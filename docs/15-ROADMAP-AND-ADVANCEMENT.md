@@ -8,7 +8,7 @@ El roadmap mide implementación y verificación, no cantidad de documentación o
 - [x] Crear contrato común para Codex, Claude, Copilot y agentes compatibles.
 - [x] Crear grafo de dependencias y matriz de trazabilidad.
 - [x] Definir handoff, estados y criterios de aceptación final.
-- [ ] Auditar el repositorio real y reconciliar TASK-001..066 con código/tests.
+- [ ] Auditar el repositorio real y reconciliar TASK-001..080 con código/tests.
 - [ ] Validar alcance, historias, arquitectura y decisiones pendientes con el propietario.
 - [ ] Validar APIs/permisos/eligibilidad con fuentes oficiales y cuenta de prueba.
 - [ ] Aprobar threat model, privacidad, decisiones tecnológicas y SLO/RPO/RTO.
@@ -118,3 +118,7 @@ La matriz PD-001..PD-023 y los ADR-011..020 adoptados están consolidados en doc
 | Producción/aceptación | no iniciada | exclusiva del propietario |
 
 No calcular porcentaje global hasta que exista denominador de requisitos reconciliados y evidencia por criterio.
+
+
+## Campaign Intelligence milestone
+Fase 7 incluye Campaign Intelligence (US-029), Creative Lab (US-030), Meta agent interoperability (US-031) y Meta API/policy intelligence (US-032). Dependencias y gates están en docs/31, docs/18 and docs/36. TASK-067..080 remain proposed. No direct Andromeda control is assumed.
