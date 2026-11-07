@@ -182,3 +182,34 @@ Source workspace validation #42376234089 y Contract validation #42376234088 fina
 - `consumeAndStage` no está conectado todavía a una outbox de negocio ni a consumers; su integration test usa una tabla temporal sintética. No se ejecuta publicación de campañas, gasto, mensajes, exports ni borrados.
 - Step-up queda deshabilitado operativamente hasta que se configuren y verifiquen los valores ACR/AMR y la disponibilidad real de `auth_time` en el IdP escogido.
 - No existe revisión legal de retención, anclaje externo del audit chain ni validación independiente de doble control. No se declara producción lista; GO-PRODUCTION continúa NO-GO.
+
+## 11. TASK-003 — Aislamiento operativo multi-tenant (2026-11-07)
+
+**Estado:** primitives de aislamiento implementadas y registradas en Source CI pendiente; no declarar TASK-003 verified ni accepted. Los adapters de infraestructura concretos, su wiring en runtime y las pruebas de integración con Valkey/object storage/broker todavía no están implementados.
+
+### Implementación añadida
+
+- platform/isolation/tenant-resource-namespace.ts centraliza namespaces por UUID de tenant para cache y object storage; valida identificadores, limita claves y rechaza traversal/path absolutos.
+- TenantScopedCache decora un puerto CacheStore, obliga a componer todas las claves con tenant/resource y aplica TTL positivo y bounded. La serialización de dominio queda explícita como bytes.
+- TenantScopedObjectStorage decora un puerto ObjectStorage, aplica prefijo tenants/{tenantId}/{resource}/..., valida contenido no vacío, MIME y SHA-256. El bucket/provider debe completar políticas privadas, TLS, cifrado y autorización.
+- TenantJobContextFactory crea un contexto inmutable desde un registro ya persistido y validado; TenantJobExecutor vuelve a entrar por DatabaseService.withTenantContext en cada intento, de modo que PostgreSQL revalida actor, membership, tenant y RLS dentro de la transacción.
+- TenantTelemetryContext usa pseudónimo inyectado para logs y mantiene tenant/correlation fuera de dimensiones métricas; solo admite operation/component/outcome acotados.
+- Los puertos cache/storage permiten adapters intercambiables; no se agregó dependencia de proveedor ni se simula que Valkey, S3 o RabbitMQ estén conectados.
+
+### Pruebas añadidas
+
+- Namespace distinto por tenant, encoding de claves y rechazo de UUID/recurso/path traversal inválidos.
+- Cache tenant A/B aislada, eliminación namespaced y TTL bounded.
+- Object storage tenant A/B aislado, prefijos esperados y validación de integridad/path.
+- Job context inmutable, propósito/UUID inválido denegado y ejecución que delega obligatoriamente a withTenantContext.
+- Telemetría: pseudónimo para logs, ausencia de tenant ID en métricas y rechazo de labels arbitrarios.
+- Los cinco archivos .spec.ts se registraron en el target api:test.
+
+### Límites y siguientes pasos
+
+- Aún falta implementar adapters reales de Valkey y object storage, inyectarlos mediante módulos de infraestructura y verificar ACL/TLS/encryption/bucket policy.
+- Falta outbox/inbox y consumer durables; la factory requiere que el caller lea un registro comprometido y validado, no que confíe en el payload del broker. Falta demostrar schema validation, tenant/aggregate match, dedupe, retry, DLQ y replay.
+- Falta resolver la identidad del actor del job desde un principal de servicio/actor persistido con política explícita; withTenantContext actualmente exige usuario/membership activos y por tanto falla cerrado para actors no provisionados.
+- Falta probar en PostgreSQL real pool reuse A→B, rollback y ausencia de contexto desde el executor, además de integración real con Valkey y proveedor de objetos.
+- Falta pseudonymizer HMAC respaldado por secreto administrado; no usar un hash simple de tenant como sustituto.
+- No se modificaron APIs ni eventos catalog-only. TASK-003 continúa in_progress; no hay producción ni datos reales autorizados.
