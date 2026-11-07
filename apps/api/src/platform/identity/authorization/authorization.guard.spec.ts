@@ -10,6 +10,7 @@ import { AuthorizationService } from "./authorization.service.js";
 import {
   AuthorizationGuard,
   RequirePermission,
+  RequireTenantPermission,
   REQUIRED_TENANT_PERMISSION,
 } from "./authorization.guard.js";
 import { TenantAuthorizationPolicyEvaluator } from "./tenant-authorization-policy.js";
@@ -94,4 +95,16 @@ test("authorization guard denies when the actor lacks the declared permission", 
 test("RequirePermission decorator rejects permission keys outside the catalog", () => {
   assert.doesNotThrow(() => RequirePermission("tenant.read"));
   assert.throws(() => RequirePermission("platform.root" as never));
+});
+
+test("RequireTenantPermission composes tenant context, purpose and permission guards", () => {
+  class ProtectedController {
+    action(): void {}
+  }
+  const descriptor = Object.getOwnPropertyDescriptor(ProtectedController.prototype, "action");
+  assert.ok(descriptor);
+  assert.doesNotThrow(() => RequireTenantPermission(
+    "tenant.read",
+    "platform.tenant.members.read",
+  )(ProtectedController.prototype, "action", descriptor));
 });
