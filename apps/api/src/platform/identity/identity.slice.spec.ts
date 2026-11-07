@@ -9,6 +9,7 @@ import { ForbiddenException, NotFoundException, UnauthorizedException } from "@n
 import { OidcJwtVerifier } from "./oidc-auth.guard.js";
 import { IdentityRepository } from "./identity.repository.js";
 import { IdentityService } from "./identity.service.js";
+import { PERMISSION_CATALOG, isPermissionKey } from "./authorization/permission-catalog.js";
 import { DatabaseService } from "../database/database.module.js";
 
 function encode(value: unknown): string {
@@ -141,9 +142,22 @@ test("PostgreSQL RLS isolates tenants and clears SET LOCAL context on a reused c
       "INSERT INTO platform.roles (id, tenant_id, role_key, display_name) VALUES ($1, $2, 'tenant_admin', 'Tenant Admin')",
       [roleA, tenantA],
     );
-    await adminPool.query(
-      "INSERT INTO platform.permissions (permission_key, description, risk_class) VALUES ('tenant.read', 'Read tenant resources', 'normal')",
+    const persistedPermissions = await adminPool.query<{
+      permission_key: string;
+      risk_class: string;
+    }>(
+      "SELECT permission_key, risk_class FROM platform.permissions ORDER BY permission_key",
     );
+    assert.deepEqual(
+      persistedPermissions.rows.map((row) => row.permission_key),
+      Object.keys(PERMISSION_CATALOG).sort(),
+    );
+    for (const permission of persistedPermissions.rows) {
+      assert.equal(isPermissionKey(permission.permission_key), true);
+      if (isPermissionKey(permission.permission_key)) {
+        assert.equal(permission.risk_class, PERMISSION_CATALOG[permission.permission_key].riskClass);
+      }
+    }
     const membershipA = await adminPool.query<{ id: string }>(
       "SELECT id::text FROM platform.memberships WHERE tenant_id = $1 AND user_id = $2",
       [tenantA, userA],
