@@ -295,3 +295,6 @@ Commits: implementación `c27a8578f56ef2e740a56d907e5fdc963a0a5b46`; tests `aa5c
 | AUD-089 | Documentación técnica | `docs/60-TENANT-JOBS-RUNTIME.md`, README backend, backlog y memoria documentan el estado y límites. |
 
 La migración 0007 fue reemplazada completa para corregir un fragmento SQL duplicado/incompleto descubierto mediante readback y logs de Actions. El commit actual aún necesita una corrida CI verde. No se ejecutaron datos de producción ni se creó frontend. TASK-003 sigue `in_progress`; faltan heartbeat, replay autorizado, observabilidad operativa, crash/concurrency tests extendidos, handlers de negocio reales y revisión independiente.
+
+
+| AUD-090 | Lease heartbeat de ejecución | Migración `0009-tenant-job-lease-renewal.sql`, función `platform.renew_tenant_job_execution_lease`, adapter PostgreSQL y `TenantJobExecutionLeaseHeartbeat`; renueva únicamente con fencing token activo, cancela handler cooperativo cuando se pierde el lease y añade suite unitaria + aserción de integración. CI de esta adición pendiente. |
