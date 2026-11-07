@@ -8,8 +8,9 @@ CREATE TABLE platform.tenant_job_records (
   purpose text NOT NULL CHECK (purpose ~ '^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*){2,7}$'),
   correlation_id uuid NOT NULL,
   job_type text NOT NULL CHECK (job_type ~ '^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*){1,7}$'),
-  idempotency_key text NOT NULL CHECK (length(idempotency_key) BETWEEN 16 AND 255),
+  idempotency_key text NOT NULL CHECK (length(trim(idempotency_key)) BETWEEN 16 AND 255),
   payload jsonb NOT NULL DEFAULT '{}'::jsonb CHECK (jsonb_typeof(payload) = 'object'),
+  CONSTRAINT tenant_job_payload_size CHECK (octet_length(payload::text) <= 262144),
   request_sha256 text NOT NULL CHECK (request_sha256 ~ '^[0-9a-f]{64}$'),
   status text NOT NULL DEFAULT 'queued'
     CHECK (status IN ('queued', 'processing', 'succeeded', 'failed', 'dead_letter')),
