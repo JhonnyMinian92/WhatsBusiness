@@ -208,7 +208,7 @@ test("PostgreSQL RLS isolates tenants and clears SET LOCAL context on a reused c
     await assert.rejects(
       adminPool.query("DELETE FROM platform.organizations WHERE id = $1", [organizationId]),
       (error: unknown) => typeof error === "object" && error !== null && "code" in error
-        && (error as { code: string }).code === "23503",
+        && (error as { code: string }).code === "23001",
     );
   } finally {
     await adminPool.query("DELETE FROM platform.tenants WHERE organization_id = $1", [organizationId]);
