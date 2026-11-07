@@ -912,6 +912,8 @@ Sigue pendiente asignar owners/reviewers reales, ejecutar TASK-039/G0, completar
 
 ---
 
+El registro de handoff por tarea, con dependencias, API IDs, eventos AsyncAPI y criterios de cierre, está en [docs/53](53-TASK-WORK-PACKAGES.md). La auditoría de consistencia y estado real de TASK-039 está en [docs/54](54-TASK-039-EXECUTION-AND-CONSISTENCY-REPORT.md).
+
 ## 13. Estado y decisiones
 
 - Este documento define el inventario maestro de APIs propias y las familias Meta que se consumen.
@@ -965,7 +967,7 @@ La matriz anterior agrupa tareas por historia para facilitar lectura. Esta tabla
 | TASK-036 | Inbox | INB-001..018, WA/FB/IG message operations; docs/39 | Canonical inbox/channel/handoff specification and review |
 | TASK-037 | Automation | AUTO-001..013 + internal workflow events; docs/40 | Deterministic workflow specification, retries/locks/kill-switch review |
 | TASK-038 | AI | AI-001..008, AGT-001..006; docs/41 | Provider-agnostic AI/security/usage specification; external provider remains gated |
-| TASK-039 | Architecture | Sin API REST; docs/45, SP-01..07, ADR-011..020 | Executed spike, measurements, evidence and architecture decision |
+| TASK-039 | Architecture | Sin API REST; docs/45, SP-01..10, ADR-011..025 | Ejecutar spike, measurements, evidence y decisión por ADR; estado/bloqueos en docs/54 |
 | TASK-040 | Traceability | Sin API REST; docs/19, docs/47 | REQ/US/AC/TASK/API/contract/test/module/evidence reconciliation |
 | TASK-041 | SRE/FinOps | Sin API REST; docs/13, docs/31, docs/45 | SLO/RPO/RTO, workload/cost model and owner-approved VPS budget |
 | TASK-042 | US-018 | CRM-001..004, CRM-011..013 | Contact/profile/custom field schema, tenant and validation tests |
