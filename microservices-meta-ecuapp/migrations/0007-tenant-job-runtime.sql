@@ -144,7 +144,15 @@ BEGIN
        OR NEW.error_code IS DISTINCT FROM OLD.error_code
        OR NEW.dead_letter_reason IS DISTINCT FROM OLD.dead_letter_reason
        OR NEW.execution_lease_token IS DISTINCT FROM OLD.execution_lease_token
-       OR NEW.execution_lease_expires_at IS DISTINCT FROM OLD.execution_lease_expires_at THEN
+       OR (
+         NEW.execution_lease_expires_at IS DISTINCT FROM OLD.execution_lease_expires_at
+         AND NOT (
+           OLD.status = 'processing'
+           AND NEW.execution_lease_token = OLD.execution_lease_token
+           AND NEW.execution_lease_expires_at > OLD.execution_lease_expires_at
+           AND NEW.execution_lease_expires_at > clock_timestamp()
+         )
+       ) THEN
       RAISE EXCEPTION 'A same-state tenant job update cannot alter execution state'
         USING ERRCODE = '23514';
     END IF;
