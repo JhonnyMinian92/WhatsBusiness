@@ -296,7 +296,7 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 ## Handoff — TASK-003 registro durable de jobs (2026-11-07)
 
 - Rama activa `environment/local`; no se modificaron `master` ni `environment/develop`.
-- Añadida migración `0006-tenant-job-outbox.sql`: tabla `platform.tenant_job_records`, RLS FORCE, ownership tenant/actor, payload JSON, estado, intentos bounded e índices.
+- Añadida migración `0006-tenant-job-outbox.sql`: tabla `platform.tenant_job_records`, RLS habilitada, ownership tenant/actor, payload JSON, estado, intentos bounded e índices; runtime solo tiene INSERT y no SELECT/UPDATE directo.
 - Función `platform.resolve_tenant_job_context(uuid)` concede al rol runtime solo metadata mínima de autorización; no retorna payload. `PostgresTenantJobRecordReader` implementa el puerto `TenantJobRecordReader` y `IsolationModule` registra reader/resolver/executor.
 - `DatabaseModule` exporta `DATABASE_POOL` para adapters de infraestructura; `AppModule` importa `IsolationModule`.
 - Añadidos `PostgresTenantJobRecordWriter.stage(client, input)` para insertar jobs dentro de la transacción de negocio y guard SQL de transiciones/attempts. Ocho suites TASK-003 están registradas en `apps/api/project.json`.
