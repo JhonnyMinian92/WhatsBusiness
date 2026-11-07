@@ -23,6 +23,11 @@ export interface TenantContextRecord {
   readonly timezone: string;
   readonly currency: string;
 }
+
+export interface AuthorizedTenantContextRecord extends TenantContextRecord {
+  readonly membershipId: string;
+  readonly authzVersion: number;
+}
 interface UserRow {
   user_id: string;
   display_name: string | null;
@@ -36,6 +41,8 @@ interface MembershipRow {
 }
 interface TenantContextRow {
   tenant_id: string;
+  membership_id: string;
+  authz_version: number;
   membership_status: "active";
   role_keys: string[];
   permission_keys: string[];
@@ -89,11 +96,13 @@ export class IdentityRepository {
     };
   }
 
-  async tenantContext(userId: string, tenantId: string): Promise<TenantContextRecord | null> {
+  async tenantContext(userId: string, tenantId: string): Promise<AuthorizedTenantContextRecord | null> {
     const result = await this.database.withTenantContext(userId, tenantId, (client) =>
       client.query<TenantContextRow>(
         `SELECT
            tenant.id::text AS tenant_id,
+           membership.id::text AS membership_id,
+           tenant.authz_version,
            membership.status AS membership_status,
            COALESCE(array_agg(DISTINCT role.role_key) FILTER (WHERE role.role_key IS NOT NULL), ARRAY[]::text[]) AS role_keys,
            COALESCE(array_agg(DISTINCT role_permission.permission_key) FILTER (WHERE role_permission.permission_key IS NOT NULL), ARRAY[]::text[]) AS permission_keys,
@@ -117,13 +126,15 @@ export class IdentityRepository {
            AND membership.user_id = $1
            AND membership.status = 'active'
            AND tenant.status = 'active'
-         GROUP BY tenant.id, membership.status`,
+         GROUP BY tenant.id, membership.id, tenant.authz_version, membership.status`,
         [userId, tenantId],
       ),
     );
     const row = result.rows[0];
     return row ? {
       tenantId: row.tenant_id,
+      membershipId: row.membership_id,
+      authzVersion: row.authz_version,
       membershipStatus: row.membership_status,
       roleKeys: row.role_keys,
       permissionKeys: row.permission_keys,
