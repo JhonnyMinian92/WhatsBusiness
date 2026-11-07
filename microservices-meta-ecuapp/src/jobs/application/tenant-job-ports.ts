@@ -49,6 +49,7 @@ export interface TenantJobRuntimeRepository {
   ): Promise<boolean>;
   claimExecution(jobId: string, leaseSeconds: number): Promise<ClaimedTenantJob | null>;
   assertExecutionLease(client: PoolClient, jobId: string, leaseToken: string): Promise<void>;
+  renewExecutionLease(jobId: string, leaseToken: string, leaseSeconds: number): Promise<Date | null>;
   complete(client: PoolClient, jobId: string, leaseToken: string, consumerName: string): Promise<void>;
   fail(
     jobId: string,
@@ -83,6 +84,7 @@ export interface TenantJobHandler {
     client: PoolClient,
     context: TenantJobExecutionContext,
     payload: Readonly<Record<string, unknown>>,
+    signal: AbortSignal,
   ): Promise<void>;
 }
 
