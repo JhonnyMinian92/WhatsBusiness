@@ -108,7 +108,7 @@ Estas tareas se añaden a la línea base porque el propietario confirmó greenfi
 | TASK-036 | Especificación funcional de Inbox omnicanal y handoff humano | PD-004, PD-003 | Contratos canónicos, diferencias por canal, estados y UX documentados |
 | TASK-037 | Especificación de Automation Engine y chatbots basados en reglas | PD-005 | Triggers, condiciones, acciones, retries, versiones, pausa y audit definidos |
 | TASK-038 | Especificación de AI Assistance / AI Gateway | PD-005 | Proveedor desacoplado, seguridad, coste, evaluación y human approval definidos |
-| TASK-039 | Architecture spike y validación transversal ADR-011..020 | PD-007, PD-008, PD-021, PD-023 | Build/deploy de laboratorio, footprint medido, RLS/pooling, outbox/broker, webhook y restore documentados |
+| TASK-039 | Architecture spike y validación transversal ADR-011..025 | PD-007, PD-008, PD-021, PD-023 | SP-01..10: compatibilidad exacta Node/TS/Nest/Angular/Nx, comparación backend/frontend/protocolos, RLS/pooling, outbox/broker, webhook durable, Valkey, restore y footprint |
 | TASK-040 | Reconciliación completa de historias, requisitos y trazabilidad | TASK-034..039 | Cada requisito tiene ID, prioridad, owner, AC, tareas, módulos previstos y evidencia esperada |
 | TASK-041 | Definición operativa: SLO/RPO/RTO, capacidad, backups y presupuesto VPS | Q-013 | Objetivos cuantificados y validados por propietario |
 
