@@ -4,26 +4,7 @@
 DROP TRIGGER IF EXISTS tenant_job_records_transition_guard
   ON platform.tenant_job_records;
 
--- Legacy processing rows have no fencing lease. Return them to a safe retryable
--- state before adding the lease consistency constraints.
-UPDATE platform.tenant_job_records
-SET status = 'failed',
-    available_at = clock_timestamp() + interval '1 second',
-    error_code = 'LEGACY_EXECUTION_LEASE_MISSING'
-WHERE status = 'processing';
-
-UPDATE platform.tenant_job_records
-SET dead_letter_reason = 'attempts_exhausted'
-WHERE status = 'dead_letter';
-
-UPDATE platform.tenant_job_records
-SET status = 'dead_letter',
-    finished_at = clock_timestamp(),
-    dead_letter_reason = 'attempts_exhausted',
-    error_code = COALESCE(error_code, 'ATTEMPTS_EXHAUSTED')
-WHERE status IN ('queued', 'failed')
-  AND attempts >= max_attempts;
-
+-- Add lease columns before backfilling legacy rows.
 ALTER TABLE platform.tenant_job_records
   ADD COLUMN dispatch_status text NOT NULL DEFAULT 'pending'
     CHECK (dispatch_status IN ('pending', 'publishing', 'published', 'blocked')),
@@ -39,10 +20,26 @@ ALTER TABLE platform.tenant_job_records
   ADD COLUMN last_started_at timestamptz,
   ADD COLUMN dead_letter_reason text;
 
+-- Legacy processing rows have no fencing lease. Return them to a safe retryable
+-- state before adding the lease consistency constraints.
+UPDATE platform.tenant_job_records
+SET status = 'failed',
+    available_at = clock_timestamp() + interval '1 second',
+    error_code = 'LEGACY_EXECUTION_LEASE_MISSING'
+WHERE status = 'processing';
+
 UPDATE platform.tenant_job_records
 SET dead_letter_reason = 'attempts_exhausted'
 WHERE status = 'dead_letter'
   AND dead_letter_reason IS NULL;
+
+UPDATE platform.tenant_job_records
+SET status = 'dead_letter',
+    finished_at = clock_timestamp(),
+    dead_letter_reason = 'attempts_exhausted',
+    error_code = COALESCE(error_code, 'ATTEMPTS_EXHAUSTED')
+WHERE status IN ('queued', 'failed')
+  AND attempts >= max_attempts;
 
 UPDATE platform.tenant_job_records
 SET dispatch_status = 'published',
