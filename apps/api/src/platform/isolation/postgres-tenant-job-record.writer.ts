@@ -23,7 +23,11 @@ export class PostgresTenantJobRecordWriter implements TenantJobRecordWriter {
     if (typeof serializedPayload !== "string") {
       throw new Error("Tenant job payload must serialize to a JSON object.");
     }
-    const payload = JSON.stringify(canonicalizeJson(JSON.parse(serializedPayload) as unknown));
+    const parsedPayload: unknown = JSON.parse(serializedPayload);
+    if (!isPlainRecord(parsedPayload)) {
+      throw new Error("Tenant job payload must serialize to a JSON object.");
+    }
+    const payload = JSON.stringify(canonicalizeJson(parsedPayload));
     if (Buffer.byteLength(payload, "utf8") > MAX_PAYLOAD_BYTES) {
       throw new Error("Tenant job payload exceeds the 256 KiB limit.");
     }
