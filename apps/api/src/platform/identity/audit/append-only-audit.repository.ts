@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import type { PoolClient } from "pg";
+import { Injectable } from "@nestjs/common";
 
 export type AuditOutcome =
   | "allowed"
@@ -59,6 +60,7 @@ interface AuditRow {
 }
 
 /** Append-only, tenant-partitioned SHA-256 hash chain. */
+@Injectable()
 export class AppendOnlyAuditRepository {
   async append(client: PoolClient, input: AppendAuditEvent): Promise<AuditEventRecord> {
     this.validate(input);
