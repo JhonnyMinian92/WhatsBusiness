@@ -177,11 +177,12 @@ export class TenantAuthorizationPolicyEvaluator implements AuthorizationPolicyEv
       const capability = evidence.capability;
       const maximumAge = conditions.maximumCapabilityAgeMs;
       if (
-        !capability
-        || capability.status !== "available"
-        || !Number.isFinite(maximumAge)
+        !Number.isFinite(maximumAge)
         || (maximumAge ?? -1) < 0
       ) {
+        return deny("POLICY_CONFIGURATION_INVALID");
+      }
+      if (!capability || capability.status !== "available") {
         return deny("CAPABILITY_NOT_AVAILABLE");
       }
       const checkedAt = Date.parse(capability.checkedAt);
