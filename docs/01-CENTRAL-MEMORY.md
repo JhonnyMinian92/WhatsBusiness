@@ -71,3 +71,13 @@ Solo promover una afirmación a esta memoria si tiene fuente/evidencia, fecha, a
 - Prioridad de instrucciones: instrucción vigente del propietario > contrato AGENTS.md > memoria central/ADR aprobados > requisitos > código y evidencia > backlog/memorias temporales > investigación externa > inferencias del agente.
 - La petición explícita del propietario de implementar o corregir autoriza ese trabajo; no equivale a aprobar un despliegue, gasto real, acción irreversible ni aceptación final del producto.
 - Estados separados y obligatorios: implemented, verified y accepted. La aceptación final es exclusiva del propietario.
+
+
+## Baseline confirmada del producto (2026-11-06)
+- Decisiones del propietario: [29-OWNER-DECISIONS.md](29-OWNER-DECISIONS.md).
+- Arquitectura/stack recomendada, aún proposed: [30-RECOMMENDED-ARCHITECTURE.md](30-RECOMMENDED-ARCHITECTURE.md).
+- Plan maestro por fases: [31-MASTER-DELIVERY-PLAN.md](31-MASTER-DELIVERY-PLAN.md).
+- SaaS comercial + plataforma interna EcuApp; greenfield; todo el catálogo Meta; backend, panel web, CRM, inbox omnicanal; IA básica para chatbots/sugerencias; VPS.
+- El propietario autoriza recomendar stack y resolver decisiones técnicas reversibles sin interrumpir el trabajo independiente. Las decisiones comerciales, legales, de privacidad, datos, costes recurrentes, seguridad de alto impacto y breaking changes se escalan.
+- No asumir precios, segmentos de clientes, retención, SLO/RPO/RTO, límites de gasto ni integraciones externas hasta responder las preguntas pendientes.
+- No se ha iniciado implementación de código en este cambio; las nuevas decisiones y arquitectura siguen siendo especificación.
