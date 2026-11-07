@@ -241,3 +241,15 @@ Source CI run #67 [42385036275](https://github.com/JhonnyMinian92/WhatsBusiness/
 | Append-only audit stream | US-002; TASK-005 | `audit_events`, `audit_stream_heads`, `AppendOnlyAuditRepository` | tenant-scoped hash-chain verification, head-to-event consistency, UPDATE/DELETE denied | implemented / CI-verified |
 
 Source CI run #112 [42387272987](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42387272987), commit `b38b78ab52dbb96262dc8078518fdf4f55fc5a2c` — SUCCESS; ephemeral PostgreSQL approval integration was enabled in this run. Limits: no real IdP/verified ACR-AMR allowlist, no business outbox/consumer, IAM approval APIs are still catalog-only, review independent/owner acceptance pending.
+
+
+## Evidence map — TASK-003 Operational tenant isolation (2026-11-07)
+
+| Resultado / criterio | Historia / tarea | Código / contrato | Pruebas registradas | Estado |
+|---|---|---|---|---|
+| Cache keys no colisionan entre tenants y TTL bounded | US-001; TASK-003 | TenantResourceNamespace, TenantScopedCache, CacheStore | tenant-resource-namespace.spec.ts, tenant-scoped-cache.spec.ts | implemented; CI pending |
+| Object keys quedan bajo prefijo tenant y rechazan traversal | US-001; TASK-003 | TenantScopedObjectStorage, ObjectStorage | tenant-scoped-object-storage.spec.ts | implemented; CI pending |
+| Cada ejecución worker revalida membership/tenant vía DB | US-001; TASK-003 | TenantJobContextFactory, TenantJobExecutor, DatabaseService.withTenantContext | tenant-job-context.spec.ts | primitive implemented; PostgreSQL worker integration pending |
+| Telemetría no filtra tenant ID en metric labels | US-001; TASK-003 | TenantTelemetryContext, TenantPseudonymizer | tenant-telemetry-context.spec.ts | implemented; HMAC adapter pending |
+
+No se afirma runtime completo: adapters Valkey/object storage, outbox/inbox consumer, retry/DLQ/replay, broker validation, pool Node A→B, HMAC secret-backed pseudonymization y review independiente siguen pendientes. TASK-003 no está verified ni accepted.
