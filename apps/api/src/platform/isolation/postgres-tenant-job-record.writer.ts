@@ -11,10 +11,6 @@ const PURPOSE_PATTERN = /^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*){2,7}$/;
 const JOB_TYPE_PATTERN = /^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*){1,7}$/;
 const MAX_PAYLOAD_BYTES = 256 * 1024;
 
-/**
- * Stages durable work in the caller's business transaction. Publishing is a
- * separate concern: a commit cannot be observed by a broker before it exists.
- */
 @Injectable()
 export class PostgresTenantJobRecordWriter implements TenantJobRecordWriter {
   async stage(client: PoolClient, input: StageTenantJobInput): Promise<string> {
@@ -23,6 +19,7 @@ export class PostgresTenantJobRecordWriter implements TenantJobRecordWriter {
     if (typeof serializedPayload !== "string") {
       throw new Error("Tenant job payload must serialize to a JSON object.");
     }
+
     const parsedPayload: unknown = JSON.parse(serializedPayload);
     if (!isPlainRecord(parsedPayload)) {
       throw new Error("Tenant job payload must serialize to a JSON object.");
@@ -34,17 +31,21 @@ export class PostgresTenantJobRecordWriter implements TenantJobRecordWriter {
 
     const requestSha256 = createHash("sha256")
       .update(JSON.stringify([
-        input.tenantId.toLowerCase(), input.actorUserId.toLowerCase(),
-        input.purpose, input.jobType, payload,
+        input.tenantId.toLowerCase(),
+        input.actorUserId.toLowerCase(),
+        input.purpose,
+        input.jobType,
+        payload,
       ]), "utf8")
       .digest("hex");
-    const inserted = await client.query<{ id: string; request_sha256: string }>(
+
+    const inserted = await client.query<{ id: string }>(
       [
         "INSERT INTO platform.tenant_job_records",
-        "(tenant_id, actor_user_id, purpose, correlation_id, job_type, idempotency_key, payload, payload_sha256, max_attempts, available_at)",
+        "(tenant_id, actor_user_id, purpose, correlation_id, job_type, idempotency_key, payload, request_sha256, max_attempts, available_at)",
         "VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8, $9, $10)",
         "ON CONFLICT (tenant_id, actor_user_id, job_type, idempotency_key) DO NOTHING",
-        "RETURNING id::text, payload_sha256",
+        "RETURNING id::text",
       ].join(" "),
       [
         input.tenantId,
@@ -61,14 +62,14 @@ export class PostgresTenantJobRecordWriter implements TenantJobRecordWriter {
     );
     if (inserted.rows[0]) return inserted.rows[0].id;
 
-    const existing = await client.query<{ id: string; payload_sha256: string }>(
-      "SELECT id::text, payload_sha256 FROM platform.tenant_job_records WHERE tenant_id = $1 AND actor_user_id = $2 AND job_type = $3 AND idempotency_key = $4",
+    const existing = await client.query<{ id: string; request_sha256: string }>(
+      "SELECT job_id::text AS id, request_sha256 FROM platform.resolve_tenant_job_idempotency($1, $2, $3, $4)",
       [input.tenantId, input.actorUserId, input.jobType, input.idempotencyKey],
     );
     const row = existing.rows[0];
     if (!row) throw new Error("Tenant job idempotency record could not be resolved.");
-    if (row.payload_sha256 !== payloadSha256) {
-      throw new Error("Tenant job idempotency key was reused with a different payload.");
+    if (row.request_sha256 !== requestSha256) {
+      throw new Error("Tenant job idempotency key was reused with a different payload or metadata.");
     }
     return row.id;
   }
@@ -87,7 +88,8 @@ export class PostgresTenantJobRecordWriter implements TenantJobRecordWriter {
       || !isPlainRecord(input.payload)
       || (input.maxAttempts !== undefined
         && (!Number.isInteger(input.maxAttempts) || input.maxAttempts < 1 || input.maxAttempts > 32))
-      || (input.availableAt !== undefined && !Number.isFinite(input.availableAt.getTime()))) {
+      || (input.availableAt !== undefined
+        && (!(input.availableAt instanceof Date) || !Number.isFinite(input.availableAt.getTime())))) {
       throw new Error("Tenant job record contains invalid metadata.");
     }
   }
