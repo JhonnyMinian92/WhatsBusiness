@@ -8,7 +8,7 @@ El roadmap mide implementación y verificación, no cantidad de documentación o
 - [x] Crear contrato común para Codex, Claude, Copilot y agentes compatibles.
 - [x] Crear grafo de dependencias y matriz de trazabilidad.
 - [x] Definir handoff, estados y criterios de aceptación final.
-- [ ] Auditar el repositorio real y reconciliar las 33 tareas con código/tests.
+- [ ] Auditar el repositorio real y reconciliar TASK-001..066 con código/tests.
 - [ ] Validar alcance, historias, arquitectura y decisiones pendientes con el propietario.
 - [ ] Validar APIs/permisos/eligibilidad con fuentes oficiales y cuenta de prueba.
 - [ ] Aprobar threat model, privacidad, decisiones tecnológicas y SLO/RPO/RTO.
@@ -60,7 +60,7 @@ flowchart LR
 | Grafo y trazabilidad | creados | docs/18 y docs/19 |
 | Criterios de producto terminado | definidos | docs/20 |
 | Auditoría del código fuente | pendiente | siguiente paso técnico |
-| TASK-001..033 | plan inicial; estado de código sin reconciliar | docs/11 |
+| TASK-001..066 | plan consolidado; estado de código sin reconciliar | docs/11 |
 | APIs/permisos/App Review | no verificado | Meta app/business |
 | Producto implementado | no declarado | requiere auditoría y evidencia |
 | Aceptación final | pendiente | exclusiva del propietario |
