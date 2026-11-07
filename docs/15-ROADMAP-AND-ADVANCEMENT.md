@@ -89,3 +89,32 @@ La propuesta completa y los gates están en [31-MASTER-DELIVERY-PLAN.md](31-MAST
 - Fase 8: hardening, operación y producción.
 
 Tareas nuevas TASK-034..041 en docs/11. Todas propuestas; ninguna implementada ni verificada. El owner confirmó greenfield, por lo que la auditoría técnica de código heredado queda cerrada como "no aplica"; se requiere auditoría de estructura/build/seguridad al crear la primera implementación.
+
+
+## Baseline aplicada por delegación del propietario (2026-11-06)
+La matriz PD-001..PD-023 y los ADR-011..020 adoptados están consolidados en docs/29 y docs/30. El plan detallado actual y normativo es docs/31 (fases 0–8); las fases resumidas anteriores deben interpretarse subordinadas a ese plan.
+
+### Cambios incorporados
+- Modelo SaaS: Ecuador SMEs commerce/services como hipótesis de entrada, agencias como segmento secundario.
+- Suscripción tenant + seats + usage; cargos Meta separados; pricing sin definir hasta unit economics.
+- es-EC/USD/America-Guayaquil; multi-tenant tenant_id + backend auth + RLS; agency grants.
+- Modular monolith/API-worker; no microservicios prematuros.
+- Meta v27 por adapter, Embedded Signup v4 evaluado, BSUID, WAAC/PMA, Marketing Messages API para marketing con sunset Cloud API 2027-10-13.
+- OWASP ASVS 5.0.0, WCAG 2.2 AA, configurable retention y LOPDP review pendiente.
+- SLO candidate 99.9%, RPO 15m, RTO 4h, no SLA y pendiente de benchmark/restore drills.
+
+### Avance verdadero
+| Área | Estado | Evidencia / pendiente |
+|---|---|---|
+| Decisiones de producto | baseline adoptada | docs/29 PD-001..023 |
+| Investigación externa | registrada con fecha y fuentes | docs/32; revalidar al implementar |
+| Arquitectura | dirección técnica adoptada | docs/30 ADR-011..020; TASK-039 spike pendiente |
+| Roadmap por gates | definido | docs/31 |
+| Backlog | ampliado | TASK-053..065 propuestas |
+| Código de producto | no iniciado | Greenfield; no hay apps/packages de producto |
+| Tests/benchmarks | no ejecutados | TASK-039/060/061 |
+| Meta App Review/cuentas | no verificado | depende de app/Business reales |
+| LOPDP revisión especializada | pendiente | no tratar datos reales en producción antes del gate |
+| Producción/aceptación | no iniciada | exclusiva del propietario |
+
+No calcular porcentaje global hasta que exista denominador de requisitos reconciliados y evidencia por criterio.
