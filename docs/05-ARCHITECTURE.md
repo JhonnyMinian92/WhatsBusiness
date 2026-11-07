@@ -103,8 +103,8 @@ flowchart TB
 - Outbox/inbox para consistencia eventual.
 - Cada servicio declara owner, SLO, datos, clasificación y runbook.
 
-## 7. Decisiones pendientes antes del código
-DB/ORM, broker, lenguaje/framework, despliegue cloud, API gateway, multi-region, RPO/RTO y SLA deben decidirse con ADR basado en requisitos cuantificados; no fijarlos por preferencia personal.
+## 7. Decisiones técnicas y operativas
+Las decisiones de lenguaje/framework, base de datos, broker, monorepo, despliegue inicial e identidad se adoptaron en ADR-011..020 y se documentaron en docs/30 y docs/33. Su validez operativa debe confirmarse mediante TASK-039 y TASK-060. Multi-region, topología HA definitiva, presupuesto, SLA comercial y RPO/RTO comprometidos siguen condicionados por requisitos y mediciones.
 
 
 ## 8. Baseline técnica posterior a respuestas del propietario
