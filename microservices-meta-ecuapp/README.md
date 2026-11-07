@@ -38,3 +38,22 @@ RabbitMQ 4.4 con quorum queues es la baseline documentada en docs/51. Se requier
 ## Estado honesto
 
 Este proyecto añade runtime source para outbox/dispatcher/consumer, pero no representa GO-PRODUCTION. Antes de operar workers reales faltan la composición de deployment/secret manager, topology/policies desplegadas, pruebas crash/replay con RabbitMQ real, pool reuse A→B, SLO/alertas, carga, revisión independiente y aprobación de producción. El frontend no es requerido para este trabajo backend; no se crea todavía `app-meta-ecuapp`.
+## Runtime worker y variables de entorno
+
+El composition root reusable es `TenantJobRuntimeProcess.create`. El host debe pasar:
+- `handlers`: handlers reales de los casos de uso de la aplicación; se rechaza una lista vacía.
+- `databaseFactory(workerPool)`: adapta el `DatabaseService.withTenantContext` canónico existente al pool del worker. No crear una segunda implementación de autorización/RLS.
+- `logger`: implementación de logs/telemetría con códigos normalizados.
+
+La plantilla de variables está en `.env.example`. Se requieren URLs separadas para API, dispatcher y worker, más `RABBITMQ_URL`. En producción las URLs deben venir de Secret Manager/KMS y DB SSL y AMQPS son obligatorios. El runtime no arranca un worker productivo sin handlers reales.
+
+### Comandos del workspace
+```bash
+pnpm install --frozen-lockfile
+pnpm nx build microservices-meta-ecuapp
+pnpm nx typecheck microservices-meta-ecuapp
+pnpm nx test microservices-meta-ecuapp
+pnpm db:migrate
+```
+
+La raíz HTTP legacy sigue en `apps/api` durante la migración gradual de contextos; los nuevos ports/adapters de jobs viven aquí. No existe aún una aplicación web; solo se creará `app-meta-ecuapp` cuando una historia frontend concreta lo requiera.
