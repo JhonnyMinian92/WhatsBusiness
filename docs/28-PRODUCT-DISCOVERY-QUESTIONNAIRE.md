@@ -137,3 +137,7 @@ Estado del cuestionario: 10 de 20 preguntas respondidas. La fuente de verdad de 
 | Q-010 | Agentes continúan tareas independientes y aplican la mejor opción técnica conocida sin preguntar; consultan decisiones de impacto |
 
 Las preguntas Q-011..Q-020 originales se mantienen pendientes, excepto que la decisión de hosting (VPS), estrategia Git (seguir environment/local) y autonomía operativa se han aclarado parcialmente por las respuestas. No se inferirán detalles de precios, retención, cumplimiento, carga, SLO ni proveedores externos.
+
+
+## Aclaración de numeración de respuestas
+Las diez respuestas recibidas correspondieron al cuestionario abreviado presentado en el chat, cuyas etiquetas no coincidían con la numeración Q-001..Q-020 de este documento. Para evitar falsa trazabilidad, no se deben tratar como respuestas a las preguntas originales con el mismo número. La correspondencia semántica está normalizada en PD-001..PD-011 en [29-OWNER-DECISIONS.md](29-OWNER-DECISIONS.md). Las preguntas originales de segmento de clientes, monetización, localización, aislamiento, retención, aprobaciones, integraciones y producción permanecen abiertas salvo aclaración explícita posterior.
