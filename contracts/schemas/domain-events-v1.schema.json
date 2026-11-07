@@ -168,6 +168,48 @@
     },
     {
       "$ref": "#/$defs/MetaChangeImpactAnalyzed"
+    },
+    {
+      "$ref": "#/$defs/CrmContactUpdated"
+    },
+    {
+      "$ref": "#/$defs/CrmIdentityMergeRequested"
+    },
+    {
+      "$ref": "#/$defs/CrmIdentityMergeReversed"
+    },
+    {
+      "$ref": "#/$defs/CrmLeadCreated"
+    },
+    {
+      "$ref": "#/$defs/CrmLeadDisqualified"
+    },
+    {
+      "$ref": "#/$defs/CrmLeadConverted"
+    },
+    {
+      "$ref": "#/$defs/CrmLeadAssigned"
+    },
+    {
+      "$ref": "#/$defs/CrmOpportunityLost"
+    },
+    {
+      "$ref": "#/$defs/CrmActivityCreated"
+    },
+    {
+      "$ref": "#/$defs/InboxConversationUpdated"
+    },
+    {
+      "$ref": "#/$defs/InboxMessageAccepted"
+    },
+    {
+      "$ref": "#/$defs/InboxMessageFailed"
+    },
+    {
+      "$ref": "#/$defs/InboxOwnershipExpired"
+    },
+    {
+      "$ref": "#/$defs/InboxHandoffRequested"
     }
   ],
   "$defs": {
@@ -4237,6 +4279,1115 @@
       ],
       "unevaluatedProperties": false,
       "description": "Producer: meta-change-intelligence; consumers: capability registry and backlog; TASK-065, TASK-076. References and state only; no PII or secrets."
+    },
+    "CrmContactUpdated": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "crm.contact.updated"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "contact"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "contactId",
+                "changedFields"
+              ],
+              "properties": {
+                "contactId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "changedFields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "minItems": 1,
+                  "uniqueItems": true
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: crm-contact-service; consumers: crm-contact-projections, inbox, campaign intelligence; TASK-042, TASK-043. References and state only; no PII or secrets."
+    },
+    "CrmIdentityMergeRequested": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "crm.identity.merge_requested"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "contact_identity_merge"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "mergeRequestId",
+                "sourceContactId",
+                "targetContactId",
+                "requestedByUserId"
+              ],
+              "properties": {
+                "mergeRequestId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "sourceContactId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "targetContactId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "requestedByUserId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: crm-identity-service; consumers: identity review and audit; TASK-043, TASK-053. References and state only; no PII or secrets."
+    },
+    "CrmIdentityMergeReversed": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "crm.identity.merge_reversed"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "contact_identity_merge"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "mergeId",
+                "sourceContactId",
+                "targetContactId",
+                "reasonCode"
+              ],
+              "properties": {
+                "mergeId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "sourceContactId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "targetContactId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "reasonCode": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100,
+                  "pattern": "^[A-Z0-9_]+$"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: crm-identity-service; consumers: CRM projections and audit; TASK-043, TASK-053. References and state only; no PII or secrets."
+    },
+    "CrmLeadCreated": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "crm.lead.created"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "lead"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "leadId",
+                "sourceType"
+              ],
+              "properties": {
+                "leadId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "sourceType": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100,
+                  "pattern": "^[A-Z0-9_]+$"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: crm-lead-service; consumers: lead routing and sales pipeline; TASK-023, TASK-042. References and state only; no PII or secrets."
+    },
+    "CrmLeadDisqualified": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "crm.lead.disqualified"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "lead"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "leadId",
+                "reasonCode"
+              ],
+              "properties": {
+                "leadId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "reasonCode": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100,
+                  "pattern": "^[A-Z0-9_]+$"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: crm-lead-service; consumers: sales pipeline and campaign intelligence; TASK-023, TASK-042. References and state only; no PII or secrets."
+    },
+    "CrmLeadConverted": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "crm.lead.converted"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "lead"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "leadId",
+                "contactId",
+                "opportunityId"
+              ],
+              "properties": {
+                "leadId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "contactId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "opportunityId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: crm-lead-service; consumers: CRM contact and Sales opportunity projections; TASK-023, TASK-042, TASK-044. References and state only; no PII or secrets."
+    },
+    "CrmLeadAssigned": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "crm.lead.assigned"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "lead_assignment"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "leadId",
+                "assigneeType",
+                "assigneeId"
+              ],
+              "properties": {
+                "leadId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "assigneeType": {
+                  "type": "string",
+                  "enum": [
+                    "user",
+                    "team"
+                  ]
+                },
+                "assigneeId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: crm-lead-service; consumers: lead routing and notifications; TASK-023, TASK-042. References and state only; no PII or secrets."
+    },
+    "CrmOpportunityLost": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "crm.opportunity.lost"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "opportunity"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "opportunityId",
+                "reasonCode",
+                "lostAt"
+              ],
+              "properties": {
+                "opportunityId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "reasonCode": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100,
+                  "pattern": "^[A-Z0-9_]+$"
+                },
+                "lostAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: crm-sales-service; consumers: Campaign Intelligence and CAPI suppression/projections; TASK-044, TASK-068. References and state only; no PII or secrets."
+    },
+    "CrmActivityCreated": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "crm.activity.created"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "activity"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "activityId",
+                "subjectAggregateType",
+                "subjectAggregateId",
+                "activityType"
+              ],
+              "properties": {
+                "activityId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "subjectAggregateType": {
+                  "type": "string",
+                  "enum": [
+                    "contact",
+                    "lead",
+                    "opportunity",
+                    "company"
+                  ]
+                },
+                "subjectAggregateId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "activityType": {
+                  "type": "string",
+                  "enum": [
+                    "task",
+                    "note",
+                    "meeting",
+                    "call",
+                    "email_reference",
+                    "message_reference",
+                    "stage_change",
+                    "assignment_change",
+                    "system_event"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: crm-activity-service; consumers: CRM timeline projections; TASK-042, TASK-044. References and state only; no PII or secrets."
+    },
+    "InboxConversationUpdated": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "inbox.conversation.updated"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "conversation"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "conversationId",
+                "changedFields"
+              ],
+              "properties": {
+                "conversationId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "changedFields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "minItems": 1,
+                  "uniqueItems": true
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: inbox-service; consumers: Inbox projections and routing; TASK-045, TASK-046. References and state only; no PII or secrets."
+    },
+    "InboxMessageAccepted": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "inbox.message.accepted"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "message"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "messageId",
+                "acceptedAt"
+              ],
+              "properties": {
+                "messageId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "acceptedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: channel-adapter-processor; consumers: Inbox submission state projection; TASK-045. References and state only; no PII or secrets."
+    },
+    "InboxMessageFailed": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "inbox.message.failed"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "message"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "messageId",
+                "reasonCode"
+              ],
+              "properties": {
+                "messageId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "reasonCode": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100,
+                  "pattern": "^[A-Z0-9_]+$"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: channel-adapter-processor; consumers: Inbox delivery state and retry policy; TASK-045. References and state only; no PII or secrets."
+    },
+    "InboxOwnershipExpired": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "inbox.ownership.expired"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "ownership_lease"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "conversationId",
+                "leaseId",
+                "expiredAt"
+              ],
+              "properties": {
+                "conversationId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "leaseId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "expiredAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: inbox-lease-scheduler; consumers: Inbox assignment and bot suppression; TASK-047, TASK-075. References and state only; no PII or secrets."
+    },
+    "InboxHandoffRequested": {
+      "allOf": [
+        {
+          "$ref": "event-envelope.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "schemaVersion",
+            "tenantId",
+            "aggregate",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "const": "inbox.handoff.requested"
+            },
+            "schemaVersion": {
+              "const": "1.0.0"
+            },
+            "tenantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "aggregate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "version"
+              ],
+              "properties": {
+                "type": {
+                  "const": "handoff"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "conversationId",
+                "handoffId",
+                "fromOwnerType",
+                "toOwnerType",
+                "reasonCode"
+              ],
+              "properties": {
+                "conversationId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "handoffId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "fromOwnerType": {
+                  "type": "string",
+                  "enum": [
+                    "human",
+                    "bot",
+                    "agent"
+                  ]
+                },
+                "toOwnerType": {
+                  "type": "string",
+                  "enum": [
+                    "human",
+                    "bot",
+                    "agent"
+                  ]
+                },
+                "reasonCode": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100,
+                  "pattern": "^[A-Z0-9_]+$"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "Producer: inbox-service; consumers: human routing and bot suppression; TASK-047, TASK-075. References and state only; no PII or secrets."
     }
   }
 }
