@@ -318,4 +318,4 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - El contrato de ejecución reusa `DatabaseService.withTenantContext` mediante `databaseFactory(workerPool)`; evita una implementación duplicada de RLS.
 - Se añadió `docs/60-TENANT-JOBS-RUNTIME.md`. La migración 0007 se consolidó completa tras detectar SQL duplicado/incompleto por readback.
 - Estado de calidad: falta corrida final Source CI para el último commit; no declarar build/typecheck/tests verdes. TASK-003 in_progress, GO-PRODUCTION NO-GO.
-- Siguientes pendientes: heartbeat/renew lease para tareas largas, replay autorizado con approval/audit, pool reuse A→B, crash/fencing tests, observabilidad y handlers Meta reales.
+- Siguientes pendientes: replay autorizado con approval/audit, pool reuse A→B, crash/fencing tests, observabilidad y handlers Meta reales. El heartbeat de lease se añadió en `0009` y debe quedar CI-verified.
