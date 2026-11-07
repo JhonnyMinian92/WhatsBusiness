@@ -9,6 +9,7 @@ const input = {
   purpose: "inbox.message.process",
   correlationId: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
   jobType: "inbox.message.process",
+  idempotencyKey: "request-key-00000001",
   payload: { messageId: "message-123", version: 1 },
 };
 
@@ -19,20 +20,45 @@ test("job writer stages a bounded tenant job using the caller transaction", asyn
     query: async (sql: string, values: unknown[]) => {
       observedSql = sql;
       observedValues = values;
-      return { rows: [{ id: "cccccccc-cccc-4ccc-8ccc-cccccccccccc" }] };
+      return { rows: [{ id: "cccccccc-cccc-4ccc-8ccc-cccccccccccc", request_sha256: values[7] }] };
     },
   } as unknown as PoolClient;
   const id = await new PostgresTenantJobRecordWriter().stage(client, input);
   assert.equal(id, "cccccccc-cccc-4ccc-8ccc-cccccccccccc");
   assert.match(observedSql, /INSERT INTO platform\.tenant_job_records/);
-  assert.deepEqual(observedValues.slice(0, 5), [
-    input.tenantId, input.actorUserId, input.purpose, input.correlationId, input.jobType,
+  assert.deepEqual(observedValues.slice(0, 6), [
+    input.tenantId, input.actorUserId, input.purpose, input.correlationId,
+    input.jobType, input.idempotencyKey,
   ]);
-  assert.deepEqual(JSON.parse(String(observedValues[5])), input.payload);
-  assert.equal(observedValues[6], 8);
+  assert.deepEqual(JSON.parse(String(observedValues[6])), input.payload);
+  assert.match(String(observedValues[7]), /^[0-9a-f]{64}$/);
+  assert.equal(observedValues[8], 8);
 });
 
-test("job writer rejects malformed identity, purpose, type and payload before SQL", async () => {
+test("same idempotency key returns the original job only for the same canonical request", async () => {
+  let requestHash = "";
+  let calls = 0;
+  const client = {
+    query: async (sql: string, values: unknown[]) => {
+      calls += 1;
+      if (sql.startsWith("INSERT")) {
+        requestHash = String(values[7]);
+        return { rows: [] };
+      }
+      return { rows: [{
+        id: "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+        request_sha256: requestHash,
+      }] };
+    },
+  } as unknown as PoolClient;
+  const writer = new PostgresTenantJobRecordWriter();
+  const reordered = { ...input, payload: { version: 1, messageId: "message-123" } };
+  const id = await writer.stage(client, reordered);
+  assert.equal(id, "cccccccc-cccc-4ccc-8ccc-cccccccccccc");
+  assert.equal(calls, 2);
+});
+
+test("job writer rejects malformed identity, purpose, type, idempotency and payload before SQL", async () => {
   let calls = 0;
   const client = {
     query: async () => { calls += 1; return { rows: [] }; },
@@ -41,6 +67,7 @@ test("job writer rejects malformed identity, purpose, type and payload before SQ
   await assert.rejects(writer.stage(client, { ...input, tenantId: "not-a-uuid" }));
   await assert.rejects(writer.stage(client, { ...input, purpose: "admin" }));
   await assert.rejects(writer.stage(client, { ...input, jobType: "unknown" }));
+  await assert.rejects(writer.stage(client, { ...input, idempotencyKey: "short" }));
   await assert.rejects(writer.stage(client, { ...input, payload: [] as unknown as Record<string, unknown> }));
   await assert.rejects(writer.stage(client, { ...input, maxAttempts: 0 }));
   assert.equal(calls, 0);
