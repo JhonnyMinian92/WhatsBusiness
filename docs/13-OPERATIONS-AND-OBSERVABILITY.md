@@ -8,7 +8,7 @@
 
 Nunca usar token, app secret, teléfono, email, mensaje completo o lead PII como label de métrica.
 
-## 2. SLO iniciales propuestos (pendientes de aprobación)
+## 2. SLO iniciales candidatos de planificación (no SLA; medir y validar en sección 7)
 | Indicador | Objetivo inicial | Nota |
 |---|---:|---|
 | API interna disponibilidad | 99.9% mensual | excluir indisponibilidad Meta claramente etiquetada |
@@ -16,7 +16,7 @@ Nunca usar token, app secret, teléfono, email, mensaje completo o lead PII como
 | Enqueue interno | p95 < 500 ms | sin esperar procesamiento externo |
 | Evento webhook procesado | p95 < 60 s | según cola y tipo |
 | Pérdida de eventos internos | 0 confirmada | inbox/outbox + backup |
-| RPO/RTO | por definir | requiere negocio y plataforma |
+| RPO/RTO | RPO <= 15 min; RTO <= 4 h (candidato) | objetivos de planificación; validar con backup/restore drills, HA y coste |
 
 Estos valores son hipótesis de planificación, no SLA comprometidos.
 
