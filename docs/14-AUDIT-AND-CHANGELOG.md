@@ -43,3 +43,17 @@ ADR numerado, status (proposed/accepted/superseded), contexto, decisión, altern
 
 ## 6. Control de cambios preventivos
 CR-0001 a CR-0020 están enumerados en el backlog como decisiones/validaciones pendientes. No marcar como aprobados ni cerrados sin evidencia.
+
+
+## 7. Auditoría del sistema de agentes (2026-11-06)
+| ID | Evento | Resultado |
+|---|---|---|
+| AUD-005 | Contrato universal de agentes | AGENTS.md creado como entrada obligatoria |
+| AUD-006 | Compatibilidad de instrucciones | CLAUDE.md, GEMINI.md y .github/copilot-instructions.md creados como puentes al contrato canónico |
+| AUD-007 | Operación y handoff | docs/17 define bootstrap, ejecución, memoria y cierre |
+| AUD-008 | Grafo de dependencias | docs/18 incorpora DAG de épicas/tareas y reglas de ejecución |
+| AUD-009 | Trazabilidad | docs/19 conecta requisitos, historias, tareas, módulos, pruebas y evidencia |
+| AUD-010 | Aceptación del producto | docs/20 separa implementación, verificación y aceptación del propietario |
+| AUD-011 | Validación de rama | environment/local comparada con master: ahead 31, behind 0; archivos documentales y agent instructions presentes |
+
+Esta auditoría confirma la creación y lectura posterior de los documentos; no certifica implementación de código ni ejecución de pruebas del producto.
