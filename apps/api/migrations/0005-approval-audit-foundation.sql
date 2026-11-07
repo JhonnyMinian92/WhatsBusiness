@@ -426,10 +426,13 @@ CREATE POLICY approval_requests_create ON platform.approval_requests
 CREATE POLICY approval_requests_change ON platform.approval_requests
   FOR UPDATE USING (
     tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
+    AND status = 'pending'
     AND platform.has_permission(tenant_id, 'approvals.decide')
   )
   WITH CHECK (
     tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
+    AND status IN ('approved', 'rejected', 'expired')
+    AND platform.has_permission(tenant_id, 'approvals.decide')
   );
 
 CREATE POLICY approval_requests_consume ON platform.approval_requests
