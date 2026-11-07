@@ -43,3 +43,19 @@ R=Responsible, A=Accountable, C=Consulted, I=Informed.
 - Weekly: backlog, arquitectura, cambios Meta y riesgos.
 - Monthly: API changelog, pricing, scopes, permisos, threat model y access review.
 - Release: checklist G0–G8 y firmas registradas.
+
+
+## Organización multiagente y separación de funciones
+El equipo se rige además por:
+- [21-TEAM-ORGANIZATION.md](21-TEAM-ORGANIZATION.md): departamentos y ownership.
+- [22-MULTI-AGENT-ORCHESTRATION.md](22-MULTI-AGENT-ORCHESTRATION.md): coordinador, workstreams y concurrencia.
+- [23-ROLE-PLAYBOOKS.md](23-ROLE-PLAYBOOKS.md): responsabilidades y límites de cada rol.
+- [24-INDEPENDENT-VALIDATION.md](24-INDEPENDENT-VALIDATION.md): revisión cruzada y evidencia.
+- [25-AGENT-BOUNDARIES-AND-ACCESS.md](25-AGENT-BOUNDARIES-AND-ACCESS.md): privilegio mínimo y acciones reservadas.
+- [26-TEAM-WORKFLOW-AND-GATES.md](26-TEAM-WORKFLOW-AND-GATES.md): gates y plantillas operativas.
+
+### Regla de separación
+El autor de una entrega no puede ser su revisor independiente ni aprobar sus propios gates de seguridad, privacidad o producto. Si un único agente desempeña todos los roles, sus verificaciones son autoevaluaciones y deben etiquetarse como tales. En riesgos altos/críticos se requiere revisión independiente y, cuando corresponda, especialista humano.
+
+### Ampliación de departamentos
+Además de los roles iniciales, el modelo contempla Product/Program Management, Business Analysis, Marketing/Growth, UX/Accessibility, Finance/Cost Analysis, Support/Customer Success y Technical Writing/Developer Experience. Cada paquete asigna un Accountable único; roles adicionales son Responsible, Consulted o Informed según RACI. Los agentes pueden adoptar varios roles secuencialmente, sin adquirir autoridad humana reservada.
