@@ -11,6 +11,7 @@ import type { OidcClaims } from "../oidc-auth.guard.js";
 import type { PermissionKey } from "../authorization/permission-catalog.js";
 import type { ApprovalEvidence } from "../authorization/tenant-authorization-policy.js";
 import { DatabaseService } from "../../database/database.module.js";
+import { IdentityRepository } from "../identity.repository.js";
 import {
   AppendOnlyAuditRepository,
   type AuditOutcome,
@@ -94,6 +95,7 @@ export class ApprovalWorkflowService {
   constructor(
     private readonly database: DatabaseService,
     private readonly audit: AppendOnlyAuditRepository,
+    private readonly identity: IdentityRepository,
     @Inject(APPROVAL_POLICY_RESOLVER)
     private readonly policies: ApprovalPolicyResolver,
     @Inject(STEP_UP_EVIDENCE_VERIFIER)
@@ -197,7 +199,29 @@ export class ApprovalWorkflowService {
       });
     }
 
-    const stepUp = this.stepUp.verify(input.claims);
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    if (!Number.isFinite(input.claims.expiresAt) || input.claims.expiresAt <= nowSeconds) {
+      throw new ForbiddenException({
+        code: "APPROVER_TOKEN_EXPIRED",
+        detail: "La sesión OIDC del aprobador ya no está vigente.",
+      });
+    }
+    const authenticatedUser = await this.identity.resolveOidcUser(
+      input.claims.issuer,
+      input.claims.subject,
+    );
+    if (
+      !authenticatedUser
+      || authenticatedUser.userId !== subject.actorId
+      || authenticatedUser.status !== "active"
+    ) {
+      throw new ForbiddenException({
+        code: "APPROVER_PRINCIPAL_MISMATCH",
+        detail: "La evidencia OIDC no corresponde al actor que intenta decidir.",
+      });
+    }
+
+    const stepUp = this.stepUp.verify(input.claims, nowSeconds);
     if (!stepUp.verified || stepUp.authenticatedAt === null) {
       throw new ForbiddenException({
         code: "STEP_UP_REQUIRED",
