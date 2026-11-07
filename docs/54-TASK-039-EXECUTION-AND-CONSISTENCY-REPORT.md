@@ -85,7 +85,7 @@ Fuentes primarias consultadas:
 | API IDs OpenAPI únicos | 297/297 |
 | OpenAPI | 5 design-frozen + 292 catalog-only |
 | x-implementation-allowed=true | 0 |
-| Canales AsyncAPI | 55 |
+| Canales AsyncAPI | 55 (55 publish + 55 subscribe) |
 | Payload refs AsyncAPI | 55 |
 | Definiciones JSON Schema de eventos | 55 |
 | Payload refs sin definición / definiciones huérfanas | 0 / 0 |
@@ -134,3 +134,12 @@ Para desbloquear G0:
 - Asignar WP-039 a Architect/Spike Lead y reviewer QA/SRE independiente.
 - TASK-040 completa AC Given/When/Then y TEST IDs; cerrar FE-FOUNDATION como paquete habilitador.
 - Mantener environment/local; no tocar master/environment/develop, no deploy ni cuentas reales.
+
+
+## 9. Addendum de revisión de contratos y arquitectura — 2026-11-06
+
+- OpenAPI: se localizaron 292 objetos `responses` con clave YAML `default` duplicada. Se eliminó el placeholder previo y se conservó una única referencia `ContractNotFrozen` por operación. Las 292 operaciones siguen catalog-only y mantienen request/response schema pending; no cambió la autorización de implementación.
+- AsyncAPI: cada uno de los 55 canales tiene ahora `publish` y `subscribe`, con 110 operationIds únicos. Los 55 mensajes exponen `correlationId` desde el envelope. Los 55 tipos se corresponden con 55 definiciones JSON Schema.
+- Se parsearon los dos JSON schemas como JSON y se comprobaron conteos, unicidad, required fields, cierre de payload y correspondencia channel/message/`$defs` mediante inspección estructural. No se ejecutó parser/linter oficial YAML, JSON Schema validator con fixtures ni contract tests.
+- docs/38 y docs/39 proponen 14 nombres de evento adicionales no mapeados a TASK/consumers en docs/47; quedan pendientes de decisión del owner, detallados en docs/50 y docs/56.
+- La revisión documental de ADR-011..025, ownership, límites de módulos, multi-tenancy, criterios de aceptación y veredicto GO/NO-GO se documenta en docs/56. No es review independiente ni cambia G0.
