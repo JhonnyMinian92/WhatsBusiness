@@ -13,6 +13,7 @@ Deliver the complete, production-grade WhatsBusiness product defined by `META_SE
 5. Identify the active branch and current commit. Unless the user explicitly directs otherwise, do all work on `environment/local`. Never push to, merge into, or rewrite `master` or `environment/develop` without explicit authorization.
 6. Reconcile the requested work with existing task/story/bug/change IDs before editing.
 7. For the current kickoff, read docs/46-AGENT-START-AND-WORKPACKETS.md and relevant specifications in docs/37..45. Preparatory work and TASK-039 may start; production scaffold remains gated by G0.
+8. Before coding, read docs/48-CODING-ARCHITECTURE-AND-REUSE-STANDARD.md, docs/49-API-CONTRACT-READINESS-AND-META-ADAPTER-GATES.md, docs/50-EVENT-CATALOG-AND-VERSIONED-SCHEMAS.md and the specific OpenAPI/AsyncAPI schemas.
 
 ## Authority and priorities
 - Direct, latest user instruction > accepted product decisions in central memory > approved ADRs > product requirements > implementation conventions > agent assumptions.
@@ -152,3 +153,14 @@ For every non-trivial feature, assess Product/BA, domain/marketing, architecture
 ## Mandatory API catalog and task traceability
 
 Before creating/changing an endpoint, event, webhook or adapter, consult docs/47-API-INVENTORY-AND-TASK-MAP.md. Use the API IDs there, and map each work item to US/AC/TASK, OpenAPI operationId or event schema, permission/tenant scope, idempotency, audit, tests and evidence. Do not add unregistered endpoints or mark a TASK done because a route is merely documented. Update docs/47, docs/09, docs/19 and contracts together when an API changes.
+
+## Mandatory anti-spaghetti, reuse and contract gates
+
+- **Never create spaghetti code.** Apply docs/48 as a blocking engineering standard to every change.
+- Search the current codebase, Nx graph, public module exports, existing use cases, repositories, ports, shared validators, components, adapters, fixtures and tests before creating new code. Reuse/extend existing cohesive components; do not copy-paste or create generic dumping-ground modules.
+- A business rule and its data have one bounded-context owner. Controllers and Angular components remain thin; domain stays framework/provider independent; modules communicate only through public ports/APIs/events. No private cross-context imports, cross-context table reads or circular dependencies.
+- Reuse the existing HTTP/error/idempotency/observability/outbox/inbox/tenant-context mechanisms. Build a new abstraction only when it has stable semantics and a real consumer; document why reuse is inappropriate when not reusing.
+- contracts/openapi/platform-v1.yaml is the API ID registry. Only operations marked design-frozen are implementation-ready. catalog-only routes are deliberately blocked until request/response/error schemas and guards are frozen per docs/49.
+- contracts/asyncapi/platform-events-v1.yaml and contracts/schemas/domain-events-v1.schema.json are normative internal event contracts. Use shared outbox/inbox/dedupe/retry ports; do not create private broker clients or one queue per HTTP endpoint.
+- For Meta, verify product + auth mode + API version + operation scopes + asset grants/tasks + app access tier/review + account/country eligibility from official sources and evidence. Missing evidence means deny/disabled. Never infer capability from token presence.
+- Every PR must state what existing code was reused, what new code was added and why, contract/task IDs, tests executed and independent-review status. A green functional test does not waive architecture/reuse review.
