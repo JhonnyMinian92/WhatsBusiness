@@ -233,3 +233,16 @@ Como desarrollador de un cliente quiero integrar WhatsBusiness mediante contrato
 - AC-027-05: eventos preservan schema version y compatibilidad explícita.
 Tareas: TASK-062.
 
+
+
+## Épica EP-13 — Validación de mercado y ajuste de producto
+
+### US-028 — Validar ICP, problemas y disposición a pagar (P0 discovery)
+Como equipo de producto quiero confirmar con evidencia qué empresas necesitan WhatsBusiness y qué valor pagarían para no diseñar pricing ni roadmap sobre suposiciones.
+- AC-028-01: baseline sectorial INEC incluye año, base provisional/definitiva, metodología y advertencias.
+- AC-028-02: entrevistas cubren empresas de servicios, comercio y agencias; se registran perfil, problema, workflow actual, frecuencia/dolor, decisor y alternativa.
+- AC-028-03: oportunidades y objeciones se codifican en un repositorio de investigación sin PII innecesaria.
+- AC-028-04: pilotos instrumentan activación, time-to-value, adopción de asientos, uso por canal, retención y outcomes definidos.
+- AC-028-05: TAM/SAM/SOM separa unidades registradas de empresas elegibles, alcanzables y dispuestas a pagar; toda extrapolación documenta método y supuestos.
+- AC-028-06: no se aprueba lista de precios ni forecast de ingresos con solo REEM o entrevistas cualitativas.
+Tareas: TASK-066.
