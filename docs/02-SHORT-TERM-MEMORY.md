@@ -1,46 +1,48 @@
 # 02 — Memoria a corto plazo
 
-> Estado operativo mutable. Actualizar al iniciar/finalizar cada sesión o bloque de trabajo.
+> Estado operativo mutable. Actualizar al inicio y al cierre de cada bloque de trabajo. Este archivo es el handoff entre agentes y sesiones.
 
-## Iteración actual
-- Iteración: DOC-INIT / preparación documental.
-- Rama: `environment/local`.
-- Base: `master` en el momento de creación de ramas.
-- Código fuente: bloqueado por decisión de alcance.
-- Objetivo: transformar la investigación única en un sistema documental auditable, trazable y ejecutable.
+## Sesión actual
+- Iteración: DOC-AGENT-OS / refuerzo agent-first.
+- Rama objetivo: `environment/local`.
+- Rama de integración: `environment/develop` (no tocar directamente).
+- Objetivo: permitir que Codex, Claude Code y agentes compatibles entiendan el producto sin contexto de chat y ejecuten cambios trazables.
+- Estado: sistema de entrada, ejecución, grafos, trazabilidad y aceptación documentado.
+- Implementación del producto: no declarada ni auditada por este bloque documental. No inferir porcentaje.
 
-## Hecho en esta iteración
-- [x] Crear `environment/local`.
-- [x] Crear `environment/develop`.
-- [ ] Descomponer META_SERVICES.md en documentos temáticos.
-- [ ] Definir historias, tareas, dependencias y criterios de aceptación.
-- [ ] Definir modelo de bugs y cambios por tarea.
-- [ ] Completar revisión de coherencia y enlaces.
-- [ ] Aprobar gates documentales G0–G8.
+## Trabajo completado en esta sesión
+- [x] Crear contrato universal `AGENTS.md`.
+- [x] Crear instrucciones puente `CLAUDE.md`, `GEMINI.md` y `.github/copilot-instructions.md`.
+- [x] Definir bootstrap, jerarquía de fuentes, ciclo de ejecución y protocolo de handoff.
+- [x] Añadir grafo de dependencias Mermaid para EP/TASK.
+- [x] Añadir matriz de trazabilidad requisito → historia → tarea → módulo → test → evidencia.
+- [x] Definir estados distintos: implementado, verificado y aceptado.
+- [x] Definir criterios objetivos de producto terminado y aprobación exclusiva del propietario.
+- [x] Actualizar índice y aclarar que una petición explícita de implementación habilita el trabajo solicitado.
 
-## Próximas acciones
-1. Revisar fuentes oficiales y actualizar capacidades/versiones volátiles.
-2. Validar la elegibilidad real de la organización/app y permisos.
-3. Aprobar modelo de tenant/identity/asset/grant.
-4. Aprobar threat model y estrategia de protección de datos.
-5. Priorizar backlog por dependencias; no empezar por endpoints aislados.
+## Próxima acción obligatoria ante la siguiente solicitud de producto
+1. Leer `AGENTS.md` y `docs/17-AGENT-OPERATING-MODEL.md`.
+2. Inspeccionar árbol, stack, código, tests, workflows, migraciones, configuración y git status reales.
+3. Comparar la implementación existente con historias, tareas y criterios; no asumir que el backlog representa el código actual.
+4. Elegir el siguiente bloque solicitado y desbloqueado del grafo; implementar y probar el cambio end-to-end.
+5. Actualizar los registros afectados y dejar handoff reproducible.
 
-## Bloqueos externos
-- Credenciales y Meta App de desarrollo/producción aún no verificadas en este ciclo.
-- Estado de Business Verification/App Review no verificado.
-- País, moneda, rate card y contratos deben confirmarse por producto/cuenta.
-- No se conocen aún los requisitos de SLA, RPO/RTO ni volumen de tenants.
+## Bloqueos/validaciones aún abiertos
+- Credenciales, Meta App, Business Verification, App Review y permisos reales no verificados aquí.
+- Versiones, límites, precios y elegibilidad de Meta deben validarse con fuentes oficiales actuales y cuenta real.
+- Decisiones de stack, infraestructura, SLO/RPO/RTO y operación deben contrastarse con el repositorio y requisitos cuantificados.
+- No se ha realizado auditoría técnica completa del código ni se declara ningún TASK implementado/verificado por esta sesión.
 
-## Riesgos inmediatos
-| ID | Riesgo | Acción |
+## Riesgos de proceso
+| ID | Riesgo | Control |
 |---|---|---|
-| RSK-001 | META_SERVICES.md contiene datos sujetos a cambio | Revalidar antes de implementación |
-| RSK-002 | Permisos/partner eligibility pueden retrasar onboarding | Track de validación temprana |
-| RSK-003 | Exceso de abstracción puede borrar semántica nativa | Contratos discriminados y contract tests |
-| RSK-004 | Complejidad multi-tenant puede causar fuga | Threat model + pruebas negativas |
-| RSK-005 | Publicidad puede generar gasto accidental | Dry-run, approval, budget cap y kill switch |
+| RSK-006 | Agentes divergen en instrucciones | AGENTS.md canónico + archivos puente |
+| RSK-007 | Backlog confundido con realidad | inspección de código y evidencia por tarea |
+| RSK-008 | Dependencias omitidas | grafo upstream/downstream obligatorio |
+| RSK-009 | Falsa declaración de 100 % | gates y aprobación explícita del propietario |
+| RSK-010 | Cambios sin memoria/handoff | actualización atómica de registros |
 
-## Registro de sesión
-| Fecha UTC | Trabajo | Resultado | Siguiente |
-|---|---|---|---|
-| 2026-11-06 | Creación de ramas y diseño del sistema documental | En curso | Completar documentación y verificar |
+## Último handoff
+- Archivos añadidos: `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.github/copilot-instructions.md`, `docs/17-AGENT-OPERATING-MODEL.md`, `docs/18-EXECUTION-GRAPH.md`, `docs/19-TRACEABILITY-MATRIX.md`, `docs/20-PRODUCT-ACCEPTANCE.md`.
+- Archivos por sincronizar: este documento, `docs/README.md`, backlog y roadmap.
+- Siguiente tarea: inspección completa del repositorio y reconciliación de TASK-001..033 con código real, antes de asignar estados de implementación.
