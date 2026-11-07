@@ -6,7 +6,7 @@
 - Producto enterprise multi-tenant para APIs oficiales de Meta.
 - Repositorio activo: `JhonnyMinian92/WhatsBusiness`.
 - Rama de trabajo: `environment/local`; rama de integración: `environment/develop`.
-- No escribir código hasta aprobar fase documental.
+- No iniciar scaffolding de producción antes de completar el architecture spike G0; el propietario puede autorizar tareas específicas en cualquier momento, sin saltar gates de seguridad/producción.
 - Preferir siempre la mejor API oficial con máxima cobertura/capacidad.
 - Investigación base: [META_SERVICES.md](../META_SERVICES.md), fecha de corte indicada dentro del documento; todo dato volátil requiere revalidación.
 
@@ -79,5 +79,18 @@ Solo promover una afirmación a esta memoria si tiene fuente/evidencia, fecha, a
 - Plan maestro por fases: [31-MASTER-DELIVERY-PLAN.md](31-MASTER-DELIVERY-PLAN.md).
 - SaaS comercial + plataforma interna EcuApp; greenfield; todo el catálogo Meta; backend, panel web, CRM, inbox omnicanal; IA básica para chatbots/sugerencias; VPS.
 - El propietario autoriza recomendar stack y resolver decisiones técnicas reversibles sin interrumpir el trabajo independiente. Las decisiones comerciales, legales, de privacidad, datos, costes recurrentes, seguridad de alto impacto y breaking changes se escalan.
-- No asumir precios, segmentos de clientes, retención, SLO/RPO/RTO, límites de gasto ni integraciones externas hasta responder las preguntas pendientes.
+- Aplicar PD-012..PD-023 como baseline adoptada; precios, retención legal, presupuesto/volumen, thresholds monetarios y proveedores/contratos específicos siguen pendientes de evidencia o aprobación.
 - No se ha iniciado implementación de código en este cambio; las nuevas decisiones y arquitectura siguen siendo especificación.
+
+
+## Baseline adoptada por delegación (2026-11-06)
+- Fuente canónica: docs/29-OWNER-DECISIONS.md, PD-001..PD-023.
+- Segmento de entrada: PYMES ecuatorianas de comercio/servicios; agencias como secundario. Hipótesis de mercado, no TAM validado.
+- Monetización: tenant subscription + seats + usage; costes Meta externos visibles/conciliados por separado, sin precios/márgenes arbitrarios.
+- Defaults: es-EC, USD, America/Guayaquil, configurables por tenant.
+- Tenancy: PostgreSQL compartido con tenant_id + autorización backend + RLS; aislamiento dedicado enterprise; agency grants explícitos/revocables.
+- Arquitectura: modular monolith, TypeScript/NestJS, Angular, Nx/pnpm, PostgreSQL, Redis, RabbitMQ, OIDC/Keycloak, Docker y OpenTelemetry. ADR-011..020 accepted as direction; TASK-039 valida footprint, build, RLS/pooling, outbox/broker y restore.
+- Retención y LOPDP: controles configurables/minimización; ningún periodo fijo ni afirmación legal hasta revisión competente.
+- Producción: 99.9% API / RPO 15m / RTO 4h como objetivos candidatos, no SLA ni resultados medidos. Un VPS single-node no ofrece HA.
+- Meta: adaptar versiones por producto; soportar BSUID y WAAC/PMA; evaluar Embedded Signup v4; usar Marketing Messages API para WhatsApp marketing y respetar sunset anunciado para 2027-10-13. Ver docs/32.
+- No existe implementación ni evidencia de tests de producto aún.
