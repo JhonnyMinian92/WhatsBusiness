@@ -6,6 +6,7 @@ export interface StageTenantJobInput {
   readonly purpose: string;
   readonly correlationId: string;
   readonly jobType: string;
+  readonly idempotencyKey: string;
   readonly payload: Readonly<Record<string, unknown>>;
   readonly maxAttempts?: number;
   readonly availableAt?: Date;
