@@ -1,12 +1,12 @@
 # 55 — Plan de cierre de contratos OpenAPI por bounded context
 
 **Rama:** environment/local · **Corte:** 2026-11-06  
-**Estado:** contrato transversal ampliado; contratos de negocio de las 292 operaciones todavía NO congelados.  
+**Estado:** contrato transversal ampliado; contratos de negocio de las 291 operaciones todavía NO congelados.  
 **Fuente canónica:** contracts/openapi/platform-v1.yaml; inventario: docs/47; procedimiento: docs/49.
 
 ## 1. Resultado comprobado de la ampliación transversal
 
-El OpenAPI contiene 297 operaciones HTTP con API IDs únicos: 5 design-frozen y 292 catalog-only. Se incorporó a las 292 operaciones catalog-only:
+El OpenAPI contiene 296 operaciones HTTP con API IDs únicos: 5 design-frozen y 291 catalog-only. Se incorporó a las 292 operaciones catalog-only:
 - Perfil común problem-details-v1.
 - Respuestas compartidas para 400, 401 (solo API autenticada), 403, 404, 409, 422, 429, 500 y 503.
 - Respuesta default con ContractNotFrozen, para dejar explícito que la especificación aún no autoriza implementación.
@@ -19,13 +19,13 @@ Esto cierra la semántica de errores y una inconsistencia de tipos, no el contra
 
 | Verificación estática del OpenAPI | Resultado |
 |---|---:|
-| Operaciones / API IDs únicos | 297 / 297 |
+| Operaciones / API IDs únicos | 296 / 296 |
 | Design-frozen | 5 |
-| Catalog-only | 292 |
+| Catalog-only | 291 |
 | Catalog-only con perfil común de errores | 292 |
 | Catalog-only con requestBody de negocio | 0 |
 | Catalog-only con request y response marcados pending | 292 |
-| Operaciones con x-implementation-allowed=true | 0 |
+| Operaciones con x-implementation-allowed=true | 2 (PLT-001/002; GO-CODE) |
 
 **No marcar ninguna de las 292 como design-frozen.** El OpenAPI no contiene aún los schemas request/response, permisos específicos ni el audit/event side-effect completo para esas operaciones. El response ContractNotFrozen es una marca de diseño/gate, no una respuesta que una API implementada deba emitir en runtime.
 
@@ -46,7 +46,7 @@ El número de operaciones incluye las cinco PLT ya congeladas. Los rangos API ID
 | FB | 14 | docs/49 + endpoint docs Meta Pages/Messenger | Page tasks/grants, posts, comments/messages, media, native error and policy window |
 | IG | 12 | docs/49 + endpoint docs Instagram Login/Facebook Login separados | Account login mode, media containers, publish, comments/messaging capability, native payload |
 | TH | 6 | docs/49 + documentación oficial Threads por endpoint | Profile, post draft/publish, replies, rate limits, scopes, sunset |
-| LEAD | 10 | docs/38, docs/49 + Lead Ads docs | Form/lead fields, sync cursor/checkpoint, provenance, webhook dedupe |
+| LEAD | 9 activas (LEAD-010 retirado) | docs/38, docs/49 + Lead Ads docs | Form/lead fields, sync cursor/checkpoint, provenance, webhook dedupe |
 | SALES | 14 | docs/38 | Pipelines/stages, opportunities, amount decimal+currency, transitions, activities |
 | ADS | 27 | docs/49 + Marketing API docs por operación | Draft vs external mutation, objectives/targeting/budget, approval, spend caps, reconciliation |
 | CAPI | 4 | docs/49 + Conversions API docs | Event source, event_id, consent, user data minimization, dedupe, diagnostics |
@@ -98,3 +98,10 @@ Se encontró y corrigió un problema de YAML en las 292 operaciones catalog-only
 La revisión de ADR, límites de módulos, tenancy y criterios de aceptación se documenta en [docs/56](56-ARCHITECTURE-REVIEW-AND-ACCEPTANCE-GATES.md). La ampliación AsyncAPI (69 publish + 69 subscribe, 138 operationIds y correlación de mensaje), junto con los 14 contratos adicionales CRM/Inbox y el pipeline de validación, se registra en [docs/50](50-EVENT-CATALOG-AND-VERSIONED-SCHEMAS.md) y [docs/56](56-ARCHITECTURE-REVIEW-AND-ACCEPTANCE-GATES.md). El validador está en `scripts/validate-contracts.mjs` y el workflow en `.github/workflows/contracts-validation.yml`.
 
 No se ha confirmado todavía la ejecución satisfactoria del workflow de validación OpenAPI/AsyncAPI/JSON Schema ni la validación de contract tests de runtime; la eliminación de claves duplicadas se verificó por recuento estructural antes de guardar el archivo. No declarar el OpenAPI como YAML-validado ni los contratos de negocio como completos hasta ejecutar tooling formal y completar owner/reviewer/schema/tests por operación.
+
+
+## 8. Corrección de API ID duplicado y autorización acotada (2026-11-07)
+
+La ruta `POST /v1/tenants/{tenantId}/leads/{leadId}/convert` aparecía dos veces en el mismo path item, una como LEAD-010 y otra como SALES-014. Se conserva SALES-014 como único dueño HTTP porque la operación crea una oportunidad y pertenece a Sales; LEAD-010 queda como alias histórico retirado/superseded, nunca reutilizable.
+
+El catálogo activo queda en 296 operaciones HTTP: 288 REST + 8 webhooks, 5 design-frozen y 291 catalog-only. Solo PLT-001 y PLT-002 se autorizan para implementación del health foundation con GO-CODE; PLT-003..005 permanecen design-frozen pero no autorizadas hasta implementar autenticación/tenancy. Las 291 catalog-only continúan bloqueadas.
