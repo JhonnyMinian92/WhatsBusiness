@@ -208,3 +208,14 @@ No cerrar una TASK porque el API ID o el schema exista. El commit de implementac
 | Propagar contexto de tenant dentro de transacción | US-001; TASK-001/002 | DatabaseService.withUserContext/withTenantContext y migration 0001 | Pool max=1, usuario/tenant A→B, ausencia de contexto y limpieza SET LOCAL |
 
 Este mapeo documenta la implementación; no implica revisión independiente ni acceptance. Partner/JIT grants, membership mutations, audit/outbox y worker propagation quedan fuera de este slice.
+
+## Evidence map — TASK-002 Tenant Context and authorization (2026-11-07)
+
+| Resultado / criterio | Historia / tarea | Código / contrato | Evidencia automatizada | Estado |
+|---|---|---|---|---|
+| Contexto se establece solo con user, organization, tenant y membership activos | US-001; TASK-002 | `platform.can_use_tenant`, `DatabaseService.withTenantContext`, migration 0003 | PostgreSQL: actor/organization/membership/tenant inactive; cross-tenant deny | implemented / CI-verified |
+| Contexto por ruta exige OIDC, tenant UUID y propósito explícito | US-001; TASK-002 | `TenantContextGuard`, `@TenantAccessPurpose`, `TenantAccessContext` | `tenant-context.guard.spec.ts`: missing claims, malformed tenant, missing purpose, frozen context and correlation ID | implemented / CI-verified |
+| Cambio de grants invalida snapshots anteriores | US-001/002; TASK-002/004 | `authz_version`, triggers membership/role/role_permissions, `withTenantContextAtVersion` | PostgreSQL: remove role_permission then stale version rejected; runtime version bump | implemented / CI-verified |
+| PLT-005 no filtra datos internos de autorización | US-001/002; TASK-002 | `IdentityService.tenantContextResponse`, `IdentityController` | assert membershipId/authzVersion absent from public DTO; existing PLT-005 contract retained | implemented / CI-verified |
+
+CI source: run #47 [42383524043](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42383524043), commit `74febd28056043cda15221f29c8c5b71290ca06c` — SUCCESS. Revisión independiente y aceptación del propietario siguen pendientes. RBAC/ABAC por acción/asset/purpose pertenece a TASK-004 y no se considera terminado por la existencia del snapshot.
