@@ -62,6 +62,7 @@ jobs:
       DATABASE_URL: postgresql://whatsbusiness_app:ci-runtime-password@127.0.0.1:5432/whatsbusiness_ci
       MIGRATION_DATABASE_URL: postgresql://postgres:ci-postgres-password@127.0.0.1:5432/whatsbusiness_ci
       NODE_ENV: test
+      RUN_APPROVAL_INTEGRATION_TESTS: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v5
