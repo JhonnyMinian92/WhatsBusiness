@@ -206,6 +206,7 @@ test("PostgreSQL RLS isolates tenants and clears SET LOCAL context on a reused c
         && (error as { code: string }).code === "23503",
     );
   } finally {
+    await adminPool.query("DELETE FROM platform.tenants WHERE organization_id = $1", [organizationId]);
     await adminPool.query("DELETE FROM platform.organizations WHERE id = $1", [organizationId]);
     await adminPool.query("DELETE FROM platform.users WHERE id = ANY($1::uuid[])", [[userA, userB]]);
     await database.onModuleDestroy();
