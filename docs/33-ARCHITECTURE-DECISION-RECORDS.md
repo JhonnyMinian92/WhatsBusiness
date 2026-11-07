@@ -1,4 +1,4 @@
-# 33 — Architecture Decision Records (ADR-011..020)
+# 33 — Architecture Decision Records (ADR-011..025)
 
 **Fecha de decisión:** 2026-11-06  
 **Estado común:** accepted by owner delegation as architecture direction; implementation/architecture spike not yet verified.  
@@ -141,3 +141,35 @@
 - **Consequences:** budget guardrail service, experiment budget accounting, creative provenance/preview, approvals and automated no-go tests.
 - **Security:** no agent can bypass the cap, approval or tenant boundary; no OpenWA/browser session in production.
 - **Review trigger:** owner explicitly changes the cap, Meta changes official learning/budget guidance or API feature contracts, or legal/security review requires stricter rules.
+
+## ADR-023 — REST-first para APIs síncronas; broker para eventos
+
+- **Contexto:** API de SaaS para navegador/integradores, webhooks HTTP, comandos de dominio con idempotency/audit y primer despliegue como monolito modular.
+- **Decisión:** REST/JSON + OpenAPI como superficie síncrona externa; llamadas directas a ports/use cases entre módulos del mismo proceso; RabbitMQ/AsyncAPI para jobs/eventos; SSE/WebSocket si Inbox necesita realtime. GraphQL no será API primaria y gRPC no se introduce mientras los módulos no sean servicios separados.
+- **Alternativas:** GraphQL, gRPC y uso mixto en cada bounded context.
+- **Razón:** REST ofrece semántica HTTP estándar, interoperabilidad browser/SDK, status/cache/idempotency y contracts OpenAPI. GraphQL agrega resolvers, authz por field, query complexity y estrategia cache sin evidencia de overfetching que lo justifique. gRPC tiene sentido entre servicios separados, no como loopback entre módulos; gRPC-Web requiere soporte/proxy de navegador. El broker resuelve durabilidad/retry, no el protocolo RPC síncrono.
+- **Consecuencias:** los API IDs de docs/47 se mantienen HTTP; comandos idempotentes documentados; no rutas GraphQL ni servicios gRPC en el primer scaffold; todo trabajo asíncrono usa outbox/inbox y broker.
+- **Seguridad:** cada endpoint/use case valida tenant/actor/purpose; no confiar en guards de frontend o en el schema del transporte.
+- **Revisión:** evidencia de overfetching y nuevo cliente multi-producto para GraphQL; servicio independiente con alto RPC/streaming para gRPC; benchmark del mismo workload.
+- **Fuente:** docs/52 y RFC 9110.
+
+## ADR-024 — Baseline de versiones del stack al corte 2026-11-06
+
+- **Contexto:** los ADR-011..020 seleccionaban familias de tecnología, pero dejaban versiones indeterminadas; el runtime Node/Angular/TypeScript debe ser compatible y estar soportado durante el inicio.
+- **Decisión recomendada:** TypeScript 6.0.x strict; Node.js 26.x Active LTS; NestJS 12.x; Angular 22.x; Nx 24.0.4; pnpm fijado por Corepack/lockfile; PostgreSQL 18.x; Valkey 9.1.x; RabbitMQ 4.4.x; Keycloak 26.8.x; Traefik 3.7.x; Docker Compose 5.7.0 para dev/piloto; OpenTelemetry + Prometheus 3.16.0 + Grafana con patch compatible lockfileado.
+- **Razón:** Node 26 Active LTS y su matriz oficial se alinean con Angular 22; Angular 22 requiere TypeScript 6.0.x. NestJS 12 soporta Node 26 en CLI/runtime. Nx 24.x ofrece graph/boundaries y cache/tasks afectados. PostgreSQL encaja en datos relacionales/tenancy; Valkey reduce riesgo de licencia para cache; RabbitMQ cubre jobs y routing; OpenTelemetry evita atar el dominio a vendor.
+- **Estatus:** adoptado como baseline recomendada por delegación técnica; **build/compatibility matrix/footprint todavía no validados**. Patches, CVEs, image digests y licencias se vuelven a revisar justo antes de bootstrap.
+- **Alternativas:** .NET/ASP.NET Core, Java/Spring, Go; React/Vue; MongoDB; Redis; Kafka/Redpanda; IdP gestionado; ver docs/51.
+- **Condición de salida:** SP-01/SP-02/SP-03/SP-05/SP-07/SP-08/SP-09 de docs/45 pasan con evidencia real; si no, ajustar mediante ADR superseding.
+- **Riesgo:** versiones actuales son una fotografía de 2026-11-06, no un compromiso de usar patches desactualizados indefinidamente.
+- **Fuentes:** docs/51 y sus referencias oficiales.
+
+## ADR-025 — Valkey 9.1.x en lugar de Redis como caché/coordinación
+
+- **Contexto:** Redis era la opción de cache/coordinación inicial, pero Redis Open Source desde la línea 8 tiene opciones de licencia RSALv2, SSPLv1 o AGPLv3. Es necesario minimizar incertidumbre de licencia en un SaaS comercial y no exponer cache como dato duradero.
+- **Decisión:** Valkey 9.1.x con licencia BSD se convierte en la implementación recomendada de cache, rate limit y locks efímeros. Aplicación consume un port CacheStore/RateLimiter/LeaseStore, no la API propietaria del servidor.
+- **Alternativas:** Redis 8 con revisión legal de licencia; Redis 7.2 BSD-3 histórico pero versión antigua; cache administrada por un cloud vendor. Valkey mantiene compatibilidad con buena parte del protocolo/comandos Redis, pero cada comando/script/cliente usado debe probarse.
+- **Razón:** licencia BSD del proyecto, release estable 9.1.3 al corte, portabilidad y reducción de lock-in. No afirmar superioridad de performance.
+- **Seguridad/consistencia:** nunca es source of truth; no almacenar PII/token; tenant namespaces; TTL bounded; invalidación al revocar grants; PostgreSQL y RabbitMQ conservan datos durables.
+- **Revisión:** comando/feature requerido ausente, incompatibilidad real o benchmark/coste no satisfactorio; cualquier retorno a Redis necesita revisión legal de licencia y decisión documentada.
+- **Fuentes:** https://valkey.io/download/releases/ ; https://valkey.io/ ; https://redis.io/legal/licenses/ ; docs/51.
