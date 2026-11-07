@@ -3,7 +3,7 @@
 **Corte de revisión:** 2026-11-06  
 **Rama revisada:** `environment/local`  
 **Tipo de revisión:** documental y estática sobre contratos y especificaciones.  
-**Estado:** dirección arquitectónica coherente; cierre técnico bloqueado por evidencia de implementación, validación formal y decisiones de dominio pendientes.
+**Estado:** dirección arquitectónica coherente; contratos ampliados; cierre técnico bloqueado por validación formal, revisión independiente y evidencia de implementación.
 
 > Esta revisión no es una aprobación independiente de QA/SRE/Seguridad ni una aceptación del Product Owner. No se inspeccionó código de aplicación porque el repositorio continúa sin scaffold productivo verificable. Los estados `implemented`, `verified` y `accepted` no se infieren a partir de documentos.
 
@@ -11,10 +11,10 @@
 
 1. **No se recomienda superseder ADR-011..025 por intuición.** Como decisiones de dirección, son compatibles con los límites de módulos, el modelo de tenancy y los patrones de integración descritos.
 2. **Se corrigió un defecto de OpenAPI:** las 292 operaciones catalog-only tenían dos claves YAML `default` en el mismo objeto `responses`. Se eliminó el placeholder duplicado y se mantuvo una única referencia a `ContractNotFrozen` por operación.
-3. **AsyncAPI se amplió:** los 55 canales ahora declaran `publish` y `subscribe`; las 55 definiciones de mensaje referencian el `correlationId` del envelope.
-4. **Los 55 eventos actuales tienen correspondencia estática uno a uno** entre canal, mensaje y definición JSON Schema. Esto no demuestra que existan publishers, consumers, exchanges, colas o ejecución durable.
+3. **AsyncAPI se amplió:** 69 canales declaran `publish` y `subscribe`; 69 definiciones de mensaje referencian el `correlationId` del envelope.
+4. **Los 69 eventos tienen correspondencia declarada uno a uno** entre canal, mensaje y definición JSON Schema; los 14 eventos CRM/Inbox omitidos se añadieron con payload mínimo tipado. Esto no demuestra que existan publishers, consumers, exchanges, colas o ejecución durable.
 5. **OpenAPI no está cerrado a nivel de negocio:** continúan 5 operaciones design-frozen y 292 catalog-only. Las 292 siguen pendientes de request/response schemas específicos, permisos por operación, side effects y fixtures.
-6. **Catorce nombres de eventos propuestos en docs/38 y docs/39 no forman parte del catálogo de 55.** Se registran como reconciliación pendiente; no se fabrican contratos hasta que los owners de CRM/Sales e Inbox definan si son eventos independientes o estados cubiertos por los contratos existentes.
+6. **Los 14 eventos de CRM/Inbox de docs/38 y docs/39 ya están representados en AsyncAPI y JSON Schema.** Se decidió mantenerlos como hechos distintos donde las transiciones son semánticamente distintas (merge request/reversal, accepted/failed, handoff requested/completed, lease expiry). La aprobación final del owner de dominio y los contract tests siguen pendientes.
 7. **G0 permanece BLOCKED / NO-GO para scaffold productivo y producción.** TASK-039 no se ha verificado con runtime, servicios, hardware, pruebas de RLS/pooling, broker, webhooks ni restore.
 
 ## 2. Alcance y evidencias inspeccionadas
@@ -73,11 +73,7 @@ La inspección acredita consistencia documental y ciertas comprobaciones estáti
 
 ### 4.1 Riesgo de ownership por resolver
 
-docs/38 describe Pipeline y Opportunity dentro del modelo CRM, mientras docs/47 tiene una familia de APIs `SALES` separada y los eventos se llaman `crm.opportunity.*`. Antes de crear entidades, tablas o eventos nuevos, el Domain Owner debe decidir si Sales es:
-- un subdominio/módulo de CRM con API separada por producto, o
-- un bounded context separado que consume referencias/events de CRM.
-
-La decisión debe fijar agregado dueño, esquema de persistencia, API pública del módulo y productor de eventos. No permitir doble ownership de Opportunity ni joins directos entre tablas privadas.
+docs/38 describe Pipeline y Opportunity dentro del modelo CRM, mientras docs/47 mantiene una familia API `SALES` separada. Para evitar doble ownership se adopta como decisión de arquitectura propuesta: **CRM posee Contact, ContactIdentity, Company, Lead y Activity; Sales posee Pipeline y Opportunity**. Sales consume referencias/eventos de CRM y publica cambios de Opportunity; no comparte tablas ni permite joins a tablas privadas de CRM. Las APIs `SALES` son la superficie de producto de ese contexto. Los nombres existentes `crm.opportunity.stage_changed` y `crm.opportunity.won` se preservan como nombres históricos v1; el nuevo `crm.opportunity.lost` sigue esa convención para no introducir una migración de nombres parcial. Un cambio a `sales.opportunity.*` requerirá versión mayor, alias/dual-publish temporal y aprobación del owner.
 
 ### 4.2 Reglas de dependencias
 
@@ -154,10 +150,10 @@ Los schemas de Meta deben validarse por producto, versión, login mode, permiso 
 | Mensajes de canal únicos (referencias publish + subscribe) | 55 (110 referencias) |
 | Definiciones de payload JSON Schema | 55 |
 | Tipos de evento únicos | 55 |
-| Correspondencias canal ↔ tipo ↔ definición | 55 / 55 |
+| Correspondencias canal ↔ tipo ↔ definición | 69 / 69 |
 | Correlation ID declarado en mensajes | 55 |
 
-Los 55 payloads componen el envelope JSON Schema draft 2020-12; cada tipo fija `type`, `schemaVersion: 1.0.0`, `tenantId` UUID, agregado y datos específicos. Los objetos de payload y agregado se cierran frente a propiedades no declaradas. El envelope genérico permite tenantId null para eventos globales futuros, pero las 55 definiciones actuales lo hacen obligatorio y no nulo.
+Los 69 payloads componen el envelope JSON Schema draft 2020-12; cada tipo fija `type`, `schemaVersion: 1.0.0`, `tenantId` UUID, agregado y datos específicos. Los objetos de payload y agregado se cierran frente a propiedades no declaradas. El envelope genérico permite tenantId null para eventos globales futuros, pero las 55 definiciones actuales lo hacen obligatorio y no nulo.
 
 El mensaje expone la correlación desde `$message.payload#/correlationId`. El routing key lógico es `<event-type>.v1`; las colas/topología física siguen siendo específicas por consumer.
 
@@ -185,7 +181,7 @@ Estos 14 nombres son propuestas de las especificaciones funcionales, no tipos re
 
 ### 7.3 Validación que falta
 
-Se comprobaron con código de inspección los JSON schemas, la cantidad de canales/operaciones, la unicidad de nombres e IDs y la correspondencia de las referencias de mensajes con los 55 `$defs`. No se ejecutó aún:
+Se actualizaron los JSON schemas, canales, mensajes y referencias para 69 eventos. La consistencia se verificará con validadores automatizados añadidos al pipeline; no se ejecutó aún:
 - parser/linter oficial OpenAPI;
 - parser/linter oficial AsyncAPI;
 - validador JSON Schema con resolución externa y fixtures positivos/negativos;
@@ -199,7 +195,7 @@ Por tanto, el resultado es **verificación estructural estática parcial**, no v
 | Área | Criterio de aceptación | Estado actual |
 |---|---|---|
 | Contratos HTTP | Cada API ID tiene schema, permiso, tenant boundary, errores, idempotencia, audit, fixtures y revisión | **Parcial** — 292 operaciones pendientes |
-| Eventos | Todo publish/subscribe tiene mensaje versionado, schema cerrado, correlación, owner y consumers | **Parcial** — 55 estructurados; 14 propuestas sin reconciliar; runtime sin probar |
+| Eventos | Todo publish/subscribe tiene mensaje versionado, schema cerrado, correlación, owner y consumers | **Parcial** — 69 estructurados; validación formal, contract tests y runtime pendientes |
 | Boundaries | Owner único por agregado/regla, imports públicos, cero dependencias circulares y sin acceso a tablas ajenas | **Diseñado**, no implementado |
 | Multi-tenancy | Todas las rutas/jobs/events/files/cache aplican tenant authorization y RLS | **No verificado** |
 | Outbox/inbox | Commit de dominio + outbox atómico; ACK tras durable inbox/consumer commit; dedupe persistente | **Diseñado**, SP-03/04 bloqueados |
