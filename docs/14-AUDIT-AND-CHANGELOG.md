@@ -148,3 +148,21 @@ No se han ejecutado builds, tests de producto, benchmarks, Meta account checks n
 | AUD-037 | Formal architecture decisions | ADR-021/022 added to docs/33 for learning plane and budget/official API policy |
 
 No Ads integration, optimizer, AI agent execution, performance benchmark or live campaign change has been implemented/executed by this documentation update.
+
+## 14. Campaign Intelligence and repository benchmark audit (2026-11-06)
+| ID | Evento | Resultado |
+|---|---|---|
+| AUD-038 | Meta Ads AI/Andromeda/GEM research | docs/34 registra evolución Andromeda 2024/2026, GEM, Advantage+, Ads Creative Studio, Meta Ads MCP, Business Agent y Social Technologies MCP |
+| AUD-039 | 20% budget rule clarification | PD-024 adoptada como regla interna +20% por operación y rolling 24h; investigación no encontró umbral universal Meta. Diferenciación documentada con Ad Set Budget Sharing |
+| AUD-040 | Campaign Intelligence architecture | docs/36 define dos planos de aprendizaje, campaign snapshots, CRM/CAPI outcomes, Creative Lab, test cells, approval, reconciliation y budget guardrails |
+| AUD-041 | Open source/provider benchmark | docs/35 documenta Chatwoot, Twilio SDK, httpSMS, Android SMS Gateway y OpenWA, con archivos representativos y decisiones de adopción/no-go |
+| AUD-042 | Requirements and backlog | US-029..032 y TASK-067..080 agregados; estados proposed; trazabilidad y DAG actualizados |
+| AUD-043 | ADRs campaign/agents | ADR-021/022 documentan Campaign Intelligence y política de escalado/uso exclusivo de APIs oficiales |
+| AUD-044 | Documentation read-back | docs/29, docs/32..36, stories, backlog, graph, traceability, index y agent contract releídos; markers PD/US/TASK/ADR presentes |
+
+### Git branch isolation at final validation
+- Compare master → environment/local: ahead 156 / behind 0.
+- Compare environment/develop → environment/local: ahead 156 / behind 0.
+- Compare master → environment/develop: identical, ahead 0 / behind 0.
+- No merge, production deployment, live campaign change or code implementation was performed.
+- No product test suite, architecture spike, benchmark for WhatsBusiness, Meta account authorization or legal assessment was run.
