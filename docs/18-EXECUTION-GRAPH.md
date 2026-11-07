@@ -162,3 +162,6 @@ TASK-066 market/ICP validation → pricing/packaging decision and commercial lau
 - TASK-026/068/070 → TASK-077 incrementality and attribution framework → TASK-078 dashboard/health reporting.
 
 TASK-067..080 remain proposed. No autonomous spend, publication, or live WhatsApp actions are authorized by this documentation change.
+
+
+TASK-004 permissions/approval + TASK-029 observability/audit + TASK-067 Campaign Intelligence + TASK-074 Meta Ads MCP + TASK-075 Business Agent handoff → TASK-080 Agent Tool Gateway/MCP server. TASK-080 is a shared control boundary and must be complete before any AI agent performs external write operations.
