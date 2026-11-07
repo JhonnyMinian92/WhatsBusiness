@@ -26,7 +26,7 @@ export interface AppendAuditEvent {
   readonly occurredAt?: Date;
 }
 
-export interface AuditEventRecord extends AppendAuditEvent {
+export interface AuditEventRecord extends Omit<AppendAuditEvent, "occurredAt"> {
   readonly id: string;
   readonly sequenceNumber: number;
   readonly previousHash: string;
