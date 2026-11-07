@@ -4,14 +4,14 @@ info:
   version: 1.0.0
   description: >
     Canonical route registry for first-party product APIs and webhook ingress.
-    It contains 289 first-party REST operations plus 8 webhook ingress routes.
+    It contains 288 active first-party REST operations plus 8 webhook ingress routes; LEAD-010 is a retired alias superseded by SALES-014.
     Only PLT-001..005 are design-frozen; 292 remaining operations are catalog-only
     and cannot be implemented until their complete business schemas are approved.
-  x-first-party-rest-operations: 289
+  x-first-party-rest-operations: 288
   x-webhook-ingress-operations: 8
-  x-total-http-operations: 297
+  x-total-http-operations: 296
   x-design-frozen-operations: 5
-  x-catalog-only-operations: 292
+  x-catalog-only-operations: 291
 servers:
   - url: /api
     description: Gateway base path; deployment configuration is environment-specific.
@@ -80,8 +80,8 @@ paths:
       x-traceability: 'TASK-029'
       x-contract-status: 'design-frozen'
       x-contract-ready: true
-      x-implementation-allowed: false
-      x-required-gate: G0
+      x-implementation-allowed: true
+      x-required-gate: GO-CODE-FOUNDATION
       security: []
       responses:
         '200':
@@ -98,8 +98,8 @@ paths:
       x-traceability: 'TASK-029,039'
       x-contract-status: 'design-frozen'
       x-contract-ready: true
-      x-implementation-allowed: false
-      x-required-gate: G0
+      x-implementation-allowed: true
+      x-required-gate: GO-CODE-FOUNDATION
       security: []
       responses:
         '200':
@@ -5258,56 +5258,11 @@ paths:
         'default': { $ref: '#/components/responses/ContractNotFrozen' }
   '/v1/tenants/{tenantId}/leads/{leadId}/convert':
     post:
-      tags: ['Lead Ads']
-      operationId: apiLEAD010
-      summary: 'Convierte lead en contacto/oportunidad conservando provenance.'
-      x-api-id: 'LEAD-010'
-      x-traceability: 'US-018/019; TASK-042,044'
-      x-contract-status: 'catalog-only'
-      x-common-error-profile: 'problem-details-v1'
-      x-contract-error-catalog: [400, 401, 403, 404, 409, 422, 429, 500, 503]
-      x-contract-ready: false
-      x-implementation-allowed: false
-      x-required-gate: API-CONTRACT-FREEZE+G0
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: 'tenantId'
-          in: path
-          required: true
-          schema: { type: string, format: uuid }
-        - name: 'leadId'
-          in: path
-          required: true
-          schema: { type: string, maxLength: 255 }
-        - name: Idempotency-Key
-          in: header
-          required: true
-          schema: { type: string, minLength: 16, maxLength: 255 }
-        - name: X-Correlation-ID
-          in: header
-          required: false
-          schema: { type: string, format: uuid }
-      x-request-schema-pending: true
-      x-response-schema-pending: true
-      x-error-catalog-pending: true
-      x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
-      responses:
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '409': { $ref: '#/components/responses/Conflict' }
-        '422': { $ref: '#/components/responses/UnprocessableEntity' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
-        '503': { $ref: '#/components/responses/ServiceUnavailable' }
-        'default': { $ref: '#/components/responses/ContractNotFrozen' }
-    post:
       tags: ['Sales']
       operationId: apiSALES014
       summary: 'Crea contact/opportunity conservando lead/provenance.'
       x-api-id: 'SALES-014'
+      x-supersedes-api-ids: ['LEAD-010']
       x-traceability: 'US-018/019; TASK-023,042,044'
       x-contract-status: 'catalog-only'
       x-common-error-profile: 'problem-details-v1'
