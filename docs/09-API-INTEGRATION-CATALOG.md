@@ -73,3 +73,27 @@ Consultar fuentes y detalles en [32-RESEARCH-AND-EVIDENCE-REGISTER.md](32-RESEAR
 - Ningún precio Meta se trata como tarifa universal ni como ingreso de la plataforma.
 - Ningún ID de proveedor se interpreta como persona universal sin namespace y tipo.
 - Las respuestas de App Review, Business Verification y Tech Provider deben provenir de evidencia real de la app/cuenta.
+
+
+## 7. Marketing API AI/creative capabilities y campañas self-learning
+Las siguientes familias se evalúan por versión/permiso/capability al integrar; los nombres y disponibilidad pueden cambiar:
+- Campaign, AdSet, Ad, AdCreative APIs: lectura y escritura versionada de estructura y estado.
+- Insights API: métricas por campaign/adset/ad/creative, breakdowns y async reports según volumen/capability.
+- Business Management API: cuentas propias y de clientes, ownership/grants.
+- Ad Previews API: previews por placement/ad format/creative feature.
+- Advantage+ Creative APIs: opt-in/opt-out de features creativas AI/automation; no habilitar feature ineligible.
+- Ads Performance Recommendations: leer recomendaciones como creative fatigue/limited donde la cuenta/versión las soporte.
+- Meta Ads MCP: integración de drafts, uploads, previews, trends/reporting si habilitado; cualquier publish/write conserva aprobación explícita.
+- CAPI/datasets/offline sources: señales de negocio server-side, event_id/dedupe, event time, source/action_source y consent.
+- Per-creative audiences: evaluar capability para asociar audiencia/age/gender a creative si API disponible para cuenta y región; no asumir paridad con la UI.
+
+### Design requirements
+- API version, scope, task, access tier, account eligibility, country, feature availability and deprecation por operación.
+- Reporte Meta y outcome interno se conservan por separado; cada reporte muestra atribución y ventana.
+- No afirmar control directo ni acceso a score de Andromeda/GEM.
+- AI generated features pueden requerir anuncios en PAUSED, preview/review y posterior aprobación/activation; validar contrato vigente.
+- No añadir nuevas creatives a un winning/learning adset como método predeterminado. Usar test cell/A-B mechanism, conservar winner y documentar si el cambio puede reiniciar learning.
+- Presupuesto +20% per operation/rolling-24h enforced by PD-024; esto es política interna, no regla Meta.
+- Los nuevos anuncios deben aportar diversidad sustancial de hipótesis/visual/hook/format/offer/CTA, no spam de duplicados.
+
+Fuentes: docs/34 y docs/36; la muestra Meta AI Creative Enhancer se referencia en docs/32 y requiere revalidación contra API docs normativas.
