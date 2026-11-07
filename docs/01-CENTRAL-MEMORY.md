@@ -107,3 +107,13 @@ Solo promover una afirmación a esta memoria si tiene fuente/evidencia, fecha, a
 
 
 Los ADR-011..020 están formalizados en docs/33-ARCHITECTURE-DECISION-RECORDS.md. Accepted as direction no equivale a implementación ni a aprobación de coste/proveedor.
+
+
+## Campaign intelligence baseline (2026-11-06)
+- Campaign Intelligence and Creative Lab are first-class product domains; see docs/36-CAMPAIGN-INTELLIGENCE-AND-GUARDED-SCALING.md.
+- Meta Andromeda/GEM are internal retrieval/ranking models. WhatsBusiness cannot call or control their internal scores. We provide eligible diversified creatives and high-quality, lawful business conversion signals.
+- Campaign learning combines Meta Insights + CRM outcomes + CAPI, and distinguishes attributed results from incremental causal measurement.
+- PD-024: no auto budget increase >20% per operation or >20% cumulative over a rolling 24-hour window against the start-window baseline. This is an owner-defined WhatsBusiness guardrail, not a Meta universal percentage rule.
+- Winning/learning ad sets are protected by default; new creatives use a controlled test cell/ad set/campaign and approval. No LLM may invoke Ads write APIs directly.
+- Business Agent / Ads MCP interoperability is considered, but all actions route through the same tenant/policy/approval/audit gateway. OpenWA/WhatsApp Web automation is not permitted.
+- Stories US-029..032 and tasks TASK-067..080 define this scope; all are proposed.
