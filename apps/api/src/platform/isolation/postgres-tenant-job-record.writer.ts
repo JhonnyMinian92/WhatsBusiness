@@ -19,6 +19,9 @@ export class PostgresTenantJobRecordWriter implements TenantJobRecordWriter {
   async stage(client: PoolClient, input: StageTenantJobInput): Promise<string> {
     this.validate(input);
     const payload = JSON.stringify(input.payload);
+    if (typeof payload !== "string") {
+      throw new Error("Tenant job payload must serialize to a JSON object.");
+    }
     if (Buffer.byteLength(payload, "utf8") > MAX_PAYLOAD_BYTES) {
       throw new Error("Tenant job payload exceeds the 256 KiB limit.");
     }
