@@ -17,12 +17,6 @@
 12. [Flujo de equipo y gates](26-TEAM-WORKFLOW-AND-GATES.md) — ciclo completo, plantillas y puertas de calidad.
 13. [Auditoría inicial del repositorio](27-INITIAL-REPOSITORY-AUDIT.md) — evidencia del estado real inspeccionado.
 14. [Cuestionario de descubrimiento](28-PRODUCT-DISCOVERY-QUESTIONNAIRE.md) — decisiones que debe confirmar el propietario.
-7. [Organización del equipo](21-TEAM-ORGANIZATION.md) — departamentos, ownership y organigrama.
-8. [Orquestación multiagente](22-MULTI-AGENT-ORCHESTRATION.md) — concurrencia, work packets, integración y handoff.
-9. [Playbooks de roles](23-ROLE-PLAYBOOKS.md) — cómo adoptar y abandonar roles sin confundir autoridad.
-10. [Validación independiente](24-INDEPENDENT-VALIDATION.md) — revisión cruzada, adversarial y hallazgos.
-11. [Límites y accesos](25-AGENT-BOUNDARIES-AND-ACCESS.md) — acciones permitidas, prohibidas y escalamiento.
-12. [Flujo de equipo y gates](26-TEAM-WORKFLOW-AND-GATES.md) — ciclo completo, plantillas y puertas de calidad.
 
 ## Reglas rectoras
 1. Trabajo activo exclusivamente en `environment/local`, salvo instrucción expresa del propietario.
