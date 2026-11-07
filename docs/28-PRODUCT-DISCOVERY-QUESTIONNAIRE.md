@@ -1,6 +1,6 @@
 # 28 — Cuestionario de descubrimiento y decisiones del propietario
 
-**Estado:** respuestas pendientes.  
+**Estado:** baseline aplicada por delegación expresa del propietario; pendientes únicamente las validaciones empíricas, legales, financieras y operativas indicadas en la sección final.  
 **Propósito:** cerrar decisiones de producto que los agentes no deben inventar. Las respuestas se convertirán en requisitos, historias, ADR, contratos, criterios de aceptación y tareas.
 
 > Responde por número. Puedes contestar “no lo sé; recomiéndame una opción” cuando quieras que el equipo proponga alternativas. Si una pregunta admite varios valores, puedes enumerarlos.
