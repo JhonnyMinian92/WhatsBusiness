@@ -265,7 +265,7 @@ Estado implemented; la ejecución CI de esta revisión, adapters/wiring de Valke
 | AUD-072 | Persistencia tenant job | `0006-tenant-job-outbox.sql` crea `platform.tenant_job_records`, RLS habilitada, ownership tenant/actor, payload JSON, estados y límites de intentos. Runtime tiene INSERT y SELECT(id) exclusivamente para `RETURNING`; la lectura de metadata se hace via SECURITY DEFINER y no tiene SELECT de payload ni UPDATE directo. |
 | AUD-073 | Resolución mínima de contexto | `platform.resolve_tenant_job_context(uuid)` retorna solo job_id, tenant_id, actor_user_id, purpose y correlation_id; no expone payload. |
 | AUD-074 | Adapter y wiring | `PostgresTenantJobRecordReader`, `IsolationModule`, `DatabaseModule` export de `DATABASE_POOL` y registro en `AppModule`. |
-| AUD-075 | Regresión | Suites del reader y writer registradas; ocho suites de aislamiento aparecen en `api:test`. CI de esta iteración pendiente de evidencia. |
+| AUD-075 | Regresión | Suites del reader y writer registradas; ocho suites unitarias y una suite PostgreSQL gated (`RUN_TENANT_JOB_INTEGRATION_TESTS=true`) aparecen en `api:test`. CI de esta iteración pendiente de evidencia. |
 | AUD-076 | Staging transaccional | `PostgresTenantJobRecordWriter.stage(client, input)` inserta el job usando el mismo PoolClient de la mutación de negocio; valida UUID, purpose, job type, idempotency key, payload JSON, tamaño 256 KiB e intentos bounded. La key se liga a SHA-256 canónico del tenant/actor/purpose/type/payload. |
 | AUD-077 | State machine | Trigger PostgreSQL impide alterar identidad/payload, restringe transiciones, incrementa attempts en claim y fija timestamps terminales. |
 
