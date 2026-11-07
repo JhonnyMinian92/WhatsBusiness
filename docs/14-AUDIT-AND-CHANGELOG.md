@@ -187,3 +187,14 @@ No Ads integration, optimizer, AI agent execution, performance benchmark or live
 | AUD-047 | Platform Identity foundation | OIDC RS256/JWKS, resolución issuer+subject, migración Organization/User/Tenant/Membership/Role/Permission/Entitlement, RLS y endpoints PLT-003..005 read-only. |
 
 Resultado de automatización: Source CI #42376234089 y Contract CI #42376234088 finalizaron SUCCESS para el commit 0e0927bdcae658d4e4b1ccae28a5c5f89cf4b183. Se verificaron instalación congelada, migración PostgreSQL, build, typecheck, pruebas OIDC/RLS y contratos OpenAPI/AsyncAPI/JSON Schema. El lockfile quedó confirmado en d81593601101d97623684ea02f04539fd29f3e2f. Código implementado y pruebas automáticas pasadas; revisión independiente de arquitectura/seguridad aún pendiente, por lo que TASK-001/002/004 siguen in_progress y no se declara acceptance. Provisioning, mutaciones de membresía/roles, ABAC completo, approvals, audit/outbox y worker tenant context permanecen pendientes. No se usaron datos ni credenciales reales.
+
+
+## 17. Tenant ownership y lifecycle — TASK-001 (AUD-048; 2026-11-07)
+
+| ID | Cambio | Evidencia / resultado |
+|---|---|---|
+| AUD-048 | Invariantes Organization/Tenant | Nueva migración 0002: ownership Organization inmutable, FK con ON DELETE RESTRICT, lifecycle de Tenant con transiciones explícitas, timestamps de suspensión/cierre/borrado, tombstone deleted inmutable y oculto por RLS. |
+| AUD-049 | Migraciones versionadas | `scripts/migrate.mjs` descubre archivos SQL versionados, ordena por versión y aplica cada uno con advisory lock y transacción independiente. |
+| AUD-050 | Pruebas de lifecycle/ownership | Tests PostgreSQL sintéticos cubren pending_provisioning→active, active→suspended→active→closing→deleted, transición inválida, tenant tombstone, ownership inmutable, protección de Organization y visibilidad RLS. |
+
+Source CI run #15 [42379841071](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42379841071) finalizó SUCCESS para commit `479a8234d2f6b78b0bb8e6474c39e4a388034c3a`: instalación frozen, migraciones PostgreSQL, build, typecheck y suite unit/integration pasaron. El run #13 falló por una expectativa SQLSTATE incorrecta (RESTRICT devuelve 23001); se corrigió y runs #14 y #15 pasaron. Estado TASK-001: implemented y CI-verified; revisión independiente y aceptación del propietario pendientes. No se modificaron master/environment/develop ni se ejecutaron acciones productivas.
