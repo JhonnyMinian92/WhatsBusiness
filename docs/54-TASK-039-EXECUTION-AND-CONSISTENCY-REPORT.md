@@ -40,12 +40,45 @@ No se ejecutaron build, lint, typecheck, unit/integration/E2E, benchmarks, RLS/p
 
 No se recomienda cambiar ADR-011..025 por intuición. Son dirección provisional documentada, no compatibilidad certificada. Ajustar mediante evidencia SP, reviewer independiente y ADR superseding.
 
+### 3.1 Cross-check documental con fuentes oficiales (no runtime)
+
+Se contrastó la baseline con las fuentes oficiales disponibles al corte:
+
+| Componente | Verificación documental | Límite |
+|---|---|---|
+| Node.js 26 | Active LTS desde 2026-10-28; EOL publicado 2029-04-30 | El host de esta sesión sigue en Node 22.16.0 |
+| Angular 22.0.x + TypeScript 6.0.x | Angular declara Node ^26.0.0 y TypeScript >=6.0.0 <6.1.0; RxJS ^6.5.3 o ^7.4.0 | Compatibilidad de las dependencias Angular seleccionadas y build de workspace pendientes |
+| NestJS 12 | Nest CLI/schematics requiere Node 22.22.3+, 24.15+ o 26+; schematics v12 exige TypeScript 6.0 peer compatible. El runtime de la app tiene mínimo menor que el CLI | Instalar/ejecutar generators, API/worker/tests en Node 26 todavía pendiente |
+| Nx 24 | Nx 24 figura como major Current desde 2026-10-21; paquetes nx/@nx deben estar lockstep | La página de compatibilidad Node menciona Node 26 probado/soportado, pero su tabla explícita lista Nx 23.x y 22.x, no Nx 24. Por rigor, Node 26 + Nx 24.0.4 sigue como SP-10 BLOCKED hasta frozen install/build/generate/tests |
+| PostgreSQL 18 | La lista oficial incluye 18.6 como patch más reciente en el corte consultado | No valida RLS, driver, pooling ni restore |
+| RabbitMQ 4.4 | 4.4.0 publicado 2026-10-20; community support hasta 2027-07-31 | Programar upgrade antes del fin de community support; crash/replay/DLQ siguen sin prueba |
+| Valkey 9.1 | 9.1.3 publicado 2026-10-26; tags oficiales 9.1.3 | La compatibilidad de comandos, scripts y cliente del proyecto sigue pendiente |
+| Keycloak 26.8 | Release line 26.8 y notas 26.8.2 disponibles | No se probó OIDC, upgrades ni restore |
+| Docker Compose 5.7.0 | Release oficial 2026-11-02 | No hay Docker Engine/Compose en este entorno |
+| Prometheus 3.16.0 | Release oficial 2026-11-04 | No se probó integración/huella con OTel/Grafana |
+
+**Conclusión de compatibilidad:** la matriz Node 26 + Angular 22 + TypeScript 6 + Nest 12 tiene soporte documental explícito suficiente para seguir como candidata. Nx 24 es una versión actual soportada, pero la tabla pública Node/Nx no es perfectamente consistente respecto al major 24; se mantiene una condición SP-10 específica para probar la combinación exacta. Ninguna fuente oficial reemplaza el frozen install, generators, build y test real del workspace.
+
+Fuentes primarias consultadas:
+- Node.js release schedule: https://github.com/nodejs/Release#release-schedule
+- Angular version compatibility: https://angular.dev/reference/versions
+- NestJS 12 migration/Node requirements: https://docs.nestjs.com/migration-guide
+- Nx Node compatibility: https://nx.dev/docs/technologies/node/introduction
+- Nx release/support policy: https://nx.dev/docs/reference/releases
+- PostgreSQL releases: https://www.postgresql.org/docs/release/
+- RabbitMQ release/support: https://www.rabbitmq.com/release-information
+- Valkey 9.1: https://valkey.io/download/9.1/
+- Keycloak release notes: https://www.keycloak.org/docs/latest/release_notes/
+- Docker Compose releases: https://github.com/docker/compose/releases
+- Prometheus releases: https://prometheus.io/download/
+
 ## 4. Auditoría estática TASK, dependencias y contratos
 
 | Comprobación | Resultado |
 |---|---:|
 | TASK únicas en backlog | 80/80, TASK-001..080 |
 | TASK presentes en matriz individual docs/47 §7.2 | 80/80 |
+| Dependencias TASK declaradas (aristas) | 187 |
 | Dependencias TASK con referencias inexistentes | 0 |
 | Ciclos en dependencias TASK declaradas | 0; grafo topológicamente ordenable |
 | Operaciones OpenAPI con operationId | 297 |
