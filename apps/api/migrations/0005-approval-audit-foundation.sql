@@ -400,7 +400,14 @@ ALTER TABLE platform.approval_requests FORCE ROW LEVEL SECURITY;
 CREATE POLICY approval_requests_read ON platform.approval_requests
   FOR SELECT USING (
     tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
-    AND platform.has_permission(tenant_id, 'approvals.read')
+    AND (
+      platform.has_permission(tenant_id, 'approvals.read')
+      OR (
+        requester_user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
+        AND platform.has_permission(tenant_id, 'approvals.create')
+      )
+      OR platform.has_permission(tenant_id, 'approvals.decide')
+    )
   );
 CREATE POLICY approval_requests_create ON platform.approval_requests
   FOR INSERT WITH CHECK (
