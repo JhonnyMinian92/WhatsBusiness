@@ -17,3 +17,4 @@ export * from "./jobs/infrastructure/rabbitmq/rabbitmq-topology.js";
 export * from "./jobs/application/tenant-job-runtime.application.js";
 export * from "./jobs/infrastructure/rabbitmq/rabbitmq-postgres-tenant-job-runtime-session.factory.js";
 export * from "./jobs/infrastructure/bootstrap/tenant-job-runtime.bootstrap.js";
+export * from "./jobs/application/tenant-job-execution-lease-heartbeat.js";
