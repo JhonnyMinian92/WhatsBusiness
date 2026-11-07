@@ -2,7 +2,7 @@
 
 Plataforma SaaS multi-tenant para integrar oficialmente productos y APIs del ecosistema Meta. Los bounded contexts iniciales incluyen Platform Identity, CRM, Inbox omnicanal, automatizaciones y asistencia IA gobernada.
 
-**Estado: GO-CODE aprobado en environment/local.** El workspace Nx/pnpm, backend NestJS, shell Angular y validación CI están establecidos. El slice inicial de Identity/Tenant/Membership incorpora autenticación OIDC/JWKS, persistencia PostgreSQL con RLS y APIs de lectura. La verificación de este último slice depende de los resultados de CI del commit correspondiente.
+**Estado: GO-CODE aprobado en environment/local.** El workspace Nx/pnpm, backend NestJS, shell Angular y validación CI están establecidos. El slice inicial de Identity/Tenant/Membership incorpora autenticación OIDC/JWKS, persistencia PostgreSQL con RLS y APIs de lectura. La validación automática del slice pasó el 7 de noviembre de 2026: Source CI ejecutó frozen install, migración PostgreSQL, build, typecheck y pruebas OIDC/RLS; Contract CI pasó OpenAPI, AsyncAPI y JSON Schema. La revisión independiente de seguridad/arquitectura sigue pendiente.
 
 **GO-PRODUCTION continúa NO-GO.** No están autorizados despliegues productivos, datos o credenciales reales, escrituras Meta, mensajes reales, cambios de campañas, gasto publicitario, proveedor IA externo ni costes recurrentes.
 

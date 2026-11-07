@@ -288,4 +288,4 @@ La matriz de docs/47 define la relación por US y por API ID. Esta tabla es un �
 | TASK-004 | in_progress | Esquema roles/permissions y lectura de role/permission keys; RBAC/ABAC final, mutations, approvals y pruebas de escalamiento pendientes. |
 | TASK-005 | proposed | Step-up, doble control y auditoría de acciones privilegiadas no implementados. |
 
-No marcar TASK-001/002/004 como verified hasta que source CI y contract CI pasen en el commit de este slice, con pruebas PostgreSQL/RLS, y exista review independiente.
+Source CI #42376234089 y Contract CI #42376234088 pasaron en el commit 0e0927bdcae658d4e4b1ccae28a5c5f89cf4b183; PostgreSQL migration/RLS, build, typecheck, OIDC tests y contract validation quedaron verdes. El lockfile se confirmó en d81593601101d97623684ea02f04539fd29f3e2f. TASK-001/002/004 continúan in_progress hasta revisión independiente; no hay acceptance de producto.

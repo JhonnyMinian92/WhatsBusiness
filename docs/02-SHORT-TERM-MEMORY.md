@@ -225,6 +225,6 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Se refuerza source CI para sincronizar dependencias, verificar instalación frozen, ejecutar migración PostgreSQL y tests RLS; Contract CI usa la baseline Node 26 y verifica el conjunto autorizado de API IDs.
 - Slice agregado: OIDC RS256/JWKS, User por issuer+subject, Organization/Tenant/Membership/Role/Permission/Entitlement, Pool PostgreSQL, migración y RLS; APIs de lectura PLT-003..005.
 - Pruebas nuevas: firma/issuer/audience/exp/nbf de JWT con JWKS sintético y RLS con dos usuarios/dos tenants usando pool de una conexión.
-- TASK-001/002/004 permanecen in_progress hasta workflows verdes en este commit y review independiente; TASK-005 proposed.
+- Source CI #42376234089 y Contract CI #42376234088 pasaron en commit 0e0927bdcae658d4e4b1ccae28a5c5f89cf4b183. Source: frozen install, migración, build, typecheck y suite OIDC/RLS; Contracts: OpenAPI, AsyncAPI y JSON Schema. El lockfile fue confirmado en commit d81593601101d97623684ea02f04539fd29f3e2f. TASK-001/002/004 siguen in_progress por revisión independiente pendiente; TASK-005 proposed.
 - Próximo bloque: provisioning/invitations, lifecycle de Tenant/Membership, RBAC/ABAC, audit/outbox, worker context y UI de selector de tenant.
 - GO-PRODUCTION sigue NO-GO. No usar datos/cuentas reales, Meta writes, mensajes, Ads, proveedor IA externo, gasto recurrente ni deploy.

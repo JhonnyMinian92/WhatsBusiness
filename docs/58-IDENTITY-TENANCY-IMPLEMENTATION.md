@@ -1,6 +1,6 @@
 # 58 — Implementación inicial de Identity, Tenant y Membership
 
-**Rama:** environment/local. **Gate:** GO-CODE. **Estado:** implementación inicial; CI y revisión independiente pendientes al momento de este cambio.  
+**Rama:** environment/local. **Gate:** GO-CODE. **Estado:** implementación inicial; CI automático PASSED el 2026-11-07; revisión independiente pendiente.  
 **Relacionado:** US-001/002/024, TASK-001/002/004, PLT-003..005, docs/37, docs/42, docs/44, docs/48 y docs/57.
 
 ## 1. Alcance
@@ -59,4 +59,4 @@ El test PostgreSQL se omite localmente cuando no se suministran DATABASE_URL y M
 - OIDC dev realm reproducible y E2E HTTP de extremo a extremo.
 - UI de login y tenant selector Angular.
 
-TASK-001, TASK-002 y TASK-004 quedan in_progress hasta revisión y evidencia CI completa. TASK-005 sigue proposed. Esta implementación no es aceptación productiva ni revisión independiente.
+Source workspace validation #42376234089 y Contract validation #42376234088 finalizaron SUCCESS en el commit 0e0927bdcae658d4e4b1ccae28a5c5f89cf4b183. El primero pasó frozen install, migración PostgreSQL, build, typecheck y pruebas unitarias/RLS; el segundo pasó OpenAPI, AsyncAPI y JSON Schema. El lockfile generado quedó confirmado en el commit d81593601101d97623684ea02f04539fd29f3e2f. TASK-001, TASK-002 y TASK-004 permanecen in_progress hasta revisión independiente; TASK-005 sigue proposed. TASK-005 sigue proposed. Esta implementación no es aceptación productiva ni revisión independiente.
