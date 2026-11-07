@@ -79,7 +79,9 @@ paths:
       x-api-id: 'PLT-001'
       x-traceability: 'TASK-029'
       x-contract-status: 'design-frozen'
-      x-implementation-allowed: true
+      x-contract-ready: true
+      x-implementation-allowed: false
+      x-required-gate: G0
       security: []
       responses:
         '200':
@@ -95,7 +97,9 @@ paths:
       x-api-id: 'PLT-002'
       x-traceability: 'TASK-029,039'
       x-contract-status: 'design-frozen'
-      x-implementation-allowed: true
+      x-contract-ready: true
+      x-implementation-allowed: false
+      x-required-gate: G0
       security: []
       responses:
         '200':
@@ -116,7 +120,9 @@ paths:
       x-api-id: 'PLT-003'
       x-traceability: 'US-001/002; TASK-001..004'
       x-contract-status: 'design-frozen'
-      x-implementation-allowed: true
+      x-contract-ready: true
+      x-implementation-allowed: false
+      x-required-gate: G0
       security:
         - bearerAuth: []
       responses:
@@ -138,7 +144,9 @@ paths:
       x-api-id: 'PLT-004'
       x-traceability: 'US-001/024; TASK-001,002,052'
       x-contract-status: 'design-frozen'
-      x-implementation-allowed: true
+      x-contract-ready: true
+      x-implementation-allowed: false
+      x-required-gate: G0
       security:
         - bearerAuth: []
       parameters:
@@ -163,7 +171,9 @@ paths:
       x-api-id: 'PLT-005'
       x-traceability: 'US-001/002/024/025; TASK-002,004,052,058'
       x-contract-status: 'design-frozen'
-      x-implementation-allowed: true
+      x-contract-ready: true
+      x-implementation-allowed: false
+      x-required-gate: G0
       security:
         - bearerAuth: []
       parameters:
@@ -204,7 +214,9 @@ paths:
       x-api-id: 'PLT-006'
       x-traceability: 'US-001/024; TASK-001,052'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -230,7 +242,9 @@ paths:
       x-api-id: 'PLT-007'
       x-traceability: 'US-024; TASK-052'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -261,7 +275,9 @@ paths:
       x-api-id: 'IAM-001'
       x-traceability: 'US-024/025; TASK-052,058'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -288,7 +304,9 @@ paths:
       x-api-id: 'IAM-002'
       x-traceability: 'US-001/024; TASK-001,052'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -315,7 +333,9 @@ paths:
       x-api-id: 'IAM-003'
       x-traceability: 'US-001/024; TASK-001,052'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -341,7 +361,9 @@ paths:
       x-api-id: 'IAM-004'
       x-traceability: 'US-024; TASK-052'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -372,7 +394,9 @@ paths:
       x-api-id: 'IAM-005'
       x-traceability: 'US-024; TASK-052'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -403,7 +427,9 @@ paths:
       x-api-id: 'IAM-006'
       x-traceability: 'US-024; TASK-052'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -434,7 +460,9 @@ paths:
       x-api-id: 'IAM-007'
       x-traceability: 'US-002/024; TASK-004,052'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -461,7 +489,9 @@ paths:
       x-api-id: 'IAM-008'
       x-traceability: 'US-002/024; TASK-004,052'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -492,7 +522,9 @@ paths:
       x-api-id: 'IAM-009'
       x-traceability: 'US-002; TASK-004'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -527,7 +559,9 @@ paths:
       x-api-id: 'IAM-010'
       x-traceability: 'US-002; TASK-004'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -562,7 +596,9 @@ paths:
       x-api-id: 'IAM-011'
       x-traceability: 'US-002; TASK-004'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -596,7 +632,9 @@ paths:
       x-api-id: 'IAM-012'
       x-traceability: 'US-002; TASK-004'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -631,7 +669,9 @@ paths:
       x-api-id: 'IAM-013'
       x-traceability: 'US-002; TASK-004'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -657,7 +697,9 @@ paths:
       x-api-id: 'IAM-014'
       x-traceability: 'US-002; TASK-004'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -688,7 +730,9 @@ paths:
       x-api-id: 'IAM-015'
       x-traceability: 'US-002; TASK-004'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -723,7 +767,9 @@ paths:
       x-api-id: 'IAM-016'
       x-traceability: 'US-002; TASK-004'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       x-request-schema-pending: true
@@ -741,7 +787,9 @@ paths:
       x-api-id: 'IAM-017'
       x-traceability: 'US-002; TASK-004'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -776,7 +824,9 @@ paths:
       x-api-id: 'IAM-018'
       x-traceability: 'US-002/012/029; TASK-005,025,071'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -802,7 +852,9 @@ paths:
       x-api-id: 'IAM-019'
       x-traceability: 'US-002/012/029/031; TASK-005,025,071,074'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -833,7 +885,9 @@ paths:
       x-api-id: 'IAM-020'
       x-traceability: 'US-002/012/029/031; TASK-005,025,071,074'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -868,7 +922,9 @@ paths:
       x-api-id: 'PAR-001'
       x-traceability: 'US-025; TASK-058'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       x-request-schema-pending: true
@@ -885,7 +941,9 @@ paths:
       x-api-id: 'PAR-002'
       x-traceability: 'US-025; TASK-058'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -912,7 +970,9 @@ paths:
       x-api-id: 'PAR-003'
       x-traceability: 'US-025; TASK-058'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       x-request-schema-pending: true
@@ -930,7 +990,9 @@ paths:
       x-api-id: 'PAR-004'
       x-traceability: 'US-025; TASK-058'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -961,7 +1023,9 @@ paths:
       x-api-id: 'PAR-005'
       x-traceability: 'US-025; TASK-058'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -996,7 +1060,9 @@ paths:
       x-api-id: 'PAR-006'
       x-traceability: 'US-025; TASK-058'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1031,7 +1097,9 @@ paths:
       x-api-id: 'PAR-007'
       x-traceability: 'US-024/025; TASK-052,058'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1062,7 +1130,9 @@ paths:
       x-api-id: 'META-001'
       x-traceability: 'US-003; TASK-006..008'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1089,7 +1159,9 @@ paths:
       x-api-id: 'META-002'
       x-traceability: 'US-003; TASK-006'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1120,7 +1192,9 @@ paths:
       x-api-id: 'META-003'
       x-traceability: 'US-003; TASK-006'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       x-request-schema-pending: true
@@ -1138,7 +1212,9 @@ paths:
       x-api-id: 'META-004'
       x-traceability: 'US-003; TASK-006,007'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1169,7 +1245,9 @@ paths:
       x-api-id: 'META-005'
       x-traceability: 'US-003; TASK-008,054'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1200,7 +1278,9 @@ paths:
       x-api-id: 'META-006'
       x-traceability: 'US-003; TASK-008,054'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1227,7 +1307,9 @@ paths:
       x-api-id: 'META-007'
       x-traceability: 'US-003; TASK-007,008'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1262,7 +1344,9 @@ paths:
       x-api-id: 'META-008'
       x-traceability: 'US-003; TASK-007'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1297,7 +1381,9 @@ paths:
       x-api-id: 'META-009'
       x-traceability: 'US-003; TASK-006..008'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1328,7 +1414,9 @@ paths:
       x-api-id: 'META-010'
       x-traceability: 'US-004; TASK-009'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1363,7 +1451,9 @@ paths:
       x-api-id: 'META-011'
       x-traceability: 'US-004; TASK-009'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1390,7 +1480,9 @@ paths:
       x-api-id: 'META-012'
       x-traceability: 'US-004; TASK-009'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1421,7 +1513,9 @@ paths:
       x-api-id: 'META-013'
       x-traceability: 'US-004; TASK-009,010,056'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1452,7 +1546,9 @@ paths:
       x-api-id: 'META-014'
       x-traceability: 'US-004; TASK-010,056'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1483,7 +1579,9 @@ paths:
       x-api-id: 'META-015'
       x-traceability: 'US-004; TASK-010,056'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1518,7 +1616,9 @@ paths:
       x-api-id: 'META-016'
       x-traceability: 'US-004/032; TASK-056,065,076'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1545,7 +1645,9 @@ paths:
       x-api-id: 'WA-001'
       x-traceability: 'US-004/005; TASK-009,011'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1572,7 +1674,9 @@ paths:
       x-api-id: 'WA-002'
       x-traceability: 'US-004/005; TASK-011'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1603,7 +1707,9 @@ paths:
       x-api-id: 'WA-003'
       x-traceability: 'US-005/020; TASK-011..013,045'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1633,7 +1739,9 @@ paths:
       x-api-id: 'WA-005'
       x-traceability: 'US-005/020; TASK-013,045'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1660,7 +1768,9 @@ paths:
       x-api-id: 'WA-004'
       x-traceability: 'US-005; TASK-013'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1691,7 +1801,9 @@ paths:
       x-api-id: 'WA-006'
       x-traceability: 'US-005; TASK-012'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1722,7 +1834,9 @@ paths:
       x-api-id: 'WA-007'
       x-traceability: 'US-005; TASK-012'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1753,7 +1867,9 @@ paths:
       x-api-id: 'WA-008'
       x-traceability: 'US-005; TASK-013'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1788,7 +1904,9 @@ paths:
       x-api-id: 'WA-009'
       x-traceability: 'US-005/008; TASK-011,018'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1815,7 +1933,9 @@ paths:
       x-api-id: 'WAM-001'
       x-traceability: 'US-006; TASK-014'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1841,7 +1961,9 @@ paths:
       x-api-id: 'WAM-002'
       x-traceability: 'US-006; TASK-014'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1872,7 +1994,9 @@ paths:
       x-api-id: 'WAM-003'
       x-traceability: 'US-006; TASK-014'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1902,7 +2026,9 @@ paths:
       x-api-id: 'WAM-004'
       x-traceability: 'US-006; TASK-014,015'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1936,7 +2062,9 @@ paths:
       x-api-id: 'WAM-005'
       x-traceability: 'US-006; TASK-014'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -1971,7 +2099,9 @@ paths:
       x-api-id: 'WAM-006'
       x-traceability: 'US-006; TASK-015'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2002,7 +2132,9 @@ paths:
       x-api-id: 'WAM-007'
       x-traceability: 'US-006; TASK-015'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2037,7 +2169,9 @@ paths:
       x-api-id: 'WAM-008'
       x-traceability: 'US-004/005; TASK-011'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2063,7 +2197,9 @@ paths:
       x-api-id: 'WAM-009'
       x-traceability: 'US-004; TASK-011'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2094,7 +2230,9 @@ paths:
       x-api-id: 'WAF-001'
       x-traceability: 'US-007; TASK-016'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2120,7 +2258,9 @@ paths:
       x-api-id: 'WAF-002'
       x-traceability: 'US-007; TASK-016'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2151,7 +2291,9 @@ paths:
       x-api-id: 'WAF-003'
       x-traceability: 'US-007; TASK-016'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2182,7 +2324,9 @@ paths:
       x-api-id: 'WAF-004'
       x-traceability: 'US-007; TASK-016'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2217,7 +2361,9 @@ paths:
       x-api-id: 'WAF-005'
       x-traceability: 'US-007; TASK-016'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2252,7 +2398,9 @@ paths:
       x-api-id: 'WAF-006'
       x-traceability: 'US-007; TASK-016'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2287,7 +2435,9 @@ paths:
       x-api-id: 'WAF-007'
       x-traceability: 'US-007; TASK-016'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2314,7 +2464,9 @@ paths:
       x-api-id: 'WAF-008'
       x-traceability: 'US-007; TASK-016'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2341,7 +2493,9 @@ paths:
       x-api-id: 'WAMK-001'
       x-traceability: 'US-008; TASK-017,055'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2368,7 +2522,9 @@ paths:
       x-api-id: 'WAMK-002'
       x-traceability: 'US-008; TASK-017,055'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2399,7 +2555,9 @@ paths:
       x-api-id: 'WAMK-003'
       x-traceability: 'US-008; TASK-017,055'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2430,7 +2588,9 @@ paths:
       x-api-id: 'WAMK-004'
       x-traceability: 'US-008/026; TASK-018,057'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2461,7 +2621,9 @@ paths:
       x-api-id: 'WAMK-005'
       x-traceability: 'US-008/026; TASK-018,057'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2488,7 +2650,9 @@ paths:
       x-api-id: 'WAMK-006'
       x-traceability: 'US-026; TASK-057'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2519,7 +2683,9 @@ paths:
       x-api-id: 'WAMK-007'
       x-traceability: 'US-026; TASK-057'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2546,7 +2712,9 @@ paths:
       x-api-id: 'FB-001'
       x-traceability: 'US-009; TASK-019'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2573,7 +2741,9 @@ paths:
       x-api-id: 'FB-002'
       x-traceability: 'US-009; TASK-019'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2604,7 +2774,9 @@ paths:
       x-api-id: 'FB-003'
       x-traceability: 'US-009; TASK-019'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2634,7 +2806,9 @@ paths:
       x-api-id: 'FB-004'
       x-traceability: 'US-009; TASK-019'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2669,7 +2843,9 @@ paths:
       x-api-id: 'FB-005'
       x-traceability: 'US-009; TASK-019'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2703,7 +2879,9 @@ paths:
       x-api-id: 'FB-006'
       x-traceability: 'US-009; TASK-019'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2738,7 +2916,9 @@ paths:
       x-api-id: 'FB-007'
       x-traceability: 'US-009; TASK-019'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2769,7 +2949,9 @@ paths:
       x-api-id: 'FB-008'
       x-traceability: 'US-009; TASK-019'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2804,7 +2986,9 @@ paths:
       x-api-id: 'FB-009'
       x-traceability: 'US-009; TASK-019'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2839,7 +3023,9 @@ paths:
       x-api-id: 'FB-010'
       x-traceability: 'US-009; TASK-019'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2870,7 +3056,9 @@ paths:
       x-api-id: 'FB-011'
       x-traceability: 'US-009/020; TASK-019,045,046'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2897,7 +3085,9 @@ paths:
       x-api-id: 'FB-012'
       x-traceability: 'US-009/020; TASK-019,045'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2928,7 +3118,9 @@ paths:
       x-api-id: 'FB-013'
       x-traceability: 'US-009; TASK-019'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2959,7 +3151,9 @@ paths:
       x-api-id: 'FB-014'
       x-traceability: 'US-009/021; TASK-019,047'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -2990,7 +3184,9 @@ paths:
       x-api-id: 'IG-001'
       x-traceability: 'US-010; TASK-020'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3017,7 +3213,9 @@ paths:
       x-api-id: 'IG-002'
       x-traceability: 'US-010; TASK-021'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3048,7 +3246,9 @@ paths:
       x-api-id: 'IG-003'
       x-traceability: 'US-010; TASK-021'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3083,7 +3283,9 @@ paths:
       x-api-id: 'IG-004'
       x-traceability: 'US-010; TASK-021'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3118,7 +3320,9 @@ paths:
       x-api-id: 'IG-005'
       x-traceability: 'US-010; TASK-021'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3149,7 +3353,9 @@ paths:
       x-api-id: 'IG-006'
       x-traceability: 'US-010; TASK-021'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3180,7 +3386,9 @@ paths:
       x-api-id: 'IG-007'
       x-traceability: 'US-010; TASK-021'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3215,7 +3423,9 @@ paths:
       x-api-id: 'IG-008'
       x-traceability: 'US-010; TASK-021'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3250,7 +3460,9 @@ paths:
       x-api-id: 'IG-009'
       x-traceability: 'US-010; TASK-021'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3281,7 +3493,9 @@ paths:
       x-api-id: 'IG-010'
       x-traceability: 'US-010/020; TASK-021,045,046'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3308,7 +3522,9 @@ paths:
       x-api-id: 'IG-011'
       x-traceability: 'US-010/020; TASK-021,045'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3339,7 +3555,9 @@ paths:
       x-api-id: 'IG-012'
       x-traceability: 'US-010; TASK-021'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3366,7 +3584,9 @@ paths:
       x-api-id: 'TH-001'
       x-traceability: 'US-017; TASK-033'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3393,7 +3613,9 @@ paths:
       x-api-id: 'TH-002'
       x-traceability: 'US-017; TASK-033'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3424,7 +3646,9 @@ paths:
       x-api-id: 'TH-003'
       x-traceability: 'US-017; TASK-033'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3455,7 +3679,9 @@ paths:
       x-api-id: 'TH-004'
       x-traceability: 'US-017; TASK-033'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3485,7 +3711,9 @@ paths:
       x-api-id: 'TH-005'
       x-traceability: 'US-017; TASK-033'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3520,7 +3748,9 @@ paths:
       x-api-id: 'TH-006'
       x-traceability: 'US-017; TASK-033'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3551,7 +3781,9 @@ paths:
       x-api-id: 'LEAD-001'
       x-traceability: 'US-011; TASK-022'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3578,7 +3810,9 @@ paths:
       x-api-id: 'LEAD-002'
       x-traceability: 'US-011; TASK-022'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3609,7 +3843,9 @@ paths:
       x-api-id: 'LEAD-003'
       x-traceability: 'US-011; TASK-022'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3640,7 +3876,9 @@ paths:
       x-api-id: 'LEAD-004'
       x-traceability: 'US-011; TASK-022'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3671,7 +3909,9 @@ paths:
       x-api-id: 'LEAD-005'
       x-traceability: 'US-011/018; TASK-023,042'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3698,7 +3938,9 @@ paths:
       x-api-id: 'LEAD-006'
       x-traceability: 'US-011/018; TASK-023,042'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3729,7 +3971,9 @@ paths:
       x-api-id: 'LEAD-007'
       x-traceability: 'US-011/019; TASK-023,044'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3764,7 +4008,9 @@ paths:
       x-api-id: 'LEAD-008'
       x-traceability: 'US-011/019; TASK-023,044'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3799,7 +4045,9 @@ paths:
       x-api-id: 'LEAD-009'
       x-traceability: 'US-011/014; TASK-022,027,028'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3826,7 +4074,9 @@ paths:
       x-api-id: 'LEAD-010'
       x-traceability: 'US-018/019; TASK-042,044'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3860,7 +4110,9 @@ paths:
       x-api-id: 'SALES-014'
       x-traceability: 'US-018/019; TASK-023,042,044'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3895,7 +4147,9 @@ paths:
       x-api-id: 'ADS-001'
       x-traceability: 'US-012; TASK-024'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3922,7 +4176,9 @@ paths:
       x-api-id: 'ADS-002'
       x-traceability: 'US-012/029; TASK-024,072'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3952,7 +4208,9 @@ paths:
       x-api-id: 'ADS-003'
       x-traceability: 'US-012; TASK-024'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -3987,7 +4245,9 @@ paths:
       x-api-id: 'ADS-004'
       x-traceability: 'US-012; TASK-024'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4017,7 +4277,9 @@ paths:
       x-api-id: 'ADS-005'
       x-traceability: 'US-012; TASK-024'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4052,7 +4314,9 @@ paths:
       x-api-id: 'ADS-006'
       x-traceability: 'US-012; TASK-024'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4087,7 +4351,9 @@ paths:
       x-api-id: 'ADS-007'
       x-traceability: 'US-012; TASK-024,025'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4122,7 +4388,9 @@ paths:
       x-api-id: 'ADS-008'
       x-traceability: 'US-012; TASK-025'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4157,7 +4425,9 @@ paths:
       x-api-id: 'ADS-009'
       x-traceability: 'US-012; TASK-024'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4187,7 +4457,9 @@ paths:
       x-api-id: 'ADS-010'
       x-traceability: 'US-012; TASK-024'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4222,7 +4494,9 @@ paths:
       x-api-id: 'ADS-011'
       x-traceability: 'US-012/029; TASK-024,072'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4252,7 +4526,9 @@ paths:
       x-api-id: 'ADS-012'
       x-traceability: 'US-012; TASK-024,025'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4287,7 +4563,9 @@ paths:
       x-api-id: 'ADS-013'
       x-traceability: 'US-012/029; TASK-025,071'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4322,7 +4600,9 @@ paths:
       x-api-id: 'ADS-014'
       x-traceability: 'US-012/030; TASK-024,069'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4348,7 +4628,9 @@ paths:
       x-api-id: 'ADS-015'
       x-traceability: 'US-030; TASK-069'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4379,7 +4661,9 @@ paths:
       x-api-id: 'ADS-016'
       x-traceability: 'US-030; TASK-069,073,079'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4414,7 +4698,9 @@ paths:
       x-api-id: 'ADS-017'
       x-traceability: 'US-030; TASK-073'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4449,7 +4735,9 @@ paths:
       x-api-id: 'ADS-018'
       x-traceability: 'US-012; TASK-024'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4475,7 +4763,9 @@ paths:
       x-api-id: 'ADS-019'
       x-traceability: 'US-012/030; TASK-024,069'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4506,7 +4796,9 @@ paths:
       x-api-id: 'ADS-020'
       x-traceability: 'US-012/029; TASK-025,072'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4537,7 +4829,9 @@ paths:
       x-api-id: 'ADS-021'
       x-traceability: 'US-012/029; TASK-025,071'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4572,7 +4866,9 @@ paths:
       x-api-id: 'ADS-022'
       x-traceability: 'US-012/029; TASK-025,072'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4603,7 +4899,9 @@ paths:
       x-api-id: 'ADS-023'
       x-traceability: 'US-029; TASK-072'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4634,7 +4932,9 @@ paths:
       x-api-id: 'ADS-024'
       x-traceability: 'US-012/029; TASK-025,072,078'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4661,7 +4961,9 @@ paths:
       x-api-id: 'ADS-025'
       x-traceability: 'US-012/026/029; TASK-025,057,071,072'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4692,7 +4994,9 @@ paths:
       x-api-id: 'ADS-026'
       x-traceability: 'US-012/029; TASK-025,071'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4723,7 +5027,9 @@ paths:
       x-api-id: 'ADS-027'
       x-traceability: 'US-012/029; TASK-025,072'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4758,7 +5064,9 @@ paths:
       x-api-id: 'CAPI-001'
       x-traceability: 'US-013/029; TASK-026,068'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4789,7 +5097,9 @@ paths:
       x-api-id: 'CAPI-002'
       x-traceability: 'US-013; TASK-026,068'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4824,7 +5134,9 @@ paths:
       x-api-id: 'CAPI-003'
       x-traceability: 'US-013; TASK-026,068'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4855,7 +5167,9 @@ paths:
       x-api-id: 'CAPI-004'
       x-traceability: 'US-013; TASK-026,068'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4882,7 +5196,9 @@ paths:
       x-api-id: 'CRM-001'
       x-traceability: 'US-018; TASK-042'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4908,7 +5224,9 @@ paths:
       x-api-id: 'CRM-002'
       x-traceability: 'US-018; TASK-042'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4939,7 +5257,9 @@ paths:
       x-api-id: 'CRM-003'
       x-traceability: 'US-018; TASK-042'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -4969,7 +5289,9 @@ paths:
       x-api-id: 'CRM-004'
       x-traceability: 'US-018; TASK-042'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5004,7 +5326,9 @@ paths:
       x-api-id: 'CRM-005'
       x-traceability: 'US-018; TASK-043,053'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5034,7 +5358,9 @@ paths:
       x-api-id: 'CRM-006'
       x-traceability: 'US-018; TASK-043,053'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5069,7 +5395,9 @@ paths:
       x-api-id: 'CRM-007'
       x-traceability: 'US-018; TASK-043,053'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5100,7 +5428,9 @@ paths:
       x-api-id: 'CRM-008'
       x-traceability: 'US-018; TASK-043,053'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5131,7 +5461,9 @@ paths:
       x-api-id: 'CRM-009'
       x-traceability: 'US-018; TASK-043,053'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5162,7 +5494,9 @@ paths:
       x-api-id: 'CRM-010'
       x-traceability: 'US-018; TASK-043,053'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5197,7 +5531,9 @@ paths:
       x-api-id: 'CRM-011'
       x-traceability: 'US-018; TASK-042'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5223,7 +5559,9 @@ paths:
       x-api-id: 'CRM-012'
       x-traceability: 'US-018; TASK-042'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5254,7 +5592,9 @@ paths:
       x-api-id: 'CRM-013'
       x-traceability: 'US-018; TASK-042'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5289,7 +5629,9 @@ paths:
       x-api-id: 'CRM-014'
       x-traceability: 'US-019; TASK-044'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5315,7 +5657,9 @@ paths:
       x-api-id: 'CRM-015'
       x-traceability: 'US-019; TASK-044'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5346,7 +5690,9 @@ paths:
       x-api-id: 'CRM-016'
       x-traceability: 'US-019; TASK-044'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5376,7 +5722,9 @@ paths:
       x-api-id: 'CRM-017'
       x-traceability: 'US-019; TASK-044'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5411,7 +5759,9 @@ paths:
       x-api-id: 'SALES-001'
       x-traceability: 'US-019; TASK-044'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5437,7 +5787,9 @@ paths:
       x-api-id: 'SALES-002'
       x-traceability: 'US-019; TASK-044'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5468,7 +5820,9 @@ paths:
       x-api-id: 'SALES-003'
       x-traceability: 'US-019; TASK-044'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5503,7 +5857,9 @@ paths:
       x-api-id: 'SALES-004'
       x-traceability: 'US-019; TASK-044'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5538,7 +5894,9 @@ paths:
       x-api-id: 'SALES-005'
       x-traceability: 'US-019; TASK-044'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5577,7 +5935,9 @@ paths:
       x-api-id: 'SALES-006'
       x-traceability: 'US-019; TASK-044'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5603,7 +5963,9 @@ paths:
       x-api-id: 'SALES-007'
       x-traceability: 'US-019; TASK-044'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5634,7 +5996,9 @@ paths:
       x-api-id: 'SALES-008'
       x-traceability: 'US-019; TASK-044'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5664,7 +6028,9 @@ paths:
       x-api-id: 'SALES-009'
       x-traceability: 'US-019; TASK-044'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5699,7 +6065,9 @@ paths:
       x-api-id: 'SALES-010'
       x-traceability: 'US-019; TASK-044'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5734,7 +6102,9 @@ paths:
       x-api-id: 'SALES-011'
       x-traceability: 'US-019; TASK-044'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5760,7 +6130,9 @@ paths:
       x-api-id: 'SALES-012'
       x-traceability: 'US-019; TASK-044'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5791,7 +6163,9 @@ paths:
       x-api-id: 'SALES-013'
       x-traceability: 'US-019; TASK-044'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5826,7 +6200,9 @@ paths:
       x-api-id: 'INB-001'
       x-traceability: 'US-020; TASK-045,046'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5853,7 +6229,9 @@ paths:
       x-api-id: 'INB-002'
       x-traceability: 'US-020; TASK-045,046'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5884,7 +6262,9 @@ paths:
       x-api-id: 'INB-003'
       x-traceability: 'US-020; TASK-045,046'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5914,7 +6294,9 @@ paths:
       x-api-id: 'INB-004'
       x-traceability: 'US-020/021; TASK-045..047'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5949,7 +6331,9 @@ paths:
       x-api-id: 'INB-005'
       x-traceability: 'US-020; TASK-045'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -5980,7 +6364,9 @@ paths:
       x-api-id: 'INB-006'
       x-traceability: 'US-021; TASK-047'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6015,7 +6401,9 @@ paths:
       x-api-id: 'INB-007'
       x-traceability: 'US-021; TASK-047'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6041,7 +6429,9 @@ paths:
       x-api-id: 'INB-008'
       x-traceability: 'US-021; TASK-047'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6072,7 +6462,9 @@ paths:
       x-api-id: 'INB-009'
       x-traceability: 'US-021; TASK-047'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6107,7 +6499,9 @@ paths:
       x-api-id: 'INB-010'
       x-traceability: 'US-021/031; TASK-047,075'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6142,7 +6536,9 @@ paths:
       x-api-id: 'INB-011'
       x-traceability: 'US-021; TASK-047'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6177,7 +6573,9 @@ paths:
       x-api-id: 'INB-012'
       x-traceability: 'US-021/031; TASK-047,075'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6212,7 +6610,9 @@ paths:
       x-api-id: 'INB-013'
       x-traceability: 'US-021/031; TASK-047,075'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6247,7 +6647,9 @@ paths:
       x-api-id: 'INB-014'
       x-traceability: 'US-021; TASK-047'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6282,7 +6684,9 @@ paths:
       x-api-id: 'INB-015'
       x-traceability: 'US-020; TASK-046'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6317,7 +6721,9 @@ paths:
       x-api-id: 'INB-016'
       x-traceability: 'US-020; TASK-046'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6344,7 +6750,9 @@ paths:
       x-api-id: 'INB-017'
       x-traceability: 'US-020/021; TASK-046,047'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6379,7 +6787,9 @@ paths:
       x-api-id: 'INB-018'
       x-traceability: 'US-021; TASK-047'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6406,7 +6816,9 @@ paths:
       x-api-id: 'AUTO-001'
       x-traceability: 'US-022; TASK-048'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6432,7 +6844,9 @@ paths:
       x-api-id: 'AUTO-002'
       x-traceability: 'US-022; TASK-048'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6463,7 +6877,9 @@ paths:
       x-api-id: 'AUTO-003'
       x-traceability: 'US-022; TASK-048'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6493,7 +6909,9 @@ paths:
       x-api-id: 'AUTO-004'
       x-traceability: 'US-022; TASK-048'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6528,7 +6946,9 @@ paths:
       x-api-id: 'AUTO-005'
       x-traceability: 'US-022; TASK-048'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6563,7 +6983,9 @@ paths:
       x-api-id: 'AUTO-006'
       x-traceability: 'US-022; TASK-048'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6598,7 +7020,9 @@ paths:
       x-api-id: 'AUTO-007'
       x-traceability: 'US-022; TASK-048'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6633,7 +7057,9 @@ paths:
       x-api-id: 'AUTO-008'
       x-traceability: 'US-022; TASK-049'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6668,7 +7094,9 @@ paths:
       x-api-id: 'AUTO-009'
       x-traceability: 'US-022; TASK-049'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6695,7 +7123,9 @@ paths:
       x-api-id: 'AUTO-010'
       x-traceability: 'US-022; TASK-049'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6726,7 +7156,9 @@ paths:
       x-api-id: 'AUTO-011'
       x-traceability: 'US-022; TASK-049'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6761,7 +7193,9 @@ paths:
       x-api-id: 'AUTO-012'
       x-traceability: 'US-022; TASK-049'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6796,7 +7230,9 @@ paths:
       x-api-id: 'AUTO-013'
       x-traceability: 'US-022; TASK-049'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6827,7 +7263,9 @@ paths:
       x-api-id: 'AI-001'
       x-traceability: 'US-023; TASK-050,051'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6858,7 +7296,9 @@ paths:
       x-api-id: 'AI-002'
       x-traceability: 'US-023; TASK-050,051'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6889,7 +7329,9 @@ paths:
       x-api-id: 'AI-003'
       x-traceability: 'US-023; TASK-050'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6920,7 +7362,9 @@ paths:
       x-api-id: 'AI-004'
       x-traceability: 'US-023/026; TASK-050,057,063'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6947,7 +7391,9 @@ paths:
       x-api-id: 'AI-005'
       x-traceability: 'US-023; TASK-051'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -6973,7 +7419,9 @@ paths:
       x-api-id: 'AI-006'
       x-traceability: 'US-023; TASK-051'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7004,7 +7452,9 @@ paths:
       x-api-id: 'AI-007'
       x-traceability: 'US-023; TASK-051'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7039,7 +7489,9 @@ paths:
       x-api-id: 'AI-008'
       x-traceability: 'US-023; TASK-051'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7074,7 +7526,9 @@ paths:
       x-api-id: 'PRIV-001'
       x-traceability: 'US-016; TASK-032,059'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7100,7 +7554,9 @@ paths:
       x-api-id: 'PRIV-002'
       x-traceability: 'US-016; TASK-032,059'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7131,7 +7587,9 @@ paths:
       x-api-id: 'PRIV-003'
       x-traceability: 'US-016; TASK-032,059'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7166,7 +7624,9 @@ paths:
       x-api-id: 'PRIV-004'
       x-traceability: 'US-016; TASK-032,059'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7197,7 +7657,9 @@ paths:
       x-api-id: 'PRIV-005'
       x-traceability: 'US-016; TASK-032,059'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7228,7 +7690,9 @@ paths:
       x-api-id: 'PRIV-006'
       x-traceability: 'US-016; TASK-032,059'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7263,7 +7727,9 @@ paths:
       x-api-id: 'PRIV-007'
       x-traceability: 'US-016; TASK-032,059'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7298,7 +7764,9 @@ paths:
       x-api-id: 'PRIV-008'
       x-traceability: 'US-016; TASK-032,059'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7333,7 +7801,9 @@ paths:
       x-api-id: 'PRIV-009'
       x-traceability: 'US-016; TASK-032,059'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7360,7 +7830,9 @@ paths:
       x-api-id: 'PRIV-010'
       x-traceability: 'US-016; TASK-032,059'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7395,7 +7867,9 @@ paths:
       x-api-id: 'OPS-001'
       x-traceability: 'US-015; TASK-030'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7422,7 +7896,9 @@ paths:
       x-api-id: 'OPS-002'
       x-traceability: 'US-015; TASK-030'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       x-request-schema-pending: true
@@ -7440,7 +7916,9 @@ paths:
       x-api-id: 'OPS-003'
       x-traceability: 'US-015; TASK-028,029'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       x-request-schema-pending: true
@@ -7458,7 +7936,9 @@ paths:
       x-api-id: 'OPS-004'
       x-traceability: 'US-014/015; TASK-028,029'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       x-request-schema-pending: true
@@ -7476,7 +7956,9 @@ paths:
       x-api-id: 'OPS-005'
       x-traceability: 'US-014; TASK-028'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7507,7 +7989,9 @@ paths:
       x-api-id: 'OPS-006'
       x-traceability: 'US-015; TASK-029'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       x-request-schema-pending: true
@@ -7525,7 +8009,9 @@ paths:
       x-api-id: 'OPS-007'
       x-traceability: 'US-016; TASK-031'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       x-request-schema-pending: true
@@ -7543,7 +8029,9 @@ paths:
       x-api-id: 'OPS-008'
       x-traceability: 'US-016; TASK-031'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7570,7 +8058,9 @@ paths:
       x-api-id: 'OPS-009'
       x-traceability: 'US-032; TASK-065,076'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       x-request-schema-pending: true
@@ -7587,7 +8077,9 @@ paths:
       x-api-id: 'OPS-010'
       x-traceability: 'US-032; TASK-065,076'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7614,7 +8106,9 @@ paths:
       x-api-id: 'OPS-011'
       x-traceability: 'US-032; TASK-056,065,076'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7645,7 +8139,9 @@ paths:
       x-api-id: 'BILL-001'
       x-traceability: 'US-024/026; TASK-052,063'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7672,7 +8168,9 @@ paths:
       x-api-id: 'BILL-002'
       x-traceability: 'US-024/026; TASK-052,063'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7699,7 +8197,9 @@ paths:
       x-api-id: 'BILL-003'
       x-traceability: 'US-026; TASK-063'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7726,7 +8226,9 @@ paths:
       x-api-id: 'BILL-004'
       x-traceability: 'US-026; TASK-063'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7753,7 +8255,9 @@ paths:
       x-api-id: 'BILL-005'
       x-traceability: 'US-026; TASK-063'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7784,7 +8288,9 @@ paths:
       x-api-id: 'BILL-006'
       x-traceability: 'US-024/026; TASK-052,063'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       x-request-schema-pending: true
@@ -7802,7 +8308,9 @@ paths:
       x-api-id: 'BILL-007'
       x-traceability: 'US-024/026; TASK-052,063'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7833,7 +8341,9 @@ paths:
       x-api-id: 'DEV-001'
       x-traceability: 'US-027; TASK-062'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7859,7 +8369,9 @@ paths:
       x-api-id: 'DEV-002'
       x-traceability: 'US-027; TASK-062'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7890,7 +8402,9 @@ paths:
       x-api-id: 'DEV-003'
       x-traceability: 'US-027; TASK-062'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7925,7 +8439,9 @@ paths:
       x-api-id: 'DEV-004'
       x-traceability: 'US-027; TASK-062'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7960,7 +8476,9 @@ paths:
       x-api-id: 'DEV-005'
       x-traceability: 'US-027; TASK-062'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -7986,7 +8504,9 @@ paths:
       x-api-id: 'DEV-006'
       x-traceability: 'US-027; TASK-062'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8017,7 +8537,9 @@ paths:
       x-api-id: 'DEV-007'
       x-traceability: 'US-027; TASK-062'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8051,7 +8573,9 @@ paths:
       x-api-id: 'DEV-008'
       x-traceability: 'US-027; TASK-062'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8086,7 +8610,9 @@ paths:
       x-api-id: 'DEV-009'
       x-traceability: 'US-027; TASK-062'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8117,7 +8643,9 @@ paths:
       x-api-id: 'DEV-010'
       x-traceability: 'US-027; TASK-062'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8144,7 +8672,9 @@ paths:
       x-api-id: 'DEV-011'
       x-traceability: 'US-027; TASK-062'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8179,7 +8709,9 @@ paths:
       x-api-id: 'CI-001'
       x-traceability: 'US-029; TASK-067,072'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8206,7 +8738,9 @@ paths:
       x-api-id: 'CI-002'
       x-traceability: 'US-029; TASK-067,072'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8237,7 +8771,9 @@ paths:
       x-api-id: 'CI-003'
       x-traceability: 'US-029; TASK-067,068,078'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8264,7 +8800,9 @@ paths:
       x-api-id: 'CI-004'
       x-traceability: 'US-029; TASK-067,071,077,078'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8291,7 +8829,9 @@ paths:
       x-api-id: 'CI-005'
       x-traceability: 'US-029; TASK-067,071'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8326,7 +8866,9 @@ paths:
       x-api-id: 'CI-006'
       x-traceability: 'US-029; TASK-005,071,074'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8361,7 +8903,9 @@ paths:
       x-api-id: 'CI-007'
       x-traceability: 'US-029; TASK-071,074'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8396,7 +8940,9 @@ paths:
       x-api-id: 'CI-008'
       x-traceability: 'US-029; TASK-067,077'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8431,7 +8977,9 @@ paths:
       x-api-id: 'CI-009'
       x-traceability: 'US-029/030; TASK-070,077'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8457,7 +9005,9 @@ paths:
       x-api-id: 'CI-010'
       x-traceability: 'US-030; TASK-070'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8488,7 +9038,9 @@ paths:
       x-api-id: 'CI-011'
       x-traceability: 'US-030; TASK-070'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8523,7 +9075,9 @@ paths:
       x-api-id: 'CI-012'
       x-traceability: 'US-030; TASK-070'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8558,7 +9112,9 @@ paths:
       x-api-id: 'CI-013'
       x-traceability: 'US-030; TASK-070'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8593,7 +9149,9 @@ paths:
       x-api-id: 'CI-014'
       x-traceability: 'US-030; TASK-069'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8619,7 +9177,9 @@ paths:
       x-api-id: 'CI-015'
       x-traceability: 'US-030; TASK-069'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8650,7 +9210,9 @@ paths:
       x-api-id: 'CI-016'
       x-traceability: 'US-030; TASK-069,079'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8685,7 +9247,9 @@ paths:
       x-api-id: 'CI-017'
       x-traceability: 'US-030; TASK-069,073'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8720,7 +9284,9 @@ paths:
       x-api-id: 'CI-018'
       x-traceability: 'US-029/030; TASK-072,078,079'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8747,7 +9313,9 @@ paths:
       x-api-id: 'AGT-001'
       x-traceability: 'US-031; TASK-080'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8774,7 +9342,9 @@ paths:
       x-api-id: 'AGT-002'
       x-traceability: 'US-031; TASK-074,075,080'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8805,7 +9375,9 @@ paths:
       x-api-id: 'AGT-003'
       x-traceability: 'US-031; TASK-080'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8836,7 +9408,9 @@ paths:
       x-api-id: 'AGT-004'
       x-traceability: 'US-031; TASK-074,080'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8871,7 +9445,9 @@ paths:
       x-api-id: 'AGT-005'
       x-traceability: 'US-031; TASK-080'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8906,7 +9482,9 @@ paths:
       x-api-id: 'AGT-006'
       x-traceability: 'US-031; TASK-080'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security:
         - bearerAuth: []
       parameters:
@@ -8933,7 +9511,9 @@ paths:
       x-api-id: 'WH-001'
       x-traceability: 'TASK-027'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security: []
       x-authentication-contract: 'Provider-specific challenge/signature; freeze each product contract. Never use user Bearer auth.'
       parameters:
@@ -8956,7 +9536,9 @@ paths:
       x-api-id: 'WH-002'
       x-traceability: 'TASK-027,028,011,014'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security: []
       x-authentication-contract: 'Provider-specific challenge/signature; freeze each product contract. Never use user Bearer auth.'
       x-request-schema-pending: true
@@ -8974,7 +9556,9 @@ paths:
       x-api-id: 'WH-003'
       x-traceability: 'TASK-027,028,019'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security: []
       x-authentication-contract: 'Provider-specific challenge/signature; freeze each product contract. Never use user Bearer auth.'
       x-request-schema-pending: true
@@ -8992,7 +9576,9 @@ paths:
       x-api-id: 'WH-004'
       x-traceability: 'TASK-027,028,020,021'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security: []
       x-authentication-contract: 'Provider-specific challenge/signature; freeze each product contract. Never use user Bearer auth.'
       x-request-schema-pending: true
@@ -9010,7 +9596,9 @@ paths:
       x-api-id: 'WH-005'
       x-traceability: 'TASK-022,027,028'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security: []
       x-authentication-contract: 'Provider-specific challenge/signature; freeze each product contract. Never use user Bearer auth.'
       x-request-schema-pending: true
@@ -9028,7 +9616,9 @@ paths:
       x-api-id: 'WH-006'
       x-traceability: 'TASK-024,025,027,072'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security: []
       x-authentication-contract: 'Provider-specific challenge/signature; freeze each product contract. Never use user Bearer auth.'
       x-request-schema-pending: true
@@ -9046,7 +9636,9 @@ paths:
       x-api-id: 'WH-007'
       x-traceability: 'TASK-033,027'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security: []
       x-authentication-contract: 'Provider-specific challenge/signature; freeze each product contract. Never use user Bearer auth.'
       x-request-schema-pending: true
@@ -9064,7 +9656,9 @@ paths:
       x-api-id: 'WH-008'
       x-traceability: 'TASK-016'
       x-contract-status: 'catalog-only'
+      x-contract-ready: false
       x-implementation-allowed: false
+      x-required-gate: API-CONTRACT-FREEZE+G0
       security: []
       x-authentication-contract: 'Provider-specific challenge/signature; freeze each product contract. Never use user Bearer auth.'
       x-request-schema-pending: true
