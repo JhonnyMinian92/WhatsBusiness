@@ -117,3 +117,23 @@ Puedes copiar y completar este resumen si te resulta más cómodo:
 - Q-018 Criterios de producción:
 - Q-019 Estrategia Git:
 - Q-020 Autonomía de agentes:
+
+
+## Respuestas recibidas del propietario (2026-11-06)
+
+Estado del cuestionario: 10 de 20 preguntas respondidas. La fuente de verdad de las decisiones confirmadas es [29-OWNER-DECISIONS.md](29-OWNER-DECISIONS.md).
+
+| Pregunta | Respuesta registrada |
+|---|---|
+| Q-001 | Ambas: SaaS comercial y plataforma interna EcuApp |
+| Q-002 | Comenzar desde cero; no hay código heredado que incorporar |
+| Q-003 | Todo el alcance Meta enumerado en META_SERVICES.md |
+| Q-004 | Backend + panel + CRM + inbox omnicanal; con visión de automatización IA |
+| Q-005 | Backend y panel web |
+| Q-006 | Autoriza al arquitecto a recomendar stack |
+| Q-007 | VPS / servidor propio |
+| Q-008 | Solicita propuesta de fases y separación/organización estricta |
+| Q-009 | Chatbots y sugerencias básicas, con proyección futura |
+| Q-010 | Agentes continúan tareas independientes y aplican la mejor opción técnica conocida sin preguntar; consultan decisiones de impacto |
+
+Las preguntas Q-011..Q-020 originales se mantienen pendientes, excepto que la decisión de hosting (VPS), estrategia Git (seguir environment/local) y autonomía operativa se han aclarado parcialmente por las respuestas. No se inferirán detalles de precios, retención, cumplimiento, carga, SLO ni proveedores externos.
