@@ -57,3 +57,13 @@ test("rejects unsafe retry policy configuration", () => {
     multiplier: 2,
   }));
 });
+
+test("rejects retry timestamps outside the JavaScript Date range", () => {
+  assert.throws(() => policy.decide(
+    1,
+    8,
+    { code: "BROKER_UNAVAILABLE", retryable: true },
+    new Date(8.64e15),
+    1,
+  ), /supported date range/);
+});
