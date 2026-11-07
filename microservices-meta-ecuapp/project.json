@@ -3,13 +3,20 @@
   "$schema": "../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "sourceRoot": "microservices-meta-ecuapp/src",
-  "tags": ["scope:platform", "type:application", "runtime:node"],
+  "tags": [
+    "scope:platform",
+    "type:application",
+    "runtime:node"
+  ],
   "targets": {
     "build": {
       "executor": "nx:run-commands",
       "options": {
         "command": "tsc --project microservices-meta-ecuapp/tsconfig.app.json"
-      }
+      },
+      "outputs": [
+        "{projectRoot}/dist"
+      ]
     },
     "typecheck": {
       "executor": "nx:run-commands",
