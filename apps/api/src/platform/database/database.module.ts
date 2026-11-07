@@ -92,9 +92,13 @@ export class DatabaseService implements OnModuleDestroy {
         });
       }
 
+      await client.query("SELECT set_config('app.tenant_id', $1, true)", [tenantId]);
+
       if (expectedAuthzVersion !== null) {
+        // Serialize authorization-sensitive work with membership/role changes.
+        // Their triggers update this same tenant row before the mutation commits.
         const currentVersion = await client.query<{ authz_version: number }>(
-          "SELECT authz_version FROM platform.tenants WHERE id = $1",
+          "SELECT authz_version FROM platform.tenants WHERE id = $1 FOR NO KEY UPDATE",
           [tenantId],
         );
         if (currentVersion.rows[0]?.authz_version !== expectedAuthzVersion) {
@@ -103,9 +107,19 @@ export class DatabaseService implements OnModuleDestroy {
             detail: "El contexto de autorización cambió; debe resolverse nuevamente.",
           });
         }
+
+        const revalidated = await client.query<{ allowed: boolean }>(
+          "SELECT platform.can_use_tenant($1) AS allowed",
+          [tenantId],
+        );
+        if (revalidated.rows[0]?.allowed !== true) {
+          throw new NotFoundException({
+            code: "TENANT_CONTEXT_NOT_FOUND",
+            detail: "El tenant no existe o no es accesible para este usuario.",
+          });
+        }
       }
 
-      await client.query("SELECT set_config('app.tenant_id', $1, true)", [tenantId]);
       return work(client);
     });
   }
