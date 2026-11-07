@@ -10,5 +10,13 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
+  },
+  "dependencies": {
+    "amqplib": "2.2.1",
+    "pg": "8.23.1"
+  },
+  "devDependencies": {
+    "@types/node": "26.0.0",
+    "@types/pg": "8.23.1"
   }
 }
