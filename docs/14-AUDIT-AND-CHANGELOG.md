@@ -270,3 +270,13 @@ Estado implemented; la ejecución CI de esta revisión, adapters/wiring de Valke
 | AUD-077 | State machine | Trigger PostgreSQL impide alterar identidad/payload, restringe transiciones, incrementa attempts en claim y fija timestamps terminales; la suite gated prueba queued→processing→succeeded y rechaza saltos/alteración de estado terminal. |
 
 La implementación no constituye aún un outbox dispatcher ni consumer: faltan publicación confirmada, inbox, deduplicación, backoff, DLQ, replay y pruebas integradas con broker. El registro y su función SQL tampoco sustituyen la revalidación de autorización por `TenantJobExecutor`. TASK-003 permanece in_progress; no se declara verificado ni aceptado.
+
+## 23. Retry policy para tenant jobs — TASK-003 (AUD-078; 2026-11-07)
+
+| ID | Cambio | Evidencia / resultado |
+|---|---|---|
+| AUD-078 | Política pura de reintentos | `TenantJobRetryPolicy` implementa backoff exponencial acotado con equal jitter, clasificación explícita retryable/permanent, dead-letter por fallo permanente o agotamiento y validación de entradas. |
+| AUD-079 | Pruebas registradas | `tenant-job-retry-policy.spec.ts` cubre jitter, techo, no retry inmediato, fallos permanentes, agotamiento y entradas inválidas; agregada a `apps/api/project.json`. |
+| AUD-080 | Documentación de límites | `docs/59-TENANT-JOB-RETRY-POLICY.md` registra contrato, riesgos y trabajo restante. |
+
+Commits: implementación `c27a8578f56ef2e740a56d907e5fdc963a0a5b46`; tests `aa5c37273011ba354a1b574a8a519fd0d623960a`; registro de suite `98c5b0fdf23416f1ca55ceffaed881b07827e237`; documentación `4890949ae83db4d5b5626c4fd23aad62e1c8d5b3`. No se ejecutaron build/typecheck/tests localmente; consulta de workflow runs asociada al commit de documentación no devolvió runs. No declarar CI PASS ni TASK-003 verified.
