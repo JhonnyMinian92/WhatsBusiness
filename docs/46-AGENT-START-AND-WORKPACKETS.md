@@ -105,3 +105,11 @@ Todos los agentes deben leer y cumplir [docs/48](48-CODING-ARCHITECTURE-AND-REUS
 - AsyncAPI/JSON Schema definen 55 tipos de eventos v1.0.0 con payload mínimo. Productores/consumidores, outbox, broker, DLQ y pruebas siguen pendientes de implementación.
 - La matriz pública de scopes Meta es parcial. Meta App Review, elegibilidad de app/cuenta/país y scopes concedidos no se han probado.
 - No hay evidencia de TASK-039 ni G0. El scaffold definitivo sigue bloqueado por los criterios de sección 7; estos documentos no alteran ese gate.
+
+## 12. Decisión tecnológica y protocolo que deben leer los agentes
+
+Antes de crear manifests o scaffold:
+- leer [docs/51](51-TECHNOLOGY-FIT-AND-VERSION-BASELINE.md) para comparar el stack, alinear versiones y distinguir evidencia oficial de benchmark pendiente;
+- leer [docs/52](52-REST-GRAPHQL-GRPC-PROTOCOL-DECISION.md) para aplicar REST/JSON + OpenAPI, llamadas directas a ports dentro del monolito y RabbitMQ/AsyncAPI para async; no añadir GraphQL/gRPC por preferencia;
+- respetar ADR-023..025: REST-first, baseline Node26/Nest12/Angular22/TS6/Nx24 y Valkey como cache.
+La baseline está recomendada, no medida. SP-08..10 de TASK-039 tienen que producir evidencia para aprobar G0.
