@@ -903,7 +903,7 @@ Este inventario se considera **listo para planificación de implementación**, n
 
 ### Estado actualizado de contratos después de docs/48–50
 
-- El catálogo HTTP contiene 289 operaciones REST propias y 8 rutas de webhook ingress. OpenAPI debe registrar las 297 rutas con API ID, operationId y trazabilidad.
+- El catálogo HTTP contiene 289 operaciones REST propias y 8 rutas de webhook ingress. OpenAPI ya registra las 297 rutas con API ID, operationId y trazabilidad.
 - Solo PLT-001..005 tienen schemas de diseño concretos; los demás se marcan catalog-only y siguen bloqueados para implementación hasta congelar payloads, errores, autorización y controles en docs/49.
 - AsyncAPI y JSON Schema definen 55 tipos de eventos v1.0.0 con envelope compartido y payloads mínimos cerrados. Esto no demuestra producers/consumers, outbox, broker, DLQ ni tests implementados.
 - docs/48 establece el estándar obligatorio anti-spaghetti y de reutilización; docs/49 define el freeze de contratos y gates Meta; docs/50 define eventos e idempotencia.
