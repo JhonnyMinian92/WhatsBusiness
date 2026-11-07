@@ -1,13 +1,17 @@
 import {
+  applyDecorators,
   CanActivate,
   ExecutionContext,
   ForbiddenException,
   Injectable,
   SetMetadata,
+  UseGuards,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import {
   requireTenantAccessContext,
+  TenantAccessPurpose,
+  TenantContextGuard,
   type TenantAuthenticatedRequest,
 } from "../tenant-context.guard.js";
 import { isPermissionKey, type PermissionKey } from "./permission-catalog.js";
@@ -20,6 +24,24 @@ export function RequirePermission(permission: PermissionKey): MethodDecorator {
     throw new Error("Unknown tenant permission key.");
   }
   return SetMetadata(REQUIRED_TENANT_PERMISSION, permission);
+}
+
+/**
+ * Composite route decorator that cannot forget either the tenant-context guard,
+ * the stable purpose declaration or the required RBAC permission.
+ */
+export function RequireTenantPermission(
+  permission: PermissionKey,
+  purpose: string,
+): MethodDecorator {
+  if (!isPermissionKey(permission)) {
+    throw new Error("Unknown tenant permission key.");
+  }
+  return applyDecorators(
+    UseGuards(TenantContextGuard, AuthorizationGuard),
+    TenantAccessPurpose(purpose),
+    RequirePermission(permission),
+  );
 }
 
 /**
