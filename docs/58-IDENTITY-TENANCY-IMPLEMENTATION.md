@@ -214,3 +214,9 @@ Source workspace validation #42376234089 y Contract validation #42376234088 fina
 - La suite PostgreSQL gated cubre staging/idempotencia/rollback/metadata mínima/ejecución revalidada, RLS cross-tenant, revocación de membership, transiciones válidas e inválidas del state machine, terminal immutability y denegación de lectura del payload; aún falta ejecutarla en CI y probar pool reuse A→B; falta integración real con Valkey, proveedor de objetos y broker.
 - El algoritmo HMAC está implementado, pero falta el adapter de secret manager y su wiring operativo; no configurar una clave desde el repositorio ni desde datos del tenant.
 - No se modificaron APIs ni eventos catalog-only. TASK-003 continúa in_progress; no hay producción ni datos reales autorizados.
+
+## 24. Política de reintentos de jobs — TASK-003 (2026-11-07)
+
+`TenantJobRetryPolicy` implementa backoff exponencial con techo y equal jitter, clasificación explícita de fallos transitorios/permanentes, dead-letter inmediato para fallos permanentes y al agotar intentos. La política es pura, no depende de NestJS/PostgreSQL/broker y solo acepta códigos de error sanitizados. Su suite está registrada en `api:test`. Ver `docs/59-TENANT-JOB-RETRY-POLICY.md`.
+
+Este slice no es un consumer: siguen pendientes lease/claim con fencing, recuperación crash, publisher confirms, inbox/dedupe, ACK posterior al commit, DLQ operativa, replay y CI de esta iteración. TASK-003 permanece `in_progress`; no declarar verificado/aceptado.
