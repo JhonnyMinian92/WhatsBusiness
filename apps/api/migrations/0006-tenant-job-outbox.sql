@@ -53,9 +53,9 @@ CREATE POLICY tenant_job_records_tenant_update ON platform.tenant_job_records
   USING (tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid)
   WITH CHECK (tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid);
 
-GRANT SELECT, INSERT ON platform.tenant_job_records TO whatsbusiness_app;
-GRANT UPDATE (status, attempts, available_at, updated_at, finished_at, error_code)
-  ON platform.tenant_job_records TO whatsbusiness_app;
+-- Runtime can stage jobs, but cannot read payloads or mutate lifecycle directly.
+-- The worker will receive narrow state-transition functions when the dispatcher is introduced.
+GRANT INSERT ON platform.tenant_job_records TO whatsbusiness_app;
 
 -- A worker starts with only an opaque job UUID. This narrowly scoped function
 -- returns authorization metadata, never payload, and only for an existing row.
