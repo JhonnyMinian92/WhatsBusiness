@@ -154,3 +154,12 @@ No bloquean el diseño ni los tests sintéticos: nombres comerciales, tarifas fi
 - IAM-007..020 permanecen catalog-only hasta freeze completo de request/response/error, authorization, idempotency, audit y tests conforme a docs/49.
 - Denegaciones sensibles aún requieren append-only audit/outbox y workflow durable de aprobación/step-up: TASK-005. Los datos legales/de consentimiento y capabilities deben venir de adaptadores confiables, no del request del usuario.
 - Source CI run #67 [42385036275](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42385036275) pasó migrations/idempotency/build/typecheck/unit/integration. Revisión independiente y aceptación del Product Owner siguen pendientes.
+## 15. Estado real de approvals / step-up / audit — TASK-005 (2026-11-07)
+
+- Se implementó el núcleo durable de approval requests y decisions con action binding SHA-256 del tenant, action key, purpose, recurso y snapshot canónico; idempotency, quorum de personas distintas, no autoaprobación, expiración y consumo único.
+- El quorum técnico inicial exige dos approvers distintos para ads publish/budget change, CRM lead export, privacy export/deletion; otras acciones críticas se someten al mínimo de una aprobación independiente. La matriz/umbrales de producción requieren aprobación expresa del Product Owner y revisión legal/compliance.
+- `auth_time`, `acr` y `amr` solo cuentan como step-up cuando provienen de un JWT cuya firma/JWKS ya se validó y coinciden con allowlists configuradas del IdP. Allowlist vacía = denegación; no se afirma haber probado un IdP real.
+- `audit_events` y `approval_decisions` son append-only en PostgreSQL runtime; el audit stream encadena SHA-256 por tenant y verifica secuencia, previous hash, event hash y stream head. El mecanismo no tiene anclaje externo contra administradores privilegiados.
+- Source CI run #112 [42387272987](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42387272987) pasó con integración PostgreSQL efímera activa: idempotencia, dos aprobadores, step-up, consumo exacto, rollback, audit chain y UPDATE/DELETE denial.
+- No hay endpoints HTTP IAM-018..020 habilitados; permanecen catalog-only hasta freeze docs/49. `consumeAndStage` aún no se conecta a outbox/consumer de negocio y no ejecuta Meta, mensajes, ads, export o delete externo.
+- Revisión independiente de seguridad/arquitectura y aceptación del Product Owner siguen pendientes; GO-PRODUCTION continúa NO-GO.
