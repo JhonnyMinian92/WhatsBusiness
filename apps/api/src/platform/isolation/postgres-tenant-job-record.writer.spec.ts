@@ -58,6 +58,22 @@ test("same idempotency key returns the original job only for the same canonical 
   assert.equal(calls, 2);
 });
 
+
+test("job writer rejects idempotency key reuse for a different request", async () => {
+  const client = {
+    query: async (sql: string) => sql.startsWith("INSERT")
+      ? { rows: [] }
+      : { rows: [{
+        id: "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+        request_sha256: "0".repeat(64),
+      }] },
+  } as unknown as PoolClient;
+  await assert.rejects(
+    new PostgresTenantJobRecordWriter().stage(client, input),
+    /different payload/,
+  );
+});
+
 test("job writer rejects malformed identity, purpose, type, idempotency and payload before SQL", async () => {
   let calls = 0;
   const client = {
