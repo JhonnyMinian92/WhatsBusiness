@@ -76,3 +76,15 @@ Defect escape rate, flaky test rate, change failure rate, MTTR, contract drift, 
 - Tenant/agency suite must test explicit grant scope, expiry, revocation, client-side isolation, audit provenance and support JIT access.
 - LOPDP lifecycle suite tests export/rectification/deletion orchestration across primary and derived systems; exact retention windows remain policy inputs pending legal approval.
 - Nonfunctional tests report p50/p95/p99, throughput, concurrency, saturation, queue age, error budgets, recovery and test environment. Never extrapolate benchmark beyond its hardware/configuration.
+
+
+## 11. Campaign Intelligence and creative regression suite
+- Budget guardrail: individual +20%, cumulative rolling 24h +20%, correct baseline, multiple concurrent agents/users, different currencies, retries, idempotency, clock edges and daylight-saving changes; reject bypass by splitting change.
+- Learning guard: no autoscale while status indicates Learning/Learning Limited or signal sample is below configured minimum; do not assume the 50/7 guidance is universal. Validate supported status and event definitions per objective/API version.
+- Winner protection: adding a creative to a live ad set requires explicit risk check; default test cell does not mutate winner; experiment isolation/overlap tests.
+- Creative provenance: rights, releases, prompt/model version, claim evidence, brand rules, preview by placement, AI feature eligibility, paused-first and human approval tests.
+- Meta Recommendations: normalize CREATIVE_FATIGUE/CREATIVE_LIMITED where available; empty/no recommendation must not be treated as proof of good creative.
+- CAPI + CRM: event_id/name/time consistency, dedupe, consent revocation, event delay, event source, match diagnostics and no PII in logs.
+- Experiment: randomized split where supported, sample/stop thresholds, time-zone and attribution window, no peeking/decision until sufficient sample, false discovery control for many variants.
+- Business Agent/MCP: tool allowlist, role/purpose/tenant/asset checks, prompt injection, stale approvals, replay, tool timeout, conversation ownership lease and double-response prevention.
+- Performance report: Meta-attributed metrics versus internal CRM outcomes and incremental holdout results distinct; no claim of causal lift without experiment design.
