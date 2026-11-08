@@ -105,11 +105,42 @@ Las suites contienen **36 casos unitarios declarados**. Al escribir este registr
 
 ## 7. Estado
 
-El **slice de políticas de dominio está escrito y registrado en el target de pruebas**; sus resultados CI aún deben comprobarse. La historia US-021 y TASK-047 siguen **\`in_progress\`** y no se declaran verified/accepted porque faltan contratos habilitados, persistencia/worker/consumers, integración real, frontend y revisión/aceptación. No se enviaron mensajes externos, no se llamaron APIs de escritura Meta, ni se desplegó a producción. GO-PRODUCTION continúa NO-GO.
+El **slice de políticas de dominio está escrito y registrado en el target de pruebas**; Source CI ejecutó sus seis suites con **36/36 aprobadas** y CodeQL terminó SUCCESS (evidencia y límites en §8). La historia US-021 y TASK-047 siguen **\`in_progress\`** y no se declaran verified/accepted porque faltan contratos habilitados, persistencia/worker/consumers, integración real, frontend y revisión/aceptación. No se enviaron mensajes externos, no se llamaron APIs de escritura Meta, ni se desplegó a producción. GO-PRODUCTION continúa NO-GO.
 
 
-## 8. Validación independiente de Inbox — 2026-11-08
 
-Source Validation del HEAD `6d8e6d3e398c8485d37e179d35f6646e4a03b84e` ejecutó correctamente setup, instalación congelada, validación de observabilidad, provisionamiento de roles, migraciones PostgreSQL e idempotencia de migraciones. El build general falló en 21 errores TypeScript de CRM/Developer/Platform Administration/IAM, ninguno reportado en los archivos del bounded context Inbox; por el fallo del build, `api:test` completo y `pnpm typecheck` fueron omitidos. CodeQL estaba aún en análisis al corte.
+## 8. Resultados Source CI y CodeQL — 2026-11-08
 
-Para evitar que defectos ajenos a Inbox oculten el estado de estas políticas, se añade el target Nx independiente `api:inbox-domain-test`, que ejecuta directamente las seis suites con TSX sin depender de `^build`. Source Validation incorpora una etapa `if: always()` para ejecutar la suite incluso cuando falle `pnpm build`, y su resultado se incorpora al gate final. Esta modificación ofrece una vía de evidencia aislada; no se marcarán los tests como pasados hasta comprobar el resultado de GitHub Actions del commit que contiene el target.
+**Commit validado:** `035f095a95a0660e0e03fb9a37d8eb33c38072c5`  
+**Source Validation:** [ejecución 42531505463](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42531505463)  
+**CodeQL:** [ejecución 42531505359](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42531505359)  
+**Estado del HEAD actual:** el código Inbox, sus seis specs, el target independiente y el workflow de CI no cambiaron después del commit validado; solo cambiaron documentos ajenos a Inbox.
+
+| Etapa | Resultado comprobado |
+|---|---|
+| Setup, instalación frozen y lockfile | SUCCESS |
+| Validación de Grafana/Prometheus | SUCCESS |
+| Provisioning de roles DB/jobs y usuario worker Meta con mínimo privilegio | SUCCESS |
+| Migraciones PostgreSQL y segunda pasada de idempotencia | SUCCESS |
+| DLX quorum y plugin Prometheus de RabbitMQ | SUCCESS |
+| Build de todas las aplicaciones | SUCCESS |
+| Typecheck de todas las aplicaciones | SUCCESS |
+| `api:inbox-domain-test` — seis suites Inbox | **SUCCESS — 36/36 pass, 0 fail, 0 skipped** |
+| Suite API + PostgreSQL | Ejecutada: 356 tests, 352 pass, 4 fail |
+| Suite Meta backend + PostgreSQL/RabbitMQ | SUCCESS |
+| CodeQL TypeScript/JavaScript | **SUCCESS** |
+
+### Fallos restantes del gate API
+
+Las cuatro aserciones fallidas no pertenecen al bounded context Inbox:
+
+1. `crm/contacts/http/contact-duplicate-candidate.controller.spec.ts`: espera `OidcAuthGuard`, el controller declara `OidcOrApiClientGuard`.
+2. `crm/contacts/http/contact-identity.controller.spec.ts`: la misma expectativa de guard.
+3. `crm/contacts/http/contact.controller.spec.ts`: la misma expectativa de guard.
+4. `platform/administration/infrastructure/platform-administration.integration.spec.ts`: el fixture llama a `createOrganization` sin el correlation ID obligatorio.
+
+Por eso el workflow completo termina en FAILURE en `Enforce independent test suite outcomes`, aunque Inbox (36/36), build, typecheck, Meta y CodeQL hayan pasado. Esos cuatro errores requieren corrección en sus respectivas historias, no cambiar las políticas Inbox para satisfacer pruebas de otros bounded contexts.
+
+### Estado de aceptación
+
+La implementación de las políticas de dominio US-021 cuenta con evidencia satisfactoria de build, typecheck, 36 tests dedicados y análisis estático de seguridad. **US-021/TASK-047 permanece `in_progress`**, no `verified` ni `accepted`: INB-006..014 e INB-018 siguen contract-gated; faltan freeze+G0, repositories/migraciones Inbox/RLS, CAS y outbox transaccionales, workers de expiración/presencia, controllers autorizados, integración completa con TASK-045, UI/E2E, revisión independiente y aceptación del Product Owner. GO-PRODUCTION sigue NO-GO.

@@ -103,3 +103,12 @@ Defect escape rate, flaky test rate, change failure rate, MTTR, contract drift, 
 | TEST-INBOX-007 | presence-policy.spec.ts | Heartbeat, estado, expiración y fail-closed |
 
 Las suites se añaden al target `api:test`. El conjunto contiene 36 casos unitarios declarados; el número ejecutado y aprobado debe tomarse de Source CI del commit exacto. Las garantías de carrera entre procesos, persistencia CAS, RLS, outbox transaccional y dedupe en PostgreSQL siguen requiriendo pruebas de integración con servicios reales; no se sustituyen por mocks ni por pruebas puras.
+
+
+## 13. Resultado CI de US-021 — 2026-11-08
+
+- Se ejecutó `api:inbox-domain-test` como etapa independiente, con resultado **36 tests aprobados, 0 fallidos, 0 omitidos**.
+- Source Validation commit `035f095a95a0660e0e03fb9a37d8eb33c38072c5`: build y typecheck SUCCESS; suite Meta backend con PostgreSQL/RabbitMQ SUCCESS; CodeQL SUCCESS.
+- La suite API general ejecutó 356 casos: 352 pass y 4 fail en tres expectativas de guard en CRM y un fixture de Platform Administration sin correlation ID. Ningún fallo corresponde a Inbox.
+- Ejecuciones: [Source Validation](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42531505463) · [CodeQL](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42531505359).
+- No marcar US-021 accepted: permanecen API-CONTRACT-FREEZE+G0, persistencia Inbox/RLS, CAS/outbox, workers, controllers, integración con TASK-045, UI/E2E y revisión/aceptación independiente.

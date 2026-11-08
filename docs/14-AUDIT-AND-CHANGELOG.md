@@ -730,3 +730,15 @@ El Source Validation del HEAD previo también reportó indisponibilidad del endp
 | ID | Hallazgo | Corrección |
 |---|---|---|
 | AUD-212 | Comparación automatizada PermissionCatalog TypeScript vs. seeds históricos encontró cuatro claves WhatsApp Templates ausentes | Migration 0030 ahora inserta \`whatsapp.templates.read/create/update/delete\` junto a \`developer.*\` y \`billing.usage.read\`; provisioning ya no debe fallar por deriva del catálogo. Validación CI pendiente. |
+
+
+## 53. Evidencia de validación US-021 / TASK-047 (2026-11-08)
+
+| ID | Evidencia | Resultado |
+|---|---|---|
+| AUD-213 | Target Nx `api:inbox-domain-test` y etapa CI independiente `if: always()` para seis suites Inbox | Source CI commit `035f095`: 36/36 pass; 0 fail; 0 skipped. |
+| AUD-214 | Build y typecheck de todas las aplicaciones | SUCCESS en Source Validation `42531505463`. |
+| AUD-215 | Suite API y PostgreSQL | 356 casos: 352 pass, 4 fail no pertenecientes a Inbox; tres tests CRM esperan `OidcAuthGuard` pero el controller usa `OidcOrApiClientGuard`; integración Platform Administration omite correlation ID obligatorio. |
+| AUD-216 | Suite Meta backend PostgreSQL/RabbitMQ y análisis CodeQL | Ambos SUCCESS en commit `035f095`. |
+
+El run Source Validation termina FAILURE únicamente por las cuatro aserciones existentes descritas en AUD-215 y por su gate obligatorio; las suites Inbox, build, typecheck, Meta y CodeQL sí terminaron SUCCESS. Véase [docs/75](75-US-021-INBOX-COLLABORATION-DOMAIN-SLICE.md#8-resultados-source-ci-y-codeql--2026-11-08). TASK-047/US-021 permanece `in_progress` por los gates contractuales y la infraestructura runtime que aún faltan.

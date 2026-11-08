@@ -326,3 +326,12 @@ Las policies son código de dominio y no habilitan endpoints congelados. Source 
 - No marcar verified hasta obtener Source CI/CodeQL SUCCESS para el HEAD exacto y completar revisión independiente.
 - Dependencias y gates aún abiertos: TASK-041, G0/API-CONTRACT-FREEZE para IAM/BILL/PAR, dispatcher TASK-028, productores reales del ledger, authorization JIT en handlers por recurso y aceptación formal del Product Owner.
 - Trazabilidad operativa detallada: [docs/76-US-024-TASK-052-PLATFORM-ADMINISTRATION.md](76-US-024-TASK-052-PLATFORM-ADMINISTRATION.md).
+
+
+## Evidencia CI — US-021 / TASK-047 (2026-11-08)
+
+- `api:inbox-domain-test`: **36/36 pass**, independiente de `api:build`; etapa `if: always()` mantiene visibilidad incluso si otro bounded context falla.
+- Source Validation commit `035f095a95a0660e0e03fb9a37d8eb33c38072c5`: build SUCCESS, typecheck SUCCESS, Meta backend + PostgreSQL/RabbitMQ SUCCESS. CodeQL SUCCESS.
+- Suite API general: 356 casos; 352 pass, 4 fail ajenos a Inbox: tres pruebas de CRM con expectativa de `OidcAuthGuard` distinta al guard declarado en el controller y una integración de Platform Administration sin correlation ID requerido.
+- Source CI: [42531505463](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42531505463); CodeQL: [42531505359](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42531505359).
+- **TASK-047/US-021 continúa in_progress** por contract freeze/G0, almacenamiento durable/RLS, CAS/outbox, workers, API habilitada, UI/E2E y aceptación/revisión independiente.

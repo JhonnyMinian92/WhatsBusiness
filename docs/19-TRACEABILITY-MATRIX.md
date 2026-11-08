@@ -564,3 +564,15 @@ Las seis suites agregadas a `api:test` contienen 36 casos unitarios declarados. 
 | Soporte JIT | razón, purpose, scopes, tenant, solicitante/aprobador/operador distintos, step-up y revocación | Implementado en slice; freeze PAR-007 y autorización por recurso en cada handler pendientes |
 
 Rutas concretas, contratos HTTP congelados y pruebas detalladas están en docs/76. Los nombres de contextos propuestos en la tabla §7 siguen siendo conceptuales para los demás bounded contexts; este estado solo actualiza TASK-052.
+
+
+## 13. US-021 — resultados verificados de CI (2026-11-08)
+
+| Criterio | Test ID | Resultado |
+|---|---|---|
+| AC-021-01 asignación/routing | TEST-INBOX-001, TEST-INBOX-002 | 36-suite group green: 36/36 overall Inbox pass |
+| AC-021-02 handoff | TEST-INBOX-004 | Pass dentro del target independiente |
+| AC-021-03 notas privadas | TEST-INBOX-005 | Pass dentro del target independiente |
+| AC-021-04 lease/presencia/no duplicados | TEST-INBOX-003, TEST-INBOX-006, TEST-INBOX-007 | Pass dentro del target independiente |
+
+Evidencia adicional: build/typecheck SUCCESS, CodeQL SUCCESS y suite Meta SUCCESS. La suite API general tiene cuatro fallos ajenos a Inbox (CRM guards y correlation ID en Platform Administration). Source run: [42531505463](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42531505463). CodeQL: [42531505359](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42531505359). TASK-047 permanece in_progress por API freeze+G0 y runtime/persistencia/UI no implementados.

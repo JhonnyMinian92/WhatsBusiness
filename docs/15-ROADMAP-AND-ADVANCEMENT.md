@@ -432,3 +432,12 @@ Se añadió un slice puro bajo `apps/api/src/inbox/domain`:
 - **CI inicial falló antes de build/typecheck/tests:** migration 0030 tenía un delimitador SQL incompleto en \`is_active_platform_user\`. Corregido usando \`$function$\`; el commit corregido requiere un Source CI completo. No declarar la suite verificada antes de confirmar el resultado del HEAD actual.
 - Sin controllers ni rutas públicas: IAM/BILL/PAR permanecen bajo API-CONTRACT-FREEZE+G0. TASK-041 (SLO/capacidad/presupuesto), TASK-028 (outbox dispatcher), productores reales de uso, cableado PAR-007 en handlers, revisión independiente y aceptación PO siguen pendientes. GO-PRODUCTION permanece NO-GO.
 - Documento: [docs/76-US-024-TASK-052-PLATFORM-ADMINISTRATION.md](76-US-024-TASK-052-PLATFORM-ADMINISTRATION.md).
+
+
+## US-021 / TASK-047 — estado tras CI (2026-11-08)
+
+- Slice de dominio implementado bajo `apps/api/src/inbox/domain`: asignación/routing manual y automático, presencia TTL, ownership lease acquire/renew/release, handoff bot/humano/agente, notas internas no exportables y autoridad de respuesta idempotente.
+- Seis suites independientes ejecutadas en CI: **36/36 pass**. Build y typecheck workspace: SUCCESS. CodeQL TypeScript/JavaScript: SUCCESS. Suite Meta backend con PostgreSQL/RabbitMQ: SUCCESS.
+- La suite API general tiene 4 fallos ajenos a Inbox (tres expectations de guards CRM y un fixture de Platform Administration sin correlation ID); el workflow completo mantiene FAILURE por ese gate, no por Inbox.
+- No cerrar la historia: operaciones INB-006..014/018 siguen contract-only hasta API-CONTRACT-FREEZE+G0. Persistencia/RLS, CAS/outbox, workers de presencia/expiry, controllers, integración TASK-045, UI/E2E, revisión independiente y Product Owner acceptance siguen pendientes.
+- Evidencia, run IDs y causas: [docs/75-US-021-INBOX-COLLABORATION-DOMAIN-SLICE.md](75-US-021-INBOX-COLLABORATION-DOMAIN-SLICE.md).
