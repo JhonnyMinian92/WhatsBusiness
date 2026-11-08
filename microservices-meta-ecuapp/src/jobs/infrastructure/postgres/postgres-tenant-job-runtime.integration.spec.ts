@@ -178,15 +178,23 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
     );
     assert.ok(renewed.rows[0]?.lease_expires_at);
 
-    const wrongContext = await assert.rejects(
+    await assert.rejects(
       withTenantContext(workerPool, otherActorUserId, otherTenantId, async (client) => {
         await client.query(
           "SELECT platform.complete_tenant_job($1, $2, 'inbox-worker')",
           [completionJobId, completion.leaseToken],
         );
       }),
+      (error: unknown) => {
+        if (typeof error !== "object" || error === null || !("code" in error)) return false;
+        assert.equal(
+          (error as { code?: unknown }).code,
+          "40001",
+          "A tenant-context mismatch must reject the execution lease with SQLSTATE 40001",
+        );
+        return true;
+      },
     );
-    assert.ok(wrongContext);
 
     const wrongPublicationToken = await dispatcherPool.query<{ marked: boolean }>(
       "SELECT platform.mark_tenant_job_published($1, $2) AS marked",
