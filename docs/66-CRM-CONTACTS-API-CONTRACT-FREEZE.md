@@ -75,3 +75,5 @@ Este freeze solo habilita CRM-001..004 en el alcance anterior. CRM-005..017 sigu
 ## 8. Gate de activación del runtime (2026-11-08)
 
 La revisión automática de contratos impone que únicamente PLT-001..005 estén con x-implementation-allowed=true durante la foundation actual. CRM-001..004 mantienen el diseño y schemas completos (x-contract-ready=true), pero permanecen x-implementation-allowed=false y el CrmContactsModule no está importado por AppModule. El código de dominio/aplicación/repositorio y sus pruebas se compilan como fuente y no están expuestos por HTTP. Para activar rutas será necesaria la autorización específica del siguiente slice GO-CODE y que Contract CI acepte el cambio; no se fuerza ni se elude el allowlist.
+
+La migración `0023-crm-contact-organization-name-invariant.sql` también impone en PostgreSQL que organization no contenga firstName/lastName. El test usa el login runtime y un SAVEPOINT para demostrar SQLSTATE `23514` sin abortar el resto de la transacción. La verificación CI de este refuerzo está pendiente.
