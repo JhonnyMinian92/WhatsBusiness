@@ -179,7 +179,7 @@ Estado actual:
 |---|---|---|---|
 | TASK-001 | Slice Tenant ownership/lifecycle implementado y CI-verified | Source CI #16; docs/58 §7 | Review independiente, aislamiento operativo y aceptación |
 | TASK-002 | Tenant context fail-closed, propósito y authzVersion implementados y CI-verified | Source CI #47; docs/58 §8 | Cobertura de todos los recursos/workers y review independiente |
-| TASK-003 | No iniciado | docs/11 | Namespaces jobs/cache/files/telemetry y pruebas de partición |
+| TASK-003 | Slices de aislamiento multi-tenant, runtime durable de jobs y endpoint HTTP Prometheus implementados; estado global `in_progress` | Source CI #42433941375 para runtime; docs/60 y docs/63. CI del endpoint nuevo pendiente | DLQ operator workflow/replay, handler real e2e, gauges/alertas/SLO, topology broker desplegado, Secret Manager/rotación, carga/DR y review independiente/owner acceptance |
 | TASK-004 | Core RBAC/ABAC, catálogo/roles declarativos y anti-escalation implementados y CI-verified | Source CI #67; docs/58 §9 | Persistir assignments/administración y review independiente |
 | TASK-005 | Core step-up/approval/audit implementado y CI-verified con PostgreSQL efímero | Source CI #112; docs/58 §10 | IdP real, outbox/consumer, contratos IAM, auditoría/review independiente y owner acceptance |
 
