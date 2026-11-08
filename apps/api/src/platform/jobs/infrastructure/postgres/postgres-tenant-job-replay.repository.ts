@@ -41,6 +41,11 @@ export interface TenantJobReplayRequestRecord {
   readonly sourceMaxAttempts: number;
   readonly replayPolicyVersion: string;
   readonly replayJobId: string | null;
+  readonly approvalStatus: "pending" | "approved" | "rejected" | "expired" | "cancelled" | "consumed";
+  readonly requiredApprovals: number;
+  readonly approvedCount: number;
+  readonly expiresAt: string;
+  readonly createdAt: string;
 }
 
 interface SourceRow {
@@ -74,6 +79,11 @@ interface ReplayRequestRow {
   readonly source_max_attempts: number;
   readonly replay_policy_version: string;
   readonly replay_job_id: string | null;
+  readonly approval_status: "pending" | "approved" | "rejected" | "expired" | "cancelled" | "consumed";
+  readonly required_approvals: number;
+  readonly approved_count: number;
+  readonly expires_at: Date | string;
+  readonly created_at: Date | string;
 }
 
 export class PostgresTenantJobReplayRepository {
@@ -157,8 +167,15 @@ export class PostgresTenantJobReplayRepository {
         "request.requester_user_id::text, request.idempotency_key, request.reason_code,",
         "request.source_job_type, request.source_request_sha256, request.source_dead_letter_reason,",
         "request.source_error_code, request.source_attempts, request.source_max_attempts,",
-        "request.replay_policy_version, replay.id::text AS replay_job_id",
+        "request.replay_policy_version, replay.id::text AS replay_job_id, approval.status AS approval_status,",
+        "approval.required_approvals,",
+        "(SELECT count(*)::integer FROM platform.approval_decisions AS decision",
+        " WHERE decision.tenant_id = request.tenant_id AND decision.approval_id = request.approval_id",
+        " AND decision.decision = 'approved') AS approved_count,",
+        "approval.expires_at, approval.created_at",
         "FROM platform.tenant_job_replay_requests AS request",
+        "INNER JOIN platform.approval_requests AS approval",
+        "ON approval.id = request.approval_id AND approval.tenant_id = request.tenant_id",
         "LEFT JOIN platform.tenant_job_records AS replay",
         "ON replay.replay_approval_id = request.approval_id AND replay.tenant_id = request.tenant_id",
         "WHERE request.tenant_id = $1 AND request.approval_id = $2",
@@ -181,6 +198,11 @@ export class PostgresTenantJobReplayRepository {
       sourceMaxAttempts: row.source_max_attempts,
       replayPolicyVersion: row.replay_policy_version,
       replayJobId: row.replay_job_id,
+      approvalStatus: row.approval_status,
+      requiredApprovals: row.required_approvals,
+      approvedCount: row.approved_count,
+      expiresAt: new Date(row.expires_at).toISOString(),
+      createdAt: new Date(row.created_at).toISOString(),
     }) : null;
   }
 
