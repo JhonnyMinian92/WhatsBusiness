@@ -103,7 +103,7 @@ BEGIN
 
   IF NOT FOUND
      OR approval.action_key <> 'jobs.replay.request'
-     OR approval.purpose <> 'jobs.replay.manage'
+     OR approval.purpose <> 'platform.tenant.jobs.replay.request'
      OR approval.resource_type <> 'tenant_job'
      OR approval.resource_id <> source_job.id::text
      OR approval.requester_user_id <> replay_request.requester_user_id
