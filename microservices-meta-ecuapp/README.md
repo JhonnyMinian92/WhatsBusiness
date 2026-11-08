@@ -25,6 +25,7 @@ El HTTP foundation existente sigue temporalmente en `apps/api` mientras se migra
 5. El consumer usa manual ACK y prefetch acotado. ACK solo después del commit de la transacción de negocio, inbox y estado terminal/retry.
 6. La expiración de leases permite recuperar dispatchers/workers caídos. Los fencing tokens evitan que un worker antiguo confirme después de perder su lease; los handlers largos renuevan el lease con el token actual y reciben AbortSignal si la renovación falla.
 7. Los handlers no hacen I/O de proveedor dentro de la transacción de ejecución; deben stagear esos side effects en outbox.
+8. Cada handler recibe AbortSignal y está sujeto a TENANT_JOB_HANDLER_TIMEOUT_MS (1–900 s); debe cooperar con cancelación. El timeout aborta el trabajo y fuerza rollback, pero no puede matar una promesa Node.js no cooperativa: el host no debe registrar handlers que ignoren AbortSignal.
 8. At-least-once implica duplicados. No se promete exactly-once end-to-end.
 
 ## Operación
@@ -45,7 +46,7 @@ El composition root reusable es `TenantJobRuntimeProcess.create`. El host debe p
 - `databaseFactory(workerPool)`: adapta el `DatabaseService.withTenantContext` canónico existente al pool del worker. No crear una segunda implementación de autorización/RLS.
 - `logger`: implementación de logs/telemetría con códigos normalizados.
 
-La plantilla de variables está en `.env.example`. Se requieren URLs separadas para API, dispatcher y worker, más `RABBITMQ_URL`. En producción las URLs deben venir de Secret Manager/KMS y DB SSL y AMQPS son obligatorios. El runtime no arranca un worker productivo sin handlers reales.
+La plantilla de variables está en `.env.example`; `TENANT_JOB_HANDLER_TIMEOUT_MS` configura el límite de ejecución cooperativa (default 300 s, rango 1–900 s). Se requieren URLs separadas para API, dispatcher y worker, más `RABBITMQ_URL`. En producción las URLs deben venir de Secret Manager/KMS y DB SSL y AMQPS son obligatorios. El runtime no arranca un worker productivo sin handlers reales.
 
 ### Comandos del workspace
 ```bash
