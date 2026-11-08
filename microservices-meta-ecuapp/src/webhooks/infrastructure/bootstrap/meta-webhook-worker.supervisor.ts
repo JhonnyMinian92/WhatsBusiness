@@ -1,7 +1,7 @@
 import { setTimeout as delay } from "node:timers/promises";
 import type { Pool } from "pg";
 import type { RabbitMqWorkerChannels } from "../../../jobs/infrastructure/rabbitmq/rabbitmq-connection.factory.js";
-import { RabbitMqConnectionFactory } from "../../jobs/infrastructure/rabbitmq/rabbitmq-connection.factory.js";
+import { RabbitMqConnectionFactory } from "../../../jobs/infrastructure/rabbitmq/rabbitmq-connection.factory.js";
 import type { MetaWebhookEventHandler, MetaWebhookPayloadProtector } from "../../application/meta-webhook-ports.js";
 import { MetaWebhookWorkerProcess } from "../../application/meta-webhook-worker.process.js";
 import type { MetaWebhookConsumerReporter } from "../rabbitmq/rabbitmq-meta-webhook-consumer.js";
@@ -61,10 +61,11 @@ export class MetaWebhookWorkerSupervisor {
       let process: MetaWebhookWorkerProcess | null = null;
       const sessionStartedAt = Date.now();
       try {
-        channels = await this.connections.open(this.options.rabbitMqUrl, this.options.connectionName);
+        const openedChannels = await this.connections.open(this.options.rabbitMqUrl, this.options.connectionName);
+        channels = openedChannels;
         process = await MetaWebhookWorkerProcess.create({
           database: this.options.database,
-          channels,
+          channels: openedChannels,
           protector: this.options.protector,
           handlers: this.options.handlers,
           consumerName: this.options.consumerName,
@@ -75,7 +76,7 @@ export class MetaWebhookWorkerSupervisor {
           batchSize: this.options.batchSize,
         });
         await process.start();
-        await waitForConnectionEnd(channels, signal);
+        await waitForConnectionEnd(openedChannels, signal);
         if (Date.now() - sessionStartedAt >= (this.options.reconnectStableSessionMs ?? 30_000)) {
           consecutiveFailures = 0;
         } else {
