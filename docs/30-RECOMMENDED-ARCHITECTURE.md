@@ -53,9 +53,9 @@ Un monolito modular reduce despliegues, fallos de red, consistencia distribuida 
 | Meta Product Adapters | adaptadores versionados: WhatsApp, Pages, Messenger, Instagram, Threads, Leads, Marketing, CAPI |
 | Webhook & Event Platform | recepción autenticada, durable inbox, outbox, replay y DLQ |
 | Messaging & Inbox | conversaciones, mensajes, receipts, equipos, asignación, notas y handoff |
-| CRM | contactos, identidades, empresas, leads, oportunidades, pipeline y actividades |
+| CRM | contactos, identidades, empresas, leads, oportunidades, pipeline, actividades y CRM Intelligence ML |
 | Automation | workflows versionados, triggers, conditions, actions, schedule y ejecuciones |
-| AI Assistance | gateway de modelos, prompts, sugerencias, evaluación y coste |
+| AI Assistance | capacidad separada del CRM; no es dependencia de CRM Intelligence |
 | Campaigns & Measurement | Ads, Leads, CAPI, Insights, gasto y conciliación |
 | Billing & Usage | planes, entitlements, seats, uso, cargos externos y facturación |
 | Audit & Compliance | auditoría append-only, export/delete cases y evidencias |
@@ -173,16 +173,17 @@ Reglas de dependencias:
 - No enviar PII/contenido sensible a proveedores IA sin base jurídica, configuración, contrato, región y autorización aprobados.
 - No ejecutar mensajes masivos, gasto real, publicación o eliminación irreversibles sin controles y aprobación explícita.
 
-## 11. IA y automatización
+## 11. CRM Intelligence basada en machine learning
 
-- AI Gateway con interfaces para proveedor externo y despliegue propio futuro; no atar el dominio al proveedor.
-- Primera fase: sugerencias de respuesta y chatbot de reglas/flows; el agente humano edita/envía.
-- Output IA = contenido no confiable; prompt injection, exfiltration y tool abuse incluidos en threat model.
-- Sin acceso directo libre a DB, tokens, archivos o ejecución de comandos.
-- Si se añaden herramientas, cada una requiere schema, purpose, scope, autorización runtime, límites y audit.
-- Guardrails por tenant: presupuesto, cuota, modelo, timeout, retry, fallback, kill switch, redacción y región.
-- Log de proveedor/modelo/versión, prompt version, tokens/coste, latencia, feedback y evaluación; no guardar más contenido sensible del necesario.
-- RAG, voz, agentes autónomos, training y auto-send no forman parte de la entrega inicial.
+- CRM Intelligence es una capacidad interna del bounded context CRM que usa estadística y ML supervisado/no supervisado, con modelos predictivos y clasificadores de bajo consumo.
+- Algoritmos candidatos: regresión lineal/logística, Naive Bayes, árboles, Random Forest, gradient boosting/XGBoost, clustering, series temporales/supervivencia, ranking y redes neuronales ligeras bajo benchmark.
+- Entrenamiento offline y serving desacoplados detrás de ports; no acoplar el dominio a Python, XGBoost, ONNX ni un proveedor.
+- Las salidas son valores tipados/versionados, con feature schema, modelo, horizonte, timestamp, probabilidad calibrada cuando aplique, reason codes y fallback explícito.
+- Registry, artefactos, datasets y features tienen provenance, tenant scope, versionado, checksum, validación, promoción, rollback y expiración.
+- CRM Intelligence no incluye LLM, RAG, generación de texto ni agentes de IA. Las predicciones no cambian permisos/consentimiento ni disparan acciones irreversibles.
+- Monitorear calidad de features, drift, training-serving skew, calibración, rendimiento por cohorte, latencia y recursos; mantener fallback determinista y override humano.
+- Automatizaciones por reglas/flows continúan bajo Automation y no dependen del runtime ML.
+- El runtime de entrenamiento/serving se fija solo después de benchmark de CPU/RAM/latencia/tamaño/operación. Ver [docs/62](62-CRM-MACHINE-LEARNING-STRATEGY.md).
 
 ## 12. Operación, resiliencia y escalado
 
