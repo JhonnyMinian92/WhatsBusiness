@@ -171,6 +171,39 @@ test("valid deliveries are redelivered when durable processing cannot be complet
   assert.deepEqual(errors, ["TENANT_JOB_PROCESSING_INTERRUPTED"]);
 });
 
+test("coalesces connection shutdown when multiple prefetched deliveries fail", async () => {
+  const channel = new FakeChannel();
+  const errors: string[] = [];
+  let closeInvocations = 0;
+  const adapter = new RabbitMqTenantJobConsumerAdapter(
+    channel as unknown as Channel,
+    { async handle() { throw new Error("database connection unavailable"); } } as never,
+    "jobs",
+    30,
+    4,
+    { report: (code) => errors.push(code) },
+    async () => {
+      closeInvocations += 1;
+      await Promise.resolve();
+      await channel.close();
+    },
+  );
+
+  await adapter.start();
+  channel.deliver(message(validBody));
+  channel.deliver(message(validBody));
+  await adapter.stop();
+
+  assert.equal(closeInvocations, 1);
+  assert.equal(channel.closeCount, 1);
+  assert.deepEqual(channel.acknowledged, []);
+  assert.deepEqual(channel.rejected, []);
+  assert.deepEqual(errors, [
+    "TENANT_JOB_PROCESSING_INTERRUPTED",
+    "TENANT_JOB_PROCESSING_INTERRUPTED",
+  ]);
+});
+
 test("a failed broker ACK never NACKs a business transaction that already resolved", async () => {
   const channel = new FakeChannel();
   channel.acknowledgementError = new Error("channel closed after business commit");
