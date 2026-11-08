@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  Inject,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -25,10 +26,11 @@ import {
   type TenantJobReplayPolicy,
 } from "../domain/tenant-job-replay-policy.registry.js";
 import {
-  PostgresTenantJobReplayRepository,
+  TENANT_JOB_REPLAY_REPOSITORY,
+  type TenantJobReplayRepository,
   type TenantJobReplayRequestRecord,
   type TenantJobReplaySource,
-} from "../infrastructure/postgres/postgres-tenant-job-replay.repository.js";
+} from "./tenant-job-replay.repository.js";
 
 export const TENANT_JOB_REPLAY_PURPOSE = "platform.tenant.jobs.replay.request";
 export const TENANT_JOB_REPLAY_ACTION = "jobs.replay.request" as const;
@@ -74,7 +76,8 @@ export class TenantJobReplayService {
     private readonly database: DatabaseService,
     private readonly approvals: ApprovalWorkflowService,
     private readonly audit: AppendOnlyAuditRepository,
-    private readonly repository: PostgresTenantJobReplayRepository,
+    @Inject(TENANT_JOB_REPLAY_REPOSITORY)
+    private readonly repository: TenantJobReplayRepository,
     private readonly policies: TenantJobReplayPolicyRegistry,
   ) {}
 
