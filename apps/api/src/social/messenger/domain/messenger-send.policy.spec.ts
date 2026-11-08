@@ -98,6 +98,17 @@ test("rechaza timestamps futuros, inválidos y deadlines Human Agent vencidos", 
   assert.ok(expiredHumanAgent.reasons.includes("HUMAN_AGENT_WINDOW_CLOSED"));
 });
 
+test("cierra la ventana estándar exactamente al cumplirse las 24 horas", () => {
+  const boundary = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+  const decision = evaluateMessengerSendEligibility(validInput({
+    lastRecipientMessageAt: boundary,
+  }));
+
+  assert.equal(decision.allowed, false);
+  assert.ok(decision.reasons.includes("STANDARD_MESSAGING_WINDOW_CLOSED"));
+  assert.equal(decision.standardWindowExpiresAt, now.toISOString());
+});
+
 test("el capability no disponible no autoriza el envío", () => {
   const decision = evaluateMessengerSendEligibility(validInput({
     capability: { ...capability, state: "unavailable", available: false },
