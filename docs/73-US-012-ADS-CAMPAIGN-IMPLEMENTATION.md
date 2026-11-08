@@ -27,13 +27,13 @@
 | `apps/api/src/ads/campaigns/domain/campaign-lifecycle.ts` | Máquina de estados cerrada. No permite saltar validación, aprobación ni staging de submit; un resultado externo desconocido solo avanza mediante reconciliación. |
 | `apps/api/src/ads/campaigns/domain/campaign-validation.ts` | Preflight fail-closed de objetivo, versión API, vigencia de evidencia, cuenta, moneda, capability, targeting, billing y creative. |
 | `apps/api/src/ads/campaigns/domain/ads-execution-guard.ts` | Policy central para escrituras externas: actor, asset grant, capability vigente, aprobación exacta y quorum independiente; kill switch bloquea publicación/aumento y conserva la posibilidad de pausar. |
-| `apps/api/src/ads/campaigns/domain/*.spec.ts` | 24 pruebas unitarias focalizadas sobre dinero, límites, bypass acumulativo, cambios de estado, evidencia expirada y autorización. |
+| `apps/api/src/ads/campaigns/domain/*.spec.ts` | 26 pruebas unitarias focalizadas sobre dinero, límites, bypass acumulativo, cambios de estado, evidencia expirada y autorización. |
 | `apps/api/project.json` | Incorpora las cinco suites nuevas al target oficial `api:test`. |
 
 ## 3. Invariantes de seguridad y dinero
 
-1. Los importes se reciben como strings decimales con máximo seis posiciones fraccionarias. Se rechazan números JavaScript, exponentes, signo negativo, moneda inválida y precisión excesiva.
-2. El cálculo del porcentaje usa aritmética entera; el límite inclusivo de 20% se permite, pero un micro-unit adicional se rechaza.
+1. Los importes se reciben como strings decimales con precisión fraccionaria propia de la moneda ISO 4217. Se rechazan números JavaScript, exponentes, signo negativo, moneda inválida y precisión excesiva.
+2. El cálculo del porcentaje usa aritmética entera; el límite inclusivo de 20% se permite, pero una unidad fraccionaria mínima adicional se rechaza.
 3. Cada ventana mantiene una referencia de presupuesto y un inicio/fin exactos de 24 horas. Una ventana vencida o malformada bloquea aumentos hasta que un reconciler obtenga nueva observación; el dominio no reinicia el baseline por sí mismo.
 4. Una secuencia de aumentos pequeños no puede superar +20% sobre el baseline de la ventana, aunque cada cambio individual sea menor a 20%.
 5. Las reducciones no quedan impedidas por el kill switch o por un baseline excedido. La ejecución externa de cualquier acción sigue necesitando capability y asset grant actuales.
@@ -64,3 +64,11 @@ Queda pendiente para completar TASK-024/TASK-025:
 | TASK-025 | Aritmética exacta, límites individual/rolling y policy de ejecución/kill switch en dominio | `in_progress`; no `verified` ni `accepted` |
 
 **No reportar US-012 como terminada** hasta que los tres criterios AC estén implementados en la aplicación, los contratos y dependencias estén desbloqueados, todas las suites aplicables pasen y exista evidencia de reconciliación (sintética y de una cuenta elegible cuando se autorice). Ningún aumento de presupuesto ni publicación real se realiza por este cambio.
+
+
+## 6. Refinamientos de exactitud monetaria (2026-11-08)
+
+- El parser aplica la precisión fraccionaria ISO 4217 por moneda mediante Intl.NumberFormat: USD admite 2 decimales, JPY 0 y KWD 3. El motor conserva aritmética BigInt exacta; comparadores y operaciones vuelven a validar sus operandos.
+- Se añadieron regresiones para precisión de USD/JPY/KWD y límites inclusivos en la unidad fraccionaria mínima.
+- Los cambios de reducción y las solicitudes sin variación se resuelven antes de comprobar el baseline de aumentos. Un baseline vencido no bloquea una reducción; cualquier incremento sigue exigiendo ventana de 24 horas válida y kill switch inactivo.
+- Las cinco suites contienen ahora 26 casos de dominio. La ejecución Source CI #645 está en curso; no declarar PASS hasta conocer build, typecheck y test.
