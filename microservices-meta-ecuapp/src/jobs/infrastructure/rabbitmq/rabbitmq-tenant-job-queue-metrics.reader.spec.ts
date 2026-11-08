@@ -60,3 +60,28 @@ test("rejects invalid queue names", () => {
     /queue names are invalid/,
   );
 });
+
+
+test("bounds a stalled broker metrics RPC", async () => {
+  const channel = {
+    checkQueue: () => new Promise(() => undefined),
+  } as unknown as Pick<Channel, "checkQueue">;
+  const reader = new RabbitMqTenantJobQueueMetricsReader(
+    channel,
+    TENANT_JOB_RABBITMQ_TOPOLOGY.queue,
+    TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue,
+    100,
+  );
+
+  await assert.rejects(reader.readSnapshot(), /sample timed out/);
+});
+
+test("rejects unsafe metrics RPC timeout configuration", () => {
+  const channel = {
+    async checkQueue(queue: string) { return { queue, messageCount: 0, consumerCount: 0 }; },
+  } as unknown as Pick<Channel, "checkQueue">;
+  assert.throws(
+    () => new RabbitMqTenantJobQueueMetricsReader(channel, undefined, undefined, 99),
+    /timeout is invalid/,
+  );
+});
