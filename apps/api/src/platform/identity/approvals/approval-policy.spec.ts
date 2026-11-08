@@ -12,7 +12,7 @@ test("standard critical permissions require at least one independent approver", 
   });
 });
 
-test("budget, campaign publication, sensitive exports and deletion require two distinct approvers", () => {
+test("budget, campaign publication, sensitive exports, deletion and job replay require two distinct approvers", () => {
   const resolver = new DefaultApprovalPolicyResolver();
   for (const action of [
     "ads.publish.request",
@@ -20,6 +20,7 @@ test("budget, campaign publication, sensitive exports and deletion require two d
     "crm.leads.export",
     "privacy.export.request",
     "privacy.deletion.request",
+    "jobs.replay.request",
   ] as const) {
     assert.equal(resolver.resolve(action)?.requiredApprovals, 2, action);
   }
