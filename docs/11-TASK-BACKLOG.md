@@ -919,13 +919,13 @@ IG-001..IG-012 continúan catalog-only (x-implementation-allowed=false). No habi
 | Comentarios | instagram-comments-policy.ts | Reply, hide, unhide y delete; capability/login mode concordantes; ownership y estado del media/comment; idempotencia; delete con aprobación humana; transiciones terminales. | API adapter, endpoint/version contract, persistencia, webhooks y E2E con cuenta Meta. |
 | Direct | instagram-messaging-policy.ts | Capability/login mode concordantes; conversación individual; recipient-initiated; no grupos; ownership para shared media en Instagram Login; idempotency; requests antiguos como posible omisión en consultas a 30 días. | Sender HTTP, consumer Inbox, webhook delivery/reconciliation, persistencia y E2E. |
 
-Se agregan 19 casos unitarios (10 comments y 9 messaging). El slice US-010 contiene 42 pruebas (14 capability, 9 publicación, 10 comentarios y 9 Direct). La validación Source CI exitosa del SHA 1ba349c ejecutó 287 pruebas API + 112 Meta backend; se produjo antes del commit que agregó los dos módulos finales. Requerido: nuevo Source CI y CodeQL sobre el SHA de cierre.
+Se agregan 22 casos unitarios (10 comments y 9 messaging). El slice US-010 contiene 42 pruebas (14 capability, 9 publicación, 10 comentarios y 9 Direct). La validación Source CI exitosa del SHA 1ba349c ejecutó 287 pruebas API + 112 Meta backend; se produjo antes del commit que agregó los dos módulos finales. Requerido: nuevo Source CI y CodeQL sobre el SHA de cierre.
 
 TASK-021 continúa in_progress: Insights sigue fail-closed/unknown, y las operaciones externas no están cableadas. US-010 no está aceptada.
 
 
 ## Estado de ejecución — TASK-058 / US-025 (2026-11-08)
 
-Se implementó un primer slice de política pura de grants en `apps/api/src/platform/identity/partners/partner-tenant-grant.policy.ts`, con 19 casos registrados en `api:test`. La policy valida organización/tenant, actor partner, aprobador independiente, roles versionados, acción por activo exacto, purpose, expiración, reducción de alcance y revocación.
+Se implementó un primer slice de política pura de grants en `apps/api/src/platform/identity/partners/partner-tenant-grant.policy.ts`, con 22 casos registrados en `api:test`. La policy valida organización/tenant, actor partner, aprobador independiente, roles versionados, acción por activo exacto, purpose, expiración, reducción de alcance y revocación.
 
 **Estado: `in_progress`.** No equivale al cierre de TASK-058: no hay persistencia/RLS de partner grants, endpoints, invalidación real de sesiones/cache/jobs, outbox/consumer, auditoría transaccional de concesión/revocación ni JIT operativo. PAR-001..007 continúan catalog-only y el freeze/G0 de docs/49/55 permanece obligatorio. Revisar docs/75 para alcance implementado y handoff reproducible.

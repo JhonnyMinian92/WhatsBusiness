@@ -358,16 +358,18 @@ export class PartnerTenantGrantPolicy {
     ) {
       return denyTransition("GRANT_VERSION_INVALID");
     }
+    if (previous.revokedAt != null || previous.revokedByUserId != null) {
+      return denyTransition("GRANT_REVOKED");
+    }
+    if (!isValidDate(input.now) || !isValidDate(previous.expiresAt)) {
+      return denyTransition("GRANT_VALIDITY_INVALID");
+    }
+    if (input.now.getTime() >= previous.expiresAt.getTime()) {
+      return denyTransition("GRANT_EXPIRED");
+    }
 
     if (
-      !Number.isSafeInteger(previous.version)
-      || previous.version < 1
-      || previous.revokedAt != null
-      || previous.revokedByUserId != null
-      || !isValidDate(input.now)
-      || !isValidDate(previous.validFrom)
-      || !isValidDate(previous.expiresAt)
-      || input.now.getTime() >= previous.expiresAt.getTime()
+      !isValidDate(previous.validFrom)
       || input.nextRoles.length === 0
       || input.nextRoles.some((next) => !previous.roles.some((prior) => sameRole(prior, next)))
       || input.nextActionScopes.length === 0
@@ -417,11 +419,21 @@ export class PartnerTenantGrantPolicy {
     if (!revoker.isActive) return denyTransition("REVOKER_NOT_ACTIVE");
     if (!revoker.isTenantOwner) return denyTransition("REVOKER_NOT_TENANT_OWNER");
     if (!isValidDate(input.now)) return denyTransition("GRANT_VALIDITY_INVALID");
-    if (!Number.isSafeInteger(grant.version) || grant.version < 1) {
+    if (
+      !Number.isSafeInteger(grant.version)
+      || grant.version < 1
+      || grant.version >= Number.MAX_SAFE_INTEGER
+    ) {
       return denyTransition("GRANT_VERSION_INVALID");
     }
 
-    if (grant.revokedAt != null || grant.revokedByUserId != null) {
+    if ((grant.revokedAt != null) !== (grant.revokedByUserId != null)) {
+      return denyTransition("GRANT_SCOPE_INVALID");
+    }
+    if (grant.revokedAt != null) {
+      if (!isValidDate(grant.revokedAt) || typeof grant.revokedByUserId !== "string" || !isUuid(grant.revokedByUserId)) {
+        return denyTransition("GRANT_SCOPE_INVALID");
+      }
       return { allowed: true, changed: false, grant };
     }
 

@@ -399,7 +399,7 @@ El avance técnico de adapter y pruebas está verificado. El cierre integral de 
 
 ## US-025 — base de acceso delegado de partners (2026-11-08)
 
-- Se añadió `PartnerTenantGrantPolicy` y 19 pruebas al target `api:test`: grants explícitos por tenant/partner/subject, rol versionado, acción/activo exactos, purpose, expiración, aprobación independiente, reducción monotónica y revocación.
+- Se añadió `PartnerTenantGrantPolicy` y 22 pruebas al target `api:test`: grants explícitos por tenant/partner/subject, rol versionado, acción/activo exactos, purpose, expiración, aprobación independiente, reducción monotónica y revocación.
 - Se reutiliza el catálogo RBAC actual y su snapshot de versión; el rol partner nunca puede ser tenant_owner, tenant_admin ni support_jit.
 - El slice está implementado en una rama aislada; Source CI/CodeQL del commit resultante deben inspeccionarse antes de marcarlo verified.
 - TASK-058/US-025 siguen `in_progress`. Faltan TASK-052 y soporte JIT separado, persistencia/RLS, servicios de aplicación, contratos PAR-001..007 congelados, outbox/consumer, invalidación de sesiones/cache/jobs, auditoría transaccional, pruebas PostgreSQL/BOLA/concurrencia, revisión independiente y Product Owner acceptance.

@@ -48,7 +48,7 @@ Archivo:
 
 - `apps/api/src/platform/identity/partners/partner-tenant-grant.policy.spec.ts`
 
-Se incorporan 19 casos a la suite `api:test`, incluyendo:
+Se incorporan 22 casos a la suite `api:test`, incluyendo:
 
 - tenant interno/suspendido, organización partner no válida/inactiva y membership de partner incorrecta;
 - tenant owner inactivo/no autorizado, autoaprobación, aprobación pendiente, quorum y evidencia incoherente;

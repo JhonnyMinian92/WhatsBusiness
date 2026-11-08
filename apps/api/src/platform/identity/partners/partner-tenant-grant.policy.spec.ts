@@ -258,7 +258,7 @@ test("la autorización por asset no hereda el resto de activos de la agencia", (
   assert.deepEqual(policy.evaluateAccess(request), { allowed: true });
   assert.equal(policy.evaluateAccess({
     ...request,
-    asset: { ...asset, assetId: "another-ad-account" },
+    asset: { ...adAsset, assetId: "another-ad-account" },
   }).reason, "GRANT_ASSET_NOT_ALLOWED");
   assert.equal(policy.evaluateAccess({ ...request, asset: null }).reason, "GRANT_ASSET_NOT_ALLOWED");
 });
@@ -412,4 +412,52 @@ test("un partner no obtiene acceso por coincidencia de tenant ni por ampliar la 
     asset: { ...asset, provider: "other_provider" },
   });
   assert.equal(policy.evaluateAccess(request).reason, "GRANT_ASSET_NOT_ALLOWED");
+});
+
+
+test("rechaza snapshots con revocación parcial o fecha de revocación inválida", () => {
+  assert.equal(policy.revoke({
+    tenantId: TENANT_ID,
+    grant: grant({ revokedAt: NOW }),
+    revoker: { userId: GRANTOR_ID, isActive: true, isTenantOwner: true },
+    now: NOW,
+  }).reason, "GRANT_SCOPE_INVALID");
+  assert.equal(policy.revoke({
+    tenantId: TENANT_ID,
+    grant: grant({ revokedAt: new Date("invalid"), revokedByUserId: GRANTOR_ID }),
+    revoker: { userId: GRANTOR_ID, isActive: true, isTenantOwner: true },
+    now: NOW,
+  }).reason, "GRANT_SCOPE_INVALID");
+});
+
+test("no permite reducir grants ya expirados o revocados", () => {
+  const base = {
+    tenantId: TENANT_ID,
+    grantor: { userId: GRANTOR_ID, isActive: true, isTenantOwner: true },
+    approver: { userId: APPROVER_ID, isActive: true, isTenantOwner: true },
+    approval: { status: "approved" as const, approverId: APPROVER_ID },
+    nextRoles: [role],
+    nextActionScopes: [inboxAction],
+    nextValidFrom: NOW,
+    nextExpiresAt: new Date(EXPIRY.getTime() - 1_000),
+    nextVersion: 2,
+    now: NOW,
+  };
+  assert.equal(policy.evaluateScopeReduction({
+    ...base,
+    previous: grant({ expiresAt: new Date(NOW.getTime() - 1) }),
+  }).reason, "GRANT_EXPIRED");
+  assert.equal(policy.evaluateScopeReduction({
+    ...base,
+    previous: grant({ revokedAt: NOW, revokedByUserId: GRANTOR_ID }),
+  }).reason, "GRANT_REVOKED");
+});
+
+test("no desborda la versión al revocar un grant", () => {
+  assert.equal(policy.revoke({
+    tenantId: TENANT_ID,
+    grant: grant({ version: Number.MAX_SAFE_INTEGER }),
+    revoker: { userId: GRANTOR_ID, isActive: true, isTenantOwner: true },
+    now: NOW,
+  }).reason, "GRANT_VERSION_INVALID");
 });

@@ -702,7 +702,7 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Rama aislada: `feature/us-025-partner-access`, creada desde `environment/local` en el commit base `a2f44c25d037dc2819ea318a75bba700a22ed5da` para no interferir con escrituras concurrentes de otros agentes.
 - Investigación: US-025 exige delegación explícita agency/reseller/provider → tenant cliente; actor partner, roles/actions/assets, purpose, expiración, aprobación independiente, revocación, auditoría y separación de soporte JIT. TASK-058 depende de TASK-001/004/034/052.
 - Implementación: `apps/api/src/platform/identity/partners/partner-tenant-grant.policy.ts`; policy pura con creación, autorización por actor/tenant/acción/activo, reducción estricta de alcance y revocación idempotente.
-- Tests: `apps/api/src/platform/identity/partners/partner-tenant-grant.policy.spec.ts`; 19 casos registrados en `api:test` mediante `apps/api/project.json`. No afirmar PASS hasta verificar Source CI para el commit exacto.
+- Tests: `apps/api/src/platform/identity/partners/partner-tenant-grant.policy.spec.ts`; 22 casos registrados en `api:test` mediante `apps/api/project.json`. No afirmar PASS hasta verificar Source CI para el commit exacto.
 - Documento técnico: `docs/75-US-025-PARTNER-ACCESS-FOUNDATION.md`.
 - Contratos PAR-001..007 siguen catalog-only y bloqueados por API freeze/G0. No se añadieron controladores, migraciones, dispatcher de eventos ni invalidadores runtime; no hay persistencia partner ni propagación durable de revocación.
 - AC-025-01..05 tienen cobertura parcial de dominio; AC-025-03/04/05 requieren integración operativa, audit/outbox y TASK-052/JIT. US-025 y TASK-058 siguen `in_progress`, no verified/accepted.
