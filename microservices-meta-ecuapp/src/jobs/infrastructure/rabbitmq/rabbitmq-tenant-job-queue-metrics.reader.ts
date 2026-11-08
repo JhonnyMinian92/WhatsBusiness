@@ -42,9 +42,9 @@ export class RabbitMqTenantJobQueueMetricsReader implements TenantJobBrokerMetri
       ]);
 
       return Object.freeze({
-      workerQueueReadyMessages: safeCount(worker.messageCount, "worker_queue_ready_messages"),
-      workerQueueConsumers: safeCount(worker.consumerCount, "worker_queue_consumers"),
-      deadLetterQueueReadyMessages: safeCount(deadLetter.messageCount, "dead_letter_queue_ready_messages"),
+        workerQueueReadyMessages: safeCount(worker.messageCount, "worker_queue_ready_messages"),
+        workerQueueConsumers: safeCount(worker.consumerCount, "worker_queue_consumers"),
+        deadLetterQueueReadyMessages: safeCount(deadLetter.messageCount, "dead_letter_queue_ready_messages"),
         deadLetterQueueConsumers: safeCount(deadLetter.consumerCount, "dead_letter_queue_consumers"),
       });
     } finally {
