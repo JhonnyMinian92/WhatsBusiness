@@ -496,3 +496,10 @@ Se añadió una regresión de integración a `microservices-meta-ecuapp/src/jobs
 - TASK-027: la integración de ingress verifica dedupe, persistencia inbox/delivery/outbox, contexto tenant, permisos mínimos del API login y publicación durable. El outbox se stagea exclusivamente mediante función tenant-checked; el API no puede leer ciphertext/outbox ni asumir el grupo ingress.
 - TASK-028: la integración publica dos eventos mediante dispatcher y RabbitMQ; el handler registrado completa su receipt una vez; el evento válido no soportado va a dead-letter persistente con razón estable. La consulta tenant-scoped del dead-letter devuelve metadata y rechaza contexto cruzado.
 - **Clasificación:** este slice de código y pruebas está CI-verified. Las tareas globales siguen `in_progress`: no hay handlers de negocio reales, replay no se habilita antes de CR-0016 y de demostrar idempotencia de efectos externos; faltan operación de DLQ, retención/privacidad, protección perimetral, secretos gestionados, fixtures Meta oficiales, validación de topología desplegada, carga/DR, SLO/alertas operativas, review independiente y aceptación del propietario.
+
+
+### Handoff incremental — métricas live RabbitMQ (2026-11-08)
+
+- Se añade `rabbitmq-management-tenant-job-queue-metrics.integration.spec.ts` para probar el reader contra el Management HTTP API del broker real: dos colas efímeras, mensajes confirmados, consumidores manual-ACK y seis gauges de worker/DLQ en estados ready, in-flight e idle.
+- La workflow crea un usuario independiente con tag `monitoring` y permisos AMQP vacíos; el test se registra en el target Nx backend. La credencial es efímera y exclusivamente de CI.
+- **Estado:** implementación pendiente de Source CI/CodeQL en el commit resultante. La evidencia previa #539/#77 permanece SUCCESS. TASK-003 sigue `in_progress`; esta prueba no cierra SLO/alertas, despliegue ni aceptación.

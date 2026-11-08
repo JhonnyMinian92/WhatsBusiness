@@ -412,3 +412,12 @@ Source CI [#539](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42
 El mismo Source CI ejecutó la integración Meta Webhook sobre PostgreSQL/RabbitMQ: el worker procesó un evento con handler registrado y persistió otro evento válido sin handler como dead-letter terminal; el inbox, receipts y outbox conservan sus límites tenant. El query SQL de dead letters devuelve metadata para el tenant actual y niega contexto ajeno.
 
 TASK-003 permanece `in_progress`: este CI no demuestra handlers de negocio de CRM/Meta, replay end-to-end externo, DLQ operator workflow, Secret Manager/KMS, broker deployment real, alert routing/SLO, carga, DR, ni aceptación independiente/propietario.
+
+
+## 17. Prueba live del lector RabbitMQ Management API — pendiente de CI
+
+Se incorpora `rabbitmq-management-tenant-job-queue-metrics.integration.spec.ts` al target Nx `microservices-meta-ecuapp:test`. La prueba crea un exchange y dos colas efímeras, publica mensajes con publisher confirms y usa consumidores manual-ACK para comprobar `messages_ready`, `messages_unacknowledged` y `consumers` en la cola worker y la DLQ, durante los estados ready → in-flight → idle.
+
+El lector consulta la Management HTTP API con un usuario `monitoring` independiente. El workflow lo provisiona con permisos de recurso vacíos (`configure/read/write = ^$`), por lo que la credencial no puede declarar, publicar ni consumir por AMQP; solo inspecciona estadísticas. La contraseña es sintética y exclusiva del contenedor efímero de CI. En producción, la credencial debe inyectarse desde Secret Manager y el endpoint remoto debe usar HTTPS.
+
+**Estado:** test, target Nx y provisioning CI implementados; Source CI/CodeQL del nuevo commit pendiente. No sustituye Prometheus/Grafana ni mide consumer lag.
