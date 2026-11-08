@@ -359,3 +359,11 @@ Se añadió una regresión de integración a `microservices-meta-ecuapp/src/jobs
 - TASK-003 permanece in_progress: no marcar terminada hasta completar replay autorizado/auditado, métricas, crash/redelivery/fencing, handlers reales y gates de deployment/revisión independiente.
 
 **Verificación operativa adicional (2026-11-08):** Source CI #42431530685 SUCCESS confirmó el `DatabaseService` real con reutilización física de conexión tenant A→B y limpieza de GUC tras COMMIT y ROLLBACK. No cerrar TASK-003: replay, observabilidad, crash/redelivery/fencing, handlers reales, deployment y review independiente siguen abiertos.
+
+### Handoff incremental TASK-003 — aislamiento concurrente A/B (2026-11-08)
+
+- Se agregó a `apps/api/src/platform/database/database.context.integration.spec.ts` una prueba con dos transacciones activas al mismo tiempo y un pool worker de dos conexiones.
+- Criterios ejercitados: dos `pg_backend_pid()` distintos; contexto `app.user_id` y `app.tenant_id` correcto y estable en cada conexión; RLS no devuelve filas del tenant contrario.
+- Commit: `9b497d0805b53f79e658fd874d0ebfbec3863b12`. Estado: implementación de test añadida; Source CI exacto aún pendiente de verificar, por lo que no marcar como verified.
+- Evidencia previa: Source CI #42431530685 SUCCESS para commit `6059822896987fc618c479d53117354e1a785144`, con A→B secuencial en la misma conexión y cleanup tras COMMIT/ROLLBACK.
+- TASK-003 permanece `in_progress`; no aceptar hasta completar controles de replay/DLQ, observabilidad, crash/redelivery/fencing, handlers de negocio, deployment y review independiente.
