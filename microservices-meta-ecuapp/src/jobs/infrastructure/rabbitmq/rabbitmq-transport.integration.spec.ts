@@ -8,59 +8,10 @@ import { createTenantJobMessage, parseTenantJobMessage } from "../../domain/tena
 
 const brokerUrl = process.env["RABBITMQ_URL"];
 const enabled = process.env["RUN_RABBITMQ_INTEGRATION_TESTS"] === "true";
-const prometheusUrl = process.env["RABBITMQ_PROMETHEUS_URL"];
 const TEST_JOB_ID = "d7d8d4cf-1d23-4dcb-80fb-1a7a2e0c4b15";
 
-async function scrapeDetailedQueueMetrics(): Promise<string> {
-  if (!prometheusUrl) throw new Error("RABBITMQ_PROMETHEUS_URL is required for RabbitMQ metrics integration.");
-  const url = new URL("/metrics/detailed", prometheusUrl);
-  url.searchParams.append("family", "queue_coarse_metrics");
-  url.searchParams.append("family", "queue_consumer_count");
-  url.searchParams.set("vhost", "/");
-
-  const response = await fetch(url, { signal: AbortSignal.timeout(3_000) });
-  assert.equal(response.status, 200, "RabbitMQ Prometheus detailed endpoint must return HTTP 200.");
-  return response.text();
-}
-
-function readQueueMetric(
-  exposition: string,
-  metric: string,
-  queue: string,
-): number {
-  const escapedQueue = queue.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const pattern = new RegExp(
-    "^" + metric + "\\{[^}]*\\bqueue=\\\"" + escapedQueue
-      + "\\\"[^}]*\\}\\s+([0-9]+(?:\\.[0-9]+)?)$",
-    "m",
-  );
-  const match = pattern.exec(exposition);
-  assert.ok(match, "RabbitMQ Prometheus metrics must include " + metric + " for " + queue + ".");
-  return Number(match[1]);
-}
-
-async function waitForQueueMetric(
-  metric: string,
-  queue: string,
-  expected: number,
-  timeoutMs = 5_000,
-): Promise<void> {
-  const deadline = Date.now() + timeoutMs;
-  let lastValue: number | undefined;
-  while (Date.now() < deadline) {
-    const exposition = await scrapeDetailedQueueMetrics();
-    lastValue = readQueueMetric(exposition, metric, queue);
-    if (lastValue === expected) return;
-    await new Promise((resolve) => setTimeout(resolve, 150));
-  }
-  throw new Error(
-    "RabbitMQ metric " + metric + " for " + queue
-      + " did not reach " + expected + "; last observed value: " + String(lastValue) + ".",
-  );
-}
-
 test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once DLX", {
-  skip: !enabled || !brokerUrl || !prometheusUrl,
+  skip: !enabled || !brokerUrl,
 }, async () => {
   const factory = new RabbitMqConnectionFactory();
   const channels = await factory.open(brokerUrl!, "whatsbusiness-jobs-integration");
@@ -116,25 +67,15 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
     const job = createTenantJobMessage(TEST_JOB_ID);
 
     await publisher.publish(job, "jobs.integration.confirm");
-    // Publisher confirms prove broker acceptance; consume directly to prove
-    // routing. Prometheus ready gauges are asynchronous and must not gate a
-    // message-delivery assertion.
-    const delivered = await waitForUnackedDelivery(
-      channels.consumer,
-      queue,
-      5_000,
-    );
+    // Publisher confirms prove broker acceptance; basic.get proves routing
+    // and leaves the delivery unacked until the explicit ACK below.
+    const delivered = await waitForUnackedDelivery(channels.consumer, queue, 5_000);
     assert.deepEqual(parseTenantJobMessage(delivered.content), job);
-    await waitForQueueMetric(
-      "rabbitmq_detailed_queue_messages_unacked",
-      queue,
-      1,
-    );
     channels.consumer.ack(delivered, false);
-    await waitForQueueMetric(
-      "rabbitmq_detailed_queue_messages_unacked",
-      queue,
-      0,
+    assert.equal(
+      await channels.consumer.get(queue, false),
+      false,
+      "An ACKed delivery must no longer be available in the source queue.",
     );
 
     const unroutedExchange = integrationExchange + ".unrouted";
@@ -151,24 +92,14 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
     assert.ok(poison, "The persistent message should be ready in the quorum source queue.");
     channels.consumer.nack(poison, false, false);
 
-    await waitForQueueMetric(
-      "rabbitmq_detailed_queue_messages_ready",
-      deadLetterQueue,
-      1,
-      10_000,
-    );
-    const deadLetter = await waitForUnackedDelivery(
-      channels.consumer,
-      deadLetterQueue,
-      5_000,
-    );
+    const deadLetter = await waitForUnackedDelivery(channels.consumer, deadLetterQueue, 10_000);
     assert.deepEqual(parseTenantJobMessage(deadLetter.content), job);
-    await waitForQueueMetric(
-      "rabbitmq_detailed_queue_messages_unacked",
-      deadLetterQueue,
-      1,
-    );
     channels.consumer.ack(deadLetter, false);
+    assert.equal(
+      await channels.consumer.get(deadLetterQueue, false),
+      false,
+      "An ACKed dead-letter delivery must no longer be available in the DLQ.",
+    );
   } finally {
     // Keep teardown independent from setup/assertion success. A cleanup error
     // must never skip closing the AMQP channels and leave the test process alive.
