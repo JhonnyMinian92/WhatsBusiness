@@ -432,3 +432,13 @@ Se añadió un slice puro bajo `apps/api/src/inbox/domain`:
 - **CI inicial falló antes de build/typecheck/tests:** migration 0030 tenía un delimitador SQL incompleto en \`is_active_platform_user\`. Corregido usando \`$function$\`; el commit corregido requiere un Source CI completo. No declarar la suite verificada antes de confirmar el resultado del HEAD actual.
 - Sin controllers ni rutas públicas: IAM/BILL/PAR permanecen bajo API-CONTRACT-FREEZE+G0. TASK-041 (SLO/capacidad/presupuesto), TASK-028 (outbox dispatcher), productores reales de uso, cableado PAR-007 en handlers, revisión independiente y aceptación PO siguen pendientes. GO-PRODUCTION permanece NO-GO.
 - Documento: [docs/76-US-024-TASK-052-PLATFORM-ADMINISTRATION.md](76-US-024-TASK-052-PLATFORM-ADMINISTRATION.md).
+
+
+## US-025 / TASK-058 — política de acceso delegado (2026-11-08)
+
+- Incorporado PartnerTenantGrantPolicy bajo platform/identity/partners y registrado/exportado desde IdentityModule.
+- Cubre validación de creación, actor/tenant/partner/purpose/acción/activo exactos, role catalog versioning, separación de aprobación, reducción de privilegios, expiración y revocación.
+- Se añadieron 22 casos y se registraron en api:test. La CI del HEAD final todavía no está verificada; no marcar los casos como pass.
+- TASK-052 tiene migration y repository para support JIT; esa concesión es interna y expresamente no concede can_use_tenant. No se reutiliza para agencies.
+- Persistencia/RLS partner, actor context, use cases, approval consumption, audit/outbox, event consumers, invalidación de sesiones/cache/jobs y PAR-001..007 contract freeze/G0 siguen pendientes.
+- US-025/TASK-058 siguen in_progress. Detalle técnico y criterios por AC en docs/77-US-025-PARTNER-ACCESS-FOUNDATION.md. GO-PRODUCTION NO-GO.

@@ -730,3 +730,14 @@ El Source Validation del HEAD previo también reportó indisponibilidad del endp
 | ID | Hallazgo | Corrección |
 |---|---|---|
 | AUD-212 | Comparación automatizada PermissionCatalog TypeScript vs. seeds históricos encontró cuatro claves WhatsApp Templates ausentes | Migration 0030 ahora inserta \`whatsapp.templates.read/create/update/delete\` junto a \`developer.*\` y \`billing.usage.read\`; provisioning ya no debe fallar por deriva del catálogo. Validación CI pendiente. |
+
+
+## US-025 / TASK-058 — política base de partner grants (2026-11-08)
+
+| ID | Evidencia | Estado real |
+|---|---|---|
+| AUD-205 | PartnerTenantGrantPolicy: creación aprobada, actor con membership partner, tenant cliente activo, owner/aprobador distintos, roles/versiones y action/asset scope explícitos. | Código de dominio integrado al IdentityModule; CI pendiente |
+| AUD-206 | Evaluación de acceso con actor/partner/tenant/purpose/action/asset exactos, expiración, stale role version y revocación; reducción monotónica y versión segura. | Código de dominio; no conectado a runtime ni RLS |
+| AUD-207 | 22 casos unitarios registrados en api:test; backlog, roadmap, traceability, memory, work package y docs/77 actualizados. | Tests registrados; Source CI/CodeQL exactos pendientes |
+
+TASK-052 tiene soporte JIT interno separado; sus support_grants no conceden can_use_tenant ni sustituyen partner grants. No hay aún persistencia, partner context, auditoría/outbox transaccional, invalidación de sesiones/cache/jobs ni contrato PAR congelado. No se abrieron rutas/endpoints ni se modificaron OpenAPI/AsyncAPI. US-025/TASK-058 permanecen in_progress; no Product Owner acceptance ni GO-PRODUCTION.

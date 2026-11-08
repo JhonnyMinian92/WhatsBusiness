@@ -233,3 +233,8 @@ Los instrumentos de campo están en research/us-028/: guía de entrevistas, regl
 ## 76 — US-024 / TASK-052: Platform Administration
 
 [76 — Administración SaaS de tenants, planes, consumo y soporte JIT](76-US-024-TASK-052-PLATFORM-ADMINISTRATION.md) documenta AC-024-01..04, módulo, migración, pruebas, decisiones de seguridad, resultado CI observado y gates abiertos.
+
+
+## 77 — US-025 Partner Access
+
+[77 — Política de acceso delegado de partners](77-US-025-PARTNER-ACCESS-FOUNDATION.md) documenta la política de grants agency/reseller/provider, 22 tests registrados, límites de identidad/RLS, diferencia con support JIT de TASK-052 y trabajo pendiente para integración productiva.

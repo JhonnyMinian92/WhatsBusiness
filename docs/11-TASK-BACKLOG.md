@@ -944,3 +944,10 @@ TASK-021 continúa in_progress: Insights sigue fail-closed/unknown, y las operac
 | TASK-052 — administración de tenants, planes, entitlements y soporte | **in_progress**; slice de dominio, aplicación, persistencia y tests incorporados. No verified/accepted. | Migration 0030; módulo \`apps/api/src/platform/administration\`; suites \`platform-administration.policy.spec.ts\` y \`platform-administration.integration.spec.ts\`; detalle docs/76. | Source CI del commit corregido debe pasar; TASK-041 y G0 / API contract freeze; dispatcher TASK-028; adapters reales de medición; integración PAR-007 por recurso; review independiente y Product Owner acceptance. |
 
 La tabla kickoff de TASK-034..041 se conserva como registro histórico. Esta fila es la actualización específica de TASK-052 y no cambia el estado de sus dependencias.
+
+
+## Estado de ejecución US-025 / TASK-058 (2026-11-08)
+
+Se implementó e integró en IdentityModule la policy pura PartnerTenantGrantPolicy, con validación de creación, evaluación de acceso por actor/tenant/partner/acción/activo/purpose, reducción monotónica/versionada y revocación idempotente. El nuevo spec contiene 22 casos y está registrado en api:test. Evidencia: docs/77-US-025-PARTNER-ACCESS-FOUNDATION.md.
+
+**Estado sigue in_progress, no verified/accepted.** Todavía no hay tabla/repository partner grants, contexto de autorización partner ni permiso RLS de alcance exacto; IdentityService/TenantContextGuard y can_use_tenant solo resuelven membership directa. No se debe relajar la frontera RLS ni crear una membership cliente ficticia. TASK-052 mantiene el mecanismo de soporte JIT separado de agency-to-client. PAR-001..007 continúan catalog-only hasta API contract freeze + G0. Sin controllers, API REST, evento externo ni operación Meta implementados por este slice.

@@ -326,3 +326,15 @@ Las policies son código de dominio y no habilitan endpoints congelados. Source 
 - No marcar verified hasta obtener Source CI/CodeQL SUCCESS para el HEAD exacto y completar revisión independiente.
 - Dependencias y gates aún abiertos: TASK-041, G0/API-CONTRACT-FREEZE para IAM/BILL/PAR, dispatcher TASK-028, productores reales del ledger, authorization JIT en handlers por recurso y aceptación formal del Product Owner.
 - Trazabilidad operativa detallada: [docs/76-US-024-TASK-052-PLATFORM-ADMINISTRATION.md](76-US-024-TASK-052-PLATFORM-ADMINISTRATION.md).
+
+
+## TASK-058 — US-025 Partner Access: ejecución técnica (2026-11-08)
+
+- **Implementado:** apps/api/src/platform/identity/partners/partner-tenant-grant.policy.ts y spec asociado. Provider/export registrados en IdentityModule. 22 casos en api:test.
+- **Dominio:** solo tenant customer y activo; partner agency/reseller/provider activo; actor active con membership activa en tenant perteneciente a partner; grant dirigido a subject, tenant y partner exactos; owner solicitante y aprobador independientes; roles versionados no owner/admin/support; permisos de catálogo y pares acción/asset exactos; purpose, temporalidad, reducción monotónica y revoke idempotente.
+- **Decisión de modelo:** platform.memberships enlaza user↔tenant. La pertenencia a una organización partner debe derivarse de un tenant activo de esa organización y una membership activa; no se crea membresía sintética en tenant cliente.
+- **No implementado:** tabla/repository partner grants, context partner, SQL predicate/RLS, endpoints/use cases, transacción approval consumeAndStage, audit/outbox atómico, consumer de membership.changed/grant.revoked, invalidación de jobs/cache/session, E2E PostgreSQL/BOLA/concurrencia.
+- **TASK-052:** soporte JIT interno tiene su propio grant y RLS; no satisface can_use_tenant y no equivale a partner grant.
+- **API gate:** PAR-001..007 continúan catalog-only/x-implementation-allowed=false según docs/49/55. No publicar controllers ni editar contratos hasta API contract freeze + G0.
+- **Validación:** 22 pruebas registradas; Source CI/CodeQL del commit exacto pendientes; revisión independiente y Product Owner acceptance pendientes.
+- **Estado:** in_progress. Ver docs/77-US-025-PARTNER-ACCESS-FOUNDATION.md para AC mapping y pasos restantes.

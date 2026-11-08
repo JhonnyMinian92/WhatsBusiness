@@ -718,3 +718,17 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Tests registrados en \`api:test\`: domain policies + PostgreSQL integration con usuarios synthetic. El CI anterior falló en migration 0030 por delimiter de función SQL; fix aplicado. Inspeccionar Source CI del HEAD actual antes de llamar PASS. CodeQL también debe corresponder al HEAD verificado.
 - Sigue pendiente TASK-041/G0, contract freeze IAM/BILL/PAR, publisher/outbox TASK-028, productores y conciliación reales, uso de autorización JIT en handlers por recurso, revisión independiente y Product Owner acceptance.
 - Detalle y estado AC-024-01..04: \`docs/76-US-024-TASK-052-PLATFORM-ADMINISTRATION.md\`. GO-PRODUCTION NO-GO.
+
+
+## Handoff US-025 / TASK-058 — política de grants delegados (2026-11-08)
+
+- Rama: feature/us-025-partner-access-current-head; base environment/local HEAD b1267fed07886c1924105510407e601056feed39.
+- Se incorporó apps/api/src/platform/identity/partners/partner-tenant-grant.policy.ts con PartnerTenantGrantPolicy: evaluateCreation, evaluateAccess, evaluateScopeReduction y revoke.
+- Reutiliza permission catalog, tenant-role catalog, ApprovalEvidence; roles tenant_owner, tenant_admin y support_jit se rechazan. Las acciones Meta/Ads/WhatsApp llevan asset exacto y no wildcard.
+- 22 casos unitarios añadidos a api:test; spec y policy se registran en IdentityModule (provider/export). Los tests no han sido ejecutados/validados por Source CI para el commit final; no afirmar PASS.
+- docs/77-US-025-PARTNER-ACCESS-FOUNDATION.md contiene alcance, AC coverage, riesgos y handoff.
+- platform.memberships enlaza user↔tenant. La pertenencia a la organización partner debe derivarse de una membership activa en un tenant activo de esa organización; no crear membresía sintética en tenant cliente.
+- IdentityService/TenantContextGuard y DatabaseService.can_use_tenant resuelven membership directa. El slice NO concede acceso runtime al partner; falta context type, repository, SQL/RLS, services y durable invalidation.
+- TASK-052 mantiene soporte JIT interno en separado; no se reutiliza para agencies.
+- PAR-001..007 siguen catalog-only y x-implementation-allowed=false; API contract freeze + G0 es obligatorio. No se agregaron controllers/endpoints/migration/outbox, ni writes a Meta.
+- US-025/TASK-058 siguen in_progress. Siguiente: diseñar predicate de membership partner y RLS grant-context específico sin debilitar can_use_tenant; persistencia relacional; approval consumeAndStage; audit/outbox; revalidación jobs/cache/sesiones; pruebas PostgreSQL/BOLA; Source CI/CodeQL; review independiente y Product Owner acceptance.
