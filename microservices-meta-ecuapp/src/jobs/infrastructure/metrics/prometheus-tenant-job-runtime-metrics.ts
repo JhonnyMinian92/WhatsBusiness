@@ -10,12 +10,29 @@ import type {
 const HISTOGRAM_BUCKETS_SECONDS = Object.freeze([
   0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10, 30, 60,
 ]);
+const DISPATCH_OUTCOMES = new Set<TenantJobDispatchMetricOutcome>([
+  "published",
+  "scheduled_for_retry",
+  "blocked",
+  "lost_lease",
+]);
+const EXECUTION_OUTCOMES = new Set<TenantJobExecutionMetricOutcome>([
+  "processed",
+  "retry_scheduled",
+  "dead_letter",
+  "not_claimed",
+]);
+const PUBLISH_OUTCOMES = new Set<TenantJobPublishMetricOutcome>(["success", "error"]);
+const LEASE_OUTCOMES = new Set<TenantJobLeaseMetricOutcome>(["renewed", "lost", "error"]);
 
 type Outcome = TenantJobDispatchMetricOutcome
   | TenantJobExecutionMetricOutcome
   | TenantJobPublishMetricOutcome
   | TenantJobLeaseMetricOutcome
-  | "execution_lease" | "dispatch_lease" | "stale_publication";
+  | "execution_lease"
+  | "dispatch_lease"
+  | "stale_publication"
+  | "worker";
 
 interface HistogramState {
   count: number;
@@ -29,15 +46,19 @@ export class PrometheusTenantJobRuntimeMetrics implements TenantJobRuntimeMetric
   private readonly publishHistograms = new Map<TenantJobPublishMetricOutcome, HistogramState>();
 
   recordDispatch(outcome: TenantJobDispatchMetricOutcome): void {
-    this.increment("tenant_job_dispatch_total", outcome);
+    if (DISPATCH_OUTCOMES.has(outcome)) {
+      this.increment("tenant_job_dispatch_total", outcome);
+    }
   }
 
   recordExecution(outcome: TenantJobExecutionMetricOutcome, durationMs: number): void {
+    if (!EXECUTION_OUTCOMES.has(outcome)) return;
     this.increment("tenant_job_execution_total", outcome);
     this.observe(this.executionHistograms, outcome, durationMs);
   }
 
   recordPublish(outcome: TenantJobPublishMetricOutcome, durationMs: number): void {
+    if (!PUBLISH_OUTCOMES.has(outcome)) return;
     this.increment("tenant_job_publish_total", outcome);
     this.observe(this.publishHistograms, outcome, durationMs);
   }
@@ -49,7 +70,9 @@ export class PrometheusTenantJobRuntimeMetrics implements TenantJobRuntimeMetric
   }
 
   recordLeaseRenewal(outcome: TenantJobLeaseMetricOutcome): void {
-    this.increment("tenant_job_lease_renewal_total", outcome);
+    if (LEASE_OUTCOMES.has(outcome)) {
+      this.increment("tenant_job_lease_renewal_total", outcome);
+    }
   }
 
   recordRuntimeError(): void {
