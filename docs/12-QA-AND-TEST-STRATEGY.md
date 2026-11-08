@@ -88,3 +88,18 @@ Defect escape rate, flaky test rate, change failure rate, MTTR, contract drift, 
 - Experiment: randomized split where supported, sample/stop thresholds, time-zone and attribution window, no peeking/decision until sufficient sample, false discovery control for many variants.
 - Business Agent/MCP: tool allowlist, role/purpose/tenant/asset checks, prompt injection, stale approvals, replay, tool timeout, conversation ownership lease and double-response prevention.
 - Performance report: Meta-attributed metrics versus internal CRM outcomes and incremental holdout results distinct; no claim of causal lift without experiment design.
+
+
+## 12. US-021 — colaboración, asignación y control exclusivo de respuesta
+
+| TEST ID | Suite | Cobertura unitaria registrada |
+|---|---|---|
+| TEST-INBOX-001 | assignment-policy.spec.ts | Asignación manual, equipo/tenant, permisos, versión CAS y capacidad |
+| TEST-INBOX-002 | assignment-policy.spec.ts | Round-robin, least-loaded, skill-match, membresía, presencia y límites por agente |
+| TEST-INBOX-003 | ownership-lease.policy.spec.ts | Acquire/renew/release, expiración, propietario exclusivo y CAS |
+| TEST-INBOX-004 | handoff-policy.spec.ts | Bot↔humano y agente↔agente, elegibilidad del destino, motivo y audit context |
+| TEST-INBOX-005 | internal-note.policy.spec.ts | Privacidad interna, tamaño, autor activo, menciones y frontera tenant |
+| TEST-INBOX-006 | reply-authority.policy.spec.ts | Lease owner único, idempotency key/fingerprint, retry y no doble dispatch |
+| TEST-INBOX-007 | presence-policy.spec.ts | Heartbeat, estado, expiración y fail-closed |
+
+Las suites se añaden al target `api:test`. El conjunto contiene 36 casos unitarios declarados; el número ejecutado y aprobado debe tomarse de Source CI del commit exacto. Las garantías de carrera entre procesos, persistencia CAS, RLS, outbox transaccional y dedupe en PostgreSQL siguen requiriendo pruebas de integración con servicios reales; no se sustituyen por mocks ni por pruebas puras.

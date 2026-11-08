@@ -405,3 +405,18 @@ El avance técnico de adapter y pruebas está verificado. El cierre integral de 
 - **Decisión vigente:** mantener PD-012 como hipótesis de segmento; no aprobar precios, forecast ni inversión comercial a partir de estadísticas REEM o entrevistas cualitativas.
 - **Seguridad:** GO-PRODUCTION continúa NO-GO. Los instrumentos no autorizan datos reales ni operaciones Meta.
 - **Detalle:** docs/75-US-028-MARKET-DISCOVERY-AND-ICP.md y docs/research/us-028/.
+
+
+## US-021 — avance de dominio de Inbox colaborativo (2026-11-08)
+
+Se añadió un slice puro bajo `apps/api/src/inbox/domain`:
+- Asignación manual y enrutamiento round-robin, least-loaded y skill-match, con límites de equipo/agente, membresía activa, habilidades, presencia fresca y frontera tenant.
+- Presence lease fail-closed; ownership lease acquire/renew/release con expiración, owner, CAS y supervisor release explícito.
+- Handoff entre bot, humano y agentes con elegibilidad explícita, actor/motivo, propuesta de cambio de ownership y evento solicitado v1.
+- Internal notes con privacidad por construcción, menciones a membresías activas del tenant y prohibición de entrega externa.
+- Reply authority ligada al único lease vigente, con dedupe por clave idempotente y fingerprint de payload; retry no despacha de nuevo.
+- Seis suites unitarias (36 casos declarados) quedaron registradas en `api:test`.
+
+**Estado real:** código y specs añadidos; Source CI/CodeQL del commit de este slice aún no inspeccionados. TASK-047/US-021 permanece `in_progress`, no `verified` ni `accepted`. No existen todavía repositories/migraciones Inbox, RLS, transacciones CAS/outbox, workers de expiración, presencia runtime, endpoints/controller ni E2E de frontend. TASK-045 (conversaciones, mensajes y adapters) es dependencia.
+
+**Gate contractual sin cambios:** INB-006..014 e INB-018 continúan catalog-only y con implementación bloqueada hasta API-CONTRACT-FREEZE+G0. Los esquemas v1 existentes se reutilizan exactamente para assignment.changed, ownership.acquired y handoff.requested. No existe aún un evento de notas internas y no se inventó uno. Ningún mensaje real ni escritura Meta fue ejecutado; GO-PRODUCTION sigue NO-GO. Detalle: docs/75.

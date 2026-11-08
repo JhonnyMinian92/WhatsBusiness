@@ -304,3 +304,17 @@ No hay endpoint Instagram permitido por el freeze actual. IG-001..IG-012 permane
 | TASK-021 | Publicación segura + policy de Comments reply/hide/unhide/delete + policy de Instagram Direct recipient-initiated/no groups/media ownership por login mode + visibilidad de requests antiguos. | in_progress; HTTP adapters, persistence, webhooks, consumer Inbox, Insights y pruebas reales pendientes. |
 
 Las policies son código de dominio y no habilitan endpoints congelados. Source CI con 287 API + 112 Meta backend green es del padre anterior a los nuevos módulos; repetir CI y CodeQL después del commit de cierre. No marcar accepted.
+
+
+## US-021 — TASK-047, implementación incremental (2026-11-08)
+
+- **Bounded context:** `apps/api/src/inbox/domain`; seis módulos de política más el validador compartido. No importa infraestructura ni expone rutas.
+- **Asignación:** `evaluateConversationAssignment` ofrece manual, round-robin, least-loaded y skill-match; valida tenant/equipo, estrategia, membresía, presencia, habilidades y límites de capacidad. Emite el borrador `inbox.assignment.changed` compatible con JSON Schema v1.
+- **Presencia:** `evaluateAgentPresence` interpreta heartbeat con expiración; timestamps/identidad/status desconocidos son offline para routing automático.
+- **Ownership:** `evaluateAcquireOwnershipLease`, `evaluateRenewOwnershipLease` y `evaluateReleaseOwnershipLease` modelan exclusividad, expiración, owner, versión CAS y liberación supervisor explícita. El repository debe hacer CAS durable.
+- **Handoff:** `evaluateConversationHandoff` soporta bot/humano/agent; verifica tenant, actor, owner, autorización, elegibilidad del destino, motivo y versión. Genera `inbox.handoff.requested`; no declara el handoff completado.
+- **Notas:** `evaluateInternalNoteCreation` permite notas privadas solo a autor activo, limita tamaño/menciones y exige membresía activa del tenant. El modelo incluye `visibility: internal` y `externalDelivery: forbidden`. INB-014 no tiene todavía un evento publicado.
+- **Respuestas:** `evaluateReplyAuthority` exige actor propietario del lease activo; tenant+conversation+idempotency key y fingerprint impiden un despacho duplicado. La BD debe garantizar unicidad y atomicidad con outbox.
+- **Suites:** `assignment-policy.spec.ts`, `ownership-lease.policy.spec.ts`, `handoff-policy.spec.ts`, `internal-note.policy.spec.ts`, `reply-authority.policy.spec.ts`, `presence-policy.spec.ts`; 36 casos unitarios declarados y registrados en `api:test`.
+- **Gates pendientes:** correr Source CI y CodeQL del commit exacto; migraciones Inbox/RLS y tests PostgreSQL reales para carreras y unique idempotency; repositories/ports/use cases/controllers tras API freeze; outbox/consumers/scheduler de expiración/heartbeats; UI/E2E dependiente de TASK-045; contract freeze+G0 para INB-006..014/018; revisión independiente y aceptación PO.
+- **Estado:** código/specs añadidos; sin evidencia de CI del HEAD al momento de este registro. TASK-047/US-021 `in_progress`, no verified/accepted. No se activaron rutas catalog-only ni se realizaron operaciones externas. GO-PRODUCTION NO-GO.

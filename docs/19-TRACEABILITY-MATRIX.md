@@ -78,7 +78,7 @@ Do not convert missing evidence into a percentage of completion.
 | Contactos e identidades multicanal | US-018 | TASK-042,043 | CRM | tests de tenant, dedupe, merge reversible, provenance |
 | Pipeline y actividades | US-019 | TASK-044 | CRM | tests de transiciones, ownership y permisos |
 | Bandeja omnicanal | US-020 | TASK-045,046 | Messaging & Inbox | adapter contracts, E2E por canal, capability gating |
-| Colaboración y handoff | US-021 | TASK-047 | Messaging & Inbox | concurrency, assignment, internal-note privacy |
+| Colaboración y handoff | US-021 | TASK-047 | Messaging & Inbox | TEST-INBOX-001..007; assignment, presence, lease CAS, handoff, internal-note privacy, reply dedupe |
 | Automatización por reglas | US-022 | TASK-048,049 | Automation | simulation, idempotency, retry/DLQ, kill switch |
 | Chatbots y sugerencias IA | US-023 | TASK-050,051 | AI Assistance | prompt injection, budget, redaction, no-auto-send |
 | SaaS/planes/entitlements | US-024 | TASK-052 | Platform Identity/Billing | tenant lifecycle, entitlements, support audit |
@@ -540,3 +540,15 @@ El slice US-010 suma 42 pruebas de dominio: 14 evaluator + 9 publishing + 10 com
 | AC-028-06 — no aprobar pricing/forecast con evidencia insuficiente | docs/29 PD-012..014 + docs/75 | No se creó tarifa ni forecast; WTP se mide por señales conductuales/compromiso | Guardrail documentado |
 
 TASK-066/US-028 permanece **in_progress**. El informe y los instrumentos son entregables documentales; la muestra real, los resultados de campo, el piloto autorizado y la estimación cuantitativa siguen pendientes. REEM no equivale a TAM; entrevistas de conveniencia no equivalen a muestra representativa. No se creó API ni evento runtime.
+
+
+## 12. US-021 — evidencia de implementación y pruebas de dominio (2026-11-08)
+
+| Criterio | Módulo / símbolo | TEST ID | Evidencia esperada antes de verificar |
+|---|---|---|---|
+| AC-021-01 | `inbox/domain/assignment-policy.ts` — `evaluateConversationAssignment` | TEST-INBOX-001, TEST-INBOX-002 | Source CI; team/agent CAS con PostgreSQL real, tenant isolation y routing integration/E2E |
+| AC-021-02 | `inbox/domain/handoff-policy.ts` — `evaluateConversationHandoff` | TEST-INBOX-004 | Event contract, autorización/grants runtime, CAS/outbox atómico, consumer idempotente y E2E bot suppression |
+| AC-021-03 | `inbox/domain/internal-note.policy.ts` — `evaluateInternalNoteCreation` | TEST-INBOX-005 | Controller/DTO contract freeze, RLS, persistencia privada, no-index/no-provider e2e/API leakage test |
+| AC-021-04 | `inbox/domain/ownership-lease.policy.ts`, `reply-authority.policy.ts`, `presence-policy.ts` | TEST-INBOX-003, TEST-INBOX-006, TEST-INBOX-007 | PostgreSQL CAS/race tests, unique idempotency constraint, multi-worker lease expiry, reply outbox/dedupe, presence runtime |
+
+Las seis suites agregadas a `api:test` contienen 36 casos unitarios declarados. Esto documenta cobertura prevista/implementada en código, no resultados ejecutados; el estado de CI se registra con el commit exacto en docs/14 y docs/75.

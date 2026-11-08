@@ -674,3 +674,18 @@ El run 42528782609 valida el commit pipeline `1ba349cf013f4d34b5d3496e9a8adddee4
 | AUD-199 | Sincronización de estado y restricciones | TASK-066 pasa de proposed a in_progress; AC-028-01 documentado, AC-028-02/03 preparados, AC-028-04 diseñado, AC-028-05 método definido y AC-028-06 guardrail preservado. |
 
 No se realizaron entrevistas, grabaciones, pilotos, pagos, integraciones reales ni tratamiento de datos de clientes. No se cambió precio, roadmap aprobado, contratos API ni estado GO-PRODUCTION. La aceptación final queda en el Product Owner.
+
+
+## 48. US-021 / TASK-047 — núcleo de dominio Inbox (2026-11-08)
+
+| ID | Cambio / control | Resultado al registrar |
+|---|---|---|
+| AUD-193 | Nuevo bounded context `apps/api/src/inbox/domain` con validadores compartidos, owner types normalizados y políticas independientes de NestJS/DB/Meta. | Código añadido; CI del commit exacto pendiente. |
+| AUD-194 | Política de asignación manual, round-robin, least-loaded y skill-match con membresía, capacidad de equipo/agente, presencia fresca, tenant boundary y versión optimista. | Código y pruebas añadidos; CAS durable requiere repository/DB. |
+| AUD-195 | Lease exclusivo de respuesta con acquire/renew/release, TTL, owner validation, supervisor release explícito y compare-and-swap. | Código y pruebas añadidos; coordinación entre procesos requiere PostgreSQL/Valkey runtime y lock scheduler. |
+| AUD-196 | Handoff bot-humano y agente-agente con destino elegible, motivo, actor, lease y propuesta de nueva versión; genera solo `inbox.handoff.requested`. | Borrador compatible con AsyncAPI v1; no se declara completion antes del commit durable. |
+| AUD-197 | Nota interna inmutable, menciones limitadas a miembros activos del mismo tenant y campo explícito `externalDelivery: forbidden`. | Código y pruebas añadidos; INB-014 permanece contract-gated y no se publica evento inventado. |
+| AUD-198 | Autoridad de respuesta basada en lease activo y actor propietario; idempotency key + SHA-256 fingerprint bloquean retry duplicado y key reuse. | Código y pruebas añadidos; índice único y transacción DB aún no implementados. |
+| AUD-199 | Seis suites registradas en `api:test`, con 36 casos unitarios y TEST-INBOX-001..007 trazados. | Source CI, CodeQL, revisión independiente y aceptación del Product Owner pendientes al corte. |
+
+**Límites preservados:** INB-006..014 e INB-018 siguen `catalog-only`, `x-contract-ready=false`, `x-implementation-allowed=false` y exigen API-CONTRACT-FREEZE+G0. No se abrieron controllers, rutas HTTP, migraciones ni writes a proveedor. TASK-045 aún debe proporcionar conversaciones/mensajes/adapters runtime. TASK-047 y US-021 siguen `in_progress`; el slice de dominio no equivale a cierre técnico integral ni aceptación. GO-PRODUCTION permanece NO-GO.

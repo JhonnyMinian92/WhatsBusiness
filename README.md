@@ -43,6 +43,7 @@ Cuando cambie package.json, Source CI sincroniza el lockfile, vuelve a ejecutar 
 | apps/api | API modular NestJS, prefijo HTTP /api | Foundation + Identity/Tenant/Membership inicial |
 | apps/api/src/platform/database | Pool PostgreSQL y contexto transaccional | Slice inicial con SET LOCAL |
 | apps/api/src/platform/identity | Verificación JWT/JWKS y consultas de User/Tenant/Membership | Slice inicial, read-only |
+| apps/api/src/inbox/domain | Políticas puras de asignación, presencia, ownership lease, handoff, notas privadas y reply idempotency | Slice US-021; CI y runtime/persistencia pendientes |
 | apps/api/migrations | Esquema Platform Identity y policies RLS | Primera migración versionada |
 | apps/web | Angular standalone shell es-EC | Shell inicial; login y selector tenant pendientes |
 | contracts/openapi | Contratos HTTP y registro API ID | 296 operaciones; PLT-001..005 habilitadas para foundation read-only |
@@ -124,3 +125,8 @@ API local: http://localhost:3000. Angular dev server: http://localhost:4200.
 - Contract CI [#31](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42511475181) SUCCESS validó OpenAPI/IDs/schemas del contrato CRM-007 en f0ebaae6. Source CI [#596](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42512027909) y CodeQL [#131](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42512027905) SUCCESS en abab9fe8, incluyendo migraciones/idempotencia, build, typecheck, pruebas API/PostgreSQL y backend PostgreSQL/RabbitMQ. Los commits posteriores de esta rama no cambiaron estos archivos CRM.
 - El allowlist de implementación permite exactamente PLT-001..005 y CRM-001..007: 12 operaciones design-frozen; las otras 284 permanecen catalog-only.
 - TASK-042/043/053 siguen `in_progress` hasta revisión independiente, calibración con datos sintéticos representativos y aceptación del Product Owner. CRM-008..010 (merge-preview, merge reversible y undo), event publishing de TASK-028 y retención/exportación/eliminación legal de TASK-059 siguen pendientes. GO-PRODUCTION continúa NO-GO.
+
+
+## Inbox colaborativo — US-021 / TASK-047
+
+El bounded context `apps/api/src/inbox/domain` contiene políticas puras para routing y asignación multi-tenant, presencia con expiración, leases exclusivos, handoff y notas internas privadas, además de una policy anti-doble-respuesta basada en lease e idempotency fingerprint. Su estado, cobertura y gates se documentan en [docs/75-US-021-INBOX-COLLABORATION-DOMAIN-SLICE.md](docs/75-US-021-INBOX-COLLABORATION-DOMAIN-SLICE.md). INB-006..014/018 siguen contract-gated; no hay aún controllers, persistencia, outbox ni UI Inbox. TASK-047/US-021 permanecen `in_progress` hasta integración/CI y aceptación independiente.

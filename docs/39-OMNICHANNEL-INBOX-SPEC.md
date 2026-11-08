@@ -1,7 +1,7 @@
 # 39 — Especificación funcional: Inbox omnicanal y conversación
 
 **Relacionado:** TASK-036, TASK-045..047, TASK-053, US-020, US-021, PD-003/004/019.  
-**Estado:** baseline funcional inicial para contratos y review; no implementada.
+**Estado:** baseline funcional de producto; slice de políticas de dominio implementado parcialmente (US-021); APIs/persistencia Inbox runtime aún no implementadas.
 
 ## 1. Objetivo y límites
 
@@ -120,3 +120,12 @@ E2E: inbound → assignment → reply autorizado → receipt → handoff.
 ## 12. No incluidos en esta fase
 
 No prometer llamada de voz, Instagram DM, templates, Flows, media type o función avanzada por simple existencia de un adapter; se habilita por capability verificada de cada cuenta/operación. No se autoriza blast ni envío real durante pruebas sin autorización expresa.
+
+
+## 13. Estado de implementación — US-021 / TASK-047 (2026-11-08)
+
+Se ha añadido un slice de dominio puro en `apps/api/src/inbox/domain` para asignación, presencia, ownership lease, handoff, notas internas y autoridad idempotente de respuesta. Sus entradas y decisiones son inmutables y no dependen de NestJS, PostgreSQL, RabbitMQ, Valkey ni SDK Meta. Las políticas generan borradores de eventos solo cuando coinciden con los esquemas v1 existentes; el repositorio Inbox deberá persistir CAS + evento/outbox en una misma transacción antes de publicar o completar un cambio.
+
+La asignación (responsabilidad del equipo/usuario) se mantiene separada del ownership lease (actor exclusivo autorizado para responder). La presencia tiene expiración fail-closed; la distribución automática solo selecciona miembros activos con presencia disponible y capacidad. El handoff exige destino elegible y owner/override autorizado. Las notas no tienen representación ni sender externo. Un retry de respuesta con la misma clave/fingerprint nunca habilita un segundo dispatch.
+
+Este slice **no equivale a Inbox runtime**. INB-006..014 e INB-018 siguen bloqueadas como catalog-only hasta contract freeze + G0. Persistencia, migraciones/RLS, unique idempotency, CAS bajo concurrencia real, outbox/consumer, scheduler de expiración, heartbeat runtime, controllers, UI y E2E siguen pendientes; TASK-045 es dependencia de conversaciones/mensajes/adapters. TASK-047 y US-021 permanecen `in_progress` hasta CI exacto, integración y revisión/aceptación independientes.
