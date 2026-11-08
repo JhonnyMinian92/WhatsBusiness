@@ -4,11 +4,14 @@ import test from "node:test";
 import { RabbitMqConnectionFactory } from "./rabbitmq-connection.factory.js";
 import { RabbitMqJobTopology, TENANT_JOB_RABBITMQ_TOPOLOGY } from "./rabbitmq-topology.js";
 import { RabbitMqTenantJobPublisher } from "./rabbitmq-tenant-job-publisher.js";
-import { RabbitMqTenantJobQueueMetricsReader } from "./rabbitmq-tenant-job-queue-metrics.reader.js";
+import { RabbitMqManagementTenantJobQueueMetricsReader } from "./rabbitmq-management-tenant-job-queue-metrics.reader.js";
 import { createTenantJobMessage, parseTenantJobMessage } from "../../domain/tenant-job-message.js";
 
 const brokerUrl = process.env["RABBITMQ_URL"];
 const enabled = process.env["RUN_RABBITMQ_INTEGRATION_TESTS"] === "true";
+const managementUrl = process.env["RABBITMQ_MANAGEMENT_URL"];
+const monitoringUsername = process.env["RABBITMQ_MONITORING_USERNAME"];
+const monitoringPassword = process.env["RABBITMQ_MONITORING_PASSWORD"];
 const TEST_JOB_ID = "d7d8d4cf-1d23-4dcb-80fb-1a7a2e0c4b15";
 
 async function waitForMessage(
@@ -30,7 +33,7 @@ async function waitForMessage(
 }
 
 test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once DLX", {
-  skip: !enabled || !brokerUrl,
+  skip: !enabled || !brokerUrl || !managementUrl || !monitoringUsername || !monitoringPassword,
 }, async () => {
   const factory = new RabbitMqConnectionFactory();
   const channels = await factory.open(brokerUrl!, "whatsbusiness-jobs-integration");
@@ -41,7 +44,11 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
     await channels.consumer.purgeQueue(TENANT_JOB_RABBITMQ_TOPOLOGY.queue);
     await channels.consumer.purgeQueue(TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue);
 
-    const queueMetrics = new RabbitMqTenantJobQueueMetricsReader(channels.metrics);
+    const queueMetrics = new RabbitMqManagementTenantJobQueueMetricsReader({
+      managementUrl: managementUrl!,
+      username: monitoringUsername!,
+      password: monitoringPassword!,
+    });
     const emptyMetrics = await queueMetrics.readSnapshot();
     assert.equal(emptyMetrics.workerQueueReadyMessages, 0);
     assert.equal(emptyMetrics.deadLetterQueueReadyMessages, 0);

@@ -4,7 +4,6 @@ export interface RabbitMqWorkerChannels {
   readonly connection: ChannelModel;
   readonly publisher: ConfirmChannel;
   readonly consumer: Channel;
-  readonly metrics: Channel;
   close(): Promise<void>;
 }
 
@@ -35,17 +34,15 @@ export class RabbitMqConnectionFactory {
     try {
       const publisher = await connection.createConfirmChannel();
       const consumer = await connection.createChannel();
-      const metrics = await connection.createChannel();
       let closing: Promise<void> | null = null;
       return Object.freeze({
         connection,
         publisher,
         consumer,
-        metrics,
         close(): Promise<void> {
           if (!closing) {
             closing = (async () => {
-              await Promise.allSettled([publisher.close(), consumer.close(), metrics.close()]);
+              await Promise.allSettled([publisher.close(), consumer.close()]);
               await connection.close();
             })();
           }

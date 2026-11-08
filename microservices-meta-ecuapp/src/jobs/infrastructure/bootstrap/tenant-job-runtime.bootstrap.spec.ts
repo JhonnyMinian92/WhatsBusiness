@@ -24,6 +24,9 @@ function environment(overrides: NodeJS.ProcessEnv = {}): NodeJS.ProcessEnv {
     DATABASE_JOB_DISPATCHER_URL: "postgresql://dispatcher:secret@127.0.0.1:5432/whatsbusiness",
     DATABASE_JOB_WORKER_URL: "postgresql://worker:secret@127.0.0.1:5432/whatsbusiness",
     RABBITMQ_URL: "amqp://worker:secret@127.0.0.1:5672/%2F",
+    RABBITMQ_MANAGEMENT_URL: "http://127.0.0.1:15672",
+    RABBITMQ_MONITORING_USERNAME: "whatsbusiness_metrics",
+    RABBITMQ_MONITORING_PASSWORD: "test-rabbit-monitoring-password-32-bytes",
     ...overrides,
   };
 }
@@ -81,4 +84,17 @@ test("binds the authoritative tenant database boundary to the worker pool and cl
   assert.ok(boundPool);
   await process.run(AbortSignal.abort());
   await assert.rejects(process.run(new AbortController().signal), /already closed/);
+});
+
+
+test("requires a dedicated RabbitMQ monitoring identity before opening database pools", async () => {
+  await assert.rejects(
+    TenantJobRuntimeProcess.create({
+      databaseFactory: () => ({ async withTenantContext() { return undefined; } }),
+      handlers: [handler],
+      logger,
+      environment: environment({ RABBITMQ_MONITORING_PASSWORD: "" }),
+    }),
+    /RABBITMQ_MONITORING_PASSWORD is required/,
+  );
 });

@@ -2,6 +2,7 @@ import { randomInt } from "node:crypto";
 import { Pool } from "pg";
 import { PrometheusTenantJobRuntimeMetrics } from "../metrics/prometheus-tenant-job-runtime-metrics.js";
 import { TenantJobMetricsHttpServer } from "../metrics/tenant-job-metrics-http.server.js";
+import { RabbitMqManagementTenantJobQueueMetricsReader } from "../rabbitmq/rabbitmq-management-tenant-job-queue-metrics.reader.js";
 import { TenantJobRuntimeApplication } from "../../application/tenant-job-runtime.application.js";
 import type { TenantJobHandler } from "../../application/tenant-job-ports.js";
 import type { TenantJobRuntimeSessionLogger } from "../rabbitmq/rabbitmq-postgres-tenant-job-runtime-session.factory.js";
@@ -37,6 +38,11 @@ export class TenantJobRuntimeProcess {
     const dispatcherConnection = requiredEnvironment(environment, "DATABASE_JOB_DISPATCHER_URL");
     const workerConnection = requiredEnvironment(environment, "DATABASE_JOB_WORKER_URL");
     const rabbitMqUrl = requiredEnvironment(environment, "RABBITMQ_URL");
+    const brokerMetricsReader = new RabbitMqManagementTenantJobQueueMetricsReader({
+      managementUrl: requiredEnvironment(environment, "RABBITMQ_MANAGEMENT_URL"),
+      username: requiredEnvironment(environment, "RABBITMQ_MONITORING_USERNAME"),
+      password: requiredEnvironment(environment, "RABBITMQ_MONITORING_PASSWORD"),
+    });
     const production = environment["NODE_ENV"] === "production";
     const databaseSsl = environment["DB_SSL"] === "true";
 
@@ -96,6 +102,7 @@ export class TenantJobRuntimeProcess {
         handlers: options.handlers,
         logger: options.logger,
         metrics,
+        brokerMetricsReader,
         consumerName: environment["TENANT_JOB_CONSUMER_NAME"]?.trim() || "inbox-worker",
         consumerLeaseSeconds: boundedInteger(environment, "TENANT_JOB_CONSUMER_LEASE_SECONDS", 120, 5, 900),
         consumerPrefetch: boundedInteger(environment, "TENANT_JOB_CONSUMER_PREFETCH", 16, 1, 1_000),

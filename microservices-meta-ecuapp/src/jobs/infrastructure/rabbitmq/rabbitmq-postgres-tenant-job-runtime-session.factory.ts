@@ -19,7 +19,6 @@ import type { TenantJobRuntimeSession, TenantJobRuntimeSessionFactory } from "..
 import { TenantJobRetryPolicy } from "../../domain/tenant-job-retry-policy.js";
 import { PostgresTenantJobRuntimeRepository } from "../postgres/postgres-tenant-job-runtime.repository.js";
 import { PostgresTenantJobRuntimeMetricsReader } from "../postgres/postgres-tenant-job-runtime-metrics.reader.js";
-import { RabbitMqTenantJobQueueMetricsReader } from "./rabbitmq-tenant-job-queue-metrics.reader.js";
 import { PostgresTenantJobContextResolver } from "../postgres/postgres-tenant-job-context-resolver.js";
 import { PostgresTenantJobExecutionBoundary } from "../postgres/postgres-tenant-job-execution-boundary.js";
 import { RabbitMqConnectionFactory, type RabbitMqWorkerChannels } from "./rabbitmq-connection.factory.js";
@@ -29,6 +28,7 @@ import { RabbitMqJobTopology, TENANT_JOB_RABBITMQ_TOPOLOGY } from "./rabbitmq-to
 import {
   NOOP_TENANT_JOB_RUNTIME_METRICS,
   type TenantJobRuntimeMetrics,
+  type TenantJobBrokerMetricsReader,
 } from "../../application/tenant-job-runtime-metrics.js";
 
 export interface TenantJobRuntimeSessionLogger extends TenantJobRuntimeLogger, TenantJobConsumerErrorReporter {
@@ -53,6 +53,7 @@ export interface RabbitMqPostgresTenantJobRuntimeSessionFactoryOptions {
   readonly retryMultiplier: number;
   readonly supervisor: TenantJobRuntimeSupervisorOptions;
   readonly metrics?: TenantJobRuntimeMetrics;
+  readonly brokerMetricsReader: TenantJobBrokerMetricsReader;
 }
 
 export class RabbitMqPostgresTenantJobRuntimeSessionFactory implements TenantJobRuntimeSessionFactory {
@@ -140,13 +141,7 @@ export class RabbitMqPostgresTenantJobRuntimeSessionFactory implements TenantJob
       options.supervisor,
       metrics,
       new PostgresTenantJobRuntimeMetricsReader(options.metricsPool ?? options.dispatcherPool),
-      new RabbitMqTenantJobQueueMetricsReader(
-      channels.metrics,
-      undefined,
-      undefined,
-      1_500,
-      () => { void channels.close(); },
-    ),
+      options.brokerMetricsReader,
     );
     const topology = new RabbitMqJobTopology(channels.consumer, TENANT_JOB_RABBITMQ_TOPOLOGY);
 
