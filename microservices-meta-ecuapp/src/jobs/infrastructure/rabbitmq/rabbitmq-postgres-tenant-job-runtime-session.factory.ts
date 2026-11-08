@@ -18,6 +18,7 @@ import { TenantJobRuntimeSupervisor } from "../../application/tenant-job-runtime
 import type { TenantJobRuntimeSession, TenantJobRuntimeSessionFactory } from "../../application/tenant-job-runtime.application.js";
 import { TenantJobRetryPolicy } from "../../domain/tenant-job-retry-policy.js";
 import { PostgresTenantJobRuntimeRepository } from "../postgres/postgres-tenant-job-runtime.repository.js";
+import { PostgresTenantJobRuntimeMetricsReader } from "../postgres/postgres-tenant-job-runtime-metrics.reader.js";
 import { PostgresTenantJobContextResolver } from "../postgres/postgres-tenant-job-context-resolver.js";
 import { PostgresTenantJobExecutionBoundary } from "../postgres/postgres-tenant-job-execution-boundary.js";
 import { RabbitMqConnectionFactory, type RabbitMqWorkerChannels } from "./rabbitmq-connection.factory.js";
@@ -136,6 +137,7 @@ export class RabbitMqPostgresTenantJobRuntimeSessionFactory implements TenantJob
       options.logger,
       options.supervisor,
       metrics,
+      new PostgresTenantJobRuntimeMetricsReader(options.dispatcherPool),
     );
     const topology = new RabbitMqJobTopology(channels.consumer, TENANT_JOB_RABBITMQ_TOPOLOGY);
 
