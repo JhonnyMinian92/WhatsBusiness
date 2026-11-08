@@ -103,6 +103,7 @@ test("DatabaseService isolates reused and concurrent tenant contexts across pool
     const inspectConcurrentContext = (
       actorId: string,
       tenantId: string,
+      otherTenantId: string,
     ): Promise<number> => concurrentDatabase.withTenantContext(
       actorId,
       tenantId,
@@ -121,8 +122,12 @@ test("DatabaseService isolates reused and concurrent tenant contexts across pool
         // checkouts and expose accidental session-scoped GUC contamination.
         await waitForBothTenants();
 
-        const visibleTenants = await client.query<{ id: string }>(
-          "SELECT id::text AS id FROM platform.tenants ORDER BY id",
+        const tenantAuthorization = await client.query<{
+          current_tenant_allowed: boolean;
+          other_tenant_allowed: boolean;
+        }>(
+          "SELECT platform.can_use_tenant($1) AS current_tenant_allowed, platform.can_use_tenant($2) AS other_tenant_allowed",
+          [tenantId, otherTenantId],
         );
         const current = await client.query<{
           backend_pid: number;
@@ -135,14 +140,16 @@ test("DatabaseService isolates reused and concurrent tenant contexts across pool
         assert.equal(current.rows[0]?.backend_pid, initial.rows[0]?.backend_pid);
         assert.equal(current.rows[0]?.active_tenant_id, tenantId);
         assert.equal(current.rows[0]?.actor_id, actorId);
-        assert.deepEqual(visibleTenants.rows.map((row) => row.id), [tenantId]);
+        assert.equal(tenantAuthorization.rows[0]?.current_tenant_allowed, true);
+        assert.equal(tenantAuthorization.rows[0]?.other_tenant_allowed, false,
+          "A tenant actor must not authorize access to a different tenant.");
         return current.rows[0]?.backend_pid ?? 0;
       },
     );
 
     const [concurrentBackendA, concurrentBackendB] = await Promise.all([
-      inspectConcurrentContext(actorA, tenantA),
-      inspectConcurrentContext(actorB, tenantB),
+      inspectConcurrentContext(actorA, tenantA, tenantB),
+      inspectConcurrentContext(actorB, tenantB, tenantA),
     ]);
     assert.ok(concurrentBackendA > 0);
     assert.ok(concurrentBackendB > 0);
