@@ -659,3 +659,18 @@ Estado de validación al registrar: Source CI #662 ejecuta build, typecheck y la
 | CodeQL, run 42528566180 (commit Threads 46f57247) | SUCCESS |
 
 El run 42528782609 valida el commit pipeline `1ba349cf013f4d34b5d3496e9a8adddee49a71ad`; el código Threads está en `46f57247d667abb7e9626c639514bfd8e74ebc30`. Este registro demuestra CI verde para build, typecheck, API y backend; no es evidencia de OAuth/App Review/live API, deployment ni aceptación de producto. TASK-033/US-017 conserva `in_progress` para esos gates externos/runtime.
+
+
+## 47. Auditoría US-028 / TASK-066 — preparación de product discovery (2026-11-08)
+
+| ID | Cambio / control | Resultado |
+|---|---|---|
+| AUD-193 | Reconciliación de la historia y el paquete | Se confirmó US-028 → TASK-066 (market discovery). No confundir con TASK-028 de bus/DLQ/replay. |
+| AUD-194 | Revisión de fuentes INEC y límites de uso | REEM 2024/2025 contextualizado; ENESEM 2024 acotado a grandes/medianas; TIC Empresas 2015 clasificada como histórica. No se infiere adopción Meta ni WTP. |
+| AUD-195 | Informe de ICP e hipótesis falsables | Creado docs/75 con ICP candidato, casos fuera de ICP, hipótesis, evidencias y criterios de refutación. No se declara ICP validado. |
+| AUD-196 | Instrumentos de entrevista y anonimización | Guía, registro de participantes y plantilla de codificación añadidos; no contienen PII ni respuestas ficticias. |
+| AUD-197 | Diseño de métricas y pilotos | Diccionario y plantilla semanal cubren activación, TTV, asientos, canal, retención, outcomes y safety; no se ejecutó piloto ni se implementó instrumentación runtime. |
+| AUD-198 | Modelo TAM/SAM/SOM | Definidos unidad, filtros, fórmulas y escenarios sin cifras inventadas; queda pendiente conseguir denominadores elegibles y tasas representativas. |
+| AUD-199 | Sincronización de estado y restricciones | TASK-066 pasa de proposed a in_progress; AC-028-01 documentado, AC-028-02/03 preparados, AC-028-04 diseñado, AC-028-05 método definido y AC-028-06 guardrail preservado. |
+
+No se realizaron entrevistas, grabaciones, pilotos, pagos, integraciones reales ni tratamiento de datos de clientes. No se cambió precio, roadmap aprobado, contratos API ni estado GO-PRODUCTION. La aceptación final queda en el Product Owner.
