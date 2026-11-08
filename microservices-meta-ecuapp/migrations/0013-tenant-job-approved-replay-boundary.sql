@@ -14,6 +14,18 @@ REVOKE INSERT (
   ON platform.tenant_job_records
   FROM whatsbusiness_app;
 
+-- A replay requester may inspect only their own approval-consumption audit proof.
+-- This narrow policy lets the SQL boundary require the approval audit event without granting audit.read.
+CREATE POLICY audit_events_replay_consumption_read ON platform.audit_events
+  FOR SELECT USING (
+    tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
+    AND actor_user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
+    AND action_key = 'jobs.replay.request'
+    AND outcome = 'approval_consumed'
+    AND resource_type = 'tenant_job'
+    AND platform.has_permission(tenant_id, 'jobs.replay.request')
+  );
+
 CREATE OR REPLACE FUNCTION platform.create_approved_tenant_job_replay(
   p_source_job_id uuid,
   p_approval_id uuid
@@ -99,7 +111,19 @@ BEGIN
      OR approval.consumed_by_user_id <> current_actor_id
      OR approval.consumption_hash IS DISTINCT FROM approval.request_hash
      OR approval.consumed_at IS NULL
-     OR approval.consumed_at > approval.expires_at THEN
+     OR approval.consumed_at > approval.expires_at
+     OR NOT EXISTS (
+       SELECT 1
+         FROM platform.audit_events AS event
+        WHERE event.tenant_id = current_tenant_id
+          AND event.approval_id = approval.id
+          AND event.actor_user_id = current_actor_id
+          AND event.action_key = 'jobs.replay.request'
+          AND event.resource_type = 'tenant_job'
+          AND event.resource_id = source_job.id::text
+          AND event.outcome = 'approval_consumed'
+          AND event.request_hash = approval.request_hash
+     ) THEN
     RAISE EXCEPTION 'Replay requires consumption of the exact approved action'
       USING ERRCODE = '42501';
   END IF;
