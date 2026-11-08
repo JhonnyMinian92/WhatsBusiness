@@ -294,3 +294,13 @@ No hay endpoint Instagram permitido por el freeze actual. IG-001..IG-012 permane
 - **Control de suites independientes:** `SUCCESS`; ambas baterías se ejecutaron y ambas pasaron.
 - **CodeQL:** run `42528566180` sobre el commit de código Threads `46f57247`, `completed / success`.
 - **Estado:** código y pruebas verificados por Source CI. TASK-033/US-017 sigue `in_progress` por gates operativos: provider persistente de credenciales/evidencia, autorización Meta real y App Review, freeze de contratos/handler webhook, métricas runtime, revisión independiente y aceptación PO. No se declara GO-PRODUCTION.
+
+
+## US-010 — política de comentarios y mensajería (2026-11-08)
+
+| Tarea | Entregable incremental | Estado de la tarea |
+|---|---|---|
+| TASK-020 | Catálogo de login modes, selector de capabilities, account type/scopes, Page linkage/tasks, Page access token para Facebook Login Direct, Business Verification y Advanced Access. | in_progress; OAuth/registry runtime y evidencia de cuenta pendientes. |
+| TASK-021 | Publicación segura + policy de Comments reply/hide/unhide/delete + policy de Instagram Direct recipient-initiated/no groups/media ownership por login mode + visibilidad de requests antiguos. | in_progress; HTTP adapters, persistence, webhooks, consumer Inbox, Insights y pruebas reales pendientes. |
+
+Las policies son código de dominio y no habilitan endpoints congelados. Source CI con 287 API + 112 Meta backend green es del padre anterior a los nuevos módulos; repetir CI y CodeQL después del commit de cierre. No marcar accepted.

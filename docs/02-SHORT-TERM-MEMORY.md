@@ -686,3 +686,12 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Suites unitarias registradas en apps/api/project.json. Source CI del commit de Instagram y CodeQL exactos pendientes.
 - IG-001..IG-012 siguen catalog-only. No hay OAuth runtime, adapter Meta HTTP, DM consumer, comment handlers, Insights runtime ni pruebas con cuenta real. TASK-008, TASK-010 y TASK-027/028 siguen como dependencias.
 - TASK-020/021 continúan in_progress; revisión independiente y Product Owner acceptance pendientes. GO-PRODUCTION NO-GO.
+
+
+## Handoff US-010 — policy Comments y Direct (2026-11-08)
+
+- Commit de dominio inicial: 87b0f5c61283b409144fe26269a4453e8ffd46b2; agregó comment moderation y Direct policy más ajuste de restricciones específicas por login mode.
+- instagram-comments-policy.ts: acciones reply/hide/unhide/delete; capabilityKey debe coincidir con login mode; exige ownership/estado conocidos; delete necesita aprobación; idempotency y state transitions.
+- instagram-messaging-policy.ts: Direct individual, destinatario inició, no grupos, media ownership solo IG Login, idempotency y clasificación de requests fuera de ventana de recuperación de 30 días sin convertirla en ventana de envío.
+- Se agregan tests al target api:test: 10 comments y 9 messaging. El slice US-010 suma 42 tests.
+- Source CI del padre 1ba349cf013f4d34b5d3496e9a8adddee49a71ad: build y typecheck all apps success; 287 API tests y 112 Meta backend tests success. Esto no valida aún el commit final con las nuevas policies. CodeQL para 4e012e4 success; ejecutar sobre cierre.

@@ -186,3 +186,10 @@ No extrapolar scopes/tareas a listados Page, publicaciones, comentarios, moderac
 - API version, login mode, scopes concedidos, Page tasks, token type, App Review, Advanced Access, Business Verification y elegibilidad de cuenta son evidencias distintas. Un token presente no habilita una operación.
 
 La implementación incremental está descrita en [74-INSTAGRAM-AUTH-MODES-AND-CAPABILITIES.md](74-INSTAGRAM-AUTH-MODES-AND-CAPABILITIES.md). Fuentes oficiales: [Meta Instagram API](https://www.postman.com/meta/instagram/documentation/6yqw8pt/instagram-api), [Meta Instagram Login](https://www.postman.com/meta/instagram/folder/1z5vxzu/instagram-api-with-instagram-login), [Meta Conversations API](https://www.postman.com/meta/messenger-platform-api/folder/22794852-255610cd-47f5-4f4d-b3fa-71aec360be9a).
+
+
+## Instagram — reglas de Comments y Direct (2026-11-08)
+
+- **Comments:** las colecciones Meta exponen lectura de comentarios/replies, respuesta, ocultar/restaurar y eliminación. El dominio exige comments_manage, login mode correcto, ownership comprobado y estado del comentario conocido. El borrado exige aprobación humana explícita. El mapping de scopes permanece por modo: instagram_manage_comments (Facebook Login) y instagram_business_manage_comments (Instagram Login); confirmar permisos por endpoint y versión antes de activar APIs.
+- **Direct:** el destinatario inicia la conversación; no hay mensajería grupal. Instagram Login exige que el medio/post compartido pertenezca a la cuenta conectada y puede omitir requests con actividad de más de 30 días en las consultas documentadas. Esta limitación se representa como visibilidad de datos, no como ventana de envío. Facebook Login Direct requiere Page access token, Page task MESSAGING, Business Verification y Advanced Access en escenarios de usuario externo.
+- No se habilitan endpoints por esta anotación; IG-001..IG-012 continúan catalog-only hasta superar los gates del API contract freeze.

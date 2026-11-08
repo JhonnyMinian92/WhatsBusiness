@@ -81,3 +81,10 @@ test("fechas futuras e inválidas no se clasifican como visibles", () => {
     "instagram_login", new Date(Number.NaN), new Date(),
   ), "unknown");
 });
+
+
+test("no mezcla decisiones de capability entre Facebook Login e Instagram Login", () => {
+  const mismatch = evaluateInstagramDirectMessage(input({ loginMode: "facebook_login" }));
+  assert.equal(mismatch.allowed, false);
+  assert.ok(mismatch.issues.some(item => item.code === "INSTAGRAM_DM_CAPABILITY_MISMATCH"));
+});

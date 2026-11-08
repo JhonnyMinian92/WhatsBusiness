@@ -17,7 +17,7 @@ function input(overrides: Partial<InstagramCommentActionInput> = {}): InstagramC
     loginMode: "instagram_login", action: "reply", capability,
     mediaOwnership: "owned", commentState: "visible",
     replyText: "Gracias por tu comentario.",
-    idempotencyKey: "instagram-comment-123456", ...overrides,
+    idempotencyKey: "instagram-comment-123456", humanApproved: false, ...overrides,
   };
 }
 
@@ -74,4 +74,20 @@ test("la máquina de estados evita revivir comentarios eliminados", () => {
   assert.equal(transitionInstagramCommentState("hidden", "delete_succeeded"), "deleted");
   assert.throws(() => transitionInstagramCommentState("deleted", "unhide_succeeded"),
     { message: "INSTAGRAM_COMMENT_TRANSITION_NOT_ALLOWED" });
+});
+
+
+test("no acepta una decisión de capability correspondiente a otro login mode", () => {
+  const mismatch = evaluateInstagramCommentAction(input({ loginMode: "facebook_login" }));
+  assert.equal(mismatch.allowed, false);
+  assert.ok(mismatch.issues.some(item => item.code === "INSTAGRAM_COMMENT_CAPABILITY_MISMATCH"));
+});
+
+test("eliminar un comentario exige aprobación humana e idempotencia", () => {
+  const blocked = evaluateInstagramCommentAction(input({ action: "delete" }));
+  assert.equal(blocked.allowed, false);
+  assert.ok(blocked.issues.some(item => item.code === "INSTAGRAM_COMMENT_DELETE_APPROVAL_REQUIRED"));
+  const approved = evaluateInstagramCommentAction(input({ action: "delete", humanApproved: true }));
+  assert.equal(approved.allowed, true);
+  assert.equal(transitionInstagramCommentState("visible", "delete_succeeded"), "deleted");
 });

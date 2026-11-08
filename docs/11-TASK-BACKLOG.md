@@ -910,3 +910,15 @@ IG-001..IG-012 continúan catalog-only (x-implementation-allowed=false). No habi
 - **Control de suites independientes:** `SUCCESS`; ambas baterías se ejecutaron y ambas pasaron.
 - **CodeQL:** run `42528566180` sobre el commit de código Threads `46f57247`, `completed / success`.
 - **Estado:** código y pruebas verificados por Source CI. TASK-033/US-017 sigue `in_progress` por gates operativos: provider persistente de credenciales/evidencia, autorización Meta real y App Review, freeze de contratos/handler webhook, métricas runtime, revisión independiente y aceptación PO. No se declara GO-PRODUCTION.
+
+
+## US-010 — ampliación de políticas Instagram (2026-11-08)
+
+| Componente | Código | Controles añadidos | Alcance pendiente |
+|---|---|---|---|
+| Comentarios | instagram-comments-policy.ts | Reply, hide, unhide y delete; capability/login mode concordantes; ownership y estado del media/comment; idempotencia; delete con aprobación humana; transiciones terminales. | API adapter, endpoint/version contract, persistencia, webhooks y E2E con cuenta Meta. |
+| Direct | instagram-messaging-policy.ts | Capability/login mode concordantes; conversación individual; recipient-initiated; no grupos; ownership para shared media en Instagram Login; idempotency; requests antiguos como posible omisión en consultas a 30 días. | Sender HTTP, consumer Inbox, webhook delivery/reconciliation, persistencia y E2E. |
+
+Se agregan 19 casos unitarios (10 comments y 9 messaging). El slice US-010 contiene 42 pruebas (14 capability, 9 publicación, 10 comentarios y 9 Direct). La validación Source CI exitosa del SHA 1ba349c ejecutó 287 pruebas API + 112 Meta backend; se produjo antes del commit que agregó los dos módulos finales. Requerido: nuevo Source CI y CodeQL sobre el SHA de cierre.
+
+TASK-021 continúa in_progress: Insights sigue fail-closed/unknown, y las operaciones externas no están cableadas. US-010 no está aceptada.

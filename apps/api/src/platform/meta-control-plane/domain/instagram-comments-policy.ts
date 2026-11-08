@@ -1,18 +1,19 @@
 import type { MetaCapabilityDecision } from "./meta-capability.js";
 import type { InstagramLoginMode } from "./instagram-capability-catalog.js";
 
-export type InstagramCommentAction = "reply" | "hide" | "unhide";
+export type InstagramCommentAction = "reply" | "hide" | "unhide" | "delete";
 export type InstagramCommentState = "visible" | "hidden" | "deleted" | "unknown";
 export type InstagramMediaOwnership = "owned" | "not_owned" | "unknown";
 
 export interface InstagramCommentActionInput {
   readonly loginMode: InstagramLoginMode;
   readonly action: InstagramCommentAction;
-  readonly capability: Pick<MetaCapabilityDecision, "product" | "operationKey" | "state" | "available">;
+  readonly capability: Pick<MetaCapabilityDecision, "capabilityKey" | "product" | "operationKey" | "state" | "available">;
   readonly mediaOwnership: InstagramMediaOwnership;
   readonly commentState: InstagramCommentState;
   readonly replyText?: string;
   readonly idempotencyKey: string;
+  readonly humanApproved: boolean;
 }
 
 export interface InstagramCommentPolicyIssue {
@@ -36,7 +37,8 @@ export function evaluateInstagramCommentAction(
   input: InstagramCommentActionInput,
 ): InstagramCommentPolicyDecision {
   const issues: InstagramCommentPolicyIssue[] = [];
-  if (input.capability.product !== "instagram" || input.capability.operationKey !== "comments_manage") {
+  if (input.capability.capabilityKey !== "instagram.comments_manage." + input.loginMode
+    || input.capability.product !== "instagram" || input.capability.operationKey !== "comments_manage") {
     issues.push(issue("INSTAGRAM_COMMENT_CAPABILITY_MISMATCH", "denied",
       "La capability evaluada no corresponde a la gestión de comentarios."));
   } else if (input.capability.state !== "available" || input.capability.available !== true) {
@@ -58,6 +60,13 @@ export function evaluateInstagramCommentAction(
       "Toda mutación de comentarios requiere una clave de idempotencia estable."));
   }
 
+  if (input.action === "delete" && !input.humanApproved) {
+    issues.push(issue("INSTAGRAM_COMMENT_DELETE_APPROVAL_REQUIRED", "denied",
+      "Eliminar un comentario requiere aprobación humana explícita."));
+  }
+  if (input.commentState === "deleted" && input.action === "delete") {
+    return Object.freeze({ allowed: issues.length === 0, noOp: true, issues: Object.freeze(issues) });
+  }
   if (input.commentState === "deleted") {
     issues.push(issue("INSTAGRAM_COMMENT_ALREADY_DELETED", "denied",
       "Un comentario eliminado es terminal y no puede volver a modificarse."));

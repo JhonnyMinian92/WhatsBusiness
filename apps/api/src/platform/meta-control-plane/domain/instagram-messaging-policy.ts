@@ -10,7 +10,7 @@ export type InstagramRequestVisibility =
 
 export interface InstagramDirectMessageInput {
   readonly loginMode: InstagramLoginMode;
-  readonly capability: Pick<MetaCapabilityDecision, "product" | "operationKey" | "state" | "available">;
+  readonly capability: Pick<MetaCapabilityDecision, "capabilityKey" | "product" | "operationKey" | "state" | "available">;
   readonly conversationKind: InstagramConversationKind;
   readonly recipientInitiated: InstagramRecipientInitiation;
   readonly contentKind: InstagramMessageContentKind;
@@ -36,7 +36,8 @@ export function evaluateInstagramDirectMessage(
 ): InstagramDirectMessageDecision {
   const issues: InstagramDirectMessageIssue[] = [];
   const profile = getInstagramCapabilityProfile(input.loginMode, "direct_messages");
-  if (input.capability.product !== "instagram" || input.capability.operationKey !== "direct_messages") {
+  if (input.capability.capabilityKey !== "instagram.direct_messages." + input.loginMode
+    || input.capability.product !== "instagram" || input.capability.operationKey !== "direct_messages") {
     issues.push(issue("INSTAGRAM_DM_CAPABILITY_MISMATCH", "denied",
       "La capability evaluada no corresponde a Instagram Direct."));
   } else if (input.capability.state !== "available" || input.capability.available !== true) {

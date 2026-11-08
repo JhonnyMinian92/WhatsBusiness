@@ -516,3 +516,13 @@ Insights e Instagram Login Stories permanecen unknown/fail-closed. Instagram Log
 - **Control de suites independientes:** `SUCCESS`; ambas baterías se ejecutaron y ambas pasaron.
 - **CodeQL:** run `42528566180` sobre el commit de código Threads `46f57247`, `completed / success`.
 - **Estado:** código y pruebas verificados por Source CI. TASK-033/US-017 sigue `in_progress` por gates operativos: provider persistente de credenciales/evidencia, autorización Meta real y App Review, freeze de contratos/handler webhook, métricas runtime, revisión independiente y aceptación PO. No se declara GO-PRODUCTION.
+
+
+## US-010 — extensión de trazabilidad para Comments y Direct (2026-11-08)
+
+| Subcriterio | Política añadida | Pruebas | Restricción de cierre |
+|---|---|---:|---|
+| AC-010-03 — responder/moderar comentarios sin mutar recursos ajenos | Reply/hide/unhide/delete; cuenta con capability de comentarios disponible, login mode coherente, ownership y estado conocido; delete con aprobación humana; idempotencia y estado terminal deleted | 10 | No existe todavía adapter, persistencia, webhook comments/live_comments ni verificación real de endpoints. |
+| AC-010-03 — conversación Direct alineada a reglas Meta | Conversación 1:1, recipient-initiated, no grupos, ownership de media solo para Instagram Login, idempotencia y visibilidad de requests antiguos como dato independiente | 9 | No existe sender HTTP ni consumer Inbox conectado; webhook y Advanced Access/Business Verification reales pendientes. |
+
+El slice US-010 suma 42 pruebas de dominio: 14 evaluator + 9 publishing + 10 comments + 9 messaging. Los 287 API + 112 Meta backend de Source CI exitoso se ejecutaron en SHA 1ba349cf013f4d34b5d3496e9a8adddee49a71ad, anterior a estos dos módulos. CI y CodeQL del commit de cierre continúan siendo gates obligatorios.

@@ -60,3 +60,30 @@ La validación local de Reels contempla límites publicados por Meta: MP4/MOV, H
 - Meta — Conversations API / Instagram Messaging: https://www.postman.com/meta/messenger-platform-api/folder/22794852-255610cd-47f5-4f4d-b3fa-71aec360be9a
 
 Las fuentes describen requisitos del producto Meta; no prueban que WhatsBusiness tenga permisos, App Review, Advanced Access o elegibilidad de cliente.
+
+
+## 7. Comments y conversaciones Direct — políticas de dominio añadidas
+
+**Comentarios** (instagram-comments-policy.ts):
+- Acciones modeladas: responder, ocultar, restaurar y eliminar.
+- La decisión exige capability comments_manage disponible y que capabilityKey coincida con el login mode usado; no se aceptan decisiones cruzadas entre Facebook Login e Instagram Login.
+- Se requiere evidencia de propiedad del media y estado conocido del comentario. Comentarios eliminados son terminales; acciones ya satisfechas se tratan como no-op idempotente.
+- Cada mutación requiere Idempotency-Key. El borrado, al ser destructivo, exige aprobación humana explícita.
+- Los endpoints públicos y el adapter Meta siguen bloqueados por el API contract freeze. El dominio no afirma que el comentario se haya modificado remotamente.
+
+**Instagram Direct** (instagram-messaging-policy.ts):
+- Solo se autoriza una conversación individual; grupos y conversaciones de tipo desconocido se bloquean.
+- El destinatario debe haber iniciado la conversación. No se emite permiso de envío proactivo ni se aplica una ventana inventada de 24 horas.
+- La propiedad del medio compartido se exige para Instagram Login, conforme a la restricción de esa colección. No se extiende esa regla a Facebook Login sin evidencia.
+- Cada envío requiere Idempotency-Key y la capability debe coincidir exactamente con el login mode.
+- La limitación de 30 días se representa como possibly_omitted_by_provider al consultar requests inactivos; no se confunde con una ventana para enviar mensajes y solo se aplica al flujo Instagram Login.
+
+**Suites añadidas:** instagram-comments-policy.spec.ts (10 casos) e instagram-messaging-policy.spec.ts (9 casos). Sumadas a las 14 pruebas del evaluator y 9 de publicación, el slice contiene 42 pruebas unitarias registradas en apps/api/project.json.
+
+## 8. Estado preciso de aceptación
+
+- TASK-020: catálogo, selección y evaluación de requisitos de login incorporados; OAuth, sincronización/persistencia de evidencias y App Review siguen pendientes.
+- TASK-021: políticas de publicación, comentarios y Direct incorporadas; API adapter, persistencia, webhook consumers, Insights y pruebas contra cuentas Meta reales siguen pendientes.
+- Source CI anterior corresponde al SHA 1ba349cf013f4d34b5d3496e9a8adddee49a71ad: build, typecheck, 287 pruebas API y 112 pruebas Meta backend terminaron en success. Este SHA precede las últimas políticas de comentarios/Direct; el CI de 87b0f5c y del cierre documental se debe verificar por separado.
+- CodeQL del SHA 4e012e423b93b3979bbd442e06ad5e8ab8c36fc3 terminó en success. No sustituye CodeQL del commit más reciente.
+- TASK-020/021 permanecen in_progress; revisión técnica independiente y aceptación de Product Owner no otorgadas. GO-PRODUCTION sigue NO-GO.
