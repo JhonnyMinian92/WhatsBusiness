@@ -106,3 +106,10 @@ Las suites contienen **36 casos unitarios declarados**. Al escribir este registr
 ## 7. Estado
 
 El **slice de políticas de dominio está escrito y registrado en el target de pruebas**; sus resultados CI aún deben comprobarse. La historia US-021 y TASK-047 siguen **\`in_progress\`** y no se declaran verified/accepted porque faltan contratos habilitados, persistencia/worker/consumers, integración real, frontend y revisión/aceptación. No se enviaron mensajes externos, no se llamaron APIs de escritura Meta, ni se desplegó a producción. GO-PRODUCTION continúa NO-GO.
+
+
+## 8. Validación independiente de Inbox — 2026-11-08
+
+Source Validation del HEAD `6d8e6d3e398c8485d37e179d35f6646e4a03b84e` ejecutó correctamente setup, instalación congelada, validación de observabilidad, provisionamiento de roles, migraciones PostgreSQL e idempotencia de migraciones. El build general falló en 21 errores TypeScript de CRM/Developer/Platform Administration/IAM, ninguno reportado en los archivos del bounded context Inbox; por el fallo del build, `api:test` completo y `pnpm typecheck` fueron omitidos. CodeQL estaba aún en análisis al corte.
+
+Para evitar que defectos ajenos a Inbox oculten el estado de estas políticas, se añade el target Nx independiente `api:inbox-domain-test`, que ejecuta directamente las seis suites con TSX sin depender de `^build`. Source Validation incorpora una etapa `if: always()` para ejecutar la suite incluso cuando falle `pnpm build`, y su resultado se incorpora al gate final. Esta modificación ofrece una vía de evidencia aislada; no se marcarán los tests como pasados hasta comprobar el resultado de GitHub Actions del commit que contiene el target.

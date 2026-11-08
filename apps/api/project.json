@@ -35,6 +35,12 @@
       "dependsOn": [
         "^build"
       ]
+    },
+    "inbox-domain-test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsx --tsconfig apps/api/tsconfig.app.json --test apps/api/src/inbox/domain/assignment-policy.spec.ts apps/api/src/inbox/domain/ownership-lease.policy.spec.ts apps/api/src/inbox/domain/handoff-policy.spec.ts apps/api/src/inbox/domain/internal-note.policy.spec.ts apps/api/src/inbox/domain/reply-authority.policy.spec.ts apps/api/src/inbox/domain/presence-policy.spec.ts"
+      }
     }
   },
   "implicitDependencies": [

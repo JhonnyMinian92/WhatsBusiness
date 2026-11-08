@@ -185,6 +185,11 @@ jobs:
       - name: Build all applications
         run: pnpm build
 
+      - name: Run Inbox domain policy tests independently
+        id: inbox_domain_tests
+        if: always()
+        run: pnpm exec nx run api:inbox-domain-test
+
       - name: Typecheck all applications
         run: pnpm typecheck
 
@@ -205,10 +210,12 @@ jobs:
         env:
           API_TEST_OUTCOME: ${{ steps.api_tests.outcome }}
           META_BACKEND_TEST_OUTCOME: ${{ steps.meta_backend_tests.outcome }}
+          INBOX_DOMAIN_TEST_OUTCOME: ${{ steps.inbox_domain_tests.outcome }}
         run: |
-          if [[ "$API_TEST_OUTCOME" != "success" || "$META_BACKEND_TEST_OUTCOME" != "success" ]]; then
-            echo "::error::API and Meta backend suites are independent gates; both must pass."
+          if [[ "$API_TEST_OUTCOME" != "success" || "$META_BACKEND_TEST_OUTCOME" != "success" || "$INBOX_DOMAIN_TEST_OUTCOME" != "success" ]]; then
+            echo "::error::API, Inbox domain and Meta backend suites are independent gates; all must pass."
             echo "API test outcome: $API_TEST_OUTCOME"
+            echo "Inbox domain test outcome: $INBOX_DOMAIN_TEST_OUTCOME"
             echo "Meta backend test outcome: $META_BACKEND_TEST_OUTCOME"
             exit 1
           fi
