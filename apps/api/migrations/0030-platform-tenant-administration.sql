@@ -58,7 +58,11 @@ VALUES
   ('developer.api_clients.manage','Create, rotate and revoke tenant API client credentials','critical'),
   ('developer.webhooks.read','Read tenant outbound webhook configuration and delivery metadata','sensitive'),
   ('developer.webhooks.manage','Manage tenant outbound webhook destinations and subscriptions','critical'),
-  ('developer.webhooks.retry','Request controlled retries of outbound webhook deliveries','critical')
+  ('developer.webhooks.retry','Request controlled retries of outbound webhook deliveries','critical'),
+  ('whatsapp.templates.read','Read tenant WhatsApp template drafts, provider status and revision history','normal'),
+  ('whatsapp.templates.create','Create tenant WhatsApp template drafts','normal'),
+  ('whatsapp.templates.update','Update tenant WhatsApp template drafts with optimistic concurrency','sensitive'),
+  ('whatsapp.templates.delete','Archive tenant WhatsApp template drafts without deleting immutable history','sensitive')
 ON CONFLICT(permission_key) DO NOTHING;
 
 -- Published plan versions and their entitlements are immutable. Changes publish a new version.
