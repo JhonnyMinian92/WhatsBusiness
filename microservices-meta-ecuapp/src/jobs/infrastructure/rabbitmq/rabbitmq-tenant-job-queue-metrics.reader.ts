@@ -24,6 +24,7 @@ export class RabbitMqTenantJobQueueMetricsReader implements TenantJobBrokerMetri
     private readonly workerQueue = TENANT_JOB_RABBITMQ_TOPOLOGY.queue,
     private readonly deadLetterQueue = TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue,
     private readonly timeoutMs = 1_500,
+    private readonly onUnavailable: () => void = () => undefined,
   ) {
     if (!workerQueue.trim() || !deadLetterQueue.trim() || workerQueue === deadLetterQueue) {
       throw new Error("Tenant job RabbitMQ metrics queue names are invalid.");
@@ -60,7 +61,12 @@ export class RabbitMqTenantJobQueueMetricsReader implements TenantJobBrokerMetri
       this.unavailable = true;
       void Promise.resolve()
         .then(() => this.channel.close())
-        .catch(() => undefined);
+        .catch(() => undefined)
+        .finally(() => {
+          // Closing the channel alone does not emit a connection-level event.
+          // Recycle the whole session so the next one owns a fresh metrics channel.
+          try { this.onUnavailable(); } catch { /* Recovery is best-effort here. */ }
+        });
       throw error;
     } finally {
       if (timeout) clearTimeout(timeout);
