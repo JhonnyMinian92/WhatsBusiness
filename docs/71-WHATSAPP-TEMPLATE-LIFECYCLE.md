@@ -83,7 +83,7 @@ La policy es determinista y no invoca el sender ni consulta Meta. No sustituye l
 
 ## 10. Verificación Source CI y CodeQL — 2026-11-08
 
-<badge>Source CI SUCCESS</badge> Commit validado: 966edfffe668f495dfbc2ac07072fb93b616c7c9.
+**Source CI: SUCCESS** Commit validado: 966edfffe668f495dfbc2ac07072fb93b616c7c9.
 
 - Source workspace validation: run 42513964425, conclusión success.
 - CodeQL security analysis: run 42513964419, conclusión success.
