@@ -90,6 +90,9 @@ function metricsRecorder(calls: string[]): TenantJobRuntimeMetrics {
     recordRuntimeSnapshot(snapshot) {
       calls.push("snapshot:" + snapshot.pendingDispatchJobs);
     },
+    recordBrokerRuntimeSnapshot(snapshot) {
+      calls.push("broker-snapshot:" + snapshot.workerQueueReadyMessages);
+    },
   };
 }
 
