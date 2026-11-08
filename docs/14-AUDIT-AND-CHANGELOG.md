@@ -553,3 +553,14 @@ La evidencia anterior reemplaza los handoffs US-002 que indicaban CI pendiente. 
 | AUD-177 | Se añadieron tests de contexto WhatsApp y estabilidad de dedupe a `meta-webhook-event.spec.ts`. | Implementado en `5b7374ef39113d4a264bd1c0ccf9d8cda8428948`; Source CI #42527271340 y CodeQL #42527271448 `in_progress` al corte |
 
 El ajuste no altera OpenAPI, AsyncAPI, migraciones, envelope broker ni la respuesta HTTP ACK. El contexto complementario queda dentro del payload individual cifrado en PostgreSQL. TASK-027/028 y US-014 permanecen `in_progress`; no declarar `verified`/`accepted` hasta CI verde del HEAD, handlers de negocio y evidencias/controles operativos restantes. GO-PRODUCTION continúa NO-GO.
+
+
+## 14. Auditoría — US-013 / TASK-026 CAPI domain slice (2026-11-08)
+
+| ID | Evento | Resultado |
+|---|---|---|
+| AUD-036 | Investigación e inspección previa CAPI | Se verificaron US-013/AC-013-01..03, TASK-026 y dependencias, CAPI-001..004 catalog-only y estado real de módulos/DB/gates. |
+| AUD-037 | Implementación de dominio CAPI | Añadidos validator fail-closed, tuple de dedupe, port de verificación de consentimiento y report tipado sin atribución inferida; dos suites unitarias integradas en api:test. |
+| AUD-038 | Gates de US-013 | TASK-026 permanece in_progress; TASK-023/031/032, contrato/versión/capability Meta, outbox/worker y CR-0015 siguen pendientes. No hubo envío real ni datos de producción. |
+
+Detalle: docs/72-CAPI-EVENT-GATEWAY.md. CI posterior al commit determina CI verification; self-review no equivale a revisión independiente ni aceptación.
