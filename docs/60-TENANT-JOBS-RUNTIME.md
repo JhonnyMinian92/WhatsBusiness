@@ -3,7 +3,7 @@
 **Fecha:** 2026-11-07  
 **Rama:** `environment/local`  
 **Tarea primaria:** TASK-003 / REQ-0001 / REQ-0010  
-**Estado:** código fuente parcial implementado; build y typecheck pasaron en Source CI #42428439526; dos pruebas de integración fallaron y se corrigieron en commits posteriores, pendientes de nueva ejecución. No es GO-PRODUCTION.
+**Estado:** código fuente parcial implementado. Source CI #42430605576 terminó SUCCESS para commit `be9d3dc14aa26b38c20013b98ff5238bac564a4e`: instalación frozen, migraciones/idempotencia (incluida 0011), build, typecheck, unit y las integraciones PostgreSQL/RabbitMQ pasaron. TASK-003 continúa in_progress y no es GO-PRODUCTION.
 
 ## 1. Objetivo y límites
 
@@ -102,11 +102,11 @@ Suites fuente registradas en Nx:
 - PostgreSQL gated: roles separados, claims, fencing, renovación de lease con token válido/obsoleto, inbox/rollback, retry, dead-letter, lease expiry y denegación de acceso directo al payload.
 - RabbitMQ gated: quorum queue, confirm, mandatory return y DLX.
 
-Source CI declara PostgreSQL 18.6 y RabbitMQ 4.4 para pruebas de integración. Run #42428439526 (commit 489b8cd) pasó instalación frozen, migraciones 0001–0009 e idempotencia, configuración RabbitMQ DLX, build y typecheck. Fallaron dos integraciones: (1) claim_tenant_job_execution por ambigüedad de tenant_id en RETURNING; (2) publisher RabbitMQ por rechazar routing keys válidas con guion. Los errores de permisos observados en logs corresponden a aserciones negativas esperadas de los roles least-privilege, no a fallos adicionales. Se añadió migración 0010-tenant-job-execution-claim-ambiguity.sql que cualifica columnas y conserva EXECUTE solo para el rol worker; se amplió el validador de routing keys para aceptar jobs.dead y segmentos kebab-case, con prueba unitaria. La nueva ejecución #42429156061 (commit b96ec89) está pendiente; todavía no se declara CI SUCCESS.
+Source CI declara PostgreSQL 18.6 y RabbitMQ 4.4 para pruebas de integración. Run #42428439526 (commit 489b8cd) pasó instalación frozen, migraciones 0001–0009 e idempotencia, configuración RabbitMQ DLX, build y typecheck. Fallaron dos integraciones: (1) claim_tenant_job_execution por ambigüedad de tenant_id en RETURNING; (2) publisher RabbitMQ por rechazar routing keys válidas con guion. Los errores de permisos observados en logs corresponden a aserciones negativas esperadas de los roles least-privilege, no a fallos adicionales. Se añadió migración 0010-tenant-job-execution-claim-ambiguity.sql que cualifica columnas y conserva EXECUTE solo para el rol worker; se amplió el validador de routing keys para aceptar jobs.dead y segmentos kebab-case, con prueba unitaria. Run #42429156061 (commit `b96ec893397dda413164edaf56b0914135cee9b0`) falló por `assert.ok(wrongContext)` después de `assert.rejects()`. La aserción se corrigió para validar SQLSTATE `40001` en commit `7b6e2a180a9049054245fa34f2d649269930bd8f`. Source CI #42430321770 superó esa aserción y encontró SQLSTATE `42702` en la recuperación: variable RECORD `job` colisionaba con alias SQL `job`. La migración `0011-tenant-job-recovery-variable-ambiguity.sql` renombró la variable a `execution_row`. Source CI #42430605576 terminó SUCCESS, incluyendo PostgreSQL y RabbitMQ.
 
 ## 9. Pendientes reales para cerrar TASK-003
 
-- [ ] Ejecutar y corregir Source CI hasta SUCCESS (frozen install, migrations/idempotence, build, typecheck, unit, PostgreSQL, RabbitMQ). Build/typecheck ya pasaron en #42428439526; la ejecución #42429156061 debe validar la migración 0010 y las correcciones RabbitMQ.
+- [x] Source CI #42430605576 SUCCESS en commit `be9d3dc14aa26b38c20013b98ff5238bac564a4e`: instalación frozen, migraciones 0001–0011/idempotencia, build, typecheck, unit, PostgreSQL y RabbitMQ.
 - [ ] Probar pool reuse A→B en worker login y en DatabaseService boundary.
 - [x] Implementar heartbeat/renew del execution lease mediante token de fencing y PostgreSQL; el worker cancela cooperativamente el handler si pierde el lease. La suite unitaria e integración quedan sujetas a Source CI.
 - [x] Añadir deadline configurable `TENANT_JOB_HANDLER_TIMEOUT_MS` (1–900 s; default 300 s), abortar el handler y rechazar el procesamiento al perder lease o exceder el deadline. La cancelación exige cooperación del handler mediante AbortSignal; JavaScript no puede terminar forzosamente una promesa no cooperativa. Build/typecheck de #42428439526 pasaron; integración posterior pendiente.
@@ -123,3 +123,9 @@ TASK-003 sigue `in_progress`; el código disponible es una base avanzada, no 100
 ## 10. Próximos dominios backend
 
 Con TASK-003 verificada y accepted, el siguiente orden es: TASK-027 Webhook Gateway/inbox para eventos entrantes; TASK-028 Event Bus/DLQ/replay reutilizando la infraestructura; después Meta Control Plane TASK-006..010 y WhatsApp TASK-011..018. Los handlers de jobs deben emerger de esos casos de uso reales, no de ejemplos no conectados a producto.
+
+### Migración 0011 — recuperación de leases (2026-11-07)
+
+Source CI #42430321770 (commit `7b6e2a180a9049054245fa34f2d649269930bd8f`) pasó la aserción cross-tenant SQLSTATE `40001` y luego encontró SQLSTATE `42702`: la variable RECORD local `job` colisionaba con alias SQL `job` dentro de las CTE de recuperación. La migración `0011-tenant-job-recovery-variable-ambiguity.sql` cambió el nombre de la variable a `execution_row` y conservó los permisos gestionados por la migración 0008.
+
+Source CI #42430605576 terminó SUCCESS en commit `be9d3dc14aa26b38c20013b98ff5238bac564a4e`; las integraciones PostgreSQL y RabbitMQ pasaron.
