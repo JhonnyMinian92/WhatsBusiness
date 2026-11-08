@@ -380,3 +380,9 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Source CI #42431419028 SUCCESS para commit `bcedfab0538f5ee82a06ffe2480f41e3378bab7e`. La nueva suite de `apps/api` ejercita el `DatabaseService` real con pool de una conexión; `pg_backend_pid()` confirma la misma conexión física entre tenant A y B y los GUC `app.tenant_id`/`app.user_id` quedan vacíos tras cada COMMIT.
 - Se añadió en commit `6059822896987fc618c479d53117354e1a785144` un camino de error que fuerza ROLLBACK y valida que los GUC se limpian también tras una excepción. Source CI #42431530685: instalación, migraciones, build y typecheck pasaron; las integraciones aún estaban ejecutándose al actualizar esta memoria.
 - TASK-003 sigue in_progress. Pendientes: replay administrativo con approval/audit, métricas/alertas, pruebas de crash/redelivery/fencing extendidas, handlers de negocio reales, secret manager/deployment, pruebas de carga/concurrencia y review independiente.
+
+## Handoff — cierre de verificación de pool A→B y rollback (2026-11-08)
+
+- Source CI #42431530685 SUCCESS para commit `6059822896987fc618c479d53117354e1a785144`: frozen install, migraciones/idempotencia, build, typecheck, pruebas unitarias e integraciones PostgreSQL/RabbitMQ.
+- La suite de `apps/api` prueba el `DatabaseService` real con pool de una conexión, misma conexión física (`pg_backend_pid`) para tenant A→B, GUC de tenant/usuario limpios tras COMMIT y tras ROLLBACK provocado por excepción.
+- Pool reuse A→B y cleanup transaccional se consideran verificados. Carga concurrente y configuración en deployment siguen pendientes. TASK-003 continúa in_progress por replay/audit, métricas, crash/redelivery/fencing ampliado, handlers reales, secretos/deployment y revisión independiente.

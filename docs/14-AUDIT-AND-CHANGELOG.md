@@ -315,6 +315,6 @@ La migración 0007 fue reemplazada completa para corregir un fragmento SQL dupli
 |---|---|---|
 | AUD-096 | Pool reuse A→B | Commit `bcedfab0538f5ee82a06ffe2480f41e3378bab7e` ejecuta `DatabaseService` real en `apps/api` con `Pool.max=1`. Source CI #42431419028 SUCCESS confirmó el mismo `pg_backend_pid()` para tenant A→B y GUC de tenant/usuario limpios tras COMMIT. |
 
-Commit `6059822896987fc618c479d53117354e1a785144` amplía AUD-096 con rollback deliberadamente fallido para comprobar que el contexto se limpia también ante ROLLBACK; Source CI #42431530685 está en curso. La prueba no sustituye validación con carga concurrente ni revisión de configuración de pool en deployment.
+Source CI #42431530685 terminó SUCCESS para el commit `6059822896987fc618c479d53117354e1a785144`: A→B y limpieza tras ROLLBACK quedaron verificadas. La prueba no sustituye validación con carga concurrente ni revisión de configuración de pool en deployment.
 
-| AUD-097 | Cleanup tras rollback | `apps/api/src/platform/database/database.context.integration.spec.ts` fuerza fallo dentro de `DatabaseService.withTenantContext`, verifica rollback y reusa la misma conexión sin GUC residuales. Source CI #42431530685, resultado pendiente. |
+| AUD-097 | Cleanup tras rollback | `apps/api/src/platform/database/database.context.integration.spec.ts` fuerza fallo dentro de `DatabaseService.withTenantContext`, verifica rollback y reusa la misma conexión sin GUC residuales. Source CI #42431530685 SUCCESS para commit `6059822896987fc618c479d53117354e1a785144`. |

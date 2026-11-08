@@ -357,3 +357,5 @@ Se añadió una regresión de integración a `microservices-meta-ecuapp/src/jobs
 - Verificado en Source CI #42431419028: `DatabaseService` real, pool de una conexión y secuencia de tenants A→B sobre el mismo `pg_backend_pid()`; contexto de tenant/usuario limpiado tras COMMIT.
 - Commit `6059822896987fc618c479d53117354e1a785144` añade comprobación de cleanup tras ROLLBACK; Source CI #42431530685 estaba ejecutando la suite al actualizar este handoff.
 - TASK-003 permanece in_progress: no marcar terminada hasta completar replay autorizado/auditado, métricas, crash/redelivery/fencing, handlers reales y gates de deployment/revisión independiente.
+
+**Verificación operativa adicional (2026-11-08):** Source CI #42431530685 SUCCESS confirmó el `DatabaseService` real con reutilización física de conexión tenant A→B y limpieza de GUC tras COMMIT y ROLLBACK. No cerrar TASK-003: replay, observabilidad, crash/redelivery/fencing, handlers reales, deployment y review independiente siguen abiertos.
