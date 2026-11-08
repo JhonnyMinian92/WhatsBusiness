@@ -435,3 +435,11 @@ Se añadió una regresión de integración a `microservices-meta-ecuapp/src/jobs
 - No se declara CI verde para este commit hasta inspeccionar los runs que GitHub Actions genere después del push.
 - No hay evidencia de instalación en producción, uso con callbacks reales ni aprobación de retención/replay. CR-0016 permanece abierto.
 
+## Handoff incremental — TASK-027/028 y permisos de ingress (2026-11-08)
+
+- Migración `0018-meta-webhook-ingress-app-grants.sql` corrige el contrato de privilegios del login API `whatsbusiness_app` (NOINHERIT) concediendo solo columnas de metadata y escrituras de inbox/outbox; no se abre lectura de payload cifrado.
+- Source CI incorpora login separado `whatsbusiness_webhook_worker` y activa integración `RUN_META_WEBHOOK_INTEGRATION_TESTS=true`.
+- Nueva suite de integración usa PostgreSQL y RabbitMQ reales para comprobar dedupe de inbox, dispatch durable, consumer, handler de prueba, receipt idempotente y rechazo de tenant context incorrecto.
+- Source CI [#42444781572](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42444781572) estaba en ejecución para commit `168c3fa40514998a17a0df8d94e8b97e2767208e`; el código no se marca `verified` hasta SUCCESS en el HEAD que contiene la suite completa.
+- TASK-003 permanece `in_progress`: wrappers tenant-scoped y runtime están implementados, pero adapters concretos Valkey/object storage, validación de observabilidad desplegada, replay E2E con handlers reales, medición autoritativa de lag, SLO/RPO/RTO, carga/DR y revisión independiente no están cerrados.
+- TASK-027/028 permanecen `in_progress`: faltan handlers reales por producto, fixtures/conformance oficiales Meta, Secret Manager/KMS productivo, rate limiting/WAF, freeze contractual, replay aprobado por CR-0016, retención/privacidad y aceptación operativa.
