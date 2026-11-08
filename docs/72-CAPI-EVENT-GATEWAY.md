@@ -67,3 +67,12 @@ No se autoriza envío real, datos reales ni mutación Meta. Production gate perm
 6. Obtener Source CI/Contract CI/CodeQL SUCCESS, revisión independiente y aceptación Product Owner.
 
 Los resultados CI se registran tras el commit; las pruebas unitarias no sustituyen PostgreSQL/RLS, outbox/worker ni pruebas Meta. La tarea no se marca verified por la existencia de este slice.
+
+
+## Addendum — validación de consentimiento al despacho e investigación Meta (2026-11-08)
+
+La revisión de privacidad extendió la validación temporal: el consentimiento debe estar vigente cuando ocurrió la conversión y continuar concedido, no expirado y no revocado en `evaluatedAt`, el reloj confiable del servidor al procesar/despachar. Esto cierra el caso de una conversión ocurrida bajo consentimiento que queda en cola y pretende enviarse después de su revocación. Se añadieron `VALIDATION_TIME_INVALID` y `EVENT_TIME_IN_FUTURE`, el port de verificación recibe `evaluatedAt` y los tests cubren revocación/expiración entre evento y despacho.
+
+Investigación adicional de parámetros: el snapshot de [Server Event Parameters](https://github.com/yvfl/faceads-mcp-v2/blob/main/docs/conversions-api/parameters/server-event.md), que enlaza la URL de Meta `https://developers.facebook.com/documentation/ads-commerce/conversions-api/parameters/server-event` y declara captura el 2026-09-12, reporta que la deduplicación Pixel/app ↔ CAPI depende de `event_name + event_id` dentro de 48 horas; que `event_time` es Unix UTC y no puede tener más de siete días al enviar; que `user_data` es requerido y `event_source_url` es requerido para website. La página oficial de Meta devolvió HTTP 429 en esta consulta, así que esos detalles quedan registrados como **snapshot secundario ligado a fuente oficial, todavía pendientes de revalidación directa por versión**; no congelan contrato ni autorizan envío. Referencia secundaria sobre user-agent/URL website: https://www.twilio.com/docs/segment/connections/destinations/catalog/facebook-pixel-server-side.
+
+Consecuencia técnica: el modelo actual no contiene `user_data`, no valida aún dominio website verificado ni política de antigüedad de siete días en la capa de envío (que no existe). No se puede construir ni enviar un payload CAPI válido solo con este slice. La clave local incluye dataset para tenancy/routing, pero no afirma deduplicación Meta: el proveedor compara event name/id en el mismo dataset y su ventana/precedencia solo puede observarse con una cuenta autorizada.
