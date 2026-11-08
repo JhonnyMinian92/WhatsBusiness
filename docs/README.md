@@ -173,3 +173,7 @@ El estado de validación, las propuestas de eventos pendientes y el GO/NO-GO arq
 ## 60 — Runtime durable de tenant jobs
 
 [60 — Runtime durable de tenant jobs en microservices-meta-ecuapp](60-TENANT-JOBS-RUNTIME.md) documenta dispatcher, consumer, leases/fencing, inbox, roles PostgreSQL, RabbitMQ quorum, configuración, pruebas y gates que siguen abiertos.
+
+## 63 — Observabilidad Prometheus de tenant jobs
+
+[63 — Exposición segura de métricas](63-TENANT-JOB-METRICS-OBSERVABILITY.md) documenta el endpoint HTTP `/metrics`, autenticación, configuración y los gauges/alertas/SLO aún pendientes.
