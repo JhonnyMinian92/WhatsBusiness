@@ -381,3 +381,8 @@ Se añadió un slice de dominio: MetaCapabilityEvaluator ahora expresa tareas OR
 - Insights e Instagram Login Stories permanecen unknown; Instagram Login Ads/tagging unsupported.
 - IG-001..IG-012 siguen catalog-only y sus rutas públicas no están habilitadas.
 - Source CI del commit exacto, revisión independiente y aceptación formal pendientes. GO-PRODUCTION NO-GO.
+
+
+## Actualización US-017 — Threads (2026-11-08)
+
+TASK-033 tiene un slice interno implementado: adapter por producto, scopes/capabilities a través del evaluador Meta, version policy propia, modelos normalizados y pruebas de conformidad registradas. La tarea permanece `in_progress`: CI del HEAD, credenciales/evidencia Meta runtime, prueba con perfil autorizado, handler real de webhooks, contract freeze TH-001..006, métricas, revisión independiente y aceptación PO aún no se acreditan. Ver docs/74.

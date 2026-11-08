@@ -886,3 +886,15 @@ Implementado en este slice:
 | TASK-021 — publish/comments/DM/insights | in_progress; policy de dominio agregada | Preflight de publicación, aprobación, idempotencia, container FINISHED, outcome_unknown/reconciliation, límites Reel y restricciones DM/Stories | Adapter HTTP, repositorios, IG-002..IG-012, Inbox/DM consumer, webhook handlers TASK-027/028, comments/Insights runtime, sync y E2E |
 
 IG-001..IG-012 continúan catalog-only (x-implementation-allowed=false). No habilitar rutas. Insights e Instagram Login Stories permanecen unknown. Los scopes de publishing/comments se registran como evidencia de colección, sujetos a verificación por endpoint/version antes de activar operaciones. No hubo escrituras Meta ni pruebas con cuenta real. Implemented no equivale a verified ni accepted.
+
+
+## Handoff TASK-033 — US-017 Threads adapter (2026-11-08)
+
+- **Estado:** implementación interna añadida; TASK-033 permanece `in_progress` hasta Source CI verde, integración real elegible y revisión/aceptación. No marcar `verified` ni `accepted`.
+- **Código:** `microservices-meta-ecuapp/src/threads/{domain,application,infrastructure}`; bridge de autorización en `apps/api/src/platform/meta-control-plane/threads`; `MetaAssetProduct=threads` / `MetaAssetType=threads_profile`.
+- **Operaciones internas:** perfil autenticado, listado/detalle de publicaciones, replies, insights de post/perfil, publicación de texto y respuesta por creación de contenedor + publish. Se mantienen TH-001..006 catalog-only, sin rutas HTTP nuevas.
+- **Conformance añadida:** policy de versión por producto, host allowlist, API-version allowlist/retirement, scopes Threads específicos, capability evaluator compartido, token provider inyectable, transporte fetch con Bearer, errores tipados, paginación acotada, mapping de contrato y publicación sin retry ciego en outcome ambiguo.
+- **Dependencias sin cerrar:** TASK-010 requiere provider de evidencia/capabilities persistente; TASK-007 requiere token vault/credential provider; TASK-027 requiere contrato/handler de eventos Threads; TASK-029 requiere métricas runtime del adapter. El gateway admite el producto `threads`, pero no existe handler de negocio Threads confirmado.
+- **Pruebas registradas:** suites version policy, adapter, HTTP transport, capability bridge y meta asset. Source CI pendiente al corte; no confundir test registrado con ejecución exitosa.
+- **Evidencia externa:** la colección oficial de Threads confirma use case, autorización y scopes `threads_basic`, `threads_content_publish`, `threads_read_replies`, `threads_manage_insights`; API base `https://graph.threads.net`. La versión activa por operación no se presume; el runtime exige pin/allowlist y evidencia vigente.
+- **Límites:** sin OAuth/App Review/live account, no se han publicado posts, leído insights reales, desplegado el adapter ni congelado los contratos TH-001..006/WH-007. GO-PRODUCTION no cambia.

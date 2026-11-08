@@ -86,6 +86,7 @@ test("admite el catálogo completo de tipos de activo con producto namespaced", 
     asset("ad_account", "marketing_api", "act_1"),
     asset("lead_form", "lead_ads", "form-1"),
     asset("dataset", "conversions_api", "dataset-1"),
+    asset("threads_profile", "threads", "threads-profile-1"),
   ];
   assert.doesNotThrow(() => assertValidMetaAssetSnapshot(snapshot(values, [])));
 });

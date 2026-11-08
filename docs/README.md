@@ -216,3 +216,8 @@ El estado de validación, las propuestas de eventos pendientes y el GO/NO-GO arq
 ## 74 — Instagram Auth Modes y Capability Registry
 
 [74 — Instagram: modos de autenticación y capacidades](74-INSTAGRAM-AUTH-MODES-AND-CAPABILITIES.md) registra US-010/TASK-020/021, las dos modalidades de login, scopes/restricciones oficiales, token type, publication safety, pruebas y dependencias para completar la integración.
+
+
+## 74 — Threads Adapter y Conformance
+
+[74 — Threads adapter, capabilities y conformance](74-THREADS-ADAPTER-AND-CONFORMANCE.md) registra US-017/TASK-033, el adapter interno, catálogo de scopes, versión independiente, pruebas y límites reales de integración.

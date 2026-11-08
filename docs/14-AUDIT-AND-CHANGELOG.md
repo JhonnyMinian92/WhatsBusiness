@@ -621,3 +621,15 @@ No se modificó OpenAPI/allowlist ni se implementaron FB-001..014/WH-003. TASK-0
 | AUD-178 | Instagram Login Ads/tagging unsupported; Insights y Stories Instagram Login unknown; IG-001..IG-012 siguen catalog-only. | Gates preservados |
 
 No existe integración HTTP ni escritura externa real. TASK-020/021 siguen in_progress hasta CI exacto, dependencias runtime, revisión independiente y Product Owner acceptance. GO-PRODUCTION NO-GO.
+
+
+## 45. US-017 / TASK-033 — Threads adapter y conformance (AUD-184..187; 2026-11-08)
+
+| ID | Evidencia / cambio | Estado al corte |
+|---|---|---|
+| AUD-184 | Investigación del workspace y colección oficial Threads: use case independiente, flujo de autorización, scopes por feature, host `graph.threads.net`, create-container → publish y read/reply/insights paths. No se dedujo la versión activa global. | Investigación documentada; App Dashboard/changelog por cuenta aún requiere confirmación operativa. |
+| AUD-185 | Adapter por producto con ports de token/capability/transport; HTTP fetch con Bearer, timeout, URLs sin credenciales, normalización typed y errores saneados. | Implementado; Source CI pendiente. |
+| AUD-186 | Policy versioned per Threads product/allowlist y puente a MetaCapabilityEvaluator; fail-closed para denied/unknown, scopes separados y versión desalineada. | Implementado; evidence provider persistente no conectado. |
+| AUD-187 | Suites adapter, policy, transport, capability bridge y asset registry registradas en Nx; nueva guía docs/74 e índice actualizado. | Código/docs añadidos; CI del HEAD pendiente. |
+
+No se añadieron rutas HTTP públicas porque TH-001..006 siguen catalog-only; el webhook gateway no se declara handler de negocio Threads. No hubo acceso, publicación, lectura live de Insights, despliegue o aceptación formal. TASK-033 y US-017 siguen `in_progress`.

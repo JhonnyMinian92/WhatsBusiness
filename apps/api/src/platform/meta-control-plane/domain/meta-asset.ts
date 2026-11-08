@@ -5,7 +5,8 @@ export type MetaAssetProduct =
   | "instagram"
   | "marketing_api"
   | "lead_ads"
-  | "conversions_api";
+  | "conversions_api"
+  | "threads";
 
 export type MetaAssetType =
   | "business_portfolio"
@@ -16,7 +17,8 @@ export type MetaAssetType =
   | "instagram_professional_account"
   | "ad_account"
   | "lead_form"
-  | "dataset";
+  | "dataset"
+  | "threads_profile";
 
 export type MetaAssetOwnership =
   | "owned"
@@ -120,6 +122,7 @@ const PRODUCT_BY_ASSET_TYPE: Readonly<Record<MetaAssetType, MetaAssetProduct>> =
   ad_account: "marketing_api",
   lead_form: "lead_ads",
   dataset: "conversions_api",
+  threads_profile: "threads",
 };
 
 const ASSET_TYPES: readonly MetaAssetType[] = [
@@ -132,6 +135,7 @@ const ASSET_TYPES: readonly MetaAssetType[] = [
   "ad_account",
   "lead_form",
   "dataset",
+  "threads_profile",
 ];
 
 function isRecord(value: unknown): value is Record<string, unknown> {

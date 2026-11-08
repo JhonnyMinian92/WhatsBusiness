@@ -492,3 +492,15 @@ Addendum AC-013-02: además del consentimiento efectivo en `occurredAt`, la suit
 | AC-010-03 — preservar restricciones publish/comments/DM/Insights | Catálogo y policy de publicación con human approval, idempotencia, container status y reconciliation; DM user-initiated; Stories Business-only en Facebook Login; Reel metadata validator | Parcial; CI pendiente | Adapter/HTTP, comments, Inbox/DM events, Insights scopes, webhook TASK-027/028 y E2E |
 
 Insights e Instagram Login Stories permanecen unknown/fail-closed. Instagram Login Ads/tagging unsupported. IG-001..IG-012 siguen catalog-only. No existe integración Meta real ni aceptación de producto.
+
+
+## 10. US-017 / TASK-033 — evidence handoff (2026-11-08)
+
+| Criterion | Código / suite | Estado de evidencia |
+|---|---|---|
+| AC-017-01 — producto Meta extensible sin reescribir dominios previos | `microservices-meta-ecuapp/src/threads`; asset `threads_profile`; ports de token/capability/transport separados | Implementado en el slice interno; Source CI pendiente |
+| AC-017-02 — contract tests y version policy | `threads-api-version-policy.spec.ts`, `threads-api.adapter.spec.ts`, `fetch-threads-api.transport.spec.ts`, `threads-capability-authorizer.spec.ts`, `meta-asset.spec.ts` | Suites conectadas al target; resultado CI pendiente |
+
+**Reglas de compatibilidad:** Threads tiene namespace de activo y catálogo de scopes independiente. Los endpoints TH-001..006 no se activan en OpenAPI. El version pin no hereda el Graph API de otros productos. El host de proveedor y la API version se validan por separado. El token de acceso se mantiene fuera de URL/logs.
+
+**No evidencia aún:** acceso/consentimiento real por perfil, credenciales de vault, validación del endpoint de insights por cuenta, Meta App Review/Live eligibility, webhooks Threads business handler, Source CI del HEAD, reviewer independiente y aceptación del Product Owner. TASK-033 y US-017 siguen `in_progress`.

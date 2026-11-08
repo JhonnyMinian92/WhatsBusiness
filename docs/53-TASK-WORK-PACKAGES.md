@@ -268,3 +268,17 @@ TASK-026 addendum: la validación y el port ahora toman `evaluatedAt` del servid
 | TASK-021 | Preflight/state machine de publicaciones, idempotency, container readiness, timeout reconciliation, límites Reel y restricciones de DM. | in_progress; adapter, persistence, comments, Direct, Insights, webhook consumers pendientes |
 
 No hay endpoint Instagram permitido por el freeze actual. IG-001..IG-012 permanecen catalog-only. No marcar accepted.
+
+
+## TASK-033 — execution handoff US-017 Threads (2026-11-08)
+
+- **Owner role:** Social Integrations / Threads Adapter. **Independent reviewer role:** Platform Architecture + Security/Privacy. Product Owner acceptance is a separate gate.
+- **Story/AC:** US-017, AC-017-01 adapter/capabilities without breaking earlier products; AC-017-02 conformance tests and version policy.
+- **Dependencies:** TASK-010 capability evidence/registry; TASK-027 verified durable webhook ingress and Threads event contract/handler; TASK-029 tracing/metrics/SLO.
+- **Implemented paths:** `microservices-meta-ecuapp/src/threads/domain/threads-api-version-policy.ts`; `threads-contracts.ts`; `application/threads-capability-catalog.ts`; `threads-api.ports.ts`; `threads-api.adapter.ts`; `infrastructure/http/fetch-threads-api.transport.ts`; bridge `apps/api/src/platform/meta-control-plane/threads/threads-capability-authorizer.ts`; asset catalog `apps/api/src/platform/meta-control-plane/domain/meta-asset.ts`.
+- **Data / threat boundary:** tenant UUID + connected Threads profile; user content and insights are tenant data; OAuth token resolves through credential-provider port; only `graph.threads.net` HTTPS; bearer token in header; explicit capability and API-version check before token resolution; fail-closed on unknown evidence.
+- **Given/When/Then DoD:** Given a valid tenant/profile and observed available scope evidence, when read or publish is requested, then only the Threads endpoint with the declared capability/version is called. Given evidence unknown/denied, missing token, stale version, malformed cursor or resource ID, when an operation is attempted, then no provider mutation occurs. Given publish outcome unknown, then no automatic POST retry happens and known container ID is returned in the error for reconciliation.
+- **Tests:** policy allowlist/retired/source/host/path; adapter profile/posts/replies/insights/publish; denied and unknown capability; version mismatch; ambiguous publish no retry; transport bearer header and sanitized failure; asset namespace compatibility. These are registered, not yet CI-verified.
+- **Rollback:** revert the adapter commit and typed Threads asset extension; no schema migration or remote side effect is introduced by deployment. Remove any runtime adapter registration first if a later deployment opts into it.
+- **Open DoD:** connect real vault token provider and evidence provider; app/use-case/consent validation with real authorised test profile; verify per-operation version and endpoint semantics against current Meta changelog; freeze TH-001..006 and WH-007; add real Threads webhook business handler (never no-op); wire runtime metrics/health; Source CI; independent review and PO acceptance.
+- **Status:** `in_progress`; implementation slice present, not verified or accepted.

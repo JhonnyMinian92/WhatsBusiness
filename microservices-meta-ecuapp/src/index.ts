@@ -41,3 +41,10 @@ export * from "./jobs/application/tenant-job-runtime-metrics.js";
 export * from "./jobs/infrastructure/metrics/composite-tenant-job-runtime-metrics.reader.js";
 export * from "./jobs/infrastructure/metrics/prometheus-tenant-job-runtime-metrics.js";
 export * from "./jobs/infrastructure/metrics/tenant-job-metrics-http.server.js";
+
+export * from "./threads/domain/threads-api-version-policy.js";
+export * from "./threads/domain/threads-contracts.js";
+export * from "./threads/application/threads-capability-catalog.js";
+export * from "./threads/application/threads-api.ports.js";
+export * from "./threads/application/threads-api.adapter.js";
+export * from "./threads/infrastructure/http/fetch-threads-api.transport.js";
