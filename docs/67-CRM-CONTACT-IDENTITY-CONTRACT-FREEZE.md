@@ -141,3 +141,8 @@ La estrategia `SAME_VERIFIED_PHONE_E164` puntúa 80 solo cuando ambas identidade
 ### Handoff post-CI #586
 
 El build detectó que el reason code `SAME_VERIFIED_PHONE_E164` faltaba en `ContactDuplicateCandidateReason`. Se incorpora al union para mantener tipado exhaustivo de estrategias y resultados; sin cambios a los criterios de verificación ni a la autorización. Source CI de la corrección pendiente.
+
+
+## Evidencia de señal cross-channel — 2026-11-08
+
+La estrategia `SAME_VERIFIED_PHONE_E164` se verificó en commit `d3d3b0722a61494eb8b8ba1d2e7c769ab2383f3d`: Source CI #587 SUCCESS y CodeQL #122 SUCCESS. Source CI ejecutó lockfile congelado, validador de observabilidad, migrations/idempotencia, build, typecheck, suites API/PostgreSQL y Meta backend PostgreSQL/RabbitMQ. El target `api:test` incluye 11 casos CRM del detector. La coincidencia cross-channel requiere mismo provider, E.164 exacto y `verifiedAt` no nulo en ambos perfiles; el resultado sigue siendo `manual_review_required`.

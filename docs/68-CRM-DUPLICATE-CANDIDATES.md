@@ -63,3 +63,8 @@ Dos pruebas nuevas garantizan match cross-channel cuando ambas identidades está
 ## Corrección post-CI #586 — catálogo de reason codes (2026-11-08)
 
 Source CI #586 detectó un error de compilación TypeScript: la nueva estrategia `SameVerifiedPhoneE164Strategy` emitía `SAME_VERIFIED_PHONE_E164`, pero el union `ContactDuplicateCandidateReason` no incluía el literal. Se incorpora el reason code al tipo público del dominio; no se cambia el peso (80), la exigencia de `verifiedAt` ni la regla manual-review. La corrección requiere un nuevo Source CI y CodeQL.
+
+
+## Evidencia de señal cross-channel — 2026-11-08
+
+La estrategia `SAME_VERIFIED_PHONE_E164` se verificó en commit `d3d3b0722a61494eb8b8ba1d2e7c769ab2383f3d`: Source CI #587 SUCCESS y CodeQL #122 SUCCESS. Source CI ejecutó lockfile congelado, validador de observabilidad, migrations/idempotencia, build, typecheck, suites API/PostgreSQL y Meta backend PostgreSQL/RabbitMQ. El target `api:test` incluye 11 casos CRM del detector. La coincidencia cross-channel requiere mismo provider, E.164 exacto y `verifiedAt` no nulo en ambos perfiles; el resultado sigue siendo `manual_review_required`.

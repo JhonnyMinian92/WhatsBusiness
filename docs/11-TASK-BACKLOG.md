@@ -688,3 +688,10 @@ La nota anterior que señalaba Source CI pendiente quedó supersedida: commit ea
 - Se añade el reason code al union. El cálculo de score, provider scope, verificación `verifiedAt` y `manual_review_required` no cambian.
 - El job también registró una advertencia/error de readiness del endpoint RabbitMQ Prometheus en setup; se inspeccionará por separado después de repetir el build/API test con el fix de tipos.
 - Estado del nuevo slice cross-channel: no verificado hasta Source CI + CodeQL verdes.
+
+
+## Evidencia de señal cross-channel — 2026-11-08
+
+La estrategia `SAME_VERIFIED_PHONE_E164` se verificó en commit `d3d3b0722a61494eb8b8ba1d2e7c769ab2383f3d`: Source CI #587 SUCCESS y CodeQL #122 SUCCESS. Source CI ejecutó lockfile congelado, validador de observabilidad, migrations/idempotencia, build, typecheck, suites API/PostgreSQL y Meta backend PostgreSQL/RabbitMQ. El target `api:test` incluye 11 casos CRM del detector. La coincidencia cross-channel requiere mismo provider, E.164 exacto y `verifiedAt` no nulo en ambos perfiles; el resultado sigue siendo `manual_review_required`.
+
+CRM-007 continúa implementado a nivel dominio, sin endpoint de producción ni merge automático; quedan pendientes contrato/query tenant-scoped, auditoría de consulta, merge reversible, review y aceptación.
