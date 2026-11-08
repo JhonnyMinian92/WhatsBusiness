@@ -29,6 +29,9 @@ importers:
       '@nestjs/platform-express':
         specifier: 12.4.0
         version: 12.4.0(@nestjs/common@12.4.0(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@12.4.0)(rxjs@7.8.2)
+      '@whatsbusiness/microservices-meta-ecuapp':
+        specifier: workspace:*
+        version: link:microservices-meta-ecuapp
       pg:
         specifier: 8.23.1
         version: 8.23.1
@@ -71,6 +74,22 @@ importers:
         version: 6.0.3
 
   apps/api: {}
+
+  microservices-meta-ecuapp:
+    dependencies:
+      amqplib:
+        specifier: 2.2.1
+        version: 2.2.1
+      pg:
+        specifier: 8.23.1
+        version: 8.23.1
+    devDependencies:
+      '@types/node':
+        specifier: 26.0.0
+        version: 26.0.0
+      '@types/pg':
+        specifier: 8.23.1
+        version: 8.23.1
 
 packages:
 
@@ -1458,6 +1477,10 @@ packages:
 
   ajv@8.20.0:
     resolution: {integrity: sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA==}
+
+  amqplib@2.2.1:
+    resolution: {integrity: sha512-J3JjAydC2vJ/AgkgVAE0kVH5M4RNfm51zUaspHpwSai3W35lD3hKryvYY/xqMnYcNfR66NYL06Eik+Adn293dQ==}
+    engines: {node: '>=18'}
 
   ansi-escapes@7.3.0:
     resolution: {integrity: sha512-BvU8nYgGQBxcmMuEeUEmNTvrMVjJNSH7RgW24vXexN4Ven6qCvy4TntnvlnwnMLTVlcRQQdbRY8NKnaIoeWDNg==}
@@ -3949,6 +3972,8 @@ snapshots:
       fast-uri: 3.1.9
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
+
+  amqplib@2.2.1: {}
 
   ansi-escapes@7.3.0:
     dependencies:
