@@ -330,3 +330,13 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Recomendación provisional: NO reemplazar ni eliminar CRM. Mantener contactos, identidades, leads, oportunidades, pipeline, actividades y provenance como bounded context CRM; añadir una capa Agent Management & Orchestration para registro de agentes, tools, delegación, runtime, supervisión humana, evaluación y auditoría.
 - No se cambia el naming público ni se alteran contratos/migraciones CRM hasta que el propietario confirme qué significa ARM y apruebe el posicionamiento.
 - Siguiente trabajo técnico: retomar TASK-003 desde el último commit de `environment/local`, comprobar CI real y cerrar los pendientes de timeout/cancelación, replay autorizado, métricas, crash tests, pool reuse A→B y handlers de negocio.
+
+
+## Handoff — TASK-003: deadline y cancelación de handlers (2026-11-07)
+
+- [x] Implementar deadline configurable de ejecución en `TenantJobExecutionLeaseHeartbeat`.
+- [x] Propagar `TENANT_JOB_HANDLER_TIMEOUT_MS` desde bootstrap y `.env.example` a la factoría RabbitMQ/PostgreSQL.
+- [x] Agregar pruebas de timeout cooperativo, handler que ignora AbortSignal y pérdida de lease con handler no cooperativo.
+- [ ] Obtener Source CI SUCCESS para el commit `d9d9b10a5ef80e744e4480d541c4a01e9bb539de`.
+- Límite explícito: AbortSignal es cooperativo. El runtime rechaza y revierte la transacción al vencer el deadline, pero no puede terminar por fuerza una promesa JS arbitraria. Los handlers deben atender cancelación y no hacer efectos externos dentro de la transacción.
+- Próximo: replay administrativo auditado y métricas/alertas; luego pruebas de crash/redelivery y pool reuse A→B.
