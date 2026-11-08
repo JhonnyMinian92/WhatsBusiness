@@ -18,7 +18,6 @@ import {
 import {
   ContactDuplicateCandidateQueryError,
   parseContactDuplicateCandidateQuery,
-  type ContactDuplicateCandidateQuery,
 } from "../domain/contact-duplicate-candidate-query.js";
 import { PostgresContactRepository } from "../infrastructure/postgres-contact.repository.js";
 import { PostgresContactIdentityRepository } from "../infrastructure/postgres-contact-identity.repository.js";
@@ -48,7 +47,7 @@ export class ContactDuplicateCandidateService {
     input: unknown,
   ): Promise<ContactDuplicateCandidatePage> {
     this.assertPermission(subject, "crm.contacts.identities.read");
-    let query: ContactDuplicateCandidateQuery;
+    let query;
     try {
       query = parseContactDuplicateCandidateQuery(input);
     } catch (error) {
@@ -124,7 +123,7 @@ export class ContactDuplicateCandidateService {
         await this.audit.append(client, {
           tenantId: subject.tenantId,
           actorUserId: subject.actorId,
-          actionKey: "crm.contacts.duplicates.candidates",
+          actionKey: "crm.contacts.identity_resolution.candidates",
           resourceType: "contact",
           resourceId: sourceContact.id,
           purpose: subject.purpose,

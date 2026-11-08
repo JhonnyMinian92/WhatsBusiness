@@ -225,7 +225,7 @@ test("PostgreSQL CRM contacts enforce tenant RLS, idempotency, audit and optimis
     );
 
     const page = await service.list(subject(tenantA, membershipA, "crm.contacts.read"), {
-      query: "Ana", pageSize: "10",
+      query: "Ana María", pageSize: "10",
     });
     assert.equal(page.items.length, 1);
     assert.equal(page.items[0]?.id, created.id);
