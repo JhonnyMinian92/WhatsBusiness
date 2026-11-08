@@ -448,7 +448,9 @@ Se añadió una regresión de integración a `microservices-meta-ecuapp/src/jobs
 
 - Se agregó `meta.webhook.received.v1` al catálogo AsyncAPI y el schema cerrado `MetaWebhookReceived` al union JSON Schema. El broker transporta únicamente receipt ID, tenant, producto, correlation ID y hash; el ciphertext/PII permanece en PostgreSQL.
 - El catálogo canónico contiene 69 eventos, 69 canales AsyncAPI, 138 operaciones y 69 schemas. `MetaWebhookReceived` está definido una sola vez y el union JSON Schema referencia cada definición exactamente una vez; los fixtures validan payload positivo y rechazos de tenant nulo/campos extra.
-- La instalación de validadores usa un directorio aislado en `RUNNER_TEMP` y el script resuelve los módulos desde una ruta explícita, evitando `EUNSUPPORTEDPROTOCOL workspace:`. AsyncAPI se valida con el parser oficial `@asyncapi/parser@3.6.3` desde el script; se evita el CLI que devolvía exit code 1 por warnings de lint heredados y se evita fijar versiones comprometidas 3.4.1/3.4.2.
+- La instalación de validadores usa un directorio aislado en `RUNNER_TEMP` y el script resuelve los módulos desde una ruta explícita, evitando `EUNSUPPORTEDPROTOCOL workspace:`. AsyncAPI se valida con el parser oficial `@asyncapi/specs@6.11.1` desde el script; se evita el CLI que devolvía exit code 1 por warnings de lint heredados y se evita fijar versiones comprometidas 3.4.1/3.4.2.
 - Contract CI #15/#17 avanzaron hasta AsyncAPI CLI, pero fallaron por diagnostics de lint históricos pese a cero errores de especificación. Se migró la validación a la API del parser oficial, con aserción sobre `document` y severidad error, en la siguiente ejecución.
 
 - La integración inicial con parser 3.4.0 chocó con compilación de reglas Spectral/Ajv en Node 26.13. Se subió a `@asyncapi/parser@3.6.3` y se comprobará en el siguiente Contract CI.
+
+- El parser Spectral falló al compilar Ajv bajo Node 26.13; se reemplazó por el schema oficial `@asyncapi/specs@6.11.1` (AsyncAPI 2.6.0, variante sin $id) y Ajv draft-07. El validador propio mantiene Ajv 2020 para schemas de dominio.
