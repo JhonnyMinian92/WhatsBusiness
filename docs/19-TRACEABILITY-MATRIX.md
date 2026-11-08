@@ -305,3 +305,12 @@ Source CI #527 terminó cancelled tras el timeout de 30 minutos dentro del targe
 | Source CI + CodeQL sobre el commit funcional | TASK-003/027/028 | Source CI #539 y CodeQL #77 sobre c2bb65fc1a506ba54ab3f7662c9bbc759e2b0536 | SUCCESS |
 
 **Límite de aceptación:** esta evidencia verifica el slice de transporte/inbox/outbox/worker/tenant boundary y el hardening del rol. No verifica handlers reales por producto, replay con doble aprobación y efectos externos idempotentes, CR-0016, operación del DLQ, conformance oficial Meta, retención, KMS/Secret Manager, WAF/rate limit, alert routing/SLO, deployment, carga/DR, review independiente ni aceptación. TASK-003/027/028 siguen in_progress.
+
+## 8. Evidencia incremental — CRM Contacts slice (2026-11-08)
+
+| Requisito/resultado | Historia / tarea | Implementación | Prueba / evidencia | Estado |
+|---|---|---|---|---|
+| Modelo Contact con provenance y lifecycle | US-018 / TASK-042 | microservices-meta-ecuapp/migrations/0022-crm-contacts.sql; apps/api/src/crm/contacts/domain/contact.ts | Migración versionada + test de validación de dominio; Source CI pendiente | implemented; verified pending |
+| Persistencia tenant-scoped, idempotencia y optimistic concurrency | US-018 / TASK-042 | PostgresContactRepository, ContactService | PostgreSQL integration: tenant RLS, replay, conflict, ETag version, audit hash chain y cross-tenant not-found; Source CI pendiente | implemented; verified pending |
+| Contratos CRM-001..004 | US-018 / TASK-042 | contracts/openapi/platform-v1.yaml; docs/66 | OpenAPI completo; Contract CI pendiente/allowlist solo PLT-001..005 | design-frozen; runtime disabled |
+| Exposición HTTP | US-018 / TASK-042 | ContactController + CrmContactsModule, todavía no importado en AppModule | Requiere gate GO-CODE específico y cambio permitido por Contract CI | blocked by feature gate |
