@@ -6,7 +6,6 @@ import { MetaWebhookIngressService, PostgresMetaWebhookRepository, EnvironmentMe
 import { MetaWebhookController } from "./meta-webhook.controller.js";
 import { MetaWebhookDeadLetterController } from "./meta-webhook-dead-letter.controller.js";
 import { MetaWebhookDeadLetterQueryService } from "./application/meta-webhook-dead-letter.query.js";
-import { MetaWebhookDeadLetterQueryService } from "./application/meta-webhook-dead-letter.query.js";
 
 @Module({
   imports: [DatabaseModule, IdentityModule],
