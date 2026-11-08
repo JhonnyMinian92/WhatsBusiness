@@ -1,5 +1,5 @@
 import type { TenantAccessContext } from "../tenant-access-context.js";
-import type { ApprovalEvidence } from "./tenant-authorization-policy.js";
+import type { ApprovalEvidence, AuthorizationDenyReason } from "./tenant-authorization-policy.js";
 import type { PermissionKey } from "./permission-catalog.js";
 import { findTenantRole } from "./tenant-role-catalog.js";
 import type { AuthorizationPolicyEvaluator } from "./tenant-authorization-policy.js";
@@ -121,10 +121,10 @@ export class TenantRoleAssignmentPolicy {
         permission: "tenant.read",
         purpose: "tenant.roles.assign",
         resource: { tenantId: input.target.tenantId },
-        now: input.now,
+        now: toAuthorizationDate(input.now),
       });
       if (!requestContext.allowed) {
-        return deny(requestContext.reason ?? "PERMISSION_NOT_GRANTED");
+        return deny(mapAuthorizationDenyReason(requestContext.reason));
       }
       return { allowed: true, roleKey: role.roleKey };
     }
@@ -138,7 +138,7 @@ export class TenantRoleAssignmentPolicy {
       now: input.now,
     });
     if (!decision.allowed) {
-      return deny(decision.reason ?? "PERMISSION_NOT_GRANTED");
+      return deny(mapAuthorizationDenyReason(decision.reason));
     }
 
     return { allowed: true, roleKey: role.roleKey };
@@ -147,4 +147,19 @@ export class TenantRoleAssignmentPolicy {
 
 function isUuid(value: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+}
+
+function toAuthorizationDate(timestamp: number | undefined): Date | undefined {
+  return timestamp === undefined ? undefined : new Date(timestamp);
+}
+
+function mapAuthorizationDenyReason(reason: AuthorizationDenyReason | undefined): RoleAssignmentDenyReason {
+  switch (reason) {
+    case "TENANT_SCOPE_MISMATCH":
+      return "TARGET_TENANT_MISMATCH";
+    case "PERMISSION_NOT_GRANTED":
+      return "PERMISSION_NOT_GRANTED";
+    default:
+      return "PERMISSION_NOT_GRANTED";
+  }
 }
