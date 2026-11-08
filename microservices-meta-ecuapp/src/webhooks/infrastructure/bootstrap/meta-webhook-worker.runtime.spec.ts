@@ -69,6 +69,42 @@ test("requires real handlers before creating database or broker resources", asyn
   assert.equal(poolCreated, false);
 });
 
+test("rejects duplicate event handlers before allocating infrastructure", async () => {
+  let poolCreated = false;
+  await assert.rejects(
+    () => MetaWebhookWorkerRuntime.create({
+      handlers: [handler, handler],
+      reporter: { report() {} },
+      environment,
+      poolFactory: () => {
+        poolCreated = true;
+        return createPoolDouble(() => undefined);
+      },
+      protectorFactory: () => createProtector(() => undefined),
+    }),
+    /Duplicate Meta webhook handler registration/,
+  );
+  assert.equal(poolCreated, false);
+});
+
+test("rejects a consumer name outside the processor contract before allocating infrastructure", async () => {
+  let poolCreated = false;
+  await assert.rejects(
+    () => MetaWebhookWorkerRuntime.create({
+      handlers: [handler],
+      reporter: { report() {} },
+      environment: { ...environment, META_WEBHOOK_CONSUMER_NAME: "Invalid_Consumer" },
+      poolFactory: () => {
+        poolCreated = true;
+        return createPoolDouble(() => undefined);
+      },
+      protectorFactory: () => createProtector(() => undefined),
+    }),
+    /META_WEBHOOK_CONSUMER_NAME contains invalid characters/,
+  );
+  assert.equal(poolCreated, false);
+});
+
 test("requires TLS database and AMQPS broker connections in production", async () => {
   let poolCreated = false;
   await assert.rejects(
