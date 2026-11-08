@@ -76,6 +76,7 @@ test("rejects invalid queue names", () => {
 
 test("bounds a stalled broker metrics RPC", async () => {
   let closes = 0;
+  let recoveries = 0;
   const channel = {
     async close() { closes += 1; },
     checkQueue: () => new Promise(() => undefined),
@@ -85,16 +86,19 @@ test("bounds a stalled broker metrics RPC", async () => {
     TENANT_JOB_RABBITMQ_TOPOLOGY.queue,
     TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue,
     100,
+    () => { recoveries += 1; },
   );
 
   await assert.rejects(reader.readSnapshot(), /sample timed out/);
-  await Promise.resolve();
+  await new Promise((resolve) => setImmediate(resolve));
   assert.equal(closes, 1);
+  assert.equal(recoveries, 1);
 });
 
 test("opens a channel circuit after timeout and does not queue further RPCs", async () => {
   let checks = 0;
   let closes = 0;
+  let recoveries = 0;
   const channel = {
     checkQueue() {
       checks += 1;
@@ -107,16 +111,19 @@ test("opens a channel circuit after timeout and does not queue further RPCs", as
     TENANT_JOB_RABBITMQ_TOPOLOGY.queue,
     TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue,
     100,
+    () => { recoveries += 1; },
   );
 
   await assert.rejects(reader.readSnapshot(), /circuit opened/);
-  await Promise.resolve();
+  await new Promise((resolve) => setImmediate(resolve));
   assert.equal(checks, 2);
   assert.equal(closes, 1);
+  assert.equal(recoveries, 1);
 
   await assert.rejects(reader.readSnapshot(), /unavailable until the runtime session reconnects/);
   assert.equal(checks, 2);
   assert.equal(closes, 1);
+  assert.equal(recoveries, 1);
 });
 
 test("rejects unsafe metrics RPC timeout configuration", () => {
