@@ -347,3 +347,7 @@ Decisión del propietario (2026-11-07): la IA del CRM es ML y estadística de ba
 | TASK-087 | P1 | Casos predictivos ampliados | TASK-081..086 | churn, forecast, propensión, LTV, clustering/ranking y dedupe asistido; sin merge ni acción externa automática |
 
 Estas tareas no desplazan el cierre del aislamiento runtime TASK-003 ni el CRM transaccional. No se entrenará con datos reales antes de completar los gates de privacidad/seguridad y las condiciones legales aplicables.
+
+### Handoff incremental TASK-003 — pool reuse PostgreSQL A→B (2026-11-07)
+
+Se añadió una regresión de integración a `microservices-meta-ecuapp/src/jobs/infrastructure/postgres/postgres-tenant-job-runtime.integration.spec.ts`: reutiliza secuencialmente el mismo pool worker para ejecutar primero en tenant A y luego en tenant B, exige el mismo `pg_backend_pid()` y comprueba que los GUC transaccionales `app.user_id` y `app.tenant_id` cambien al segundo principal sin conservar el contexto anterior. Commit `bcedfab0538f5ee82a06ffe2480f41e3378bab7e`. Código implementado; CI de este commit pendiente de lectura. TASK-003 sigue `in_progress`; no marcar verificada ni aceptada hasta CI, review independiente y cierre de replay auditado, métricas/alertas, crash tests, handlers reales y despliegue seguro.
