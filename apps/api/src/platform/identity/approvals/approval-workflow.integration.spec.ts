@@ -91,7 +91,7 @@ test("PostgreSQL approval workflow enforces idempotency, quorum, step-up, exact 
       [tenantId, requesterId, approverOneId, approverTwoId],
     );
     await adminPool.query(
-      "INSERT INTO platform.roles (id, tenant_id, role_key, display_name) VALUES ($1, $2, 'approval_test_role', 'Approval Test Role')",
+      "INSERT INTO platform.roles (id, tenant_id, role_key, display_name, description) VALUES ($1, $2, 'approval_test_role', 'Approval Test Role', 'Synthetic role for approval integration tests')",
       [roleId, tenantId],
     );
     await adminPool.query(

@@ -147,7 +147,7 @@ test("PostgreSQL RLS isolates tenants and clears SET LOCAL context on a reused c
 
     const roleA = randomUUID();
     await adminPool.query(
-      "INSERT INTO platform.roles (id, tenant_id, role_key, display_name) VALUES ($1, $2, 'tenant_admin', 'Tenant Admin')",
+      "INSERT INTO platform.roles (id, tenant_id, role_key, display_name, description) VALUES ($1, $2, 'tenant_admin', 'Tenant Admin', 'Synthetic tenant administrator for identity slice tests')",
       [roleA, tenantA],
     );
     const persistedPermissions = await adminPool.query<{

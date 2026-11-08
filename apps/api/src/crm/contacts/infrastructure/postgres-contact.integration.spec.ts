@@ -88,9 +88,9 @@ test("PostgreSQL CRM contacts enforce tenant RLS, idempotency, audit and optimis
     const auditorRoleB = randomUUID();
     await admin.query(
       [
-        "INSERT INTO platform.roles (id, tenant_id, role_key, display_name)",
-        "VALUES ($1, $2, 'compliance_auditor', 'CRM Integration Auditor A'),",
-        "       ($3, $4, 'compliance_auditor', 'CRM Integration Auditor B')",
+        "INSERT INTO platform.roles (id, tenant_id, role_key, display_name, description)",
+        "VALUES ($1, $2, 'compliance_auditor', 'CRM Integration Auditor A', 'Synthetic auditor role for CRM tenant A'),",
+        "       ($3, $4, 'compliance_auditor', 'CRM Integration Auditor B', 'Synthetic auditor role for CRM tenant B')",
       ].join(" "),
       [auditorRoleA, tenantA, auditorRoleB, tenantB],
     );

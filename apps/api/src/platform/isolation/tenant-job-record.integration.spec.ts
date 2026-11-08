@@ -233,7 +233,6 @@ test("PostgreSQL tenant jobs enforce transactional staging, idempotency, least p
     } finally {
       await workerDatabase.onModuleDestroy();
       await database.onModuleDestroy();
-      await workerPool.end();
       await dispatcherPool.end();
       await adminPool.end();
     }

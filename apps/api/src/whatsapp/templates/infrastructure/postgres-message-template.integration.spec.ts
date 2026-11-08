@@ -3,9 +3,9 @@ import { randomUUID } from "node:crypto";
 import { Pool } from "pg";
 import test from "node:test";
 import { ConflictException, NotFoundException } from "@nestjs/common";
-import { DatabaseService } from "../../../../platform/database/database.module.js";
-import { AppendOnlyAuditRepository } from "../../../../platform/identity/audit/append-only-audit.repository.js";
-import type { TenantAccessContext } from "../../../../platform/identity/tenant-access-context.js";
+import { DatabaseService } from "../../../platform/database/database.module.js";
+import { AppendOnlyAuditRepository } from "../../../platform/identity/audit/append-only-audit.repository.js";
+import type { TenantAccessContext } from "../../../platform/identity/tenant-access-context.js";
 import { MessageTemplateService } from "../application/message-template.service.js";
 import { PostgresMessageTemplateRepository } from "./postgres-message-template.repository.js";
 
