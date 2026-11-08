@@ -35,6 +35,27 @@ export interface PublishPlanVersionCommand {
   readonly correlationId: string;
   readonly plan: PlanVersionDefinition;
 }
+export interface RetirePlanVersionCommand {
+  readonly actorUserId: string;
+  readonly correlationId: string;
+  readonly planKey: string;
+  readonly planVersion: number;
+}
+export interface UsageSummaryQuery {
+  readonly actorUserId: string;
+  readonly tenantId: string;
+  readonly from: string;
+  readonly to: string;
+}
+export interface UsageSummaryEntry {
+  readonly category: string;
+  readonly metricKey: string;
+  readonly unit: string;
+  readonly quantity: string;
+  readonly costAmount: string | null;
+  readonly currency: string | null;
+  readonly entryCount: number;
+}
 export interface AssignTenantPlanCommand {
   readonly actorUserId: string;
   readonly correlationId: string;
@@ -75,8 +96,10 @@ export interface PlatformAdministrationPort {
   suspendTenant(command: TenantLifecycleCommand): Promise<void>;
   reactivateTenant(command: TenantLifecycleCommand): Promise<void>;
   publishPlanVersion(command: PublishPlanVersionCommand): Promise<{ readonly planVersionId: string }>;
+  retirePlanVersion(command: RetirePlanVersionCommand): Promise<void>;
   assignTenantPlan(command: AssignTenantPlanCommand): Promise<{ readonly subscriptionId: string }>;
   recordUsage(command: RecordUsageCommand): Promise<{ readonly usageId: string; readonly duplicate: boolean }>;
+  getUsageSummary(query: UsageSummaryQuery): Promise<readonly UsageSummaryEntry[]>;
   createSupportGrant(command: CreateSupportGrantCommand): Promise<{ readonly grantId: string }>;
   authorizeSupportAccess(command: AuthorizeSupportAccessCommand): Promise<{ readonly grantId: string; readonly expiresAt: string }>;
   revokeSupportGrant(command: RevokeSupportGrantCommand): Promise<void>;
