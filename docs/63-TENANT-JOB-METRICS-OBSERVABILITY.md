@@ -109,3 +109,10 @@ El dashboard tenant-job-runtime.dashboard.json incorpora panel para cantidad de 
 Las reglas describen estados agregados globales sin segmentar por tenant/actor/job. Los umbrales no son SLO/SLA y requieren calibración con carga real. El runbook diferencia edad durable PostgreSQL de la edad física de mensajes RabbitMQ; no se afirma medir consumer lag real.
 
 Artefactos versionados: README, runbook, dashboard Grafana y alertas Prometheus. La sintaxis JSON del dashboard se validó con parser JSON y sus queries apuntan a métricas registradas en el exporter. La carga de rules con Prometheus, importación del dashboard, alert routing y comprobación de notificaciones siguen pendientes en infraestructura real.
+
+## Verificación de assets — 2026-11-08
+
+- Source CI #580 y CodeQL #115: SUCCESS para el dashboard de 13 paneles, 11 reglas Prometheus y runbook añadidos en `36e7a962db113e81835a466393b479b34132980b`.
+- Source CI #581 y CodeQL #116: SUCCESS tras integrar `scripts/validate-observability-assets.mjs` en el workflow. El paso automatiza el parseo JSON, unicidad de IDs, presencia de expresiones, unicidad/campos mínimos de reglas y consistencia entre métricas consultadas y exporter.
+- La validación estructural no prueba que Prometheus acepte todas las reglas en el cluster real ni que Grafana importe el dashboard o envíe notificaciones; siguen pendientes despliegue, alert routing, carga y calibración de umbrales.
+- TASK-003 continúa `in_progress`; el runtime no está accepted ni GO-PRODUCTION.

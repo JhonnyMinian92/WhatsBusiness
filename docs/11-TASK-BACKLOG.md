@@ -639,3 +639,10 @@ La integración PostgreSQL se reordenó para no llamar a la operación batch `cl
 - El decoder normaliza epoch seconds, epoch milliseconds e ISO-8601. La regresión comprueba mismo WAMID/estado con timestamps distintos (no deduplicar) y duplicado idéntico (deduplicar).
 - TASK-027/028 siguen in_progress: no confundir decoder verificado con integración real de handlers, despliegue, KMS, retention/replay policy, fixtures oficiales y aceptación.
 - Se preparó ampliación de dashboard/alertas/runbook para las nuevas métricas tenant_job_execution_pending y tenant_job_oldest_pending_execution_age_seconds; configuración versionada pendiente de CI y despliegue/validación en Prometheus/Grafana reales.
+
+### Cierre — observabilidad de backlog durable y CI validator (2026-11-08)
+
+- Commit `36e7a962db113e81835a466393b479b34132980b`: Source CI #580 y CodeQL #115 SUCCESS. Dashboard Grafana 13 paneles y 11 reglas Prometheus; paneles para trabajos publicados pendientes de claim y su edad durable desde `published_at`.
+- Commit `d4051c718de19016afd6e52b7803de903e4c5fba`: Source CI #581 y CodeQL #116 SUCCESS. Se añade validador estructural del dashboard/reglas a Source CI y comprueba panel IDs, targets, reglas y nombres de métricas exportadas.
+- Las alertas (>100 jobs durante 5 min; edad >300 s durante 2 min) son guardrails iniciales, no SLO/SLA. El despliegue/alert routing real y pruebas de notificación aún no se han ejecutado.
+- TASK-003 permanece `in_progress`; GO-PRODUCTION sigue NO-GO hasta los gates de operación, seguridad, carga/DR, revisión y aceptación.

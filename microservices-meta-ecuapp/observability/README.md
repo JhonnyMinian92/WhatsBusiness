@@ -40,3 +40,9 @@ El runtime publica dos gauges globales, sin labels de tenant, actor, job o paylo
 Estas métricas completan el conteo/edad del outbox de dispatch, pero no reemplazan las métricas físicas de RabbitMQ. Ready y unacknowledged describen estados del broker; la edad PostgreSQL describe el tiempo que un trabajo publicado permanece sin claim de ejecución. No se debe llamar consumer lag a ninguno de estos gauges.
 
 El dashboard incluye el count y la edad de ejecución pendiente. Las reglas Prometheus añaden advertencias iniciales para más de 100 trabajos pendientes durante cinco minutos o edad superior a 300 segundos durante dos minutos. Los umbrales son guardrails iniciales; no constituyen SLO/SLA aprobados y deben calibrarse con workload medido.
+
+## Validación estática en Source CI
+
+El workflow Source workspace validation ejecuta `scripts/validate-observability-assets.mjs` antes de provisionar servicios. El validador parsea el JSON del dashboard, comprueba IDs de panel únicos y targets no vacíos, verifica que los nombres tenant_job_* usados por paneles/reglas estén registrados por el exporter y exige campos/identificadores únicos en cada regla. Es un guard de consistencia para el subconjunto de reglas versionado; no sustituye promtool, la carga real en Prometheus ni la importación/prueba del dashboard y routing de alertas en Grafana.
+
+Source CI #581 y CodeQL #116 terminaron SUCCESS en commit `d4051c718de19016afd6e52b7803de903e4c5fba`.
