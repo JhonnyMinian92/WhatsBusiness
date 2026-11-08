@@ -479,3 +479,10 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Source CI #560: instalación frozen, migraciones 0001–0023 e idempotencia, build, typecheck y api:test SUCCESS. La suite backend falló en la integración RabbitMQ Management API y el proceso llegó al timeout de 8 minutos.
 - El log no conserva la aserción inicial porque el proceso queda vivo. El cambio añade status HTTP sin filtrar bodies/secretos, setup protegido por finally, timeout explícito, esperas acotadas y cleanup AMQP con límites seguido del cierre de conexión.
 - Estado: implemented; Source CI/CodeQL del commit nuevo pendientes. TASK-003 continúa in_progress; TASK-027/028 mantienen pendientes handlers reales, CR-0016, protección perimetral, despliegue y aceptación.
+
+
+## Handoff — cierre del socket RabbitMQ y recuperación por redelivery (2026-11-08)
+
+- El adaptador compartido RabbitMqConnectionFactory.close esperaba primero los cierres de canales y después el de la conexión. El runtime worker reutiliza este cierre para fallos de procesamiento/ACK; esperar un RPC de canal que no finaliza puede impedir el cierre del socket y bloquear reconexión.
+- Cambio implementado: cierre directo de la conexión AMQP padre; amqplib invalida RPC pendientes y cierra sus canales hijos. El test PostgreSQL/RabbitMQ existente ahora provoca el crash mediante channels.close() del proceso completo y comprueba que el mensaje sin ACK se redelivery.
+- Source CI #561 seguía en ejecución en el test backend y no hay conclusión; el siguiente push lo sustituye por concurrency cancel-in-progress. CI/CodeQL del nuevo HEAD pendientes. TASK-003 no se cierra por este cambio.

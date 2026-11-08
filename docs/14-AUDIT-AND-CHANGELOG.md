@@ -412,3 +412,13 @@ TASK-003, TASK-027 y TASK-028 permanecen in_progress. El gate cubre el slice de 
 | AUD-133 | Test live protege setup con try/finally, limita timeout/esperas, ejecuta cleanup AMQP con límites y cierra canales/conexión best-effort. | Implementado; CI nuevo pendiente. |
 
 No se conceden permisos de consumo/publicación/configuración al usuario de métricas. Se conserva el patrón RabbitMQ monitoring con regex vacíos para configure/read/write. El status HTTP real de la siguiente ejecución permitirá aislar si existe además un problema de autenticación/autorización o endpoint. AUD-131..133 no certifican despliegue ni SLO. TASK-003 sigue in_progress; revisión independiente y aceptación del propietario pendientes.
+
+
+## 35. Cierre AMQP del proceso y recuperación RabbitMQ (AUD-134..135; 2026-11-08)
+
+| ID | Evidencia / cambio | Estado |
+|---|---|---|
+| AUD-134 | Revisión del runtime: RabbitMqConnectionFactory.close esperaba el cierre de publisher/consumer antes del parent connection.close; el mismo callback cierra la conexión ante procesamiento interrumpido y ACK ambiguo. | Riesgo de bloqueo de lifecycle identificado. |
+| AUD-135 | Cierre de conexión padre implementado; test real de redelivery cambia de cerrar solo consumer channel a cerrar el proceso/conexión completa dejando una entrega sin ACK. | Implementado; Source CI/CodeQL nuevos pendientes. |
+
+La API documentada de amqplib establece que connection.close invalida operaciones pendientes y espera a que se cierre el socket subyacente; los canales existen dentro de la conexión. Se elimina la espera previa por handshake de los dos canales para evitar que bloquee el cierre de la conexión. No se afirma que el defecto esté verificado hasta que pase Source CI. TASK-003 sigue in_progress.

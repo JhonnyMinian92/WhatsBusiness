@@ -325,3 +325,13 @@ Source CI #527 terminó cancelled tras el timeout de 30 minutos dentro del targe
 | La identidad de métricas sigue monitor-only | TASK-003 / security | .github/workflows/source-validation.yml | Sin cambios de ACL; no se concede read/configure/write sobre recursos AMQP |
 
 Source CI #560 falló en el target backend durante la integración RabbitMQ Management API; el step expiró tras 8 minutos. La corrección aún no está verified. TASK-003 sigue in_progress.
+
+
+## 10. Evidencia incremental — cierre de conexión RabbitMQ y redelivery
+
+| Requisito/resultado | Historia / tarea | Implementación / prueba | Evidencia / estado |
+|---|---|---|---|
+| Cerrar sesión worker debe cerrar canales y socket aun con RPC pendiente | TASK-003 / TASK-028 | RabbitMqConnectionFactory.close cierra conexión padre directamente | Implementado; Source CI pendiente |
+| Un mensaje sin ACK debe volver a la cola tras crash del proceso completo | TASK-003 / TASK-028 | rabbitmq-transport.integration.spec.ts usa original.close() y verifica redelivered=true en la conexión de recuperación | Prueba de integración ampliada; Source CI pendiente |
+
+La prueba actual demuestra el caso de pérdida del proceso/conexión y redelivery, no un resultado de ejecución todavía. TASK-003/028 permanecen in_progress.

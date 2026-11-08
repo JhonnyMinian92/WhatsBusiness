@@ -41,10 +41,11 @@ export class RabbitMqConnectionFactory {
         consumer,
         close(): Promise<void> {
           if (!closing) {
-            closing = (async () => {
-              await Promise.allSettled([publisher.close(), consumer.close()]);
-              await connection.close();
-            })();
+            // Channels belong to the connection. Close the parent socket directly:
+          // amqplib invalidates pending channel RPCs and closes every child channel.
+          // Waiting for each channel handshake first can deadlock shutdown when an
+          // RPC is unresolved (e.g. a consumer/management failure during teardown).
+          closing = connection.close();
           }
           return closing;
         },

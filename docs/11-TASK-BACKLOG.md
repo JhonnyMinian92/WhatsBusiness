@@ -538,3 +538,11 @@ Se añadió una regresión de integración a `microservices-meta-ecuapp/src/jobs
 - El log muestra el test marcado como fallido en aproximadamente 104 ms, pero no incluye la aserción original porque el proceso no termina. Se encontraron defectos de robustez: el error HTTP ocultaba status, el setup/constructor quedaba fuera del try/finally y las llamadas secuenciales de cleanup no tenían límite temporal.
 - Corrección implementada: el reader informa solo status HTTP/redirect, cancela el body fallido y nunca expone response body ni credenciales; el test protege setup con try/finally, añade timeout explícito, acota lecturas y teardown, y ejecuta cleanup aun con fallos.
 - Verificación pendiente del siguiente Source CI/CodeQL. No se relajaron permisos RabbitMQ: la identidad conserva tag monitoring y regex vacíos de configure/read/write. TASK-003 sigue in_progress; no declarar métricas live verificadas hasta CI SUCCESS y revisión operativa de SLO/alertas/despliegue.
+
+
+### Handoff incremental — cierre de conexión RabbitMQ y recuperación por redelivery (2026-11-08)
+
+- Source CI #561 avanzó correctamente por instalación, migraciones/idempotencia, provisioning, build, typecheck y api:test; permaneció ejecutando la suite backend en la integración Management API. No hay resultado final de #561 disponible en el momento de este handoff.
+- La revisión del código identificó que RabbitMqConnectionFactory.close esperaba Promise.allSettled de los cierres de publisher/consumer antes de cerrar el socket padre. La aplicación de worker reutiliza ese método para interrumpir una sesión con ACK ambiguo o error de procesamiento; un RPC de canal pendiente podía impedir el cierre de la conexión y la reconexión.
+- **Corrección implementada:** close ahora cierra directamente la conexión AMQP padre, que invalida operaciones pendientes y termina todos sus canales; el test de redelivery simula crash de proceso cerrando la conexión completa con un mensaje sin ACK, y verifica la redelivery.
+- El siguiente push supersede Source CI #561 por la política cancel-in-progress; Source CI/CodeQL del nuevo HEAD pendientes. TASK-003 sigue in_progress; no declarar recuperación verificada hasta SUCCESS.

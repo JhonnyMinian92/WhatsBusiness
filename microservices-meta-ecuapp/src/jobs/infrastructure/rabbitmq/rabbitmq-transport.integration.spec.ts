@@ -139,9 +139,10 @@ test("RabbitMQ redelivers an unacknowledged job after consumer channel loss", {
     assert.equal(firstDelivery.fields.redelivered, false);
     assert.deepEqual(parseTenantJobMessage(firstDelivery.content), job);
 
-    // Simulate a worker process/channel crash after delivery but before ACK.
-    // RabbitMQ must return the unacked persistent message to the quorum queue.
-    await original.consumer.close();
+    // Simulate a worker process crash after delivery but before ACK.
+    // Closing the parent connection must close all child channels and make
+    // RabbitMQ return the unacked persistent message to the quorum queue.
+    await original.close();
 
     recovery = await factory.open(brokerUrl!, "whatsbusiness-jobs-redelivery-after-crash");
     await new RabbitMqJobTopology(recovery.consumer, TENANT_JOB_RABBITMQ_TOPOLOGY).initialize();

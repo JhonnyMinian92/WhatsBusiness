@@ -214,3 +214,11 @@ Estado actual:
 - El log muestra el test fallido en ~104 ms, pero no registra el detalle de la aserción porque el proceso no termina. Se localizaron defectos de diagnóstico/lifecycle: el reader ocultaba el status HTTP y las llamadas de cleanup AMQP eran secuenciales y sin límite.
 - Se implementó un cambio acotado: status HTTP seguro sin exponer body, setup bajo try/finally, timeout del test, lectura/polling acotado, cleanup best-effort con límites y cierre de canales/conexión. Se conserva el usuario monitor-only con permisos vacíos.
 - Próximo gate: Source CI/CodeQL del nuevo HEAD. No declarar métricas live verificadas ni cerrar TASK-003 sin SUCCESS; SLO, dashboards/alertas, DLQ operator, handlers reales, KMS/rotación, despliegue, carga/DR y revisión independiente siguen pendientes.
+
+
+## Actualización de ejecución — cierre de conexión RabbitMQ en runtime (2026-11-08)
+
+- En el backend, el test de métricas Management API y el cierre compartido AMQP evidenciaron un riesgo de lifecycle: el factory esperaba que cerrasen los canales antes de cerrar la conexión padre. Ante un RPC pendiente, el cierre/reconnect podía quedar bloqueado.
+- RabbitMqConnectionFactory.close ahora cierra directamente la conexión AMQP padre, lo que invalida operaciones pendientes y termina sus canales. El test real de redelivery ahora simula el crash cerrando la conexión completa, no únicamente el consumer channel.
+- Source CI #561 todavía estaba en el test backend al preparar el cambio; no se toma como resultado. El siguiente push lo sustituye por concurrency cancel-in-progress; Source CI/CodeQL del nuevo HEAD pendientes.
+- TASK-003 sigue in_progress. El nuevo gate debe pasar unidad, PostgreSQL/RabbitMQ, build/typecheck y CodeQL antes de atribuir verificación.
