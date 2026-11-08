@@ -106,6 +106,7 @@ test("PostgreSQL webhook inbox persists idempotently, fences tenant processing a
     assert.deepEqual(first, { accepted: 2, duplicates: 0 });
 
     const ingressClient = await ingress.connect();
+    let persistedEventId: string | null = null;
     try {
       await ingressClient.query("BEGIN");
       await ingressClient.query("SELECT set_config('app.tenant_id', $1, true)", [tenantId]);
@@ -114,10 +115,11 @@ test("PostgreSQL webhook inbox persists idempotently, fences tenant processing a
         [idempotencyKey],
       );
       assert.equal(storedEvents.rows.length, 1);
+      persistedEventId = storedEvents.rows[0]!.id;
       await ingressClient.query("SELECT set_config('app.tenant_id', $1, true)", [otherTenantId]);
       const crossTenantStage = await ingressClient.query<{ staged: boolean }>(
         "SELECT platform.stage_meta_webhook_event_outbox($1) AS staged",
-        [storedEvents.rows[0]!.id],
+        [persistedEventId!],
       );
       assert.equal(crossTenantStage.rows[0]?.staged, false, "The SQL outbox boundary must reject a different tenant context.");
       await ingressClient.query("ROLLBACK");
@@ -127,6 +129,7 @@ test("PostgreSQL webhook inbox persists idempotently, fences tenant processing a
     } finally {
       ingressClient.release();
     }
+    assert.ok(persistedEventId, "The persisted event must be identified before privilege assertions.");
     await assert.rejects(
       ingress.query("SELECT event_id FROM platform.meta_webhook_event_outbox LIMIT 1"),
       (error: unknown) => (error as { code?: string }).code === "42501",
@@ -135,7 +138,7 @@ test("PostgreSQL webhook inbox persists idempotently, fences tenant processing a
     await assert.rejects(
       ingress.query(
         "INSERT INTO platform.meta_webhook_event_outbox (event_id, tenant_id) VALUES ($1, $2)",
-        [storedEvents.rows[0]!.id, tenantId],
+        [persistedEventId!, tenantId],
       ),
       (error: unknown) => (error as { code?: string }).code === "42501",
       "The API ingress login must stage outbox rows only through its tenant-checked function.",
