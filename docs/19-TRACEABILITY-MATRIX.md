@@ -335,3 +335,14 @@ Source CI #560 falló en el target backend durante la integración RabbitMQ Mana
 | Un mensaje sin ACK debe volver a la cola tras crash del proceso completo | TASK-003 / TASK-028 | rabbitmq-transport.integration.spec.ts usa original.close() y verifica redelivered=true en la conexión de recuperación | Prueba de integración ampliada; Source CI pendiente |
 
 La prueba actual demuestra el caso de pérdida del proceso/conexión y redelivery, no un resultado de ejecución todavía. TASK-003/028 permanecen in_progress.
+
+
+## 11. Estado de trazabilidad — US-008 (2026-11-08)
+
+| Historia / criterio | Tareas | Evidencia actual | Estado |
+|---|---|---|---|
+| US-008 / AC-008-01: adapter Marketing Messages independiente y migrable | TASK-017, TASK-055 | No existe adapter runtime; WAMK-001..003 permanecen catalog-only; dependencia TASK-010 y gate G0/contract freeze pendientes | blocked / not implemented |
+| US-008 / AC-008-02: categoría, consentimiento y elegibilidad | TASK-017, TASK-055 | Requisito definido; no hay policy/consent enforcement implementado para Marketing Messages ni evidencia de capability por activo | not implemented |
+| US-008 / AC-008-03: estimado y coste reportado separados | TASK-018, TASK-057 | Diseño documentado; WAMK-004..007 catalog-only; no hay rate-card repository ni cost ledger runtime | not implemented |
+
+No se ejecutaron pruebas de US-008 en esta revisión. La evidencia de investigación sobre Max Pricing no equivale a integración de proveedor. No habilitar endpoints ni mutaciones externas hasta congelar schemas por operación, completar TASK-010/039/056 y satisfacer G0. La aceptación final sigue perteneciendo al Product Owner.
