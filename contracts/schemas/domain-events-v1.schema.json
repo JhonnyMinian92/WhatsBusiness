@@ -210,9 +210,6 @@
     },
     {
       "$ref": "#/$defs/InboxHandoffRequested"
-    },
-    {
-      "$ref": "#/$defs/MetaWebhookReceived"
     }
   ],
   "$defs": {

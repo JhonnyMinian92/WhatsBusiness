@@ -447,7 +447,7 @@ Se añadió una regresión de integración a `microservices-meta-ecuapp/src/jobs
 ### Handoff incremental — contrato de evento Meta webhook (2026-11-08)
 
 - Se agregó `meta.webhook.received.v1` al catálogo AsyncAPI y el schema cerrado `MetaWebhookReceived` al union JSON Schema. El broker transporta únicamente receipt ID, tenant, producto, correlation ID y hash; el ciphertext/PII permanece en PostgreSQL.
-- El validador de contratos ahora espera 70 eventos, 140 operaciones AsyncAPI y 70 schemas, con fixture positivo y rechazos de tenant nulo/campos extra. Contract CI [#42445047626](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42445047626) falló por instalación npm en la raíz del workspace; el workflow se corrigió y la nueva ejecución está pendiente de resultado.
+- El catálogo canónico contiene 69 eventos, 69 canales AsyncAPI, 138 operaciones y 69 schemas. `MetaWebhookReceived` está definido una sola vez y el union JSON Schema referencia cada definición exactamente una vez; los fixtures validan payload positivo y rechazos de tenant nulo/campos extra.
 - La instalación de validadores usa un directorio aislado en `RUNNER_TEMP` y el script resuelve los módulos desde una ruta explícita, evitando `EUNSUPPORTEDPROTOCOL workspace:`. AsyncAPI se valida con el parser oficial `@asyncapi/parser@3.6.3` desde el script; se evita el CLI que devolvía exit code 1 por warnings de lint heredados y se evita fijar versiones comprometidas 3.4.1/3.4.2.
 - Contract CI #15/#17 avanzaron hasta AsyncAPI CLI, pero fallaron por diagnostics de lint históricos pese a cero errores de especificación. Se migró la validación a la API del parser oficial, con aserción sobre `document` y severidad error, en la siguiente ejecución.
 
