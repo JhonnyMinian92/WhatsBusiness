@@ -61,6 +61,25 @@ groups:
           summary: "El outbox acumula jobs antiguos"
           description: "Revisar dispatcher, publisher confirms, permisos DB y salud del broker. El umbral es operativo inicial, no un SLO."
 
+      - alert: WhatsBusinessTenantJobExecutionBacklog
+        expr: tenant_job_execution_pending > 100
+        for: 5m
+        labels:
+          severity: warning
+          service: microservices-meta-ecuapp
+        annotations:
+          summary: "El backlog durable de ejecución supera 100 jobs"
+          description: "Revisar consumidores, workers, capacidad y estado del broker. Esta métrica cuenta jobs publicados pendientes de claim en PostgreSQL; no equivale a mensajes ready/unacknowledged."
+
+      - alert: WhatsBusinessTenantJobExecutionBacklogAge
+        expr: tenant_job_oldest_pending_execution_age_seconds > 300
+        for: 2m
+        labels:
+          severity: warning
+          service: microservices-meta-ecuapp
+        annotations:
+          summary: "Hay jobs publicados esperando ejecución por más de cinco minutos"
+          description: "Revisar worker consumers, disponibilidad PostgreSQL/RabbitMQ y salud del supervisor. Umbral inicial de operación, no SLO ni SLA."
       - alert: WhatsBusinessTenantJobExpiredLeases
         expr: tenant_job_dispatch_leases_expired > 0 or tenant_job_execution_leases_expired > 0
         for: 2m

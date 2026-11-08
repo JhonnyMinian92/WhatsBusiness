@@ -25,11 +25,13 @@ RabbitMQ Management API informa `messages_ready`, `messages_unacknowledged` y co
 
 ## 3. Backlog de dispatch / leases vencidos
 
-1. Revisar `tenant_job_dispatch_pending`, `tenant_job_oldest_pending_dispatch_age_seconds` y leases activos/vencidos.
-2. Confirmar disponibilidad PostgreSQL, permisos del rol dispatcher y estado de publisher confirms/mandatory routing.
-3. Permitir al supervisor recuperar leases expirados con fencing; no editar tokens/estados manualmente.
-4. Si hay jobs bloqueados, identificar el código de fallo y seguir el procedimiento de reparación autorizado.
-5. Verificar que el backlog disminuya y que no existan publicaciones duplicadas con efectos laterales.
+1. Revisar `tenant_job_dispatch_pending` y `tenant_job_oldest_pending_dispatch_age_seconds` para el outbox aún no publicado.
+2. Revisar `tenant_job_execution_pending` y `tenant_job_oldest_pending_execution_age_seconds` para trabajos ya publicados que siguen esperando claim del worker. Esta segunda edad procede de `published_at` durable en PostgreSQL.
+3. Correlacionar con ready/unacknowledged/consumers de RabbitMQ: son señales físicas distintas y no deben sumarse ni interpretarse como edad/lag por sí solas.
+4. Confirmar disponibilidad PostgreSQL, permisos del rol dispatcher y estado de publisher confirms/mandatory routing.
+5. Permitir al supervisor recuperar leases expirados con fencing; no editar tokens/estados manualmente.
+6. Si hay jobs bloqueados, identificar el código de fallo y seguir el procedimiento de reparación autorizado.
+7. Verificar que el backlog disminuya y que no existan publicaciones duplicadas con efectos laterales.
 
 ## 4. Deliveries unacknowledged / worker sin consumers / mensajes en DLQ
 
@@ -60,9 +62,18 @@ Registrar timestamps UTC, impacto por tenant pseudonimizado, códigos de error, 
 
 - Handlers reales de negocio y pruebas end-to-end de replay con efectos externos idempotentes.
 - DLQ operator workflow desplegado, retención y aprobación operativa.
-- Métricas autoritativas de unacked/consumer lag y edad de mensaje.
+- Medición de edad física de mensajes RabbitMQ y consumer lag real (la edad durable PostgreSQL cubre solo jobs publicados que aún no han sido reclamados).
 - Validación de broker topology/policies en el entorno de despliegue real.
 - Secret Manager/KMS, rotación de bearer/HMAC y TLS/mTLS reales.
 - Dashboards/alert routing instalados y probados en el stack de observabilidad real.
 - Pruebas de carga, backup/restore y disaster recovery.
 - Revisión independiente de seguridad/operación y aceptación del propietario.
+
+
+## 8. Backlog durable publicado pendiente de ejecución
+
+- Si `tenant_job_execution_pending` aumenta y `tenant_job_oldest_pending_execution_age_seconds` también crece, revisar la salud del worker y la tasa de claim/consumo.
+- PostgreSQL es la autoridad del estado de job: el conjunto medido es `status='queued' AND dispatch_status='published'`; el reloj inicia en `published_at`.
+- Si el gauge PostgreSQL permanece alto pero RabbitMQ ready está bajo, investigar mensajes entregados/unacknowledged, consumers y transacciones; no asumir pérdida de jobs.
+- Si RabbitMQ ready crece pero el gauge durable queda bajo, comprobar routing, topología y reconciliación entre publicación y persistencia.
+- No purgar, ACK/NACK manualmente ni ejecutar replay para reducir una alerta. Preservar evidencia y seguir el procedimiento aprobado.

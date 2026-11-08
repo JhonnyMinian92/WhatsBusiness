@@ -87,7 +87,7 @@ Esto no sustituye los gauges RabbitMQ. Los gauges de broker describen ready, una
 
 La migración `0025-tenant-job-execution-backlog-metrics.sql` conserva el único permiso EXECUTE en `whatsbusiness_job_dispatcher_role`; API y worker siguen sin permiso de lectura del agregado ni de payload. La suite PostgreSQL comprueba staging → publicación → métrica antes del claim del worker.
 
-**Verificación:** pendiente de Source CI para el commit de esta ampliación. Los cambios son candidatos implementados, no todavía un slice CI-verified ni cierre de TASK-003.
+**Verificación:** Source CI #578 y CodeQL #113 terminaron SUCCESS sobre `19e1c585648e510d67bc1d13eab9761775b56cf2`. Se validaron build, typecheck, migraciones/idempotencia y pruebas API + backend PostgreSQL/RabbitMQ. TASK-003 permanece `in_progress`; la evidencia no implica aceptación ni GO-PRODUCTION.
 
 
 ## Corrección post-CI (2026-11-08)
@@ -100,3 +100,12 @@ La corrección necesita Source CI verde antes de marcar esta ampliación verific
 
 La integración PostgreSQL se reordenó para no llamar a la operación batch `claim_tenant_job_publications` mientras el job de finalización principal seguía pendiente. Primero se completa el dispatch/claim de ese job con el helper existente; después se inserta y publica el fixture de métrica cuando es el único nuevo job elegible en la topología de prueba. Esto elimina el efecto colateral real de `LIMIT` + `FOR UPDATE SKIP LOCKED` al filtrar fuera de la función por `job_id`, y evita dejar leases de otros fixtures en estado `publishing`.
 **Estado:** el orden corregido se somete nuevamente a Source CI; no se afirma todavía verificación.
+
+
+## Actualización de dashboard y alertas — 2026-11-08
+
+El dashboard tenant-job-runtime.dashboard.json incorpora panel para cantidad de trabajos publicados sin claim (tenant_job_execution_pending) y serie temporal de antigüedad desde published_at (tenant_job_oldest_pending_execution_age_seconds). Prometheus añade alertas iniciales para más de 100 trabajos pendientes durante 5 minutos y edad superior a 300 segundos durante 2 minutos.
+
+Las reglas describen estados agregados globales sin segmentar por tenant/actor/job. Los umbrales no son SLO/SLA y requieren calibración con carga real. El runbook diferencia edad durable PostgreSQL de la edad física de mensajes RabbitMQ; no se afirma medir consumer lag real.
+
+Artefactos versionados: README, runbook, dashboard Grafana y alertas Prometheus. La sintaxis JSON del dashboard se validó con parser JSON y sus queries apuntan a métricas registradas en el exporter. La carga de rules con Prometheus, importación del dashboard, alert routing y comprobación de notificaciones siguen pendientes en infraestructura real.

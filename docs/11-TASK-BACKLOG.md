@@ -631,3 +631,11 @@ La integración PostgreSQL se reordenó para no llamar a la operación batch `cl
 - El decoder centraliza conversión de timestamps numéricos y textuales: epoch seconds, epoch milliseconds e ISO-8601. Se corrige un regex de doble escape que impedía reconocer epoch strings.
 - La regresión cubre el mismo WAMID con estado `delivered` a dos timestamps distintos (claves distintas) y el mismo timestamp repetido (misma clave), además de epoch milliseconds.
 - **Estado:** implementado; Source CI pendiente. No declarar TASK-027/028 cerradas ni habilitar replay.
+
+
+### Cierre de verificación — Webhook timestamp decoder (2026-11-08)
+
+- Commit 8b96bd97c7fcd5cc816fbd933bd1c3bb236b3dd4: Source CI #579 SUCCESS y CodeQL #114 SUCCESS.
+- El decoder normaliza epoch seconds, epoch milliseconds e ISO-8601. La regresión comprueba mismo WAMID/estado con timestamps distintos (no deduplicar) y duplicado idéntico (deduplicar).
+- TASK-027/028 siguen in_progress: no confundir decoder verificado con integración real de handlers, despliegue, KMS, retention/replay policy, fixtures oficiales y aceptación.
+- Se preparó ampliación de dashboard/alertas/runbook para las nuevas métricas tenant_job_execution_pending y tenant_job_oldest_pending_execution_age_seconds; configuración versionada pendiente de CI y despliegue/validación en Prometheus/Grafana reales.

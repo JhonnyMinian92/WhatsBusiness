@@ -158,4 +158,4 @@ La inspección del decoder encontró un patrón regex escapado doblemente para t
 
 La suite agrega un caso de regresión en el que el mismo WAMID recibe dos estados `delivered` en segundos distintos: deben conservar fechas y claves idempotentes diferentes. Un evento repetido con el mismo estado y la misma fecha continúa deduplicándose. La modificación no cambia la identidad del contacto ni procesa payloads de negocio.
 
-**Estado:** cambio implementado; requiere Source CI del commit y su suite backend antes de considerarlo verificado. TASK-027/028 siguen `in_progress`; handlers reales por bounded context, replay aprobado, KMS/rotación, operación desplegada, pruebas de conformance con cuentas Meta y review permanecen pendientes.
+**Verificación:** Source CI #579 y CodeQL #114 terminaron SUCCESS en `8b96bd97c7fcd5cc816fbd933bd1c3bb236b3dd4`, incluyendo la regresión de timestamps del decoder y las suites backend PostgreSQL/RabbitMQ. TASK-027/028 siguen `in_progress`; handlers reales por bounded context, replay aprobado, KMS/rotación, operación desplegada, fixtures de conformance con cuentas Meta y review permanecen pendientes.

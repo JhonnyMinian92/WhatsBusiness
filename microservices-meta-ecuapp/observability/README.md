@@ -29,3 +29,14 @@ RabbitMQ actualiza estadísticas por intervalo. La integración distingue el sna
 Source CI [#572](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42498026616) y CodeQL [#107](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42498026686) terminaron SUCCESS en \`1c6e682eb755e77b8359e52d4e7091a41e4ef6d5\`. Esto verifica build, typecheck, pruebas unitarias e integraciones sintéticas PostgreSQL/RabbitMQ; no demuestra exporter instalado en infraestructura, scraping de todos los nodos, firewall/TLS, alert routing ni SLO.
 
 TASK-003 continúa \`in_progress\`; runtime no está aceptado para producción y GO-PRODUCTION sigue NO-GO.
+
+## Backlog durable de ejecución PostgreSQL
+
+El runtime publica dos gauges globales, sin labels de tenant, actor, job o payload:
+
+- `tenant_job_execution_pending`: trabajos con estado durable `queued` y dispatch `published` que todavía no han sido reclamados por un worker.
+- `tenant_job_oldest_pending_execution_age_seconds`: antigüedad desde `published_at` del trabajo más antiguo de ese conjunto.
+
+Estas métricas completan el conteo/edad del outbox de dispatch, pero no reemplazan las métricas físicas de RabbitMQ. Ready y unacknowledged describen estados del broker; la edad PostgreSQL describe el tiempo que un trabajo publicado permanece sin claim de ejecución. No se debe llamar consumer lag a ninguno de estos gauges.
+
+El dashboard incluye el count y la edad de ejecución pendiente. Las reglas Prometheus añaden advertencias iniciales para más de 100 trabajos pendientes durante cinco minutos o edad superior a 300 segundos durante dos minutos. Los umbrales son guardrails iniciales; no constituyen SLO/SLA aprobados y deben calibrarse con workload medido.
