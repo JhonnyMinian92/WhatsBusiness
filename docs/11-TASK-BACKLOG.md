@@ -856,4 +856,4 @@ La implementación de TASK-004 y TASK-005 fue publicada y verificada por CI en c
 
 - **TASK-024:** `in_progress`. Núcleo de validación fail-closed, catálogo de objetivos versionado y máquina de estados local añadidos en `apps/api/src/ads/campaigns/domain`. Persistencia, API, integración de approvals/outbox, objetivo/catalogue oficial y capability runtime continúan pendientes.
 - **TASK-025:** `in_progress`. Guardrail PD-024 con aritmética decimal exacta, baseline inmutable rolling 24h, control de bypass por aumentos fragmentados y policy de kill switch añadidos en el dominio. Falta integración transaccional, worker/adapter, pause real, reconciliation, insights y spend ledger.
-- Evidencia y bloqueos: `docs/72-US-012-ADS-CAMPAIGN-IMPLEMENTATION.md`. No cambiar a `verified`/`accepted` por código aislado o CI parcial.
+- Evidencia y bloqueos: `docs/73-US-012-ADS-CAMPAIGN-IMPLEMENTATION.md`. No cambiar a `verified`/`accepted` por código aislado o CI parcial.
