@@ -57,6 +57,11 @@ export const PERMISSION_CATALOG = {
     riskClass: "critical",
     requiresIndependentApproval: false,
   },
+  "jobs.replay.request": {
+    description: "Request and consume an independently approved replay of a dead-lettered tenant job",
+    riskClass: "critical",
+    requiresIndependentApproval: true,
+  },
   "meta.connections.read": {
     description: "Read Meta connection metadata",
     riskClass: "normal",
