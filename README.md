@@ -121,4 +121,4 @@ API local: http://localhost:3000. Angular dev server: http://localhost:4200.
 - La migración 0022-crm-contacts.sql crea crm.contacts y crm.contact_command_idempotency con RLS ENABLE/FORCE, provenance inmutable, optimistic version, idempotencia y grants mínimos.
 - CRM-001..004 tienen schemas/request/response/permission/cursor/ETag/idempotency congelados en contracts/openapi/platform-v1.yaml y rationale en docs/66-CRM-CONTACTS-API-CONTRACT-FREEZE.md.
 - Runtime gate: CRM-001..004 siguen x-implementation-allowed=false; CrmContactsModule no está registrado en AppModule. Contract CI solo permite activar PLT-001..005 durante la foundation vigente. El código CRM se compila y prueba, pero las rutas no están habilitadas en HTTP.
-- Source CI del slice CRM y Contract CI deben terminar SUCCESS antes de actualizar el estado de verificación. TASK-042 no está aceptada.
+- Contract CI #27 validó la definición OpenAPI con CRM-001..004 deshabilitadas. Source CI #556 debe ejecutar las pruebas de dominio/PostgreSQL; TASK-042 no está aceptada.
