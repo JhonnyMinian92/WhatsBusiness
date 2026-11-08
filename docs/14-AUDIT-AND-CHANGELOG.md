@@ -298,3 +298,13 @@ La migración 0007 fue reemplazada completa para corregir un fragmento SQL dupli
 
 
 | AUD-090 | Lease heartbeat de ejecución | Migración `0009-tenant-job-lease-renewal.sql`, función `platform.renew_tenant_job_execution_lease`, adapter PostgreSQL y `TenantJobExecutionLeaseHeartbeat`; renueva únicamente con fencing token activo, cancela handler cooperativo cuando se pierde el lease y añade suite unitaria + aserción de integración. CI de esta adición pendiente. |
+
+## 25. Corrección PostgreSQL y CRM Intelligence (2026-11-07)
+
+| ID | Cambio | Evidencia / resultado |
+|---|---|---|
+| AUD-091 | Source CI #42429156061 | FAILURE en test PostgreSQL por retorno `undefined` de `assert.rejects()` tratado incorrectamente como error capturado; build/typecheck/migraciones/RabbitMQ pasaron. |
+| AUD-092 | Aserción tenant-context | Commit `7b6e2a180a9049054245fa34f2d649269930bd8f`: el test valida SQLSTATE `40001`. La siguiente corrida avanzó y descubrió el fallo real de recuperación. |
+| AUD-093 | Migración 0011 | Source CI #42430321770 detectó SQLSTATE `42702` por variable PL/pgSQL RECORD `job` y alias SQL `job`. Migración `0011-tenant-job-recovery-variable-ambiguity.sql` renombró a `execution_row`. |
+| AUD-094 | Source CI completo | Run #42430605576 SUCCESS para commit `be9d3dc14aa26b38c20013b98ff5238bac564a4e`: frozen install, migraciones/idempotencia, build, typecheck, unit y PostgreSQL/RabbitMQ integration. TASK-003 sigue in_progress. |
+| AUD-095 | Decisión CRM con ML | El propietario aclaró que IA en CRM significa ML clásico/estadístico CPU-first, no LLM ni agentes. PD-005, ADR-026, docs/00, 01, 29, 30, 38, 62 y TASK-081..087 registran el alcance; no implica modelos implementados. |
