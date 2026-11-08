@@ -1,9 +1,13 @@
 # 41 — Especificación funcional: AI Assistance Gateway
 
 **Relacionado:** TASK-038, TASK-050..051, TASK-080, US-023, US-031, PD-005/019.  
-**Estado:** baseline provider-agnostic; proveedor/modelo externo no seleccionado ni autorizado.
+**Estado:** especificación de capacidad separada del CRM; proveedor/modelo externo no seleccionado ni autorizado.
+
+> Aclaración del propietario (2026-11-07): CRM Intelligence significa machine learning clásico/estadístico CPU-first, no LLM ni agentes. Este documento no define la estrategia ML del CRM y no debe ser dependencia de ese bounded context. Véase docs/62.
 
 ## 1. Objetivo y alcance inicial
+
+Este alcance de AI Assistance es independiente de CRM Intelligence. Las predicciones comerciales y ML tradicional pertenecen al dominio CRM, no a este gateway.
 
 La primera entrega contiene: (a) sugerencias de respuesta editables para un agente humano y (b) asistencia conversacional basada en reglas/flows delimitados. El agente humano conserva el control de enviar mensajes. No incluye inicialmente RAG, voz, entrenamiento propio, auto-send, agente autónomo con permisos de escritura general ni acceso directo de modelo a base de datos.
 
