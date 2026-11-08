@@ -592,3 +592,6 @@ Commits de runtime: `b2fae18c07b1ede450a7ee8248df1ceceb3c0fd2`, `65e173921ff8346
 | AUD-183 | Cinco suites de pruebas de dominio añadidas a `apps/api/project.json`. | 24 casos de dominio declarados; Source CI pendiente al corte |
 
 Límite: no se modificó OpenAPI/AsyncAPI ni se registraron endpoints Ads, porque el contract freeze/reviewer de docs/49 y docs/55 sigue siendo gate. Tampoco hay migración, RLS, worker, adapter o reconciler Ads. TASK-024/025 siguen `in_progress`; no `verified`/ `accepted`. No se realizó llamada externa ni gasto/publicación Meta.
+
+
+| AUD-039 | Consentimiento revalidado al despacho CAPI | El validador ahora evalúa grant/expiry/revocation con hora actual confiable además del instante de la conversión; regresiones cubren retiro/expiración mientras el evento está pendiente. La revalidación real todavía depende de adapter TASK-032. |
