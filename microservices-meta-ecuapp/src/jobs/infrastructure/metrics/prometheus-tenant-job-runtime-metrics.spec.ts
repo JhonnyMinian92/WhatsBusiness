@@ -52,8 +52,8 @@ test("ignores unknown runtime outcomes and invalid duration samples", () => {
   assert.equal(output.includes("customer-123@example.com"), false);
   assert.equal(output.includes("tenant_job_dispatch_total{outcome="), false);
   // A valid outcome remains counted even when its latency sample is rejected.
-  assert.match(output, /tenant_job_execution_total\\{outcome="processed"\\} 1/);
-  assert.match(output, /tenant_job_publish_total\\{outcome="success"\\} 1/);
+  assert.equal(output.includes('tenant_job_execution_total{outcome="processed"} 1'), true);
+  assert.equal(output.includes('tenant_job_publish_total{outcome="success"} 1'), true);
   assert.equal(output.includes("tenant_job_lease_renewal_total{outcome="), false);
   assert.equal(output.includes("tenant_job_execution_duration_seconds_count{outcome="), false);
   assert.equal(output.includes("tenant_job_publish_duration_seconds_count{outcome="), false);
