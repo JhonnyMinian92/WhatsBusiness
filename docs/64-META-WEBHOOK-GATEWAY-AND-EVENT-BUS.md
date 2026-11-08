@@ -166,3 +166,18 @@ La suite agrega un caso de regresión en el que el mismo WAMID recibe dos estado
 Los eventos Meta Lead Ads usan object=page, field=leadgen y colocan leadgen_id, page_id, form_id y created_time dentro de changes[].value. El decoder ahora extrae el identificador y la hora de ese objeto anidado, conserva leadgen_id como providerEventId y utiliza la identidad del lead como base de idempotencia. Una redelivery del mismo lead no genera un segundo evento, aunque cambie metadata de entrega.
 
 La prueba cubre dos notificaciones del mismo lead y una notificación de un lead distinto, incluyendo created_time en epoch seconds numérico y textual. La carga de datos del lead (field_data) sigue siendo una llamada Graph API independiente y no se presume contenida en la notificación. Este slice no registra todavía el lead en un módulo CRM Leads porque ese bounded context aún no existe en código.
+
+
+## 11. Preservación del contexto al dividir eventos — 2026-11-08
+
+La decodificación de cambios con `messages[]` o `statuses[]` ahora conserva un contexto de proveedor por evento individual, sin duplicar las listas ya divididas. `payload.providerContext` contiene `objectType`, `entryId`, `entryTime`, `field` y el resto de `change.value` excluyendo `messages`/`statuses`. En WhatsApp esto mantiene `messaging_product`, `metadata.phone_number_id`, `display_phone_number` y `contacts` junto al mensaje/estado que originó el evento.
+
+El decoder procesa `messages[]` y `statuses[]` mediante ramas independientes; si ambos arrays aparecen en un mismo `change.value`, ninguno se pierde. La clave de idempotencia se sigue calculando exclusivamente a partir de la identidad y contenido del evento original (por ejemplo WAMID/status/timestamp), antes de añadir contexto, por lo que variaciones de metadata de una redelivery no crean otra identidad.
+
+Pruebas añadidas en `microservices-meta-ecuapp/src/webhooks/domain/meta-webhook-event.spec.ts`:
+- `preserves WhatsApp metadata and emits both message and status arrays from one change`.
+- `provider context does not change a message's stable idempotency key`.
+
+Commits de implementación: `96506d956c4af70b061d02623fd42c0749f12fea` y `5b7374ef39113d4a264bd1c0ccf9d8cda8428948`. El resultado Source CI/CodeQL debe leerse sobre el HEAD que contiene código y documentación; no se deduce verificación por la existencia de los tests. No cambia el contrato externo ni la versión del envelope RabbitMQ, porque `providerContext` se encuentra dentro del payload cifrado que permanece en PostgreSQL.
+
+Este ajuste no habilita handlers de negocio, no altera las políticas de replay/retención, y no permite efectos externos. TASK-027/028 permanecen `in_progress` hasta cerrar todos sus DoD y evidencias operativas.
