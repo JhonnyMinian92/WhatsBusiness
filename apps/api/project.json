@@ -13,19 +13,28 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "tsc --project apps/api/tsconfig.app.json"
-      }
+      },
+      "dependsOn": [
+        "^build"
+      ]
     },
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
         "command": "tsc --noEmit --project apps/api/tsconfig.app.json"
-      }
+      },
+      "dependsOn": [
+        "^build"
+      ]
     },
     "test": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsx --tsconfig apps/api/tsconfig.app.json --test apps/api/src/platform/health/readiness.service.spec.ts apps/api/src/platform/health/health.controller.spec.ts apps/api/src/platform/identity/identity.slice.spec.ts apps/api/src/platform/identity/tenant-context.guard.spec.ts apps/api/src/platform/identity/security/step-up-evidence.spec.ts apps/api/src/platform/identity/authorization/tenant-authorization-policy.spec.ts apps/api/src/platform/identity/authorization/authorization.guard.spec.ts apps/api/src/platform/identity/authorization/tenant-role-assignment.policy.spec.ts apps/api/src/platform/identity/approvals/approval-policy.spec.ts apps/api/src/platform/jobs/domain/tenant-job-replay-policy.registry.spec.ts apps/api/src/platform/jobs/infrastructure/postgres/tenant-job-replay-privileges.integration.spec.ts apps/api/src/platform/identity/approvals/approval-request-hash.spec.ts apps/api/src/platform/identity/audit/append-only-audit.repository.spec.ts apps/api/src/platform/identity/approvals/approval-workflow.integration.spec.ts apps/api/src/platform/jobs/application/tenant-job-replay.service.spec.ts apps/api/src/platform/database/database.context.integration.spec.ts apps/api/src/platform/isolation/tenant-resource-namespace.spec.ts apps/api/src/platform/isolation/tenant-scoped-cache.spec.ts apps/api/src/platform/isolation/tenant-scoped-object-storage.spec.ts apps/api/src/platform/isolation/tenant-job-context.spec.ts apps/api/src/platform/isolation/postgres-tenant-job-record.reader.spec.ts apps/api/src/platform/isolation/postgres-tenant-job-record.writer.spec.ts apps/api/src/platform/isolation/tenant-job-record.integration.spec.ts apps/api/src/platform/isolation/tenant-telemetry-context.spec.ts apps/api/src/platform/isolation/tenant-hmac-pseudonymizer.spec.ts apps/api/src/platform/isolation/tenant-job-retry-policy.spec.ts"
-      }
+        "command": "tsx --tsconfig apps/api/tsconfig.app.json --test apps/api/src/platform/health/readiness.service.spec.ts apps/api/src/platform/health/health.controller.spec.ts apps/api/src/platform/identity/identity.slice.spec.ts apps/api/src/platform/identity/tenant-context.guard.spec.ts apps/api/src/platform/identity/security/step-up-evidence.spec.ts apps/api/src/platform/identity/authorization/tenant-authorization-policy.spec.ts apps/api/src/platform/identity/authorization/authorization.guard.spec.ts apps/api/src/platform/identity/authorization/tenant-role-assignment.policy.spec.ts apps/api/src/platform/identity/approvals/approval-policy.spec.ts apps/api/src/platform/jobs/domain/tenant-job-replay-policy.registry.spec.ts apps/api/src/platform/jobs/infrastructure/postgres/tenant-job-replay-privileges.integration.spec.ts apps/api/src/platform/identity/approvals/approval-request-hash.spec.ts apps/api/src/platform/identity/audit/append-only-audit.repository.spec.ts apps/api/src/platform/identity/approvals/approval-workflow.integration.spec.ts apps/api/src/platform/jobs/application/tenant-job-replay.service.spec.ts apps/api/src/platform/database/database.context.integration.spec.ts apps/api/src/platform/isolation/tenant-resource-namespace.spec.ts apps/api/src/platform/isolation/tenant-scoped-cache.spec.ts apps/api/src/platform/isolation/tenant-scoped-object-storage.spec.ts apps/api/src/platform/isolation/tenant-job-context.spec.ts apps/api/src/platform/isolation/postgres-tenant-job-record.reader.spec.ts apps/api/src/platform/isolation/postgres-tenant-job-record.writer.spec.ts apps/api/src/platform/isolation/tenant-job-record.integration.spec.ts apps/api/src/platform/isolation/tenant-telemetry-context.spec.ts apps/api/src/platform/isolation/tenant-hmac-pseudonymizer.spec.ts apps/api/src/platform/isolation/tenant-job-retry-policy.spec.ts apps/api/src/platform/webhooks/meta-webhook.controller.spec.ts"
+      },
+      "dependsOn": [
+        "^build"
+      ]
     }
   }
 }

@@ -74,3 +74,25 @@ La raíz HTTP legacy sigue en `apps/api` durante la migración gradual de contex
 El proceso expone las métricas Prometheus en `GET /metrics` cuando `TenantJobRuntimeProcess.run()` está activo. Las métricas operativas agregadas se leen desde PostgreSQL cada `TENANT_JOB_METRICS_POLL_INTERVAL_MS` (15 000 ms por defecto), fuera del request path, y no etiquetan ni devuelven IDs de tenants o actores. El listener usa `127.0.0.1:9464` por defecto y no añade labels de tenant, actor, job ni payload.
 
 Para scraping desde otro contenedor/host, configura `TENANT_JOB_METRICS_HOST=0.0.0.0`, un puerto accesible solo desde la red privada y `TENANT_JOB_METRICS_BEARER_TOKEN` con al menos 32 bytes aleatorios. El secreto debe proceder del Secret Manager; Prometheus debe enviarlo como `Authorization: Bearer`. El tráfico remoto debe ir cifrado mediante TLS/mTLS en el service mesh o reverse proxy de confianza: Bearer no cifra HTTP. No expongas el endpoint a Internet ni lo publiques detrás de un proxy sin autenticación.
+
+## Meta Webhook Gateway e inbox durable (TASK-027/028)
+
+La API registra GET y POST en /api/v1/webhooks/meta/:product para whatsapp, facebook, instagram, leadgen, ads y threads. WhatsApp Flows Data Exchange es un protocolo síncrono distinto y no se procesa en este gateway.
+
+- **Confianza del proveedor:** GET valida hub.mode=subscribe y compara hash SHA-256 del verify token en tiempo constante. POST valida X-Hub-Signature-256 como HMAC-SHA256 sobre los bytes HTTP originales; el parser JSON conserva esos bytes y aplica límite de 3 MiB. La firma se valida antes de decodificar/parsing JSON.
+- **Resolución tenant:** el identificador del asset del evento se resuelve contra platform.meta_webhook_assets. Nunca se confía en un tenant enviado por el callback.
+- **Durabilidad:** en una sola transacción PostgreSQL se persiste la entrega y cada evento en inbox cifrada, con clave única de idempotencia, y se crea el outbox transaccional. La API responde HTTP 200 solo después del COMMIT.
+- **Cifrado:** el cuerpo HTTP y el payload independiente se protegen con AES-256-GCM y AAD ligado a app/tenant/product/asset/evento. Se guarda el key ID para permitir rotación manteniendo claves anteriores durante la vida del ciphertext.
+- **Broker:** el outbox dispatcher publica un evento v1 mínimo meta.webhook.received, sin payload PII, con publisher confirms y entrega mandatory. RabbitMQ usa exchange y quorum queue durables, DLX/DLQ física y ACK manual.
+- **Procesamiento:** el consumer reclama inbox con lease/fencing, descifra y enruta al handler registrado por producto/tipo. El handler y el recibo idempotente del consumer deben ejecutarse en la misma transacción tenant-scoped. Reintentos son at-least-once con backoff+jitter; handler inexistente o agotamiento de intentos acaba en la DLQ durable de PostgreSQL. Mensajes físicamente inválidos llegan también a la DLQ de RabbitMQ.
+- **Recuperación:** el supervisor recrea la sesión AMQP con backoff acotado; el dispatcher re-publica outbox pendiente y recupera leases vencidos.
+
+### Configuración operativa y límites pendientes
+
+El módulo de ingreso usa el adapter de secretos por entorno como adaptador de desarrollo: META_WEBHOOK_APP_SECRETS_JSON debe recibir referencias a secretos gestionados externamente, y META_WEBHOOK_ENCRYPTION_KEYS_JSON un keyring base64 de claves de 32 bytes. No es una integración KMS/Secret Manager productiva. No se deben poner secretos reales en archivos versionados.
+
+El worker rechaza iniciar si no se registran handlers de negocio. El repositorio ya incluye ports, registry, processor, dispatcher, consumer y supervisor, pero los handlers de WhatsApp/Instagram/Facebook/Leadgen/Ads aún deben conectarse a sus casos de uso y probar sus efectos externos idempotentes. No se debe registrar un handler vacío que confirme eventos sin aplicar el efecto de negocio.
+
+No existe aún una API administrativa para listar/reprocesar dead letters. El replay requiere política CR-0016 (retención/ventana), handlers idempotentes demostrados y un flujo de aprobación independiente con step-up y auditoría; no ejecutar SQL manual ni reencolar payloads directamente. La cola física de RabbitMQ debe permanecer privada y no exponerse a tenants.
+
+La especificación OpenAPI WH-001..WH-007 y AsyncAPI todavía necesitan freeze/revisión contractual del producto; WH-008 queda fuera. Deben probarse fixtures reales de cada producto/versión soportada. También faltan adapter de secretos gestionados, instalación real de roles/grants, rate limit/WAF en el borde, dashboards/alertas específicos (TASK-029), pruebas E2E con PostgreSQL/RabbitMQ, pruebas de carga/recuperación y aceptación operativa.

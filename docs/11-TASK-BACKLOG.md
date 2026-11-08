@@ -411,3 +411,27 @@ Se añadió una regresión de integración a `microservices-meta-ecuapp/src/jobs
 - Source CI [#42436455186](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42436455186) y CodeQL [#42436455184](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42436455184) fueron disparados para el código actualizado; su resultado final aún no se certifica en este handoff.
 - La cobertura de unacked mejora la visibilidad de deliveries en curso, pero consumer lag temporal sigue pendiente de una fuente autoritativa (por ejemplo, timestamp de publicación/edad del mensaje en broker con semántica verificada).
 - TASK-003 permanece `in_progress`; no marcar `verified` ni `accepted`. Permanecen pendientes handlers de negocio reales y replay E2E, workflow operativo de DLQ, adapters Valkey/object storage, stack Prometheus/Grafana y alert routing desplegados, TLS/mTLS y Secret Manager/rotación reales, carga/backup/restore/DR, revisión independiente y aceptación del propietario. GO-PRODUCTION sigue NO-GO.
+
+
+## Handoff de implementación — TASK-027 / TASK-028 (2026-11-07)
+
+**Estado reconciliado:** ambas tareas permanecen `in_progress`. Hay código y pruebas unitarias añadidos, pero aún no satisfacen todo el DoD ni existe aceptación del propietario. No marcar `verified` o `accepted` por la mera creación de los módulos.
+
+### TASK-027 — Webhook Gateway e inbox
+- **Implementado en código:** GET challenge; POST con HMAC-SHA256 sobre raw bytes, UTF-8 estricto y límite de 3 MiB; decodificación acotada de payload por producto; mapping app/product/asset a tenant; cifrado AES-256-GCM; inbox durable con clave idempotente; outbox transaccional; HTTP 200 solo tras COMMIT.
+- **Pruebas añadidas:** firma válida/alterada, límite y formato de firma, mismatch de producto, bounds, deduplicación de eventos, asset→tenant y rechazo de firma antes de resolver asset; cifrado/AAD.
+- **Pendientes DoD:** contrato OpenAPI WH-001..WH-007 y AsyncAPI freeze formal; fixtures oficiales/versionados de cada producto y prueba de callbacks reales; rate limit/WAF y despliegue del límite TLS; KMS/Secret Manager; migración ejecutada en entorno integrado y revisión de roles/RLS; Source CI, CodeQL y test de integración.
+
+### TASK-028 — Event bus, consumidores, DLQ y recuperación
+- **Implementado en código:** evento interno mínimo v1 sin payload PII; RabbitMQ exchange/quorum queue/DLX/DLQ durables; publisher confirms + mandatory; ACK manual; worker registry, handler processor tenant-scoped, consumer receipt idempotente en la transacción de efectos, leases/fencing, retries con backoff+jitter, DB DLQ y recuperación por leases vencidos; supervisor de reconexión.
+- **Pruebas añadidas:** processor con handler, handler ausente que termina en DLQ, event envelope del dispatcher, marca de outbox y retry tras error de broker.
+- **Pendientes DoD:** handlers reales para eventos por producto y garantías de idempotencia para todos los efectos externos; wiring/despliegue del worker con rol de BD dedicado; API operacional tenant-scoped de consulta DLQ; replay con doble aprobación/step-up/audit y CR-0016 cerrado; retención/privacidad; fault injection y pruebas E2E PostgreSQL/RabbitMQ, carga/DR y alertas de TASK-029.
+- **Seguridad:** no añadir handlers no-op. No habilitar replay, SQL manual ni borrado automático sin política y aprobación. La DLQ física RabbitMQ debe seguir privada.
+
+### Dependencias y evidencia
+- TASK-001 y TASK-007 son dependencias declaradas para TASK-027; TASK-028 depende de TASK-027.
+- Implementación, configuración y limitaciones: `docs/64-META-WEBHOOK-GATEWAY-AND-EVENT-BUS.md`.
+- Los tests se agregaron a `microservices-meta-ecuapp/project.json` y la prueba de controller a `apps/api/project.json`. Las pruebas reales del backend no se ejecutaron localmente en este entorno.
+- No se declara CI verde para este commit hasta inspeccionar los runs que GitHub Actions genere después del push.
+- No hay evidencia de instalación en producción, uso con callbacks reales ni aprobación de retención/replay. CR-0016 permanece abierto.
+

@@ -1,5 +1,8 @@
 {
   "name": "@whatsbusiness/api",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@whatsbusiness/microservices-meta-ecuapp": "workspace:*"
+  }
 }
