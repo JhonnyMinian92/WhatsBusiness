@@ -88,6 +88,13 @@ test("platform administration provisions tenants, versions plans, meters usage a
     assert.equal(firstUsage.duplicate, false);
     assert.equal(repeatedUsage.duplicate, true);
     assert.equal(firstUsage.usageId, repeatedUsage.usageId);
+    const usageSummary = await service.getUsageSummary({
+      actorUserId: ownerId, tenantId: provisioned.tenantId,
+      from: new Date(Date.now() - 60_000).toISOString(), to: new Date(Date.now() + 60_000).toISOString(),
+    });
+    assert.equal(usageSummary.length, 1);
+    assert.equal(usageSummary[0]?.category, "meta");
+    assert.equal(usageSummary[0]?.quantity, "25.12500000");
     await assert.rejects(service.recordUsage({ ...usageCommand, quantity: "26.125" }),
       (error: unknown) => error instanceof ConflictException);
 
