@@ -714,3 +714,12 @@ No se realizaron entrevistas, grabaciones, pilotos, pagos, integraciones reales 
 | AUD-208 | Eventos de outbox tenían tipos de literales ensanchados | Contrato de envelope explícito reutilizable agregado al repositorio. |
 
 El Source Validation del HEAD previo también reportó indisponibilidad del endpoint RabbitMQ Prometheus durante el job de observabilidad. Es un bloqueo ambiental/configuración CI separado de la compilación de US-024, que requiere un diagnóstico independiente; no se registra como PASS.
+
+
+## 51. Cierre de consistencia de permisos y operación de planes (2026-11-08)
+
+| ID | Ajuste | Resultado |
+|---|---|---|
+| AUD-209 | Seed DB de permisos \`developer.*\` ya utilizados por las plantillas de roles | Evita deriva entre RoleCatalog y PermissionCatalog al hacer provisioning; incluido en migration 0030 |
+| AUD-210 | Grant SQL \`UPDATE(status)\` restringido para retirar versiones de plan | Habilita la transición active → retired protegida por trigger; el contenido de la versión sigue inmutable |
+| AUD-211 | Integración PostgreSQL ampliada para publicar v2, cambiar suscripción, retirar v1 y rechazar una nueva asignación de v1 | Código de test incorporado; pendiente resultado CI del HEAD |

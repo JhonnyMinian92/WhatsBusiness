@@ -52,7 +52,13 @@ GRANT EXECUTE ON FUNCTION platform.has_platform_role(uuid,text),platform.is_plat
   platform.is_usage_ingestor(uuid),platform.is_meterable_tenant(uuid),platform.is_active_platform_user(uuid) TO whatsbusiness_app;
 
 INSERT INTO platform.permissions(permission_key,description,risk_class)
-VALUES ('billing.usage.read','Read source-separated tenant usage records','sensitive')
+VALUES
+  ('billing.usage.read','Read source-separated tenant usage records','sensitive'),
+  ('developer.api_clients.read','Read tenant API client metadata without disclosing secrets','sensitive'),
+  ('developer.api_clients.manage','Create, rotate and revoke tenant API client credentials','critical'),
+  ('developer.webhooks.read','Read tenant outbound webhook configuration and delivery metadata','sensitive'),
+  ('developer.webhooks.manage','Manage tenant outbound webhook destinations and subscriptions','critical'),
+  ('developer.webhooks.retry','Request controlled retries of outbound webhook deliveries','critical')
 ON CONFLICT(permission_key) DO NOTHING;
 
 -- Published plan versions and their entitlements are immutable. Changes publish a new version.
@@ -431,6 +437,7 @@ GRANT UPDATE(display_name,status,locale,timezone,currency,updated_at)
 GRANT SELECT,INSERT ON platform.entitlements,platform.plan_versions,platform.plan_entitlements,
   platform.tenant_subscriptions,platform.usage_ledger,platform.support_grants,
   platform.platform_audit_heads,platform.platform_audit_events TO whatsbusiness_app;
+GRANT UPDATE(status) ON platform.plan_versions TO whatsbusiness_app;
 GRANT UPDATE(state,limits,period_starts_at,period_ends_at,source_subscription_id,version,updated_by_user_id,updated_at)
   ON platform.entitlements TO whatsbusiness_app;
 GRANT UPDATE(status,ends_at) ON platform.tenant_subscriptions TO whatsbusiness_app;

@@ -85,3 +85,8 @@ El Source CI del commit anterior encontró un error real de sintaxis SQL en el d
 ## Addendum de build del workspace — 2026-11-08
 
 El Source CI del commit \`6d8e6d3\` confirmó que PostgreSQL aplicó la migración 0030, pero el build completo falló también por deuda de módulos anterior a US-024: faltaba el DeveloperPlatformModule/OIDC boundary referenciado por CRM; faltaban cinco claves \`developer.*\` en el catálogo aunque estaban utilizadas por plantillas de roles; y \`TenantContextGuard\` usaba \`NotFoundException\` sin importarlo. Se corrigió el boundary mediante OIDC JWT verificado únicamente. API-client tokens siguen denegados/no implementados hasta TASK-062 y el contract freeze; no se simula ni se acepta un token no validado. Se agregaron las cinco definiciones de permiso con aprobación independiente para operaciones críticas y se corrigió el import faltante. El siguiente Source CI debe confirmar el estado de compilación.
+
+
+## Addendum de catálogo de roles y permisos — 2026-11-08
+
+La migración 0030 también siembra las cinco claves \`developer.*\` que ya consume el catálogo canónico de roles. Sin este seed, el provisioning de cualquier tenant fallaría al comparar el número de permisos materializados con \`TENANT_ROLE_CATALOG\`. Se agregó igualmente el grant SQL de UPDATE exclusivo sobre \`plan_versions.status\`, necesario para retirar versiones activas sin permitir modificar su contenido. La suite de integración ahora cubre cambio de versión de suscripción, retiro y rechazo de asignación de un plan retirado.

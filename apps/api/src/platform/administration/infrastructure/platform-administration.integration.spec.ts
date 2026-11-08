@@ -76,6 +76,35 @@ test("platform administration provisions tenants, versions plans, meters usage a
       ["automation.rules", "active"], ["crm.contacts", "active"],
     ]);
 
+    const revisedPlan = await service.publishPlanVersion({
+      actorUserId: requesterId, correlationId: randomUUID(),
+      plan: {
+        planKey: "integration-business", version: 2, displayName: "Integration Business v2",
+        entitlements: [
+          { featureKey: "crm.contacts", state: "active", limits: { records: 10000 } },
+          { featureKey: "automation.rules", state: "active", limits: { active: 20 } },
+        ],
+      },
+    });
+    assert.ok(revisedPlan.planVersionId);
+    const revisedSubscription = await service.assignTenantPlan({
+      actorUserId: requesterId, correlationId: randomUUID(), tenantId: provisioned.tenantId,
+      planKey: "integration-business", planVersion: 2,
+    });
+    assert.notEqual(revisedSubscription.subscriptionId, provisioned.subscriptionId);
+    await service.retirePlanVersion({
+      actorUserId: requesterId, correlationId: randomUUID(),
+      planKey: "integration-business", planVersion: 1,
+    });
+    await assert.rejects(
+      service.assignTenantPlan({
+        actorUserId: requesterId, correlationId: randomUUID(), tenantId: provisioned.tenantId,
+        planKey: "integration-business", planVersion: 1,
+      }),
+      (error: unknown) => error instanceof NotFoundException,
+      "A retired immutable plan version must not be assigned to a new subscription.",
+    );
+
     const usageCommand = {
       actorUserId: usageIngestorId, correlationId: randomUUID(), tenantId: provisioned.tenantId,
       category: "meta" as const, metricKey: "meta.messages.delivered", unit: "message",
