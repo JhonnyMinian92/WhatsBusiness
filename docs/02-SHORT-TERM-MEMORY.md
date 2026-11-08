@@ -357,3 +357,11 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Source CI #42429156061, commit b96ec893397dda413164edaf56b0914135cee9b0, está pendiente. No declarar TASK-003 verificada ni CI verde.
 - Siguiente bloque: validar CI completo; luego pool reuse A→B, replay administrativo con autorización/approval/audit, métricas/alertas, crash/redelivery/fencing tests y handlers de negocio reales. Mantener TASK-003 in_progress.
 - GO-PRODUCTION sigue NO-GO. No usar datos reales, Meta writes, mensajes, gasto Ads ni proveedor IA externo sin autorización y gates correspondientes.
+
+## Handoff — TASK-003 CI green y definición de CRM Intelligence (2026-11-07)
+
+- Source CI #42430605576 terminó SUCCESS para commit `be9d3dc14aa26b38c20013b98ff5238bac564a4e`: instalación frozen, migraciones 0001–0011/idempotencia, build, typecheck, pruebas unitarias e integraciones PostgreSQL/RabbitMQ.
+- Se corrigió la ambigüedad PL/pgSQL `job.id` en la recuperación de leases mediante migración 0011 y variable local `execution_row`. La integración confirma también que el lease cross-tenant se rechaza con SQLSTATE `40001`.
+- TASK-003 sigue in_progress: pool reuse A→B, replay administrativo auditado, observabilidad, crash/redelivery/fencing tests, handlers de negocio reales, secret manager/deployment y review independiente siguen pendientes.
+- El propietario aclaró que CRM con IA significa machine learning tradicional y estadística, no LLM ni agentes. Ver [docs/62](62-CRM-MACHINE-LEARNING-STRATEGY.md), PD-005 y ADR-026.
+- Se agregaron tareas propuestas TASK-081..087 para labels/features, datasets reproducibles, baselines, registry, serving CPU-first, MLOps y casos predictivos. No se afirma que CRM Intelligence esté implementada.
