@@ -57,6 +57,25 @@ test("DatabaseService clears tenant context when a worker connection is reused f
     assert.equal(afterA.rows[0]?.tenant_cleared, true);
     assert.equal(afterA.rows[0]?.user_cleared, true);
 
+    await assert.rejects(
+      database.withTenantContext(actorA, tenantA, async (client) => {
+        const context = await client.query<{ backend_pid: number; tenant_id: string; user_id: string }>(
+          "SELECT pg_backend_pid() AS backend_pid, current_setting('app.tenant_id', true) AS tenant_id, current_setting('app.user_id', true) AS user_id",
+        );
+        assert.equal(context.rows[0]?.tenant_id, tenantA);
+        assert.equal(context.rows[0]?.user_id, actorA);
+        assert.equal(context.rows[0]?.backend_pid, backendA);
+        throw new Error("Synthetic failure to verify tenant context rollback.");
+      }),
+      /Synthetic failure to verify tenant context rollback/,
+    );
+    const afterRollback = await workerPool.query<{ backend_pid: number; tenant_cleared: boolean; user_cleared: boolean }>(
+      "SELECT pg_backend_pid() AS backend_pid, NULLIF(current_setting('app.tenant_id', true), '') IS NULL AS tenant_cleared, NULLIF(current_setting('app.user_id', true), '') IS NULL AS user_cleared",
+    );
+    assert.equal(afterRollback.rows[0]?.backend_pid, backendA);
+    assert.equal(afterRollback.rows[0]?.tenant_cleared, true);
+    assert.equal(afterRollback.rows[0]?.user_cleared, true);
+
     const backendB = await inspect(actorB, tenantB);
     assert.equal(backendB, backendA, "A→B must reuse the same PostgreSQL backend connection.");
     const afterB = await workerPool.query<{ backend_pid: number; tenant_cleared: boolean; user_cleared: boolean }>(
