@@ -315,3 +315,10 @@ Se estableció `microservices-meta-ecuapp` como proyecto Nx/workspace y paquete 
 ### Handoff de producto — CRM vs ARM (2026-11-07)
 
 Se revisaron `docs/38-CRM-DOMAIN-SPEC.md`, `docs/42-INITIAL-DATA-MODEL.md`, `docs/43-API-AND-EVENT-CONTRACTS.md` y `docs/30-RECOMMENDED-ARCHITECTURE.md`. Se creó `docs/61-ARM-STRATEGY-AND-ARCHITECTURE-ASSESSMENT.md`. La recomendación provisional es conservar TASK-035/042..043/053 y el bounded context CRM; añadir Agent Management & Orchestration como capacidad separada conectada mediante contratos públicos. ARM es ambiguo (Agent Relationship Management, Agentic Relationship Management o Account Relationship Management); el naming y el cambio comercial no se consideran aprobados hasta que el propietario confirme su significado. No se elimina ni renombra el CRM.
+
+
+### Handoff incremental TASK-003 — límites de ejecución de handlers (2026-11-07)
+
+Se añadió deadline configurable `TENANT_JOB_HANDLER_TIMEOUT_MS` al runtime `microservices-meta-ecuapp` (default 300.000 ms, límites 1.000–900.000 ms), inyección por composición en la factoría de sesión y carrera de cancelación en `TenantJobExecutionLeaseHeartbeat`. El worker aborta el handler y rechaza la transacción cuando se pierde el fencing lease o vence el deadline. Se agregaron pruebas para timeout cooperativo, handler no cooperativo y pérdida de lease. La cancelación es cooperativa: Node.js no puede matar una promesa arbitraria; los handlers deben respetar AbortSignal y no ejecutar efectos externos dentro de la transacción.
+
+**Estado:** código y pruebas registrados; Source CI run pendiente. TASK-003 continúa `in_progress`, no `verified` ni `accepted`.
