@@ -6,7 +6,8 @@ import type { Response } from "express";
 import { ContactController } from "./contact.controller.js";
 import type { ContactService } from "../application/contact.service.js";
 import type { ContactRecord } from "../domain/contact.js";
-import { REQUIRED_TENANT_PERMISSION } from "../../../platform/identity/authorization/authorization.guard.js";
+import { AuthorizationGuard, REQUIRED_TENANT_PERMISSION } from "../../../platform/identity/authorization/authorization.guard.js";
+import { TenantContextGuard } from "../../../platform/identity/tenant-context.guard.js";
 import {
   TENANT_ACCESS_PURPOSE,
   type TenantAuthenticatedRequest,
@@ -71,6 +72,18 @@ test("CRM routes declare OIDC, tenant context, purpose and exact RBAC permission
     getMetadata(key: string, target: object): unknown;
   };
   assert.deepEqual(reflector.getMetadata("__guards__", ContactController), [OidcAuthGuard]);
+  for (const handler of [
+    ContactController.prototype.list,
+    ContactController.prototype.create,
+    ContactController.prototype.get,
+    ContactController.prototype.update,
+  ]) {
+    assert.deepEqual(
+      reflector.getMetadata("__guards__", handler),
+      [TenantContextGuard, AuthorizationGuard],
+      "Every CRM route must execute tenant-context resolution and RBAC authorization guards.",
+    );
+  }
   assert.equal(reflector.getMetadata(REQUIRED_TENANT_PERMISSION, ContactController.prototype.list), "crm.contacts.read");
   assert.equal(reflector.getMetadata(TENANT_ACCESS_PURPOSE, ContactController.prototype.list), "crm.contacts.read");
   assert.equal(reflector.getMetadata(REQUIRED_TENANT_PERMISSION, ContactController.prototype.create), "crm.contacts.create");
