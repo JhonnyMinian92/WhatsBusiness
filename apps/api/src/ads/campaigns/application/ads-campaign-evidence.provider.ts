@@ -70,7 +70,7 @@ implements AdsCampaignPreflightProvider, AdsCampaignExecutionEvidenceProvider {
       objectiveCatalog: null,
       evidence: Object.freeze({
         adAccount: {
-          status: "unknown",
+          status: "unknown" as const,
           currency: null,
           observedAt: null,
           validUntil: null,
