@@ -564,3 +564,17 @@ El ajuste no altera OpenAPI, AsyncAPI, migraciones, envelope broker ni la respue
 | AUD-038 | Gates de US-013 | TASK-026 permanece in_progress; TASK-023/031/032, contrato/versión/capability Meta, outbox/worker y CR-0015 siguen pendientes. No hubo envío real ni datos de producción. |
 
 Detalle: docs/72-CAPI-EVENT-GATEWAY.md. CI posterior al commit determina CI verification; self-review no equivale a revisión independiente ni aceptación.
+
+
+## 45. US-014 — composition root dedicado del worker y validación de arranque (AUD-178..183; 2026-11-08)
+
+| ID | Cambio / control | Resultado al registrar |
+|---|---|---|
+| AUD-178 | Nuevo `MetaWebhookWorkerRuntime` como composition root del worker dedicado; crea pool aislado con `DATABASE_WEBHOOK_WORKER_URL` e inyecta handlers/reporter al supervisor. | Implementado; Source CI pendiente |
+| AUD-179 | Validación de URLs PostgreSQL/AMQP, TLS obligatorio para DB en producción y AMQPS obligatorio para broker en producción. | Implementado con errores de configuración sin imprimir credenciales |
+| AUD-180 | `EnvironmentMetaWebhookPayloadProtector.validateConfiguration()` fuerza carga de keyring antes de asignar el pool/consumir eventos. | Implementado; test de orden de arranque |
+| AUD-181 | Registry valida evento/producto y duplicados; consumerName debe cumplir formato del processor antes de crear recursos. | Implementado; tests de fallos tempranos |
+| AUD-182 | `run(AbortSignal)` y `close()` single-flight delegan drenado al supervisor y cierran una vez el pool dedicado. | Implementado; test de abort/shutdown |
+| AUD-183 | Suite del runtime registrada en Nx, export del paquete, README y `.env.example` actualizados. | Código documentado; CI pendiente |
+
+Commits de runtime: `b2fae18c07b1ede450a7ee8248df1ceceb3c0fd2`, `65e173921ff83461a22bce86198305b21816b252`, `7daebb92507e51a3f2e6316bee592fa2e4edb583`, `7d6e33c10ceb19a4f4f68af3fb932c8783f1ed5b`, `12cabafa446e1b1408e42a219e0f5638838dbba2` y `d6d1e015d01b9810f7b92a047f5a5ed51ab097bf`. El entrypoint de cada bounded context aún no existe porque los handlers reales siguen pendientes; GO-PRODUCTION no cambia.
