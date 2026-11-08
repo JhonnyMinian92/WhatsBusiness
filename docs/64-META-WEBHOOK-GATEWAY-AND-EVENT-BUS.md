@@ -98,3 +98,9 @@ Las variables de ejemplo están en `microservices-meta-ecuapp/.env.example`. En 
 - La nueva suite `postgres-meta-webhook.integration.spec.ts` recorre PostgreSQL → outbox → RabbitMQ quorum queue → consumer → handler registrado → transacción tenant-scoped → recibo idempotente. Incluye deduplicación y rechazo de finalización bajo tenant incorrecto.
 - Código publicado en `environment/local`; Source CI [#42444781572](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42444781572) estaba en ejecución al actualizar este documento. No declarar la suite verificada hasta que termine SUCCESS en el HEAD exacto.
 - TASK-027/028 siguen `in_progress`: esta integración sintética no reemplaza handlers reales por producto, fixtures oficiales/versionados ni pruebas con callbacks de cuentas Meta elegibles. Replay continúa deshabilitado hasta CR-0016, políticas de retención/privacidad aprobadas y efectos externos idempotentes demostrados.
+
+## 9. Contrato del evento interno
+
+- Se añadió `meta.webhook.received.v1` a AsyncAPI y `MetaWebhookReceived` al union JSON Schema de eventos (70 eventos). El contrato exige receipt UUID, producto soportado y SHA-256; no permite payload Meta ni PII en el mensaje del broker.
+- `scripts/validate-contracts.mjs` amplió las verificaciones de estructura, referencias y fixtures positivos/negativos a 70 esquemas y 140 operaciones AsyncAPI. La instalación de validadores se aisló fuera del workspace pnpm para evitar que npm intente resolver dependencias `workspace:` del monorepo.
+- Contract CI [#42445047626](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42445047626) falló antes de ejecutar validadores porque npm intentó instalar dependencias del workspace; el workflow se corrigió y una nueva ejecución está en curso.
