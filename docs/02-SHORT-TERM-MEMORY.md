@@ -507,3 +507,14 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Source CI [#572](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42498026616) SUCCESS y CodeQL [#107](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42498026686) SUCCESS: migraciones 0001–0023/idempotencia, provisioning, quorum DLX, plugin Prometheus, build, typecheck, API/PostgreSQL y backend/RabbitMQ.
 - La misma ejecución verifica OIDC a nivel de clase y TenantContextGuard + AuthorizationGuard en cada método CRM list/create/get/update.
 - No implica despliegue Prometheus/Grafana, SLO, load/DR ni aceptación independiente. TASK-003/027/028 y TASK-042 siguen `in_progress`; GO-PRODUCTION NO-GO.
+
+## Handoff técnico — exportación pública de métricas de jobs (2026-11-08)
+
+- Se inspeccionó el barrel público `microservices-meta-ecuapp/src/index.ts` y los módulos de métricas existentes.
+- Hallazgo: las abstracciones `TenantJobRuntimeMetrics`/`TenantJobRuntimeMetricsReader`, el reader compuesto, el exporter Prometheus y el servidor HTTP de métricas estaban implementados y probados en sus módulos, pero no eran accesibles desde el punto de entrada público del paquete.
+- Cambio: el barrel exporta ahora esos cuatro módulos, sin duplicar implementación ni alterar el runtime.
+- Commit: `f10743ce35d96f216c6e5c74ba3dd7286d07f262` en `environment/local`.
+- Source CI #42510655661 y CodeQL #42510655630 fueron observados en estado `in_progress` al registrar este handoff; no se declara verificación hasta conocer su conclusión.
+- Alcance: mejora de API pública del paquete de jobs/observabilidad. No cierra TASK-003 ni cambia TASK-027/028.
+- Restricción de orquestación: en esta sesión solo estuvo disponible un agente ejecutor; se paralelizaron inspecciones de solo lectura. No se presenta esa actividad como revisión independiente ni como ejecución real de varios agentes.
+
