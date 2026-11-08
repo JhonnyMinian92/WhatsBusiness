@@ -91,7 +91,7 @@ function metricsRecorder(calls: string[]): TenantJobRuntimeMetrics {
       calls.push("snapshot:" + snapshot.pendingDispatchJobs);
     },
     recordBrokerRuntimeSnapshot(snapshot) {
-      calls.push("broker-snapshot:" + snapshot.workerQueueReadyMessages);
+      calls.push("broker-snapshot:" + snapshot.workerQueueReadyMessages + ":" + snapshot.workerQueueUnacknowledgedMessages);
     },
   };
 }
@@ -251,7 +251,7 @@ test("samples RabbitMQ queue metrics independently and records ready counts", as
   assert.deepEqual(calls, [
     "broker-sample",
     "recover",
-    "broker-snapshot:14",
+    "broker-snapshot:14:6",
     "recovered",
     "dispatch",
   ]);
