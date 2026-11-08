@@ -79,7 +79,9 @@ Los umbrales son guardrails iniciales, no SLO/SLA aprobados. Dashboards y reglas
 
 ## Validación y estado
 
-La implementación del reader RabbitMQ, la composición de fuentes, gauges y pruebas unitarias queda incluida en este commit. La validación completa del HEAD debe confirmarse con Source CI. Source CI #508 del commit anterior terminó cancelado; no se usa como evidencia de éxito.
+La prueba live de RabbitMQ Management API crea un exchange y dos colas efímeras únicas por ejecución, publica mensajes confirmados, inspecciona ready/unacknowledged/consumers y verifica ACK/cancelación. Las colas temporales del fixture deben declararse `durable=false`, `exclusive=true`, `autoDelete=true`. RabbitMQ 4.4 rechaza colas clásicas transitorias no exclusivas (`transient_nonexcl_queues)); esto pertenece al harness de pruebas y no justifica debilitar las quorum queues durables del runtime.
+
+Source CI #560 y #562 pasaron frozen install, migraciones 0001–0023 e idempotencia, provisioning, build, typecheck y pruebas API. El target `microservices-meta-ecuapp:test` falló en la integración live de métricas RabbitMQ; #562 terminó también con timeout del step tras el fallo temprano. El log del broker mostró el rechazo de colas temporales no exclusivas. El fixture se corrigió en el commit `92b46d68bc8070a086b95352d504797fe1bf0c3d`; Source CI #563 y CodeQL #98 estaban en ejecución al sincronizar esta documentación. No atribuir verificación al nuevo fixture hasta conocer el resultado del HEAD exacto.
 
 Pendientes de aceptación operacional:
 1. Source CI SUCCESS para el HEAD con build, typecheck, unitarias e integraciones PostgreSQL/RabbitMQ.
@@ -88,6 +90,6 @@ Pendientes de aceptación operacional:
 4. Definición de SLO, RPO/RTO con pruebas de carga y restore.
 5. Revisión independiente y aceptación del propietario.
 
-Los gauges messages_unacknowledged no se presentan como consumer lag. Para consumer lag/age autoritativo se necesita instrumentación de edad del evento o timestamps de entrega/proceso y una definición operativa separada.
+Los gauges `messages_unacknowledged` no se presentan como consumer lag. Para consumer lag/age autoritativo se necesita instrumentación de edad del evento o timestamps de entrega/proceso y una definición operativa separada.
 
-TASK-003 permanece in_progress hasta que se adjunte evidencia CI y operacional suficiente. Este documento no habilita GO-PRODUCTION.
+TASK-003 permanece `in_progress` hasta que se adjunte evidencia CI y operacional suficiente. Este documento no habilita GO-PRODUCTION.

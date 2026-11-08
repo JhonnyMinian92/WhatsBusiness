@@ -486,3 +486,10 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - El adaptador compartido RabbitMqConnectionFactory.close esperaba primero los cierres de canales y después el de la conexión. El runtime worker reutiliza este cierre para fallos de procesamiento/ACK; esperar un RPC de canal que no finaliza puede impedir el cierre del socket y bloquear reconexión.
 - Cambio implementado: cierre directo de la conexión AMQP padre; amqplib invalida RPC pendientes y cierra sus canales hijos. El test PostgreSQL/RabbitMQ existente ahora provoca el crash mediante channels.close() del proceso completo y comprueba que el mensaje sin ACK se redelivery.
 - Source CI #561 seguía en ejecución en el test backend y no hay conclusión; el siguiente push lo sustituye por concurrency cancel-in-progress. CI/CodeQL del nuevo HEAD pendientes. TASK-003 no se cierra por este cambio.
+
+## Handoff — compatibilidad del fixture de métricas con RabbitMQ 4.4 (2026-11-08)
+
+- Source CI #560 y #562 pasaron frozen install, migraciones 0001–0023 e idempotencia, provisioning, build, typecheck y `api:test`; el target backend falló en la integración live de Management API y alcanzó el timeout del step.
+- RabbitMQ 4.4 rechazó la característica `transient_nonexcl_queues`. El fixture declaraba dos colas efímeras con `durable=false, exclusive=false, autoDelete=true`; la causa está en la configuración del test y no en la topología productiva.
+- Corrección implementada en `92b46d68bc8070a086b95352d504797fe1bf0c3d`: las colas de test son ahora exclusivas y auto-delete, con nombres únicos por ejecución. La topología quorum durable no se modifica.
+- Source CI #563 y CodeQL #98 se encontraban en ejecución. **No marcar el test ni TASK-003 como verified** hasta inspeccionar el resultado completo del HEAD corregido. TASK-003/027/028 permanecen `in_progress`; GO-PRODUCTION sigue NO-GO.

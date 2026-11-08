@@ -34,7 +34,7 @@ RabbitMQ 4.4 con quorum queues es la baseline documentada en docs/51. Se requier
 
 ## Validación
 
-`pnpm build`, `pnpm typecheck` y `pnpm test` ejecutan también este proyecto Nx. Source CI aplica las migraciones versionadas vigentes (hasta `0014`) e idempotencia; habilita las suites `RUN_TENANT_JOB_RUNTIME_INTEGRATION_TESTS=true` y valida PostgreSQL/RabbitMQ efímeros, renovación/recuperación de leases y fencing. Source CI #42433941375 terminó SUCCESS para commit `f136cff710fe8c60c8430c82928092320b9d90b5`.
+`pnpm build`, `pnpm typecheck` y `pnpm test` ejecutan también este proyecto Nx. Source CI aplica las migraciones versionadas vigentes (0001–0023 al 2026-11-08) e idempotencia; habilita las suites `RUN_TENANT_JOB_RUNTIME_INTEGRATION_TESTS=true` y valida PostgreSQL/RabbitMQ efímeros, renovación/recuperación de leases y fencing. Source CI #42433941375 terminó SUCCESS para commit `f136cff710fe8c60c8430c82928092320b9d90b5`.
 
 ## Estado honesto
 
@@ -96,3 +96,7 @@ El worker rechaza iniciar si no se registran handlers de negocio. El repositorio
 Existe una API tenant-scoped de solo lectura GET /v1/tenants/:tenantId/webhooks/dead-letters para listar metadatos sin exponer ciphertext. El permiso webhooks.dead_letters.read se limita a las plantillas tenant_admin y compliance_auditor. El replay administrativo todavía no está implementado: requiere política CR-0016 (retención/ventana), handlers idempotentes demostrados y flujo de aprobación independiente con step-up y auditoría; no ejecutar SQL manual ni reencolar payloads directamente. La cola física de RabbitMQ debe permanecer privada y no exponerse a tenants.
 
 La especificación OpenAPI WH-001..WH-007 y AsyncAPI todavía necesitan freeze/revisión contractual del producto; WH-008 queda fuera. Deben probarse fixtures reales de cada producto/versión soportada. También faltan adapter de secretos gestionados, instalación real de roles/grants, rate limit/WAF en el borde, dashboards/alertas específicos (TASK-029), pruebas E2E con PostgreSQL/RabbitMQ, pruebas de carga/recuperación y aceptación operativa.
+
+## Compatibilidad del fixture live con RabbitMQ 4.4
+
+La integración de Management API usa colas temporales únicas, exclusivas de la conexión y auto-delete (`durable=false, exclusive=true, autoDelete=true`). RabbitMQ 4.4 rechaza colas clásicas transitorias no exclusivas; no se habilita la característica obsoleta ni se cambia la topología quorum durable del runtime. La ejecución Source CI #563 sobre el commit `92b46d68bc8070a086b95352d504797fe1bf0c3d` es el gate pendiente de este ajuste.

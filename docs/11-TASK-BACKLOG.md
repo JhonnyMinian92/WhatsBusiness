@@ -546,3 +546,10 @@ Se añadió una regresión de integración a `microservices-meta-ecuapp/src/jobs
 - La revisión del código identificó que RabbitMqConnectionFactory.close esperaba Promise.allSettled de los cierres de publisher/consumer antes de cerrar el socket padre. La aplicación de worker reutiliza ese método para interrumpir una sesión con ACK ambiguo o error de procesamiento; un RPC de canal pendiente podía impedir el cierre de la conexión y la reconexión.
 - **Corrección implementada:** close ahora cierra directamente la conexión AMQP padre, que invalida operaciones pendientes y termina todos sus canales; el test de redelivery simula crash de proceso cerrando la conexión completa con un mensaje sin ACK, y verifica la redelivery.
 - El siguiente push supersede Source CI #561 por la política cancel-in-progress; Source CI/CodeQL del nuevo HEAD pendientes. TASK-003 sigue in_progress; no declarar recuperación verificada hasta SUCCESS.
+
+### Handoff incremental — compatibilidad RabbitMQ 4.4 del test live de métricas (2026-11-08)
+
+- Source CI #560 y #562 confirmaron SUCCESS en instalación frozen, migraciones 0001–0023/idempotencia, provisioning, build, typecheck y `api:test`; ambos fallaron en el target independiente `microservices-meta-ecuapp:test` durante la integración live de métricas RabbitMQ.
+- El log del broker mostró que RabbitMQ 4.4 no permite colas clásicas transitorias no exclusivas (`transient_nonexcl_queues`). El test usaba `durable=false, exclusive=false, autoDelete=true` para dos colas efímeras.
+- **Corrección implementada:** las colas temporales ahora son exclusivas y auto-delete, manteniendo el flujo de publish confirm, ready/unacked/consumers, ACK y cleanup. La topología quorum durable de producción y los permisos monitor-only no cambian.
+- Commit: `92b46d68bc8070a086b95352d504797fe1bf0c3d`. Source CI #563/CodeQL #98 deben confirmar el HEAD antes de marcar la integración verificada. TASK-003 continúa `in_progress`.
