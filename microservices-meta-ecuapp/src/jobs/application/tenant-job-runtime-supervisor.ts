@@ -6,6 +6,7 @@ import { classifyTenantJobFailure } from "../domain/tenant-job-failure.js";
 import {
   NOOP_TENANT_JOB_RUNTIME_METRICS,
   type TenantJobRuntimeMetrics,
+  type TenantJobRuntimeMetricsReader,
 } from "./tenant-job-runtime-metrics.js";
 
 export interface TenantJobRuntimeLogger {
@@ -25,6 +26,7 @@ export interface TenantJobRuntimeSupervisorOptions {
   readonly dispatchBatchSize: number;
   readonly dispatchLeaseSeconds: number;
   readonly dispatchConcurrency: number;
+  readonly metricsPollIntervalMs?: number;
 }
 
 export class TenantJobRuntimeSupervisor {
@@ -36,6 +38,7 @@ export class TenantJobRuntimeSupervisor {
     private readonly logger: TenantJobRuntimeLogger,
     private readonly options: TenantJobRuntimeSupervisorOptions,
     private readonly metrics: TenantJobRuntimeMetrics = NOOP_TENANT_JOB_RUNTIME_METRICS,
+    private readonly metricsReader?: TenantJobRuntimeMetricsReader,
   ) {
     validateOptions(options);
   }
@@ -43,9 +46,22 @@ export class TenantJobRuntimeSupervisor {
   async run(signal: AbortSignal): Promise<void> {
     if (this.running) throw new Error("Tenant job runtime supervisor is already running.");
     this.running = true;
+    let nextMetricsSampleAt = 0;
     try {
       while (!signal.aborted) {
         let delay = this.options.pollIntervalMs;
+        if (this.metricsReader && Date.now() >= nextMetricsSampleAt) {
+          try {
+            const snapshot = await this.metricsReader.readSnapshot();
+            this.metrics.recordRuntimeSnapshot(snapshot);
+          } catch {
+            // Metrics collection must never stop durable recovery or dispatch.
+            this.logger.failed("TENANT_JOB_METRICS_SNAPSHOT_FAILED");
+            this.metrics.recordRuntimeError();
+          } finally {
+            nextMetricsSampleAt = Date.now() + (this.options.metricsPollIntervalMs ?? 15_000);
+          }
+        }
         try {
           const recovered = await this.repository.recover(
             this.options.recoveryBatchSize,
@@ -82,6 +98,10 @@ function validateOptions(options: TenantJobRuntimeSupervisorOptions): void {
     options.dispatchConcurrency,
   ];
   if (positive.some((value) => !Number.isInteger(value) || value < 1)
+    || (options.metricsPollIntervalMs !== undefined
+      && (!Number.isInteger(options.metricsPollIntervalMs)
+        || options.metricsPollIntervalMs < 1_000
+        || options.metricsPollIntervalMs > 300_000))
     || options.recoveryBatchSize > 500
     || options.dispatchBatchSize > 500
     || options.dispatchLeaseSeconds < 5
