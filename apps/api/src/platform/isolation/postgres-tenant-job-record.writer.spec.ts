@@ -26,6 +26,8 @@ test("job writer stages a bounded tenant job using the caller transaction", asyn
   const id = await new PostgresTenantJobRecordWriter().stage(client, input);
   assert.equal(id, "cccccccc-cccc-4ccc-8ccc-cccccccccccc");
   assert.match(observedSql, /INSERT INTO platform\.tenant_job_records/);
+  assert.match(observedSql, /ON CONFLICT DO NOTHING/);
+  assert.doesNotMatch(observedSql, /ON CONFLICT\s*\(/);
   assert.deepEqual(observedValues.slice(0, 6), [
     input.tenantId, input.actorUserId, input.purpose, input.correlationId,
     input.jobType, input.idempotencyKey,
