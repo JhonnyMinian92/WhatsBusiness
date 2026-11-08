@@ -122,7 +122,8 @@ Source CI declara PostgreSQL 18.6 y RabbitMQ 4.4 para pruebas de integración. R
 - [x] Métricas Prometheus in-memory con contadores/histogramas y allowlists de outcomes fijos; sin labels de tenant, actor, job ni payload. Source CI #42433578446 SUCCESS (la cobertura se mantiene en commits posteriores).
 - [x] Endpoint HTTP `/metrics` integrado al lifecycle, loopback por defecto y bearer para binding remoto; Source CI #403 SUCCESS para build/typecheck/suite HTTP.
 - [x] Gauges PostgreSQL agregados para pending/blocked dispatch, leases activos/expirados, dead-letter jobs, edad de pending más antiguo y replayed jobs; función SECURITY DEFINER con EXECUTE solo dispatcher. Tests escritos; CI de este slice pendiente.
-- [ ] Completar métricas del broker (queue depth, consumer lag y DLQ depth), dashboards, alertas y SLO.
+- [x] Leer `messageCount`/`consumerCount` de worker queue y DLQ por un canal RabbitMQ dedicado, sin consumir mensajes; suite unitaria + integración real añadidas. CI de este slice pendiente.
+- [ ] Añadir métrica autoritativa de unacked/consumer lag, dashboards, alertas y SLO.
 - [x] Probar pérdida de canal y redelivery real RabbitMQ; error de persistencia en job válido; ACK ambiguo después del commit; cierres concurrentes single-flight; expiración de execution/dispatch leases y fencing de tokens viejos. Source CI #42433941375 SUCCESS para commit `f136cff710fe8c60c8430c82928092320b9d90b5`.
 - [ ] Extender crash tests para todas las ventanas publish/confirm/mark, recovery concurrente bajo carga y fault injection con infraestructura de deployment.
 - [ ] Validar topology/policy en un deployment RabbitMQ real; CI no sustituye infraestructura de producción.
@@ -166,7 +167,7 @@ Cambios y regresiones cubiertas en la punta verificada:
 - PostgreSQL real: recuperación de execution/dispatch leases expirados; fencing de tokens antiguos que impide renew/complete/mark publicados; completion e inbox transaccionales.
 - Prometheus: counters/histograms in-memory con outcomes allowlisted, más endpoint `GET /metrics` (loopback por defecto; bearer remoto + TLS/mTLS y red privada). Gauges PostgreSQL agregados implementados; el muestreo está aislado y no bloquea recovery/dispatch.
 
-**Limitaciones que siguen abiertas:** el runtime no registra handlers de negocio Meta/CRM; el registry de replay continúa vacío y fail-closed. No se ha demostrado todavía replay end-to-end con handler real ni idempotencia de efectos externos. El adapter Prometheus ya tiene endpoint de scrape y gauges de estado PostgreSQL; siguen pendientes métricas físicas de RabbitMQ (queue depth, consumer lag y DLQ depth), dashboards, alertas y SLO. Tampoco existe evidencia de topology/policies en un cluster RabbitMQ productivo, secret manager/rotación, pruebas de carga/DR, revisión independiente ni aceptación final del propietario. TASK-003 continúa `in_progress` y GO-PRODUCTION permanece NO-GO.
+**Limitaciones que siguen abiertas:** el runtime no registra handlers de negocio Meta/CRM; el registry de replay continúa vacío y fail-closed. No se ha demostrado todavía replay end-to-end con handler real ni idempotencia de efectos externos. El adapter Prometheus ya tiene endpoint de scrape, gauges PostgreSQL y conteos RabbitMQ de mensajes listos/consumidores para worker queue y DLQ. Siguen pendientes mensajes unacknowledged/consumer lag autoritativo, dashboards, alertas y SLO. Tampoco existe evidencia de topology/policies en un cluster RabbitMQ productivo, secret manager/rotación, pruebas de carga/DR, revisión independiente ni aceptación final del propietario. TASK-003 continúa `in_progress` y GO-PRODUCTION permanece NO-GO.
 
 ## 13. Exposición HTTP de métricas Prometheus
 
@@ -176,7 +177,7 @@ La configuración usa `TENANT_JOB_METRICS_HOST=127.0.0.1` y `TENANT_JOB_METRICS_
 
 El nuevo test cubre GET/404/405, headers, bearer token, binding remoto sin token, renderer fallido, doble startup y cierre idempotente. Está agregado a `microservices-meta-ecuapp:test`. Source CI [#42434224485](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42434224485) terminó SUCCESS para commit `abbc86cfbd72e89ab5db82b0e3207159a66eba71`, incluyendo build, typecheck y esta suite.
 
-El endpoint sirve counters/histograms in-memory y los gauges agregados PostgreSQL ya descritos. Todavía faltan métricas de broker (queue depth, consumer lag y DLQ depth), reglas de alertas, SLO cuantificados, dashboards y validación de scraping en la topología desplegada. TASK-003 sigue `in_progress`; GO-PRODUCTION permanece NO-GO.
+El endpoint sirve counters/histograms in-memory, gauges agregados PostgreSQL y conteos de mensajes listos/consumidores de RabbitMQ. El reader RabbitMQ usa canal dedicado y `checkQueue`, sin ACK/NACK/consumo; sus conteos no incluyen mensajes unacknowledged y no son consumer lag. Todavía faltan medición autoritativa de unacked/lag, reglas de alertas, SLO cuantificados, dashboards y validación de scraping en la topología desplegada. TASK-003 sigue `in_progress`; GO-PRODUCTION permanece NO-GO.
 
 ## 14. Gauges operativos agregados desde PostgreSQL
 
@@ -188,4 +189,12 @@ El único rol con `EXECUTE` es `whatsbusiness_job_dispatcher_role`. `whatsbusine
 
 Se añadieron suites del exporter, reader y supervisor, además de comprobaciones gated en la integración PostgreSQL para privilegios y delta de jobs pending. **La migración/reader/gauges tienen CI pendiente**; no se declaran verificados hasta que Source CI los ejecute.
 
-Quedan fuera de este slice la profundidad física de colas RabbitMQ (incluida DLQ), consumer lag, dashboards, reglas de alertas y SLO. TASK-003 continúa `in_progress`; GO-PRODUCTION permanece NO-GO.
+Quedan fuera de este slice los mensajes unacknowledged y el consumer lag autoritativo, dashboards, reglas de alertas y SLO. TASK-003 continúa `in_progress`; GO-PRODUCTION permanece NO-GO.
+
+## 15. Métricas RabbitMQ listas y consumidores
+
+`RabbitMqConnectionFactory` abre un tercer canal AMQP dedicado a observabilidad, separado de publisher confirm y consumer ACK. `RabbitMqTenantJobQueueMetricsReader` usa `checkQueue` para consultar la cola worker versionada y la DLQ: expone `messageCount` (mensajes listos) y `consumerCount` (consumidores registrados). Las dos lecturas son paralelas y el muestreo expira a los 1 500 ms; no consume mensajes, no cambia ACK/NACK y no mezcla el resultado con el reader PostgreSQL.
+
+Se exponen cuatro gauges sin labels: `tenant_job_rabbitmq_worker_queue_ready_messages`, `tenant_job_rabbitmq_worker_queue_consumers`, `tenant_job_rabbitmq_dead_letter_queue_ready_messages` y `tenant_job_rabbitmq_dead_letter_queue_consumers`. Los mensajes unacknowledged quedan fuera de `messageCount`; consumer lag necesita una fuente autoritativa adicional y no se infiere de estos contadores.
+
+La suite unitaria valida nombres, conteos, rangos y timeout; la prueba de integración RabbitMQ verifica el conteo real después de publicar una tarea. **CI de este último slice pendiente.** TASK-003 sigue `in_progress`; GO-PRODUCTION sigue NO-GO.
