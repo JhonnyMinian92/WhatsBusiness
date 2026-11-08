@@ -714,3 +714,23 @@ CRM-007 continúa implementado a nivel dominio, sin endpoint de producción ni m
 - La respuesta solo expone IDs/versiones/score/reasons y `manual_review_required`. No fusiona, verifica ni muta contactos.
 - Se agregaron parser/controller/service tests y extensión a la integración PostgreSQL/RLS A/B. Aún requiere ejecutar el Source CI/Contract CI exacto del commit, revisión independiente, calibración de reglas con datos sintéticos y aceptación del Product Owner.
 - CRM-007 queda implementado en código sujeto a CI; TASK-043/TASK-053 no se marcan verified ni accepted. Merge reversible CRM-008..010 sigue sin implementar.
+
+
+## Ejecución de US-008 — WhatsApp Marketing Messages y costes (2026-11-08)
+
+**Estado comprobado:** `in_progress`; no marcar TASK-017, TASK-018, TASK-055 ni TASK-057 como implemented/verified/accepted por esta revisión.
+
+| Elemento | Estado real | Bloqueo / siguiente condición |
+|---|---|---|
+| TASK-017 — Marketing Messages adapter | No implementado en el runtime de `apps/api`; no existe `WhatsAppMarketingMessagesAdapter` ni módulo de dominio registrado en `AppModule` según inspección de `app.module.ts` y búsqueda de código en la rama | TASK-010 debe aportar capability/elegibilidad por activo; WAMK-001..003 siguen `catalog-only` con request/response/error schemas pendientes; congelar contratos y obtener gate G0 antes de habilitar rutas |
+| TASK-018 — Rate card y cost ledger | No se encontró implementación de rate-card/ledger en el backend; no hay persistencia ni conciliación implementadas | Depende de TASK-017 y de WAMK-004..007, aún `catalog-only`; definir fuente/versionado, moneda, precisión, vigencias e importación de cargos antes de persistir |
+| TASK-055 — Migración Marketing Messages | Requisito registrado; no hay adapter ni evidencia de cuenta de prueba autorizada | Depende además de TASK-039 y TASK-056; mantener la fecha anunciada por Meta (2027-10-13) como deadline sujeto a revalidación |
+| TASK-057 — Max Pricing | Diseño conceptual documentado, no implementado | Distinguir max/upper bound, estimate, provider-reported actual y reconciled amount; no presentar max price como cargo final |
+
+**Inspección de contratos:** `WAMK-001..005` están declarados en `contracts/openapi/platform-v1.yaml` con `x-contract-status: catalog-only`, `x-contract-ready: false`, `x-implementation-allowed: false` y schemas pendientes. `docs/49` y `docs/55` exigen congelación del contrato por operación y gate G0; no se debe eludir ese control creando controllers/rutas ni habilitando operaciones.
+
+**Investigación adicional:** el material oficial de Meta sobre WhatsApp Max Pricing (16-06-2026) describe un máximo por entrega y cargos reales potencialmente inferiores; por tanto, el modelo debe conservar ambos conceptos y no derivar el cargo real del máximo. Fuente: https://developers.meta.com/resources/videos/whatsapp-max-pricing/. La referencia oficial de la operación Marketing Messages está catalogada en docs/49; la lectura automatizada de esa página fue limitada durante esta revisión, por lo que endpoint, payload, scopes, elegibilidad y errores deben verificarse de nuevo en documentación oficial antes de codificar el adapter. No se adoptan ejemplos de proveedores terceros como contrato de Meta.
+
+**Reutilización inspeccionada:** `AppModule`, `DatabaseModule/DatabaseService`, `IdentityModule`, el patrón NestJS por bounded context y el pipeline `Source CI` existente. Cualquier futura persistencia debe reutilizar `DatabaseService`/tenant context y los mecanismos compartidos de autorización, auditoría, idempotencia y observabilidad; no crear pools, guards ni clientes HTTP paralelos.
+
+**Resultado de esta sesión:** se completó la inspección de historia, dependencias, inventario API, readiness y referencias de precios. No se realizó cambio de runtime ni se ejecutaron tests de producto para US-008. La implementación queda explícitamente bloqueada por readiness/contratos y dependencias upstream; continuar con trabajo seguro de TASK-010, TASK-039 y TASK-056, y reanudar US-008 al satisfacer los gates.
