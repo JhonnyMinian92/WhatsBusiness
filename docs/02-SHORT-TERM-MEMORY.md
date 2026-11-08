@@ -410,7 +410,16 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Source CI [#42433941375](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42433941375) terminó SUCCESS: frozen install, provisionamiento de logins DB mínimos, migraciones versionadas e idempotencia, quorum DLX, build, typecheck, unit tests y pruebas PostgreSQL/RabbitMQ.
 - RabbitMQ consumer: envelope inválido → NACK sin requeue/DLX; mensaje válido pero fallo de procesamiento durable (p. ej. PostgreSQL no disponible) → cerrar sesión worker sin ACK/NACK para redelivery; ACK ambiguo después del posible COMMIT → también cerrar sesión, nunca NACK destructivo. Varias entregas prefetched fallidas comparten cierre single-flight.
 - Tests CI incluyen persistencia/redelivery tras pérdida de canal, procesamiento válido interrumpido, ACK ambiguo, dos fallos concurrentes con una sola llamada a close, leases dispatch/execution expirados y rechazo de fencing tokens antiguos para renew/complete/mark-published.
-- Prometheus actual: counters/histograms in-memory, vocabulario de outcomes fijo y bounded; no HTTP scrape endpoint, gauges operativos, alertas ni SLO.
+- Prometheus actual: counters/histograms in-memory con outcomes acotados; `GET /metrics` está integrado al lifecycle del worker, loopback por defecto y bearer token obligatorio para binding remoto. Aún faltan gauges operativos, alertas y SLO.
 - Replay SQL/API protegido: aprobación two-person + step-up + hash/snapshot/audit y child lineage inmutable; registry de policies vacío y fail-closed. No hay handlers reales Meta/CRM registrados: se requiere probar stable domain-effect idempotency antes de habilitar replay.
-- Pendientes: DLQ operator workflow/replay, handler real end-to-end, scrape endpoint/gauges/alerts/SLO, validar topology/policy en broker desplegado, secret manager y rotación, TLS/AMQPS reales, carga/DR, revisión independiente y aceptación del propietario. TASK-003 está `in_progress`, no `accepted`; GO-PRODUCTION NO-GO.
+- Pendientes: DLQ operator workflow/replay, handler real end-to-end, gauges/alerts/SLO, validar topology/policy en broker desplegado, secret manager y rotación, TLS/AMQPS reales, carga/DR, revisión independiente y aceptación del propietario. TASK-003 está `in_progress`, no `accepted`; GO-PRODUCTION NO-GO.
 - No crear frontend `app-meta-ecuapp` sin historia frontend; prioridad inmediata sigue siendo terminar backend `microservices-meta-ecuapp` por work packages verificables. CRM Intelligence es ML clásico/estadística CPU-first según docs/62, no LLM ni agentes; sus modelos aún no están implementados.
+
+## Handoff — exposición HTTP Prometheus del runtime de jobs
+
+- Añadido `TenantJobMetricsHttpServer` como adapter de infraestructura sin dependencias externas.
+- `TenantJobRuntimeProcess.run()` inicia el listener y el cierre del proceso apaga el servidor junto con los pools.
+- Superficie limitada a `GET /metrics`; loopback por defecto; binding remoto exige bearer token de al menos 32 bytes, comparado en tiempo constante.
+- Pruebas nuevas registradas en el target Nx; su resultado CI aún debe comprobarse. No se declara verificación por el hecho de haber escrito la suite.
+- Se actualizaron `microservices-meta-ecuapp/.env.example`, README del backend y docs/60/63.
+- TASK-003 continúa `in_progress`; faltan gauges, alertas/SLO, DLQ operator workflow/replay, handler real e2e, revisión independiente y aceptación. GO-PRODUCTION continúa NO-GO.
