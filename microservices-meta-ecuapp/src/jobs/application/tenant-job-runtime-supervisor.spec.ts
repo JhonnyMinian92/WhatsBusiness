@@ -3,7 +3,7 @@ import test from "node:test";
 import { TenantJobRuntimeSupervisor } from "./tenant-job-runtime-supervisor.js";
 import type { TenantJobRuntimeRepository } from "./tenant-job-ports.js";
 import type { TenantJobOutboxDispatcher } from "./tenant-job-outbox-dispatcher.js";
-import type { TenantJobBrokerMetricsReader, TenantJobBrokerMetricsSnapshot, TenantJobRuntimeMetrics, TenantJobRuntimeMetricsReader, TenantJobRuntimeMetricsSnapshot } from "./tenant-job-runtime-metrics.js";
+import type { TenantJobRuntimeMetrics, TenantJobRuntimeMetricsReader, TenantJobRuntimeMetricsSnapshot } from "./tenant-job-runtime-metrics.js";
 
 test("runs recovery before dispatch and stops cleanly on abort", async () => {
   const calls: string[] = [];
@@ -89,9 +89,6 @@ function metricsRecorder(calls: string[]): TenantJobRuntimeMetrics {
     recordRuntimeError() { calls.push("metrics-error"); },
     recordRuntimeSnapshot(snapshot) {
       calls.push("snapshot:" + snapshot.pendingDispatchJobs);
-    },
-    recordBrokerRuntimeSnapshot(snapshot) {
-      calls.push("broker-snapshot:" + snapshot.workerQueueReadyMessages + ":" + snapshot.workerQueueUnacknowledgedMessages);
     },
   };
 }
@@ -217,72 +214,4 @@ test("slow aggregate metrics sampling never holds recovery or dispatch", async (
 
   await supervisor.run(controller.signal);
   assert.deepEqual(calls, ["sample", "recover", "recovered", "dispatch", "snapshot:3"]);
-});
-
-
-test("samples RabbitMQ queue metrics independently and records ready counts", async () => {
-  const calls: string[] = [];
-  const controller = new AbortController();
-  const brokerSnapshot: TenantJobBrokerMetricsSnapshot = {
-    workerQueueReadyMessages: 14,
-    workerQueueUnacknowledgedMessages: 6,
-    workerQueueConsumers: 2,
-    deadLetterQueueReadyMessages: 1,
-    deadLetterQueueUnacknowledgedMessages: 0,
-    deadLetterQueueConsumers: 0,
-  };
-  const brokerReader: TenantJobBrokerMetricsReader = {
-    async readSnapshot() {
-      calls.push("broker-sample");
-      return brokerSnapshot;
-    },
-  };
-  const supervisor = new TenantJobRuntimeSupervisor(
-    supervisorRepository(calls),
-    abortingDispatcher(controller, calls),
-    { recovered() { calls.push("recovered"); }, failed(code) { calls.push("failed:" + code); } },
-    supervisorOptions,
-    metricsRecorder(calls),
-    undefined,
-    brokerReader,
-  );
-
-  await supervisor.run(controller.signal);
-  assert.deepEqual(calls, [
-    "broker-sample",
-    "recover",
-    "broker-snapshot:14:6",
-    "recovered",
-    "dispatch",
-  ]);
-});
-
-test("RabbitMQ metrics failures are isolated from the durable worker loop", async () => {
-  const calls: string[] = [];
-  const controller = new AbortController();
-  const brokerReader: TenantJobBrokerMetricsReader = {
-    async readSnapshot() {
-      calls.push("broker-sample");
-      throw new Error("broker diagnostic internals must not escape");
-    },
-  };
-  const supervisor = new TenantJobRuntimeSupervisor(
-    supervisorRepository(calls),
-    abortingDispatcher(controller, calls),
-    { recovered() { calls.push("recovered"); }, failed(code) { calls.push("failed:" + code); } },
-    supervisorOptions,
-    metricsRecorder(calls),
-    undefined,
-    brokerReader,
-  );
-
-  await supervisor.run(controller.signal);
-  assert.deepEqual(calls, [
-    "broker-sample",
-    "recover",
-    "recovered",
-    "dispatch",
-    "failed:TENANT_JOB_BROKER_METRICS_SNAPSHOT_FAILED",
-    "metrics-error",
-  ]);
 });
