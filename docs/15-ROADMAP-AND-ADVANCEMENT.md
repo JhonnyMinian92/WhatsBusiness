@@ -366,6 +366,8 @@ TASK-004 (RBAC/ABAC y asignación persistente) y TASK-005 (step-up, approvals y 
 - TASK-024 y TASK-025 siguen `in_progress`: no hay controller Ads, repositorio/migración de campañas, outbox/worker ni adapter Marketing API conectado.
 - Contratos ADS continúan catalog-only bajo docs/49/55; TASK-010 (Meta capability evidence) y TASK-029 (observabilidad operativa) son dependencias abiertas. No se declara US-012 verified/accepted ni se realizan escrituras Meta.
 - Detalle: docs/73-US-012-ADS-CAMPAIGN-IMPLEMENTATION.md.
+- Refinamientos posteriores: precisión ISO 4217, cero permitido para importes de conciliación pero rechazado para presupuestos/updates, y reducción permitida aunque expire baseline. Cinco suites registran 28 casos; Source CI #653 pasó build/typecheck, falló dos aserciones ya corregidas; nueva ejecución pendiente.
+
 
 ## US-009 — Facebook Pages y Messenger (2026-11-08)
 
