@@ -2,7 +2,7 @@
 
 ## Componentes
 
-- `prometheus/tenant-job-alerts.yml`: reglas de alerta para disponibilidad de scraping, dispatch bloqueado, DLQ, consumers ausentes, edad del outbox, leases vencidos, errores de supervisor y pérdida de execution lease.
+- `prometheus/tenant-job-alerts.yml`: reglas de alerta para disponibilidad de scraping, dispatch bloqueado, DLQ, deliveries unacknowledged y consumers ausentes, edad del outbox, leases vencidos, errores de supervisor y pérdida de execution lease.
 - `grafana/tenant-job-runtime.dashboard.json`: dashboard de counters, latencias, gauges PostgreSQL y métricas disponibles de RabbitMQ.
 - `RUNBOOK.md`: diagnóstico, recuperación y límites operativos.
 
@@ -18,4 +18,4 @@ Los umbrales son guardrails operativos iniciales, no SLO aprobados ni SLA. Deben
 
 ## Limitaciones conocidas
 
-Las métricas RabbitMQ reflejan ready messages y consumer count de `checkQueue`; no representan unacked ni consumer lag. Los contadores/histogramas viven en memoria y se reinician al reiniciar el proceso. El dashboard no sustituye una plataforma de métricas duradera ni una revisión de alertas.
+Las métricas RabbitMQ se obtienen de RabbitMQ Management API y reflejan `messages_ready`, `messages_unacknowledged` y consumer count por cola. `messages_unacknowledged` son deliveries entregadas aún no confirmadas; no equivalen a consumer lag ni a edad de mensaje. Los contadores/histogramas viven en memoria y se reinician al reiniciar el proceso. El dashboard no sustituye una plataforma de métricas duradera ni una revisión de alertas.
