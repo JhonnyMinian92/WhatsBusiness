@@ -161,6 +161,10 @@ CREATE TABLE platform.support_grants (
   operator_user_id uuid NOT NULL REFERENCES platform.users(id) ON DELETE RESTRICT,
   requested_by_user_id uuid NOT NULL REFERENCES platform.users(id) ON DELETE RESTRICT,
   approved_by_user_id uuid NOT NULL REFERENCES platform.users(id) ON DELETE RESTRICT,
+  approval_step_up_auth_time timestamptz NOT NULL,
+  approval_step_up_acr text,
+  approval_step_up_amr text[] NOT NULL DEFAULT ARRAY[]::text[],
+  approved_at timestamptz NOT NULL DEFAULT now(),
   reason text NOT NULL CHECK(length(trim(reason)) BETWEEN 20 AND 1000),
   purpose text NOT NULL CHECK(purpose ~ '^[a-z][a-z0-9]*(\.[a-z][a-z0-9_]*){2,7}$'),
   scopes text[] NOT NULL CHECK(cardinality(scopes) BETWEEN 1 AND 16 AND array_position(scopes,'') IS NULL),
@@ -170,6 +174,9 @@ CREATE TABLE platform.support_grants (
   revoked_by_user_id uuid REFERENCES platform.users(id) ON DELETE RESTRICT,
   correlation_id uuid NOT NULL,
   created_at timestamptz NOT NULL DEFAULT now(),
+  CHECK(approval_step_up_acr IS NOT NULL OR cardinality(approval_step_up_amr)>0),
+  CHECK(approval_step_up_auth_time<=approved_at+interval '30 seconds'
+    AND approval_step_up_auth_time>=approved_at-interval '5 minutes'),
   CHECK(operator_user_id<>requested_by_user_id AND operator_user_id<>approved_by_user_id),
   CHECK(requested_by_user_id<>approved_by_user_id),
   CHECK(expires_at>valid_from AND expires_at<=valid_from+interval '60 minutes'),
@@ -185,6 +192,10 @@ BEGIN
      OR NEW.operator_user_id IS DISTINCT FROM OLD.operator_user_id
      OR NEW.requested_by_user_id IS DISTINCT FROM OLD.requested_by_user_id
      OR NEW.approved_by_user_id IS DISTINCT FROM OLD.approved_by_user_id
+     OR NEW.approval_step_up_auth_time IS DISTINCT FROM OLD.approval_step_up_auth_time
+     OR NEW.approval_step_up_acr IS DISTINCT FROM OLD.approval_step_up_acr
+     OR NEW.approval_step_up_amr IS DISTINCT FROM OLD.approval_step_up_amr
+     OR NEW.approved_at IS DISTINCT FROM OLD.approved_at
      OR NEW.reason IS DISTINCT FROM OLD.reason OR NEW.purpose IS DISTINCT FROM OLD.purpose
      OR NEW.scopes IS DISTINCT FROM OLD.scopes OR NEW.valid_from IS DISTINCT FROM OLD.valid_from
      OR NEW.expires_at IS DISTINCT FROM OLD.expires_at OR NEW.correlation_id IS DISTINCT FROM OLD.correlation_id
@@ -355,7 +366,7 @@ CREATE POLICY support_grant_admin_insert ON platform.support_grants FOR INSERT
 WITH CHECK(platform.is_platform_admin(NULLIF(current_setting('app.user_id',true),'')::uuid)
  AND tenant_id=NULLIF(current_setting('app.tenant_id',true),'')::uuid
  AND requested_by_user_id=NULLIF(current_setting('app.user_id',true),'')::uuid
- AND platform.is_platform_admin(approved_by_user_id)
+ AND platform.has_platform_role(approved_by_user_id,'platform_owner')
  AND platform.has_platform_role(operator_user_id,'support_jit'));
 CREATE POLICY support_grant_admin_revoke ON platform.support_grants FOR UPDATE
 USING(platform.is_platform_admin(NULLIF(current_setting('app.user_id',true),'')::uuid)
@@ -421,3 +432,25 @@ GRANT UPDATE(status,ends_at) ON platform.tenant_subscriptions TO whatsbusiness_a
 GRANT UPDATE(revoked_at,revoked_by_user_id) ON platform.support_grants TO whatsbusiness_app;
 GRANT INSERT ON platform.domain_outbox_events TO whatsbusiness_app;
 GRANT UPDATE(last_sequence,last_hash,updated_at) ON platform.platform_audit_heads TO whatsbusiness_app;
+
+
+-- Usage idempotency resolution is SECURITY DEFINER but scoped to the caller's
+-- exact tenant, principal, category and key; ingestion does not gain ledger read access.
+CREATE OR REPLACE FUNCTION platform.resolve_usage_idempotency(
+  p_tenant_id uuid, p_actor_user_id uuid, p_category text, p_idempotency_key text
+)
+RETURNS TABLE(id uuid,payload_hash text)
+LANGUAGE sql STABLE SECURITY DEFINER
+SET search_path=pg_catalog,platform AS $$
+  SELECT entry.id, entry.payload_hash::text
+    FROM platform.usage_ledger entry
+   WHERE entry.tenant_id=p_tenant_id
+     AND entry.actor_user_id=p_actor_user_id
+     AND entry.category=p_category
+     AND entry.idempotency_key=p_idempotency_key
+     AND p_tenant_id=NULLIF(current_setting('app.tenant_id',true),'')::uuid
+     AND p_actor_user_id=NULLIF(current_setting('app.user_id',true),'')::uuid
+   LIMIT 1
+$$;
+REVOKE ALL ON FUNCTION platform.resolve_usage_idempotency(uuid,uuid,text,text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION platform.resolve_usage_idempotency(uuid,uuid,text,text) TO whatsbusiness_app;
