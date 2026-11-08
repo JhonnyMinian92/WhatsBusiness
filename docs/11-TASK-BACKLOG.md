@@ -351,3 +351,9 @@ Estas tareas no desplazan el cierre del aislamiento runtime TASK-003 ni el CRM t
 ### Handoff incremental TASK-003 — pool reuse PostgreSQL A→B (2026-11-07)
 
 Se añadió una regresión de integración a `microservices-meta-ecuapp/src/jobs/infrastructure/postgres/postgres-tenant-job-runtime.integration.spec.ts`: reutiliza secuencialmente el mismo pool worker para ejecutar primero en tenant A y luego en tenant B, exige el mismo `pg_backend_pid()` y comprueba que los GUC transaccionales `app.user_id` y `app.tenant_id` cambien al segundo principal sin conservar el contexto anterior. Commit `bcedfab0538f5ee82a06ffe2480f41e3378bab7e`. Código implementado; CI de este commit pendiente de lectura. TASK-003 sigue `in_progress`; no marcar verificada ni aceptada hasta CI, review independiente y cierre de replay auditado, métricas/alertas, crash tests, handlers reales y despliegue seguro.
+
+## Handoff — TASK-003 pool A→B (2026-11-08)
+
+- Verificado en Source CI #42431419028: `DatabaseService` real, pool de una conexión y secuencia de tenants A→B sobre el mismo `pg_backend_pid()`; contexto de tenant/usuario limpiado tras COMMIT.
+- Commit `6059822896987fc618c479d53117354e1a785144` añade comprobación de cleanup tras ROLLBACK; Source CI #42431530685 estaba ejecutando la suite al actualizar este handoff.
+- TASK-003 permanece in_progress: no marcar terminada hasta completar replay autorizado/auditado, métricas, crash/redelivery/fencing, handlers reales y gates de deployment/revisión independiente.

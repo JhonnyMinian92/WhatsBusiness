@@ -374,3 +374,9 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Commit: `bcedfab0538f5ee82a06ffe2480f41e3378bab7e`.
 - Estado: código de prueba implementado; no se ha consultado aún resultado de CI de este commit. No declarar pool reuse verificado ni TASK-003 completa.
 - Siguiente: confirmar Source CI; después implementar replay administrativo con autorización/approval/audit, métricas/alertas y pruebas de crash/redelivery/fencing; mantener handlers de negocio y deployment como pendientes.
+
+## Handoff — pool reuse A→B verificado y rollback en validación (2026-11-08)
+
+- Source CI #42431419028 SUCCESS para commit `bcedfab0538f5ee82a06ffe2480f41e3378bab7e`. La nueva suite de `apps/api` ejercita el `DatabaseService` real con pool de una conexión; `pg_backend_pid()` confirma la misma conexión física entre tenant A y B y los GUC `app.tenant_id`/`app.user_id` quedan vacíos tras cada COMMIT.
+- Se añadió en commit `6059822896987fc618c479d53117354e1a785144` un camino de error que fuerza ROLLBACK y valida que los GUC se limpian también tras una excepción. Source CI #42431530685: instalación, migraciones, build y typecheck pasaron; las integraciones aún estaban ejecutándose al actualizar esta memoria.
+- TASK-003 sigue in_progress. Pendientes: replay administrativo con approval/audit, métricas/alertas, pruebas de crash/redelivery/fencing extendidas, handlers de negocio reales, secret manager/deployment, pruebas de carga/concurrencia y review independiente.

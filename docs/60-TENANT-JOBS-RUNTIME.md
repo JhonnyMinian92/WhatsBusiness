@@ -107,7 +107,9 @@ Source CI declara PostgreSQL 18.6 y RabbitMQ 4.4 para pruebas de integración. R
 ## 9. Pendientes reales para cerrar TASK-003
 
 - [x] Source CI #42430605576 SUCCESS en commit `be9d3dc14aa26b38c20013b98ff5238bac564a4e`: instalación frozen, migraciones 0001–0011/idempotencia, build, typecheck, unit, PostgreSQL y RabbitMQ.
-- [x] Añadida prueba de integración para reutilizar el mismo backend PostgreSQL worker en secuencia tenant A→B, comprobando `pg_backend_pid()` y los GUC `app.user_id`/`app.tenant_id`; ejecución CI del nuevo commit pendiente. La prueba cubre el login worker y el helper transaccional de test; la validación específica de `DatabaseService` real y carga concurrente sigue pendiente.
+- [x] Source CI #42431419028 SUCCESS en commit `bcedfab0538f5ee82a06ffe2480f41e3378bab7e`: prueba A→B con el `DatabaseService` real y misma conexión física pasó.
+- [ ] Source CI #42431530685 para commit `6059822896987fc618c479d53117354e1a785144`: extensión adicional de rollback cleanup; build y typecheck pasaron, suite PostgreSQL/RabbitMQ en curso.
+- [x] Source CI #42431419028 SUCCESS verificó A→B con el `DatabaseService` real desde `apps/api`: `Pool.max=1`, `pg_backend_pid()` idéntico para ambos tenants y GUC `app.user_id`/`app.tenant_id` limpios después del commit. La extensión para comprobar también rollback está en Source CI #42431530685, aún en curso. Carga concurrente y deployment real siguen pendientes.
 - [x] Implementar heartbeat/renew del execution lease mediante token de fencing y PostgreSQL; el worker cancela cooperativamente el handler si pierde el lease. La suite unitaria e integración quedan sujetas a Source CI.
 - [x] Añadir deadline configurable `TENANT_JOB_HANDLER_TIMEOUT_MS` (1–900 s; default 300 s), abortar el handler y rechazar el procesamiento al perder lease o exceder el deadline. La cancelación exige cooperación del handler mediante AbortSignal; JavaScript no puede terminar forzosamente una promesa no cooperativa. Build/typecheck de #42428439526 pasaron; integración posterior pendiente.
 - [ ] Implementar replay administrativo de DLQ/job dead-letter, con permission/approval/audit; no crear bypass SQL público.
@@ -123,6 +125,10 @@ TASK-003 sigue `in_progress`; el código disponible es una base avanzada, no 100
 ## 10. Próximos dominios backend
 
 Con TASK-003 verificada y accepted, el siguiente orden es: TASK-027 Webhook Gateway/inbox para eventos entrantes; TASK-028 Event Bus/DLQ/replay reutilizando la infraestructura; después Meta Control Plane TASK-006..010 y WhatsApp TASK-011..018. Los handlers de jobs deben emerger de esos casos de uso reales, no de ejemplos no conectados a producto.
+
+### Regresión A→B y rollback de tenant context (2026-11-08)
+
+La prueba API `apps/api/src/platform/database/database.context.integration.spec.ts` utiliza el `DatabaseService` productivo con `Pool.max=1`; ejecuta tenant A y tenant B secuencialmente y confirma el mismo `pg_backend_pid()` y que `app.tenant_id`/`app.user_id` se restauran a vacío tras cada commit. Source CI #42431419028 pasó para commit `bcedfab0538f5ee82a06ffe2480f41e3378bab7e`. La extensión que provoca un error dentro del callback y comprueba cleanup tras ROLLBACK se añadió en commit `6059822896987fc618c479d53117354e1a785144`; Source CI #42431530685 tiene build/typecheck verdes y está ejecutando integraciones. El A→B básico se considera verificado; la extensión de rollback queda pendiente.
 
 ### Migración 0011 — recuperación de leases (2026-11-07)
 

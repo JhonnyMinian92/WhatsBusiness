@@ -313,6 +313,8 @@ La migración 0007 fue reemplazada completa para corregir un fragmento SQL dupli
 
 | ID | Cambio | Evidencia / resultado |
 |---|---|---|
-| AUD-096 | Pool reuse A→B | Commit `bcedfab0538f5ee82a06ffe2480f41e3378bab7e` añade a la integración PostgreSQL del runtime una secuencia tenant A → tenant B sobre el mismo pool worker, afirmando igualdad de `pg_backend_pid()` y aislamiento de `app.user_id`/ `app.tenant_id`. Código de prueba escrito; ejecución Source CI todavía no consultada. |
+| AUD-096 | Pool reuse A→B | Commit `bcedfab0538f5ee82a06ffe2480f41e3378bab7e` ejecuta `DatabaseService` real en `apps/api` con `Pool.max=1`. Source CI #42431419028 SUCCESS confirmó el mismo `pg_backend_pid()` para tenant A→B y GUC de tenant/usuario limpios tras COMMIT. |
 
-No declarar la prueba pasada hasta que el workflow ejecute el test con `RUN_TENANT_JOB_RUNTIME_INTEGRATION_TESTS=true`. La prueba no sustituye validación con carga concurrente ni revisión de configuración de pool en deployment.
+Commit `6059822896987fc618c479d53117354e1a785144` amplía AUD-096 con rollback deliberadamente fallido para comprobar que el contexto se limpia también ante ROLLBACK; Source CI #42431530685 está en curso. La prueba no sustituye validación con carga concurrente ni revisión de configuración de pool en deployment.
+
+| AUD-097 | Cleanup tras rollback | `apps/api/src/platform/database/database.context.integration.spec.ts` fuerza fallo dentro de `DatabaseService.withTenantContext`, verifica rollback y reusa la misma conexión sin GUC residuales. Source CI #42431530685, resultado pendiente. |
