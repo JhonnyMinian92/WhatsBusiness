@@ -346,3 +346,15 @@ La prueba actual demuestra el caso de pérdida del proceso/conexión y redeliver
 | US-008 / AC-008-03: estimado y coste reportado separados | TASK-018, TASK-057 | Diseño documentado; WAMK-004..007 catalog-only; no hay rate-card repository ni cost ledger runtime | not implemented |
 
 No se ejecutaron pruebas de US-008 en esta revisión. La evidencia de investigación sobre Max Pricing no equivale a integración de proveedor. No habilitar endpoints ni mutaciones externas hasta congelar schemas por operación, completar TASK-010/039/056 y satisfacer G0. La aceptación final sigue perteneciendo al Product Owner.
+
+## 9. Trazabilidad de implementación — US-004 (2026-11-08)
+
+| Criterio | TASK | Código | Pruebas incorporadas | Estado |
+|---|---|---|---|---|
+| AC-004-01 — listar activos Meta por conexión | TASK-009 | apps/api/src/platform/meta-control-plane/domain/meta-asset.ts | meta-asset.spec.ts: namespaces WAAC/PMA/teléfono, catálogo de tipos, duplicados, tenant, reconcile e inventario parcial/completo | Domain slice implementado; consulta externa y persistencia pendientes |
+| AC-004-02 — derivar capacidades por permisos, tasks, versión y elegibilidad | TASK-010 | meta-capability.ts, meta-capability-evaluator.ts | meta-capability-evaluator.spec.ts: scope, task, autorización, unknown, expiración, versión, tier, app review, país, consentimiento y aprobación | Evaluador implementado; definiciones oficiales por operación y runtime pendientes |
+| AC-004-03 — explicar por qué una operación no está disponible | TASK-010 | MetaCapabilityDecision.reasons con código, dimensión, requisito y explicación | Tests de razones denied/unknown y gates múltiples | Slice implementado; falta exponer la explicación en contratos/API aprobados |
+
+El target api:test incorpora ambas suites. Primer Source CI #42512236821 falló en el build por TS4111 en la validación de snapshots; la corrección está en 2f97c8a94275c87f8543de065c30ae00cbf52b43, cuya nueva ejecución Source CI #42512364598 seguía in_progress al último corte. CodeQL #42512364506 también estaba in_progress.
+
+No se ejecutó Meta API real, no hay conexión/token disponible y no se validó una cuenta comercial elegible. TASK-009/010 no pasan a verified ni accepted.

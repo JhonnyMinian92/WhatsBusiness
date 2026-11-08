@@ -536,3 +536,13 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - La respuesta expone únicamente IDs/versiones/score/reasons y manual_review_required; no hay PII ni merge automático.
 - Source CI #596 (42512027909) y CodeQL #131 (42512027905) SUCCESS en abab9fe88abe0dfce9741cf6794d45c48ff15373; Contract CI #31 (42511475181) SUCCESS en f0ebaae6c57d7821641e18331c7d7c42cf12cb5b. Commits posteriores en la misma rama no alteraron CRM ni OpenAPI.
 - CRM-007 queda CI-verified; TASK-043/TASK-053 siguen in_progress hasta review independiente, calibración con datos sintéticos y aceptación. CRM-008..010 pendientes. TASK-003/027/028 continúan in_progress; GO-PRODUCTION NO-GO.
+
+## Handoff — US-004: Meta Asset Registry y Capability Engine (2026-11-08)
+
+- Branch autorizada: environment/local. Commit de implementación inicial 04198bb8eb8f513a71ab61b1d4491f1614aa0f6d; corrección TS strict 2f97c8a94275c87f8543de065c30ae00cbf52b43.
+- Se añadieron el modelo/reconciliador de inventario y el evaluador de capabilities en apps/api/src/platform/meta-control-plane/domain; dos suites con 23 casos se incorporaron a apps/api/project.json (api:test).
+- Asset registry: identidad (product, assetType, externalId); catálogo incluye Business Portfolio, WAAC, PMA, phone number, Page, Instagram professional account, Ad Account, Lead Form y Dataset. Sync parcial no marca ausencia, sync completo paginado puede marcar not_visible, snapshot anterior no revierte estado y grant negado no elimina el activo.
+- Capability evaluator: fail-closed y reason codes para autorización, tenant policy, purpose, asset grants/tasks, OAuth scopes, entitlement, app mode/review, Access Tier, account eligibility/type/country, versión, consent/legal basis y approval. Marketing API tier no reemplaza OAuth scope.
+- Source CI #42512236821 falló en build por TS4111 (propiedades dot notation sobre Record<string, unknown>); se corrigió en el commit siguiente. Source CI #42512364598 y CodeQL #42512364506 estaban in_progress en el último corte; revalidar antes de declarar verde.
+- No hubo Meta API calls ni pruebas con cuenta real. No se añadieron endpoints ni migraciones: TASK-008 no aporta conexión runtime y META-010..015 siguen catalog-only.
+- Estado: TASK-009 y TASK-010 in_progress, no verified/accepted. Pendientes: connection/token vault, adapter/provider, persistencia tenant-safe/RLS, sincronización durable, definiciones oficiales de capability por operación, endpoints congelados, evidencia de elegibilidad, revisión independiente y aceptación del Product Owner.

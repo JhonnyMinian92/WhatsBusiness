@@ -192,3 +192,6 @@ El estado de validación, las propuestas de eventos pendientes y el GO/NO-GO arq
 67. [Freeze de contrato CRM ContactIdentity](67-CRM-CONTACT-IDENTITY-CONTRACT-FREEZE.md) — CRM-005/006, identidad namespaced por canal, permisos, idempotencia, RLS, provenance y límites explícitos del primer slice.
 
 37. [CRM duplicate-candidate API freeze](69-CRM-DUPLICATE-CANDIDATE-API-FREEZE.md) — contrato, autorización, seguridad, consulta tenant-scoped y pruebas de CRM-007.
+
+## Especificación de Meta Assets y Capability Registry
+70. [Meta Asset Registry y Capability Engine](70-META-ASSET-AND-CAPABILITY-REGISTRY.md) — modelo namespaced WAAC/PMA/legacy WABA, reconciliación de inventario, evaluación explicable de permisos y gates pendientes de integración.

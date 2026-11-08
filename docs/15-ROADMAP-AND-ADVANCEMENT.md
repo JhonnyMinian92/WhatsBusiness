@@ -276,3 +276,13 @@ El motor de candidatos duplicados de contactos quedó CI-verified a nivel de dom
 ## Evidencia de señal cross-channel — 2026-11-08
 
 La estrategia `SAME_VERIFIED_PHONE_E164` se verificó en commit `d3d3b0722a61494eb8b8ba1d2e7c769ab2383f3d`: Source CI #587 SUCCESS y CodeQL #122 SUCCESS. Source CI ejecutó lockfile congelado, validador de observabilidad, migrations/idempotencia, build, typecheck, suites API/PostgreSQL y Meta backend PostgreSQL/RabbitMQ. El target `api:test` incluye 11 casos CRM del detector. La coincidencia cross-channel requiere mismo provider, E.164 exacto y `verifiedAt` no nulo en ambos perfiles; el resultado sigue siendo `manual_review_required`.
+
+## Avance US-004 — modelo de activos y capability evaluator (2026-11-08)
+
+Se añadió el primer núcleo de Meta Control Plane:
+
+- TASK-009: modelo de inventario namespaced para Business Portfolio, WAAC, PMA, phone number, Page, Instagram professional account, Ad Account, Lead Form y Dataset. La reconciliación conserva historial, ignora snapshots antiguos y solo marca un activo no visible cuando la cobertura del tipo fue completa.
+- TASK-010: evaluador por operación y versión que exige evidencia explícita y diferencia denegación de incertidumbre; valida autorización, tenant policy, purpose, asset grant/tasks, OAuth scopes, entitlements, App Review, App Mode, Marketing API Access Tier, account type/country, API version y approval/consent según definición.
+- Se añadieron 23 casos unitarios a api:test. Source CI #42512236821 falló inicialmente por TS4111; la corrección se publicó en 2f97c8a94275c87f8543de065c30ae00cbf52b43. Source CI #42512364598 y CodeQL #42512364506 seguían ejecutándose; no se cuentan como verdes.
+- Este avance no termina las tareas. TASK-008, adaptador Meta, almacenamiento seguro de conexión, persistencia/RLS, sincronización, catálogo por operación y contract freeze siguen pendientes. META-010..015 permanecen catalog-only; no se activaron endpoints ni acciones externas.
+- Próximo paso técnico condicionado: cerrar TASK-008 o su contrato de conexión, luego congelar los schemas y permisos por cada META operation; conectar el reader real, repository y auditoría al dominio ya creado.

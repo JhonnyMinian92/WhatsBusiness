@@ -463,3 +463,12 @@ El cambio afecta solo el fixture de pruebas; la topología productiva conserva q
 
 Commit: `f10743ce35d96f216c6e5c74ba3dd7286d07f262`. No se eleva TASK-003 a verified: continúan pendientes el resultado CI de este commit, revisión independiente, SLO/alert routing operativo, carga/DR y aceptación del propietario.
 
+## 41. Meta Asset Registry y Capability Engine — núcleo de dominio (AUD-154..156; 2026-11-08)
+
+| ID | Evidencia / cambio | Estado |
+|---|---|---|
+| AUD-154 | Se creó apps/api/src/platform/meta-control-plane/domain/meta-asset.ts: catálogo namespaced de activos, WAAC/PMA independientes, ownership y access evidence separadas y reconciliación monotónica con cobertura completa/parcial. No borra historial ni infiere revocación desde ausencia en una página parcial. | Implementado; Source CI de corrección pendiente. |
+| AUD-155 | Se creó el evaluador de capacidades por operación/versión, con decisión available/unavailable/unknown, gates de autorización, tenant policy, finalidad, grant/task, scope, entitlement, App Review, tier, elegibilidad/país, versión, consentimiento y approval, con reason codes explicables. | Implementado; falta catálogo autoritativo y runtime. |
+| AUD-156 | Se agregaron dos suites (23 casos) al target api:test. Source CI #42512236821 detectó TS4111 por el acceso dot notation a propiedades de Record<string, unknown>; se corrigió en commit 2f97c8a94275c87f8543de065c30ae00cbf52b43. | Corrección publicada; Source CI #42512364598 y CodeQL #42512364506 pendientes al corte. |
+
+Límites: no hay Meta API adapter, conexión ni token runtime para esta historia; no se añade persistencia ni endpoint HTTP porque TASK-008 y META-010..015 no están cerrados. No afirmar TASK-009/010 verificadas/aceptadas ni disponibilidad de activos reales.

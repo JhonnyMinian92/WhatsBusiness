@@ -145,3 +145,16 @@ Esta sección complementa (no reemplaza) las fichas por operación. Los scopes s
 - Meta comunicó el sunset de marketing messages enviado por Cloud API para 2027-10-13; las nuevas integraciones deben evaluar Marketing Messages API elegible y planificar migración.
 
 Fuentes y reglas completas: [docs/49](49-API-CONTRACT-READINESS-AND-META-ADAPTER-GATES.md). Cualquier scope/capability de Pages, Messenger, Lead Ads, Threads, CAPI, Flows o Marketing Messages no listado aquí queda unknown/disabled hasta completar evidencia oficial por operación.
+
+## 11. Implementación inicial del dominio de activos y capacidades — 2026-11-08
+
+El primer núcleo puro de dominio está en apps/api/src/platform/meta-control-plane/domain:
+
+- meta-asset.ts: identidad por producto + tipo + external ID, catálogo de activos, evidencia de grant/tareas y reconciliación de snapshots completos o parciales.
+- meta-capability.ts y meta-capability-evaluator.ts: evaluación por operación y versión, con estados available, unavailable y unknown y razones estables en español.
+- No existe todavía un adapter de lectura Meta, repositorio persistente, scheduler, token-vault/connection runtime ni endpoint HTTP para esta historia. Este código no representa un inventario de cuentas reales ni un permiso concedido.
+- META-010..015 continúan catalog-only; no se ha alterado OpenAPI ni el validador de allowlist.
+- Las definiciones operation-specific no deben sembrarse desde intuición: cada scope, task, app review, access tier, account type, país y API version debe tener fuente y fecha verificables. Access Tier Limited/Full nunca sustituye un OAuth scope.
+- La reconciliación solo marca not_visible cuando el sync declara cobertura completa y paginada del tipo de activo; una página parcial, error o snapshot antiguo no retira el activo ni infiere una revocación.
+
+La arquitectura actualizada y sus límites técnicos se detallan en docs/70.

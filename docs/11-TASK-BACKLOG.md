@@ -735,3 +735,12 @@ CRM-007 continúa implementado a nivel dominio, sin endpoint de producción ni m
 **Reutilización inspeccionada:** `AppModule`, `DatabaseModule/DatabaseService`, `IdentityModule`, el patrón NestJS por bounded context y el pipeline `Source CI` existente. Cualquier futura persistencia debe reutilizar `DatabaseService`/tenant context y los mecanismos compartidos de autorización, auditoría, idempotencia y observabilidad; no crear pools, guards ni clientes HTTP paralelos.
 
 **Resultado de esta sesión:** se completó la inspección de historia, dependencias, inventario API, readiness y referencias de precios. No se realizó cambio de runtime ni se ejecutaron tests de producto para US-008. La implementación queda explícitamente bloqueada por readiness/contratos y dependencias upstream; continuar con trabajo seguro de TASK-010, TASK-039 y TASK-056, y reanudar US-008 al satisfacer los gates.
+
+## Estado de implementación — US-004 (2026-11-08)
+
+| Tarea | Estado técnico real | Implementado | Pendiente para cierre |
+|---|---|---|---|
+| TASK-009 — Asset Registry | in_progress | Modelo namespaced de nueve clases de activo, distinción WAAC/PMA/legacy, validación de snapshots, reconciliación monotónica, coverage-aware y conservación de historial; pruebas unitarias añadidas a api:test. | Dependencia TASK-008 sin connection runtime; adapter Meta, token-vault access port, persistencia/RLS, sync orchestration y META-010..013 con contrato congelado; evidencia de cuenta elegible. |
+| TASK-010 — Capability Registry | in_progress | Evaluador por operación con autorización de actor, tenant policy, purpose, asset grant/tasks, scopes, entitlements, App Mode/Review, Access Tier, account type/country, versión por producto y approval/consent condicional; razones explicables y fail-closed. | Catálogo autoritativo de definiciones por operación con fuentes actuales, lectura/refresh y persistencia/evidencia; META-014..015 catalog-only; integración a guards y consumidores. |
+
+Gate actual: no habilitar META-010..015 ni cambiar x-implementation-allowed. La dependencia TASK-008 y el contract freeze por operación siguen siendo requisitos. El primer Source CI del cambio detectó accesos a propiedades de Record<string, unknown> incompatibles con noPropertyAccessFromIndexSignature; se corrigieron en el commit 2f97c8a94275c87f8543de065c30ae00cbf52b43. Source CI #42512364598 y CodeQL #42512364506 estaban en ejecución al escribir este registro; no declarar éxito hasta revisar su resultado.
