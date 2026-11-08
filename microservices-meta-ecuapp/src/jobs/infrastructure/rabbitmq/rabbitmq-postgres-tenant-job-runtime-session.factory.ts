@@ -140,7 +140,13 @@ export class RabbitMqPostgresTenantJobRuntimeSessionFactory implements TenantJob
       options.supervisor,
       metrics,
       new PostgresTenantJobRuntimeMetricsReader(options.metricsPool ?? options.dispatcherPool),
-      new RabbitMqTenantJobQueueMetricsReader(channels.metrics),
+      new RabbitMqTenantJobQueueMetricsReader(
+      channels.metrics,
+      undefined,
+      undefined,
+      1_500,
+      () => { void channels.close(); },
+    ),
     );
     const topology = new RabbitMqJobTopology(channels.consumer, TENANT_JOB_RABBITMQ_TOPOLOGY);
 
