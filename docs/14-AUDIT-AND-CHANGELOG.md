@@ -401,3 +401,14 @@ La rama recibió después de #536 el commit automático `ff89b71`, que cambia so
 | AUD-130 | CodeQL [#77](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42486976151) SUCCESS. La migración 0021 revoca membresía del login API al grupo ingress y retira SELECT/INSERT del outbox al grupo. La integración prueba membership false, ACL, SET ROLE denegado, outbox tenant-bound, rechazo cross-tenant y lectura de DLQ tenant-scoped con evento terminal durable. | Verificado por CI; review de seguridad independiente pendiente. |
 
 TASK-003, TASK-027 y TASK-028 permanecen in_progress. El gate cubre el slice de código descrito, no handlers Meta/CRM de negocio, replay autorizado por CR-0016, retención, KMS/Secret Manager, WAF/rate limit, topología desplegada, observabilidad/SLO, carga/DR, revisión independiente ni aceptación del propietario. GO-PRODUCTION permanece NO-GO.
+
+
+## 34. Source CI #560 — diagnóstico y reparación del test RabbitMQ live metrics (AUD-131..133; 2026-11-08)
+
+| ID | Evidencia / cambio | Estado |
+|---|---|---|
+| AUD-131 | Source CI #560, commit b6da092d443c91aebf502809439f82677d49acdc: install, migraciones/idempotencia, provisioning, build, typecheck y API tests SUCCESS; falla la integración Management API y el step alcanza timeout de 8 minutos. | Falla reproducida en CI; aserción inicial no visible por proceso colgado. |
+| AUD-132 | Reader RabbitMQ ahora informa solo status HTTP/redirect, cancela response body fallido y la prueba unitaria comprueba el status sin exponer contenido. | Implementado; CI nuevo pendiente. |
+| AUD-133 | Test live protege setup con try/finally, limita timeout/esperas, ejecuta cleanup AMQP con límites y cierra canales/conexión best-effort. | Implementado; CI nuevo pendiente. |
+
+No se conceden permisos de consumo/publicación/configuración al usuario de métricas. Se conserva el patrón RabbitMQ monitoring con regex vacíos para configure/read/write. El status HTTP real de la siguiente ejecución permitirá aislar si existe además un problema de autenticación/autorización o endpoint. AUD-131..133 no certifican despliegue ni SLO. TASK-003 sigue in_progress; revisión independiente y aceptación del propietario pendientes.

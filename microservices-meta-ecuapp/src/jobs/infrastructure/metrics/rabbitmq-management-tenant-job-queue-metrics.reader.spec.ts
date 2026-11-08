@@ -65,5 +65,9 @@ test("normalizes HTTP failures without exposing management response details", as
     ...options,
     fetcher: async () => new Response("not found", { status: 404 }),
   });
-  await assert.rejects(unavailable.readSnapshot(), /unsuccessful response/);
+  await assert.rejects(unavailable.readSnapshot(), error => {
+    assert.match(String(error), /unsuccessful response \(HTTP 404\)/);
+    assert.doesNotMatch(String(error), /not found/);
+    return true;
+  });
 });

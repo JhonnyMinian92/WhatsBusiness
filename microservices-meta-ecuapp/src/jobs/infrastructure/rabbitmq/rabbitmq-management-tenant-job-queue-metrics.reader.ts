@@ -86,7 +86,12 @@ export class RabbitMqManagementTenantJobQueueMetricsReader implements TenantJobR
       throw new Error("RabbitMQ management metrics request failed.");
     }
     if (!response.ok || response.redirected) {
-      throw new Error("RabbitMQ management metrics endpoint returned an unsuccessful response.");
+      const redirectNote = response.redirected ? ", redirected" : "";
+      await response.body?.cancel().catch(() => undefined);
+      throw new Error(
+        "RabbitMQ management metrics endpoint returned an unsuccessful response (HTTP "
+        + response.status + redirectNote + ").",
+      );
     }
     let body: unknown;
     try {

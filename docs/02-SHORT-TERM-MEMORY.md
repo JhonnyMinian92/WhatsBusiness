@@ -471,3 +471,11 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Se corrigió el test harness para que la prueba RabbitMQ compruebe publisher confirm, routing, ACK y entrega a quorum DLX mediante mensajes AMQP reales, sin depender de que un scrape Prometheus asíncrono coincida temporalmente con un contador ready/unacked.
 - La función `platform.stage_meta_webhook_event_outbox(uuid)` de la migración 0020 es la única frontera de escritura de outbox para el login API: deriva tenant del contexto transaction-local y del evento inbox; no concede lectura ni escritura directa del outbox. La migración 0021 elimina además la membresía del login API en el grupo ingress amplio.
 - **Estado global:** TASK-003, TASK-027 y TASK-028 continúan `in_progress`, no `accepted`. Aún faltan handlers reales CRM/WhatsApp/Instagram/Lead Ads/Ads, fixtures/conformance con cuentas Meta elegibles, CR-0016 y replay aprobado, Secret Manager/KMS y rotación, rate limiting/WAF, topology y observabilidad desplegadas, carga/DR, revisión independiente y aceptación del propietario. GO-PRODUCTION sigue NO-GO.
+
+
+## Handoff — Source CI #560 y reparación del test de métricas RabbitMQ (2026-11-08)
+
+- Último HEAD inspeccionado antes del cambio: b6da092d443c91aebf502809439f82677d49acdc, rama autorizada environment/local.
+- Source CI #560: instalación frozen, migraciones 0001–0023 e idempotencia, build, typecheck y api:test SUCCESS. La suite backend falló en la integración RabbitMQ Management API y el proceso llegó al timeout de 8 minutos.
+- El log no conserva la aserción inicial porque el proceso queda vivo. El cambio añade status HTTP sin filtrar bodies/secretos, setup protegido por finally, timeout explícito, esperas acotadas y cleanup AMQP con límites seguido del cierre de conexión.
+- Estado: implemented; Source CI/CodeQL del commit nuevo pendientes. TASK-003 continúa in_progress; TASK-027/028 mantienen pendientes handlers reales, CR-0016, protección perimetral, despliegue y aceptación.

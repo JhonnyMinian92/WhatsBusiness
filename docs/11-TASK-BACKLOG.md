@@ -530,3 +530,11 @@ Se añadió una regresión de integración a `microservices-meta-ecuapp/src/jobs
 - Source CI #558 ejecutó migraciones 0001–0023, build y typecheck; la suite API registró 101 pruebas aprobadas y una falla en la verificación del stream de auditoría del slice CRM. La migración 0023 y su rechazo SQLSTATE 23514 sí fueron ejecutados antes de esa aserción.
 - La causa es el fixture: el actor tenía membresía activa pero no una asignación real a un rol con `audit.read`; la política RLS ocultaba los eventos de forma correcta. La prueba incorpora `compliance_auditor` independiente por tenant, aristas tenant-scoped `role_permissions`, asignaciones `membership_roles` y captura posterior del `authz_version`.
 - No se relaja la política de auditoría. TASK-042 permanece `in_progress`; Source CI/Contract CI y habilitación HTTP siguen siendo gates separados.
+
+
+### Handoff incremental — Source CI #560 y reparación del test de métricas RabbitMQ (2026-11-08)
+
+- Source CI #560 (run 42489814295), commit b6da092d443c91aebf502809439f82677d49acdc: frozen install, migraciones 0001–0023 e idempotencia, build, typecheck y api:test SUCCESS. microservices-meta-ecuapp:test falló en la integración live de métricas RabbitMQ por Management API; el step agotó sus 8 minutos.
+- El log muestra el test marcado como fallido en aproximadamente 104 ms, pero no incluye la aserción original porque el proceso no termina. Se encontraron defectos de robustez: el error HTTP ocultaba status, el setup/constructor quedaba fuera del try/finally y las llamadas secuenciales de cleanup no tenían límite temporal.
+- Corrección implementada: el reader informa solo status HTTP/redirect, cancela el body fallido y nunca expone response body ni credenciales; el test protege setup con try/finally, añade timeout explícito, acota lecturas y teardown, y ejecuta cleanup aun con fallos.
+- Verificación pendiente del siguiente Source CI/CodeQL. No se relajaron permisos RabbitMQ: la identidad conserva tag monitoring y regex vacíos de configure/read/write. TASK-003 sigue in_progress; no declarar métricas live verificadas hasta CI SUCCESS y revisión operativa de SLO/alertas/despliegue.

@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import type { ConfirmChannel, Message } from "amqplib";
 import { setTimeout as delay } from "node:timers/promises";
 import test from "node:test";
-import { RabbitMqConnectionFactory } from "../rabbitmq/rabbitmq-connection.factory.js";
+import { RabbitMqConnectionFactory, type RabbitMqWorkerChannels } from "../rabbitmq/rabbitmq-connection.factory.js";
 import { RabbitMqManagementTenantJobQueueMetricsReader } from "../rabbitmq/rabbitmq-management-tenant-job-queue-metrics.reader.js";
 import type { TenantJobRuntimeMetricsSnapshotPatch } from "../../../application/tenant-job-runtime-metrics.js";
 
@@ -11,34 +11,36 @@ const enabled = process.env["RUN_RABBITMQ_METRICS_INTEGRATION_TESTS"] === "true"
 
 test("reads live RabbitMQ Management API queue metrics with a monitoring-only identity", {
   skip: !enabled,
+  timeout: 60_000,
 }, async () => {
   const brokerUrl = requiredEnvironment("RABBITMQ_URL");
   const endpoint = requiredEnvironment("RABBITMQ_MANAGEMENT_URL");
   const username = requiredEnvironment("RABBITMQ_MONITORING_USERNAME");
   const password = requiredEnvironment("RABBITMQ_MONITORING_PASSWORD");
-  const channels = await new RabbitMqConnectionFactory().open(
-    brokerUrl,
-    "whatsbusiness-rabbitmq-metrics-ci",
-  );
   const exchange = "whatsbusiness.metrics.integration." + randomUUID().replace(/-/g, "");
   const workerQueue = exchange + ".worker";
   const deadLetterQueue = exchange + ".dead";
+  let channels: RabbitMqWorkerChannels | null = null;
   let workerConsumerTag: string | null = null;
   let deadLetterConsumerTag: string | null = null;
   let workerDelivery: Message | null = null;
   let deadLetterDelivery: Message | null = null;
 
-  const reader = new RabbitMqManagementTenantJobQueueMetricsReader({
-    endpoint,
-    username,
-    password,
-    virtualHost: "/",
-    workerQueue,
-    deadLetterQueue,
-    timeoutMs: 3_000,
-  });
-
   try {
+    channels = await new RabbitMqConnectionFactory().open(
+      brokerUrl,
+      "whatsbusiness-rabbitmq-metrics-ci",
+    );
+    const reader = new RabbitMqManagementTenantJobQueueMetricsReader({
+      endpoint,
+      username,
+      password,
+      virtualHost: "/",
+      workerQueue,
+      deadLetterQueue,
+      timeoutMs: 2_000,
+    });
+
     await channels.consumer.assertExchange(exchange, "topic", { durable: false, autoDelete: true });
     await channels.consumer.assertQueue(workerQueue, { durable: false, exclusive: false, autoDelete: true });
     await channels.consumer.assertQueue(deadLetterQueue, { durable: false, exclusive: false, autoDelete: true });
@@ -112,12 +114,23 @@ test("reads live RabbitMQ Management API queue metrics with a monitoring-only id
       drained.rabbitMqDeadLetterQueueConsumers,
     ], [0, 0, 0, 0, 0, 0]);
   } finally {
-    if (workerConsumerTag) await channels.consumer.cancel(workerConsumerTag).catch(() => undefined);
-    if (deadLetterConsumerTag) await channels.consumer.cancel(deadLetterConsumerTag).catch(() => undefined);
-    await channels.consumer.deleteQueue(workerQueue).catch(() => undefined);
-    await channels.consumer.deleteQueue(deadLetterQueue).catch(() => undefined);
-    await channels.consumer.deleteExchange(exchange).catch(() => undefined);
-    await channels.close().catch(() => undefined);
+    if (channels) {
+      // Cleanup runs even after setup/reader failures. Bound every phase so one
+      // failed AMQP RPC cannot keep the CI Node process alive indefinitely.
+      const cancellations = [
+        ...(workerConsumerTag ? [channels.consumer.cancel(workerConsumerTag)] : []),
+        ...(deadLetterConsumerTag ? [channels.consumer.cancel(deadLetterConsumerTag)] : []),
+      ];
+      await settleWithin(Promise.allSettled(cancellations), 1_500);
+
+      const removals = [
+        channels.consumer.deleteQueue(workerQueue),
+        channels.consumer.deleteQueue(deadLetterQueue),
+        channels.consumer.deleteExchange(exchange),
+      ];
+      await settleWithin(Promise.allSettled(removals), 1_500);
+      await settleWithin(channels.close(), 2_500);
+    }
   }
 });
 
@@ -142,12 +155,12 @@ async function waitForSnapshot(
   predicate: (snapshot: TenantJobRuntimeMetricsSnapshotPatch) => boolean,
   expectation: string,
 ): Promise<TenantJobRuntimeMetricsSnapshotPatch> {
-  const deadline = Date.now() + 15_000;
+  const deadline = Date.now() + 10_000;
   let lastSnapshot: TenantJobRuntimeMetricsSnapshotPatch = {};
   while (Date.now() < deadline) {
     lastSnapshot = await reader.readSnapshot();
     if (predicate(lastSnapshot)) return lastSnapshot;
-    await delay(200);
+    await delay(150);
   }
   throw new Error("RabbitMQ Management API did not expose the expected state: " + expectation
     + ". Last snapshot: " + JSON.stringify(lastSnapshot));
@@ -160,6 +173,20 @@ async function waitForDeliveries(predicate: () => boolean): Promise<void> {
     await delay(25);
   }
   throw new Error("RabbitMQ did not deliver both live metrics integration messages.");
+}
+
+async function settleWithin(operation: Promise<unknown>, timeoutMs: number): Promise<void> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  try {
+    await Promise.race([
+      operation.then(() => undefined, () => undefined),
+      new Promise<void>(resolve => {
+        timeout = setTimeout(resolve, timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeout) clearTimeout(timeout);
+  }
 }
 
 function requiredEnvironment(name: string): string {

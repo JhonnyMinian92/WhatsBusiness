@@ -206,3 +206,11 @@ Estado actual:
 - CodeQL #74 SUCCESS. El commit posterior ff89b71 es la sincronización automática del lockfile, no un cambio de lógica.
 - Se comprobó que `NOINHERIT` no impide `SET ROLE` cuando la membresía mantiene SET habilitado. Se agregó migración 0021 para retirar la membresía redundante y los grants de outbox al grupo; las pruebas de ACL requieren Source CI posterior.
 - TASK-003/027/028 siguen in_progress; los siguientes cierres son hardening de permisos, handlers idempotentes de negocio, replay con aprobación, políticas de retención, KMS, WAF/rate limits, despliegue/observabilidad, carga/DR y revisión independiente. GO-PRODUCTION sigue NO-GO.
+
+
+## Actualización de ejecución — Source CI #560 / reparación del test de métricas de broker (2026-11-08)
+
+- Source CI #560 confirmó SUCCESS en frozen install, migraciones 0001–0023/idempotencia, build, typecheck y API tests; falló la suite backend durante la integración RabbitMQ Management API, cuyo proceso alcanzó el timeout de 8 minutos.
+- El log muestra el test fallido en ~104 ms, pero no registra el detalle de la aserción porque el proceso no termina. Se localizaron defectos de diagnóstico/lifecycle: el reader ocultaba el status HTTP y las llamadas de cleanup AMQP eran secuenciales y sin límite.
+- Se implementó un cambio acotado: status HTTP seguro sin exponer body, setup bajo try/finally, timeout del test, lectura/polling acotado, cleanup best-effort con límites y cierre de canales/conexión. Se conserva el usuario monitor-only con permisos vacíos.
+- Próximo gate: Source CI/CodeQL del nuevo HEAD. No declarar métricas live verificadas ni cerrar TASK-003 sin SUCCESS; SLO, dashboards/alertas, DLQ operator, handlers reales, KMS/rotación, despliegue, carga/DR y revisión independiente siguen pendientes.

@@ -314,3 +314,14 @@ Source CI #527 terminó cancelled tras el timeout de 30 minutos dentro del targe
 | Persistencia tenant-scoped, idempotencia y optimistic concurrency | US-018 / TASK-042 | PostgresContactRepository, ContactService | PostgreSQL integration: tenant RLS, replay, conflict, ETag version, audit hash chain y cross-tenant not-found; Source CI pendiente | implemented; verified pending |
 | Contratos CRM-001..004 | US-018 / TASK-042 | contracts/openapi/platform-v1.yaml; docs/66 | Contract CI #27 SUCCESS; allowlist solo PLT-001..005 | design-frozen; runtime disabled |
 | Exposición HTTP | US-018 / TASK-042 | ContactController + CrmContactsModule, todavía no importado en AppModule | Requiere gate GO-CODE específico y cambio permitido por Contract CI | blocked by feature gate |
+
+## 9. Evidencia incremental — Source CI #560 y test de métricas RabbitMQ
+
+| Requisito/resultado | Historia / tarea | Implementación / prueba | Evidencia / estado |
+|---|---|---|---|
+| Build/typecheck y foundation API mantienen estado verde | TASK-003 / foundation | Source validation #560, commit b6da092d443c91aebf502809439f82677d49acdc | Install frozen, migraciones 0001–0023 + idempotencia, build, typecheck y api:test SUCCESS |
+| Reader HTTP no expone detalles de respuesta de Management API | TASK-003 | rabbitmq-management-tenant-job-queue-metrics.reader.ts y unit spec | Corrección implementada: status HTTP/redirect solamente; nunca response body; CI nuevo pendiente |
+| La integración live deja el proceso limpio aun cuando falle | TASK-003 | rabbitmq-management-tenant-job-queue-metrics.integration.spec.ts | Setup protegido, timeout del test y cleanup acotado implementados; Source CI/CodeQL pendientes |
+| La identidad de métricas sigue monitor-only | TASK-003 / security | .github/workflows/source-validation.yml | Sin cambios de ACL; no se concede read/configure/write sobre recursos AMQP |
+
+Source CI #560 falló en el target backend durante la integración RabbitMQ Management API; el step expiró tras 8 minutos. La corrección aún no está verified. TASK-003 sigue in_progress.
