@@ -578,3 +578,17 @@ Detalle: docs/72-CAPI-EVENT-GATEWAY.md. CI posterior al commit determina CI veri
 | AUD-183 | Suite del runtime registrada en Nx, export del paquete, README y `.env.example` actualizados. | Código documentado; CI pendiente |
 
 Commits de runtime: `b2fae18c07b1ede450a7ee8248df1ceceb3c0fd2`, `65e173921ff83461a22bce86198305b21816b252`, `7daebb92507e51a3f2e6316bee592fa2e4edb583`, `7d6e33c10ceb19a4f4f68af3fb932c8783f1ed5b`, `12cabafa446e1b1408e42a219e0f5638838dbba2` y `d6d1e015d01b9810f7b92a047f5a5ed51ab097bf`. El entrypoint de cada bounded context aún no existe porque los handlers reales siguen pendientes; GO-PRODUCTION no cambia.
+
+
+## 45. US-012 — núcleo de dominio de campañas y guardrails (AUD-178..183; 2026-11-08)
+
+| ID | Cambio / control | Resultado al registrar |
+|---|---|---|
+| AUD-178 | Se añadió parseo de Ads Money como string decimal y aritmética exacta escalada; no se usa float para importes. | Implementado en `apps/api/src/ads/campaigns/domain/ads-money.ts`; CI pendiente |
+| AUD-179 | PD-024 se evalúa por operación y contra un baseline fijo de 24 horas; los aumentos fragmentados no reinician ni evaden la referencia. | Implementado en `budget-guardrail.ts`; test incluido; CI pendiente |
+| AUD-180 | Se añadió máquina de estados de campaña que obliga a validar, aprobar y stagear antes de submit y evita retry ciego en estado unknown. | Implementado en `campaign-lifecycle.ts`; CI pendiente |
+| AUD-181 | Se añadió validación fail-closed para catálogo objetivo, cuenta, moneda, capability y evidencia vigente/versionada. | Implementado en `campaign-validation.ts`; sin adapter Meta conectado |
+| AUD-182 | Se añadió policy central que exige actor, asset grant, capability actual, binding hash y quorum; kill switch detiene publication/budget increase pero no bloquea pause. | Implementado en `ads-execution-guard.ts`; todavía no conectado a handlers de ejecución |
+| AUD-183 | Cinco suites de pruebas de dominio añadidas a `apps/api/project.json`. | 24 casos de dominio declarados; Source CI pendiente al corte |
+
+Límite: no se modificó OpenAPI/AsyncAPI ni se registraron endpoints Ads, porque el contract freeze/reviewer de docs/49 y docs/55 sigue siendo gate. Tampoco hay migración, RLS, worker, adapter o reconciler Ads. TASK-024/025 siguen `in_progress`; no `verified`/ `accepted`. No se realizó llamada externa ni gasto/publicación Meta.
