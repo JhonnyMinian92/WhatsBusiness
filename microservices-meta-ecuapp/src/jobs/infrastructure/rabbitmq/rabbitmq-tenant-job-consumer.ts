@@ -10,6 +10,7 @@ export interface TenantJobConsumerErrorReporter {
 export class RabbitMqTenantJobConsumerAdapter {
   private consumerTag: string | null = null;
   private readonly inFlight = new Set<Promise<void>>();
+  private connectionCloseTask: Promise<void> | null = null;
 
   constructor(
     private readonly channel: Channel,
@@ -97,13 +98,20 @@ export class RabbitMqTenantJobConsumerAdapter {
   }
 
   private async closeConnection(failureCode: string): Promise<void> {
-    try {
-      // Close all worker channels so RabbitMQ requeues any unacknowledged delivery.
-      // The runtime supervisor reconnects with bounded exponential backoff.
-      await this.closeWorkerConnection();
-    } catch {
-      this.report(failureCode);
+    // A prefetched batch may fail concurrently. Coalesce all close requests so
+    // every delivery observes the same connection shutdown and one reconnect.
+    if (!this.connectionCloseTask) {
+      this.connectionCloseTask = (async () => {
+        try {
+          // Close all worker channels so RabbitMQ requeues every unacknowledged delivery.
+          // The runtime supervisor reconnects with bounded exponential backoff.
+          await this.closeWorkerConnection();
+        } catch {
+          this.report(failureCode);
+        }
+      })();
     }
+    await this.connectionCloseTask;
   }
 
   private rejectWithoutRequeue(message: ConsumeMessage): void {
