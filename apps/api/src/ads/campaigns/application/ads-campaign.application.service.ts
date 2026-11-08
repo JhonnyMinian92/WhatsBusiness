@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import {
   ConflictException,
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
@@ -67,12 +68,13 @@ export interface AdsCampaignCommandResult {
 export class AdsCampaignApplicationService {
   constructor(
     private readonly database: DatabaseService,
+    @Inject(ADS_CAMPAIGN_REPOSITORY)
     private readonly repository: AdsCampaignRepository,
     private readonly audit: AppendOnlyAuditRepository,
     private readonly approvals: ApprovalWorkflowService,
-    @InjectProvider(ADS_CAMPAIGN_PREFLIGHT_PROVIDER)
+    @Inject(ADS_CAMPAIGN_PREFLIGHT_PROVIDER)
     private readonly preflight: AdsCampaignPreflightProvider,
-    @InjectProvider(ADS_CAMPAIGN_EXECUTION_EVIDENCE_PROVIDER)
+    @Inject(ADS_CAMPAIGN_EXECUTION_EVIDENCE_PROVIDER)
     private readonly executionEvidence: AdsCampaignExecutionEvidenceProvider,
   ) {}
 
@@ -432,7 +434,7 @@ export class AdsCampaignApplicationService {
     assertAdsCampaignIdempotencyKey(idempotencyKey);
     const campaign = await this.getDraft(subject, campaignId);
     const requestHash = createHash("sha256")
-      .update(JSON.stringify({ action: "pause", campaignId, version: campaign.version }), "utf8")
+      .update(JSON.stringify({ action: "pause", campaignId }), "utf8")
       .digest("hex");
     const existing = await this.database.withTenantContextAtVersion(
       subject.actorId,
@@ -579,16 +581,3 @@ function campaignNotFound(): NotFoundException {
   return new NotFoundException({ code: "ADS_CAMPAIGN_NOT_FOUND" });
 }
 
-/** Avoid a Nest runtime dependency for interface-valued constructor tokens. */
-function InjectProvider(token: symbol): ParameterDecorator {
-  return (target, propertyKey, parameterIndex) => {
-    const nest = requireInject();
-    nest(token)(target, propertyKey, parameterIndex);
-  };
-}
-
-function requireInject(): (token: symbol) => ParameterDecorator {
-  return InjectFunction;
-}
-
-import { Inject as InjectFunction } from "@nestjs/common";
