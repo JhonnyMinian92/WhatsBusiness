@@ -6,6 +6,7 @@ import {
   exceedsAdsMoneyBaselinePercent,
   isAdsMoneyIncreaseWithinPercent,
   parseAdsMoney,
+  subtractAdsMoney,
 } from "./ads-money.js";
 
 test("Ads money uses exact decimal arithmetic without floating-point rounding", () => {
@@ -45,4 +46,11 @@ test("Ads money respects each ISO 4217 currency minor-unit precision", () => {
     (error: unknown) => error instanceof Error
       && (error as { code?: string }).code === "ADS_MONEY_CURRENCY_PRECISION_INVALID",
   );
+});
+
+test("zero-value Ads money is valid for spend reconciliation", () => {
+  const total = parseAdsMoney({ amount: "100", currency: "USD" });
+  const settled = subtractAdsMoney(total, total);
+  assert.equal(settled.amount, "0");
+  assert.equal(settled.currency, "USD");
 });
