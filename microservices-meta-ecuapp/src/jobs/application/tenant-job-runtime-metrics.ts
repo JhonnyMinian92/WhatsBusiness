@@ -35,22 +35,8 @@ export interface TenantJobRuntimeMetricsReader {
   readSnapshot(): Promise<TenantJobRuntimeMetricsSnapshot>;
 }
 
-export interface TenantJobBrokerMetricsSnapshot {
-  readonly workerQueueReadyMessages: number;
-  readonly workerQueueUnacknowledgedMessages: number;
-  readonly workerQueueConsumers: number;
-  readonly deadLetterQueueReadyMessages: number;
-  readonly deadLetterQueueUnacknowledgedMessages: number;
-  readonly deadLetterQueueConsumers: number;
-}
-
-export interface TenantJobBrokerMetricsReader {
-  readSnapshot(): Promise<TenantJobBrokerMetricsSnapshot>;
-}
-
 export interface TenantJobRuntimeMetrics {
   recordRuntimeSnapshot(snapshot: TenantJobRuntimeMetricsSnapshot): void;
-  recordBrokerRuntimeSnapshot(snapshot: TenantJobBrokerMetricsSnapshot): void;
   recordDispatch(outcome: TenantJobDispatchMetricOutcome): void;
   recordExecution(outcome: TenantJobExecutionMetricOutcome, durationMs: number): void;
   recordPublish(outcome: TenantJobPublishMetricOutcome, durationMs: number): void;
@@ -67,5 +53,4 @@ export const NOOP_TENANT_JOB_RUNTIME_METRICS: TenantJobRuntimeMetrics = Object.f
   recordLeaseRenewal: () => undefined,
   recordRuntimeError: () => undefined,
   recordRuntimeSnapshot: () => undefined,
-  recordBrokerRuntimeSnapshot: () => undefined,
 });
