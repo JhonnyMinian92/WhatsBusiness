@@ -9,14 +9,19 @@ import { TenantJobContextResolver, TenantJobExecutor } from "./tenant-job-contex
 
 const runtimeUrl = process.env["DATABASE_URL"];
 const migrationUrl = process.env["MIGRATION_DATABASE_URL"];
+const dispatcherUrl = process.env["DATABASE_JOB_DISPATCHER_URL"];
+const workerUrl = process.env["DATABASE_JOB_WORKER_URL"];
 const enabled = process.env["RUN_TENANT_JOB_INTEGRATION_TESTS"] === "true";
 
 test("PostgreSQL tenant jobs enforce transactional staging, idempotency, least privilege and revalidated execution", {
-  skip: !enabled || !runtimeUrl || !migrationUrl,
+  skip: !enabled || !runtimeUrl || !migrationUrl || !dispatcherUrl || !workerUrl,
 }, async () => {
   const adminPool = new Pool({ connectionString: migrationUrl, max: 1 });
   const runtimePool = new Pool({ connectionString: runtimeUrl, max: 2 });
+  const dispatcherPool = new Pool({ connectionString: dispatcherUrl, max: 1 });
+  const workerPool = new Pool({ connectionString: workerUrl, max: 1 });
   const database = new DatabaseService(runtimePool);
+  const workerDatabase = new DatabaseService(workerPool);
   const writer = new PostgresTenantJobRecordWriter();
   const reader = new PostgresTenantJobRecordReader(runtimePool);
   const resolver = new TenantJobContextResolver(reader);
@@ -148,14 +153,44 @@ test("PostgreSQL tenant jobs enforce transactional staging, idempotency, least p
       (error: unknown) => typeof error === "object" && error !== null && "code" in error
         && (error as { code: string }).code === "23514",
     );
-    await adminPool.query(
-      "UPDATE platform.tenant_job_records SET status = 'processing', attempts = 1 WHERE id = $1",
-      [jobId],
+    const dispatchClaim = await dispatcherPool.query<{ job_id: string; lease_token: string }>(
+      "SELECT job_id::text, lease_token::text FROM platform.claim_tenant_job_publications($1, $2)",
+      [1, 60],
     );
-    await adminPool.query(
-      "UPDATE platform.tenant_job_records SET status = 'succeeded' WHERE id = $1",
-      [jobId],
+    const dispatchLease = dispatchClaim.rows.find((row) => row.job_id === jobId);
+    assert.ok(dispatchLease, "dispatcher must claim the newly staged tenant job");
+
+    const publishResult = await dispatcherPool.query<{ published: boolean }>(
+      "SELECT platform.mark_tenant_job_published($1, $2) AS published",
+      [jobId, dispatchLease.lease_token],
     );
+    assert.equal(publishResult.rows[0]?.published, true);
+
+    const executionClaim = await workerPool.query<{
+      job_id: string;
+      tenant_id: string;
+      actor_user_id: string;
+      lease_token: string;
+      attempt: number;
+    }>(
+      "SELECT job_id::text, tenant_id::text, actor_user_id::text, lease_token::text, attempt FROM platform.claim_tenant_job_execution($1, $2)",
+      [jobId, 60],
+    );
+    const executionLease = executionClaim.rows[0];
+    assert.ok(executionLease, "worker must claim only a published tenant job");
+    assert.equal(executionLease.tenant_id, tenantId);
+    assert.equal(executionLease.actor_user_id, actorUserId);
+    assert.equal(executionLease.attempt, 1);
+
+    const completion = await workerDatabase.withTenantContext(
+      actorUserId,
+      tenantId,
+      (client) => client.query<{ completed: boolean }>(
+        "SELECT platform.complete_tenant_job($1, $2, $3) AS completed",
+        [jobId, executionLease.lease_token, "integration.test"],
+      ),
+    );
+    assert.equal(completion.rows[0]?.completed, true);
     await assert.rejects(
       adminPool.query("UPDATE platform.tenant_job_records SET status = 'queued' WHERE id = $1", [jobId]),
       (error: unknown) => typeof error === "object" && error !== null && "code" in error
@@ -196,7 +231,10 @@ test("PostgreSQL tenant jobs enforce transactional staging, idempotency, least p
       await adminPool.query("DELETE FROM platform.organizations WHERE id = $1", [organizationId]);
       await adminPool.query("DELETE FROM platform.users WHERE id = ANY($1::uuid[])", [[actorUserId, otherActorUserId]]);
     } finally {
+      await workerDatabase.onModuleDestroy();
       await database.onModuleDestroy();
+      await workerPool.end();
+      await dispatcherPool.end();
       await adminPool.end();
     }
   }
