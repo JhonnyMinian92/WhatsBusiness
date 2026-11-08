@@ -34,11 +34,16 @@ jobs:
         with:
           node-version-file: .node-version
           package-manager-cache: false
-      - name: Install isolated contract validators
-        run: npm install --no-save --package-lock=false yaml@2.8.1 ajv@8.17.1 ajv-formats@3.0.1
+      - name: Install isolated contract validators outside the pnpm workspace
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/whatsbusiness-contract-tools"
+          npm install --prefix "$RUNNER_TEMP/whatsbusiness-contract-tools" --no-save --package-lock=false yaml@2.8.1 ajv@8.17.1 ajv-formats@3.0.1
       - name: Validate OpenAPI
         run: npx --yes @redocly/cli@1.34.5 lint contracts/openapi/platform-v1.yaml
       - name: Validate AsyncAPI
         run: npx --yes @asyncapi/cli@3.4.2 validate contracts/asyncapi/platform-events-v1.yaml
       - name: Validate event schemas, references and fixtures
+        env:
+          CONTRACT_TOOLS_REQUIRE_BASE: ${{ runner.temp }}/whatsbusiness-contract-tools/contract-tools.cjs
         run: node scripts/validate-contracts.mjs

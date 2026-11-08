@@ -1,7 +1,14 @@
 import fs from "node:fs";
-import YAML from "yaml";
-import Ajv2020 from "ajv/dist/2020.js";
-import addFormats from "ajv-formats";
+import { createRequire } from "node:module";
+
+const require = createRequire(
+  process.env["CONTRACT_TOOLS_REQUIRE_BASE"] ?? new URL(import.meta.url).pathname,
+);
+const YAML = require("yaml");
+const Ajv2020Module = require("ajv/dist/2020.js");
+const Ajv2020 = Ajv2020Module.default ?? Ajv2020Module;
+const addFormatsModule = require("ajv-formats");
+const addFormats = addFormatsModule.default ?? addFormatsModule;
 
 const read = (path) => fs.readFileSync(path, "utf8");
 const parseYaml = (path) => YAML.parse(read(path), { uniqueKeys: true });
