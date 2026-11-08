@@ -9,25 +9,25 @@ const Ajv2020Module = require("ajv/dist/2020.js");
 const Ajv2020 = Ajv2020Module.default ?? Ajv2020Module;
 const addFormatsModule = require("ajv-formats");
 const addFormats = addFormatsModule.default ?? addFormatsModule;
-const asyncApiParserModule = require("@asyncapi/parser");
-const AsyncApiParser = asyncApiParserModule.Parser ?? asyncApiParserModule.default?.Parser ?? asyncApiParserModule.default;
+const AjvModule = require("ajv");
+const Ajv = AjvModule.default ?? AjvModule;
+const asyncApiSpecs = require("@asyncapi/specs");
 
 const read = (path) => fs.readFileSync(path, "utf8");
 const parseYaml = (path) => YAML.parse(read(path), { uniqueKeys: true });
 const openapi = parseYaml("contracts/openapi/platform-v1.yaml");
 const asyncapi = parseYaml("contracts/asyncapi/platform-events-v1.yaml");
-const asyncApiParser = new AsyncApiParser();
-const asyncApiParseResult = await asyncApiParser.parse(
-  read("contracts/asyncapi/platform-events-v1.yaml"),
-);
-const asyncApiErrors = (asyncApiParseResult.diagnostics ?? []).filter(
-  (diagnostic) => diagnostic.severity === 0,
-);
+const asyncApiSchema = asyncApiSpecs.schemasWithoutId["2.6.0"];
+assert(asyncApiSchema, "Official AsyncAPI 2.6.0 JSON Schema is unavailable.");
+const asyncApiAjv = new Ajv({ allErrors: true, strict: false });
+addFormats(asyncApiAjv);
+const validateAsyncApi = asyncApiAjv.compile(asyncApiSchema);
+const asyncApiValid = validateAsyncApi(asyncapi);
 assert(
-  asyncApiParseResult.document && asyncApiErrors.length === 0,
-  "AsyncAPI parser rejected the document: " + asyncApiErrors.map((diagnostic) => diagnostic.message).join("; "),
+  asyncApiValid,
+  "AsyncAPI 2.6.0 document is invalid: " + JSON.stringify(validateAsyncApi.errors ?? []),
 );
-console.log("AsyncAPI specification parsed successfully with @asyncapi/parser.");
+console.log("AsyncAPI document conforms to the official AsyncAPI 2.6.0 JSON Schema.");
 const envelope = JSON.parse(read("contracts/schemas/event-envelope.schema.json"));
 const domain = JSON.parse(read("contracts/schemas/domain-events-v1.schema.json"));
 
