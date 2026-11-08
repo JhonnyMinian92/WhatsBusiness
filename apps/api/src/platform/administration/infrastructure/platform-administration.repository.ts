@@ -88,9 +88,9 @@ export class PlatformAdministrationRepository implements PlatformAdministrationP
       const organization=await client.query<{id:string}>(
         "SELECT id::text FROM platform.organizations WHERE id=$1 AND status='active'",[command.organizationId]);
       if (!organization.rows[0]) throw new NotFoundException({code:"ORGANIZATION_NOT_FOUND",detail:"La organización no existe o no está activa."});
-      const owner=await client.query<{id:string}>(
-        "SELECT id::text FROM platform.users WHERE id=$1 AND status='active'",[command.ownerUserId]);
-      if (!owner.rows[0]) throw new NotFoundException({code:"TENANT_OWNER_NOT_FOUND",detail:"El usuario propietario no existe o no está activo."});
+      const owner=await client.query<{allowed:boolean}>(
+        "SELECT platform.is_active_platform_user($1) AS allowed",[command.ownerUserId]);
+      if(owner.rows[0]?.allowed!==true) throw new NotFoundException({code:"TENANT_OWNER_NOT_FOUND",detail:"El usuario propietario no existe o no está activo."});
       const plan=await this.findActivePlan(client,command.planKey,command.planVersion);
       const tenantResult=await client.query<{id:string}>(
         "INSERT INTO platform.tenants(organization_id,slug,display_name,status,locale,timezone,currency) VALUES($1,$2,$3,'pending_provisioning',$4,$5,$6) RETURNING id::text",
