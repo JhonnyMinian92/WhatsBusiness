@@ -158,3 +158,18 @@ El primer núcleo puro de dominio está en apps/api/src/platform/meta-control-pl
 - La reconciliación solo marca not_visible cuando el sync declara cobertura completa y paginada del tipo de activo; una página parcial, error o snapshot antiguo no retira el activo ni infiere una revocación.
 
 La arquitectura actualizada y sus límites técnicos se detallan en docs/70.
+
+## Facebook Pages y Messenger — evidencia por operación (2026-11-08)
+
+| Operación | OAuth scopes | Page tasks | Token | Condición adicional |
+|---|---|---|---|---|
+| Messenger Conversations API — lectura | \`pages_manage_metadata\`, \`pages_read_engagement\`, \`pages_messaging\` | \`MESSAGING\` **o** \`MODERATE\` | Page access token | Advanced Access para conversaciones con personas sin rol en app/Page/business |
+| Messenger Send API — envío | \`pages_messaging\` | \`MESSAGE\` | Page access token | Mensaje entrante del destinatario en 24 h o autorización documentada fuera de ventana |
+
+Fuentes oficiales:
+- Conversations API: https://www.postman.com/meta/messenger-platform-api/folder/22794852-255610cd-47f5-4f4d-b3fa-71aec360be9a
+- Send API: https://www.postman.com/meta/messenger-platform-api/documentation/iyp204x/messenger-platform-api
+
+\`MetaCapabilityEvaluator\` modela \`requiredAnyAssetTasks\` con semántica OR y \`requiredAccessTokenType\`, sin sustituir tareas AND ni validaciones de evidencia/expiración/versión. El módulo Messenger define los descriptors con versión explícita del caller.
+
+No extrapolar scopes/tareas a listados Page, publicaciones, comentarios, moderación o insights; requieren evidencia independiente. Advanced Access es distinto de OAuth scope y Marketing API Access Tier. La documentación pública no demuestra que app/Page real de WhatsBusiness tenga permisos concedidos; sin evidencia runtime vigente, el estado sigue \`unknown\`.

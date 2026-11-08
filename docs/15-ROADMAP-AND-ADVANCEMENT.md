@@ -366,3 +366,9 @@ TASK-004 (RBAC/ABAC y asignación persistente) y TASK-005 (step-up, approvals y 
 - TASK-024 y TASK-025 siguen `in_progress`: no hay controller Ads, repositorio/migración de campañas, outbox/worker ni adapter Marketing API conectado.
 - Contratos ADS continúan catalog-only bajo docs/49/55; TASK-010 (Meta capability evidence) y TASK-029 (observabilidad operativa) son dependencias abiertas. No se declara US-012 verified/accepted ni se realizan escrituras Meta.
 - Detalle: docs/73-US-012-ADS-CAMPAIGN-IMPLEMENTATION.md.
+
+## US-009 — Facebook Pages y Messenger (2026-11-08)
+
+Se añadió un slice de dominio: MetaCapabilityEvaluator ahora expresa tareas OR y tipo de Page access token; Messenger capability descriptors por operación; Advanced Access para participantes externos; política ventana estándar de 24 h con ownership y soporte; y handoff policy con authorization, tenant y versión optimista que construye el envelope \`inbox.handoff.requested\`. Cuatro nuevas suites fueron incorporadas al target \`api:test\`.
+
+**No es cierre de historia:** faltan OAuth/connection runtime y Page inventory persistente (TASK-008/009/010); handlers y fixtures webhook Messenger (TASK-027/028); Inbox lease/CAS/outbox/routing/bot suppression (TASK-045..047). FB-001..014 y WH-003 siguen catalog-only. Source CI del HEAD, review independiente y Product Owner acceptance están pendientes. GO-PRODUCTION sigue NO-GO.

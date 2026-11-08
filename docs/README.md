@@ -61,6 +61,7 @@
 | [26-TEAM-WORKFLOW-AND-GATES.md](26-TEAM-WORKFLOW-AND-GATES.md) | Flujo, ceremonias, gates y plantillas |
 | [27-INITIAL-REPOSITORY-AUDIT.md](27-INITIAL-REPOSITORY-AUDIT.md) | Auditoría estática inicial y límites de evidencia |
 | [28-PRODUCT-DISCOVERY-QUESTIONNAIRE.md](28-PRODUCT-DISCOVERY-QUESTIONNAIRE.md) | Cuestionario histórico; ver docs/29 para decisiones vigentes |
+| [73-US-009-PAGES-MESSENGER-POLICY.md](73-US-009-PAGES-MESSENGER-POLICY.md) | Implementación y gates de Facebook Pages/Messenger |
 
 ## Memoria de producto de origen
 [META_SERVICES.md](../META_SERVICES.md) conserva la investigación inicial. Es referencia histórica/técnica, no prueba de que una API siga vigente ni de que la cuenta tenga acceso. Validar todo dato volátil con fuentes oficiales antes de implementar.

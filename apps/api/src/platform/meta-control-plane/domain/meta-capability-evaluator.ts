@@ -7,6 +7,7 @@ import {
   type MetaEvidence,
   type MetaEvidenceSource,
   type MetaAccessTier,
+  type MetaAccessTokenType,
 } from "./meta-capability.js";
 
 interface EvaluationContext {
@@ -43,11 +44,16 @@ function assertDefinition(definition: MetaCapabilityDefinition): void {
   const arrays = [
     definition.requiredOAuthScopes,
     definition.requiredAssetTasks,
+    definition.requiredAnyAssetTasks ?? [],
     definition.requiredEntitlements,
     definition.eligibleAccountTypes ?? [],
     definition.eligibleCountries ?? [],
   ];
   if (arrays.some((items) => new Set(items).size !== items.length || items.some((item) => !item.trim()))) {
+    throw new Error("META_CAPABILITY_REQUIREMENTS_INVALID");
+  }
+  const supportedTokenTypes: readonly MetaAccessTokenType[] = ["user", "page", "system_user", "app"];
+  if (definition.requiredAccessTokenType !== undefined && !supportedTokenTypes.includes(definition.requiredAccessTokenType)) {
     throw new Error("META_CAPABILITY_REQUIREMENTS_INVALID");
   }
 }
@@ -173,6 +179,33 @@ function checkRequiredValues(
   }
 }
 
+
+function checkAnyRequiredValues(
+  evidence: MetaEvidence<readonly string[]>,
+  required: readonly string[],
+  dimension: string,
+  deniedCode: MetaCapabilityReasonCode,
+  unknownCode: MetaCapabilityReasonCode,
+  reasons: MetaCapabilityReason[],
+  context: EvaluationContext,
+): void {
+  if (required.length === 0) return;
+  const result = readEvidence(evidence, dimension, unknownCode, reasons, context.now);
+  if (!result.known || !result.value) return;
+
+  if (!required.some((item) => result.value!.includes(item))) {
+    reasons.push({
+      code: deniedCode,
+      certainty: "denied",
+      dimension,
+      requirement: required.join(" OR "),
+      explanation: "El activo no acredita ninguna de las tareas alternativas requeridas: " + required.join(", ") + ".",
+      evidenceSource: result.source,
+      observedAt: result.observedAt,
+    });
+  }
+}
+
 function checkAllowedValue(
   evidence: MetaEvidence<string>,
   allowed: readonly string[],
@@ -287,6 +320,38 @@ export class MetaCapabilityEvaluator {
       reasons,
       context,
     );
+    checkAnyRequiredValues(
+      evidence.assetTasks,
+      definition.requiredAnyAssetTasks ?? [],
+      "assetTasks",
+      "ASSET_TASK_ALTERNATIVES_MISSING",
+      "ASSET_TASK_ALTERNATIVES_EVIDENCE_UNKNOWN",
+      reasons,
+      context,
+    );
+
+    if (definition.requiredAccessTokenType) {
+      const tokenEvidence: MetaEvidence<MetaAccessTokenType> = evidence.accessTokenType ?? { state: "unknown" };
+      const token = readEvidence(
+        tokenEvidence,
+        "accessTokenType",
+        "ACCESS_TOKEN_TYPE_EVIDENCE_UNKNOWN",
+        reasons,
+        now,
+      );
+      if (token.known && token.value !== definition.requiredAccessTokenType) {
+        reasons.push({
+          code: "ACCESS_TOKEN_TYPE_MISMATCH",
+          certainty: "denied",
+          dimension: "accessTokenType",
+          requirement: definition.requiredAccessTokenType,
+          explanation: "El tipo de access token no corresponde al requerido por esta operación.",
+          evidenceSource: token.source,
+          observedAt: token.observedAt,
+        });
+      }
+    }
+
     checkRequiredValues(
       evidence.entitlementKeys,
       definition.requiredEntitlements,

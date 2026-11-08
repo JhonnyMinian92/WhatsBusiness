@@ -211,3 +211,82 @@ test("rechaza definiciones con versión global implícita o sin identidad de ope
     message: "META_CAPABILITY_DEFINITION_INVALID",
   });
 });
+
+
+test("Messenger admite cualquiera de las tareas alternativas documentadas para leer conversaciones", () => {
+  const messengerDefinition: MetaCapabilityDefinition = {
+    ...definition,
+    key: "facebook.messenger.conversations.read",
+    product: "facebook_pages",
+    operationKey: "messenger.conversations.read",
+    requiredOAuthScopes: ["pages_manage_metadata", "pages_read_engagement", "pages_messaging"],
+    requiredAssetTasks: [],
+    requiredAnyAssetTasks: ["MESSAGING", "MODERATE"],
+    requiredAccessTokenType: "page",
+  };
+  const evidence = {
+    ...validEvidence(),
+    oauthScopes: observed(["pages_manage_metadata", "pages_read_engagement", "pages_messaging"]),
+    assetTasks: observed(["MODERATE"]),
+    accessTokenType: observed("page" as const),
+  };
+  const result = evaluator.evaluate(messengerDefinition, evidence, now);
+  assert.equal(result.state, "available");
+});
+
+test("Messenger deniega lectura cuando no está acreditada ninguna tarea alternativa", () => {
+  const messengerDefinition: MetaCapabilityDefinition = {
+    ...definition,
+    product: "facebook_pages",
+    operationKey: "messenger.conversations.read",
+    requiredOAuthScopes: [],
+    requiredAssetTasks: [],
+    requiredAnyAssetTasks: ["MESSAGING", "MODERATE"],
+    requiredAccessTokenType: "page",
+  };
+  const result = evaluator.evaluate(
+    messengerDefinition,
+    { ...validEvidence(), assetTasks: observed(["ANALYZE"]), accessTokenType: observed("page" as const) },
+    now,
+  );
+  assert.equal(result.state, "unavailable");
+  assert.ok(result.reasons.some((reason) => reason.code === "ASSET_TASK_ALTERNATIVES_MISSING"));
+});
+
+test("Messenger mantiene unknown cuando no se conocen las tareas alternativas o el tipo de token", () => {
+  const messengerDefinition: MetaCapabilityDefinition = {
+    ...definition,
+    product: "facebook_pages",
+    operationKey: "messenger.conversations.read",
+    requiredOAuthScopes: [],
+    requiredAssetTasks: [],
+    requiredAnyAssetTasks: ["MESSAGING", "MODERATE"],
+    requiredAccessTokenType: "page",
+  };
+  const result = evaluator.evaluate(
+    messengerDefinition,
+    { ...validEvidence(), assetTasks: { state: "unknown" } },
+    now,
+  );
+  assert.equal(result.state, "unknown");
+  assert.ok(result.reasons.some((reason) => reason.code === "ASSET_TASK_ALTERNATIVES_EVIDENCE_UNKNOWN"));
+  assert.ok(result.reasons.some((reason) => reason.code === "ACCESS_TOKEN_TYPE_EVIDENCE_UNKNOWN"));
+});
+
+test("Messenger deniega el uso de un token de usuario donde se exige Page access token", () => {
+  const messengerDefinition: MetaCapabilityDefinition = {
+    ...definition,
+    product: "facebook_pages",
+    operationKey: "messenger.messages.send",
+    requiredOAuthScopes: [],
+    requiredAssetTasks: [],
+    requiredAccessTokenType: "page",
+  };
+  const result = evaluator.evaluate(
+    messengerDefinition,
+    { ...validEvidence(), accessTokenType: observed("user" as const) },
+    now,
+  );
+  assert.equal(result.state, "unavailable");
+  assert.ok(result.reasons.some((reason) => reason.code === "ACCESS_TOKEN_TYPE_MISMATCH"));
+});

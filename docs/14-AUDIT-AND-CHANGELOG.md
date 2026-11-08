@@ -595,3 +595,16 @@ Límite: no se modificó OpenAPI/AsyncAPI ni se registraron endpoints Ads, porqu
 
 
 | AUD-039 | Consentimiento revalidado al despacho CAPI | El validador ahora evalúa grant/expiry/revocation con hora actual confiable además del instante de la conversión; regresiones cubren retiro/expiración mientras el evento está pendiente. La revalidación real todavía depende de adapter TASK-032. |
+
+## US-009 / TASK-019 — política Facebook Messenger (AUD-184..189; 2026-11-08)
+
+| ID | Cambio / control | Estado |
+|---|---|---|
+| AUD-184 | \`MetaCapabilityDefinition\` soporta tareas alternativas OR y tipo de token; evaluador valida con MetaEvidence y fail-closed. | Implementado; CI pendiente. |
+| AUD-185 | Descriptores Messenger Conversations y Send separan scopes, Page tasks y Page token por operación/version. | Implementado; requiere runtime registry y evidencia de cuenta. |
+| AUD-186 | Policy lectura exige Advanced Access solo para conversaciones de participantes externos sin rol en app/Page/business. | Implementado con tests; sin endpoint/controller. |
+| AUD-187 | Policy Send aplica ventana estándar 24 h, soporte, ownership y deadline Human Agent confiable. | Implementado con tests; no conectado al sender ni a provider de extensión. |
+| AUD-188 | Policy handoff genera envelope \`inbox.handoff.requested\` con tenant/correlation/reason/version optimista. | Policy pura; Inbox debe persistir y completar transición. |
+| AUD-189 | Cuatro suites añadidas a \`api:test\`; catálogo, evidencia, backlog, trazabilidad, roadmap y memoria sincronizados. | Implementado; Source CI del commit exacto y revisión independiente pendientes. |
+
+No se modificó OpenAPI/allowlist ni se implementaron FB-001..014/WH-003. TASK-019 y US-009 siguen \`in_progress\`; TASK-008/010/027/028 e Inbox TASK-045..047 siguen como dependencias. Sin llamadas de escritura a Meta, cuentas/tokens reales ni habilitación productiva. GO-PRODUCTION permanece NO-GO.

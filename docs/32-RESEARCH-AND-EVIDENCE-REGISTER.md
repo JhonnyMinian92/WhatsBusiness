@@ -240,3 +240,13 @@ The current commit, files sampled, findings and no-go conclusions are documented
 - Limits: historical system and selected-segment results; do not apply the 2024 uplift as a current guarantee or forecast. The 2026 system supersedes architecture specifics.
 - Design: Creative Lab should create meaningful variation in concept/visual/hook/offer/format and track diversity, but not maximize number of ads at the expense of quality or spend fragmentation.
 - State: Meta-public technical history, promoted as design context.
+
+### META-OBS-018 — Messenger Page tasks, permisos y ventana estándar (2026-11-08)
+
+- **Fuente oficial — Conversations API:** Meta Postman Messenger Platform API, https://www.postman.com/meta/messenger-platform-api/folder/22794852-255610cd-47f5-4f4d-b3fa-71aec360be9a
+- **Hallazgo:** Page access token solicitado por persona con tarea \`MESSAGING\` o \`MODERATE\`; permisos para Messenger Conversations API: \`pages_manage_metadata\`, \`pages_read_engagement\`, \`pages_messaging\`. Advanced Access es necesario con personas sin rol en app, Page, negocio o cuenta relacionada.
+- **Fuente oficial — Send API:** Meta Postman Messenger Platform API, https://www.postman.com/meta/messenger-platform-api/documentation/iyp204x/messenger-platform-api
+- **Hallazgo:** Page access token solicitado por persona con tarea \`MESSAGE\`, permiso \`pages_messaging\`, y destinatario que haya iniciado conversación en las últimas 24 horas o aceptado explícitamente recibir mensajes fuera de ventana.
+- **Diseño:** requisitos separados por operación; Page tasks OR se evalúa como OR real, token Page no se intercambia por User token, Advanced Access se comprueba aparte y ventana usa el último evento entrante confiable.
+- **Límite:** sin evidencia de scopes/grants reales, App Review, Advanced Access, versión soportada para la conexión WhatsBusiness ni conformance de cuenta. No extrapolar scopes a publicación/moderación/insights. Duración/eligibilidad Human Agent no se calcula; el policy exige deadline server-side fiable y queda inactivo hasta verificar provider runtime.
+- **Estado:** documentación oficial revisada; policy-domain implementada; app/cuenta no probadas, sin efectos externos.

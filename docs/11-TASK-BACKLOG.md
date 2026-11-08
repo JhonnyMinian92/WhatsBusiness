@@ -862,3 +862,17 @@ La implementación de TASK-004 y TASK-005 fue publicada y verificada por CI en c
 ### TASK-026 — hardening de consentimiento pre-despacho (2026-11-08)
 
 El validador recibe el instante de evaluación del servidor y rechaza consentimiento caducado o revocado entre `occurredAt` y `evaluatedAt`; también rechaza reloj inválido y evento futuro. Tests de regresión añadidos. Esto no sustituye al adapter confiable TASK-032. Se confirmó en un snapshot que enlaza la referencia oficial Meta que `user_data` es requerido, dedupe provider usa event_name/event_id y event_time tiene ventana máxima de envío de siete días; el sitio oficial contestó 429, por lo que se registra como dato pendiente de ratificación antes del contract freeze. Ver docs/72.
+
+## US-009 / TASK-019 — implementación de políticas Messenger (2026-11-08)
+
+**Estado real: \`in_progress\`; no marcar \`verified\` ni \`accepted\`.**
+
+Implementado en este slice:
+- Se amplía el evaluador genérico Meta para expresar tareas alternativas OR y tipo de access token sin duplicar validación de evidencia.
+- Descriptores fuente-controlados para Messenger Conversations API y Send API con scopes/Page tasks de las colecciones oficiales.
+- Política lectura conversaciones separa Advanced Access de OAuth scopes y lo exige para participantes externos a roles de app/activos.
+- Política pura Send impone 24 h desde último inbound, soporte no promocional, capability available y ownership actual; extensión Human Agent solo con deadline confiable de política server-side.
+- Política handoff humano con authorization, tenant boundary, optimistic ownership version y envelope \`inbox.handoff.requested\` del AsyncAPI v1.
+- Cuatro suites nuevas añadidas a \`apps/api/project.json\` y regresiones del evaluador común.
+
+**Pendiente:** integrar policies al adapter/sender e Inbox; completar OAuth/token vault y capability runtime (TASK-008/010); handlers Messenger y fixtures oficiales por versión para WH-003 (TASK-027/028); outbox durable, lease/CAS, routing/bot suppression y E2E Inbox (TASK-045..047); contratos FB-001..014 congelados por operación; CI del HEAD, revisión independiente y aceptación Product Owner. No se publicaron endpoints catalog-only ni se ejecutaron mutaciones Meta.

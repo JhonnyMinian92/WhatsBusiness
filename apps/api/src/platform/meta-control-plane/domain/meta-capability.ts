@@ -1,5 +1,7 @@
 export type MetaAccessTier = "limited" | "full";
 
+export type MetaAccessTokenType = "user" | "page" | "system_user" | "app";
+
 export type MetaEvidenceSource =
   | "meta_api"
   | "meta_app_dashboard"
@@ -29,6 +31,9 @@ export interface MetaCapabilityDefinition {
   readonly apiVersion: string;
   readonly requiredOAuthScopes: readonly string[];
   readonly requiredAssetTasks: readonly string[];
+  /** At least one task must be present where the provider documents OR semantics. */
+  readonly requiredAnyAssetTasks?: readonly string[];
+  readonly requiredAccessTokenType?: MetaAccessTokenType;
   readonly requiredEntitlements: readonly string[];
   readonly requiredAppMode?: "development" | "live";
   readonly requiresAppReview: boolean;
@@ -48,6 +53,7 @@ export interface MetaCapabilityEvidence {
   readonly supportedApiVersions: MetaEvidence<readonly string[]>;
   readonly oauthScopes: MetaEvidence<readonly string[]>;
   readonly assetTasks: MetaEvidence<readonly string[]>;
+  readonly accessTokenType?: MetaEvidence<MetaAccessTokenType>;
   readonly entitlementKeys: MetaEvidence<readonly string[]>;
   readonly appMode: MetaEvidence<"development" | "live">;
   readonly appReview: MetaEvidence<"approved" | "not_approved">;
@@ -75,6 +81,10 @@ export type MetaCapabilityReasonCode =
   | "OAUTH_SCOPE_EVIDENCE_UNKNOWN"
   | "ASSET_TASK_MISSING"
   | "ASSET_TASK_EVIDENCE_UNKNOWN"
+  | "ASSET_TASK_ALTERNATIVES_MISSING"
+  | "ASSET_TASK_ALTERNATIVES_EVIDENCE_UNKNOWN"
+  | "ACCESS_TOKEN_TYPE_MISMATCH"
+  | "ACCESS_TOKEN_TYPE_EVIDENCE_UNKNOWN"
   | "ENTITLEMENT_MISSING"
   | "ENTITLEMENT_EVIDENCE_UNKNOWN"
   | "APP_MODE_INCOMPATIBLE"

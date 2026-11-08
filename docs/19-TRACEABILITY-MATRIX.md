@@ -25,7 +25,7 @@ No orphan requirement, story, task, provider capability or critical test is allo
 | US-006 | Template lifecycle | TASK-014..015 | Template state/category/locale and validation tests |
 | US-007 | WhatsApp Flows | TASK-016 | Encryption, replay and data exchange contract |
 | US-008 | WhatsApp marketing/cost | TASK-017..018 | Eligibility, consent/policy, versioned rate card/reconciliation |
-| US-009 | Facebook Pages/Messenger | TASK-019 | Page tasks, scopes, messaging policy and webhook tests |
+| US-009 | Facebook Pages/Messenger | TASK-019 | Meta capability OR tasks/token type; Messenger Advanced Access and 24h support-window policies; handoff event draft; tests under apps/api/src/social/messenger/domain; integration depends on TASK-008/010/027/028 and Inbox TASK-045..047 |
 | US-010 | Instagram professional capabilities | TASK-020..021 | Login-mode matrix, per-capability contract suite |
 | US-011 | Lead Ads | TASK-022..023 | Webhook/retrieval dedupe, provenance and retention |
 | US-012 | Ads lifecycle | TASK-024..025 | Draft/approval, spend cap, kill switch, Insights reconciliation |

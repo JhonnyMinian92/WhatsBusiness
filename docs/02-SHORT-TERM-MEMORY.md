@@ -663,3 +663,12 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 
 
 - Hardening adicional TASK-026: `validateConversionEvent` ahora exige `evaluatedAt` confiable al evaluar consent; rechaza consentimiento expirado o revocado después del evento y antes del despacho, así como evento futuro/reloj inválido. El port recibe ambas referencias temporales. Tests añadidos para withdrawal mientras el evento está pendiente. Ver docs/72.
+
+## US-009 / TASK-019 — handoff de implementación (2026-11-08)
+
+- Repositorio: \`JhonnyMinian92/WhatsBusiness\`; rama: \`environment/local\`.
+- Slice Messenger: capability requirements por operación, OR tasks y token type en MetaCapabilityEvaluator; Advanced Access de Conversations API; ventana estándar 24 h y gate de ownership humano; policy que prepara \`inbox.handoff.requested\`.
+- Cuatro suites añadidas al target \`api:test\`: facebook-messenger-capabilities, messenger-conversation-access, messenger-send y messenger-handoff; también se amplió meta-capability-evaluator.spec.ts.
+- Documentación: docs/09, docs/32, docs/73, docs/11, docs/19, docs/14 y docs/15.
+- Inspeccionar Source CI del commit exacto antes de marcar CI-verified.
+- TASK-019/US-009 siguen \`in_progress\`: faltan connection/vault (TASK-008), capability runtime/persistencia/refresh (TASK-010), handlers webhook Messenger reales (TASK-027/028), Inbox durable/lease/outbox/agent routing (TASK-045..047), contract freeze FB-001..014, review independiente y Product Owner acceptance. Sin llamadas externas Meta ni GO-PRODUCTION.
