@@ -99,6 +99,7 @@ export class TenantJobRuntimeProcess {
           dispatchBatchSize: boundedInteger(environment, "TENANT_JOB_DISPATCH_BATCH_SIZE", 100, 1, 500),
           dispatchLeaseSeconds: boundedInteger(environment, "TENANT_JOB_DISPATCH_LEASE_SECONDS", 60, 5, 900),
           dispatchConcurrency: boundedInteger(environment, "TENANT_JOB_DISPATCH_CONCURRENCY", 8, 1, 32),
+          metricsPollIntervalMs: boundedInteger(environment, "TENANT_JOB_METRICS_POLL_INTERVAL_MS", 15_000, 1_000, 300_000),
         },
       });
 
