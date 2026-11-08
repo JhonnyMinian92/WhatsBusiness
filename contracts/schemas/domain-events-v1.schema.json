@@ -210,6 +210,9 @@
     },
     {
       "$ref": "#/$defs/InboxHandoffRequested"
+    },
+    {
+      "$ref": "#/$defs/MetaWebhookReceived"
     }
   ],
   "$defs": {
@@ -992,8 +995,7 @@
                   "format": "uuid"
                 },
                 "version": {
-                  "type": "integer",
-                  "minimum": 1
+                  "const": 1
                 }
               }
             },
@@ -1012,13 +1014,18 @@
                 },
                 "product": {
                   "type": "string",
-                  "minLength": 1,
-                  "maxLength": 255
+                  "enum": [
+                    "whatsapp",
+                    "facebook",
+                    "instagram",
+                    "leadgen",
+                    "ads",
+                    "threads"
+                  ]
                 },
                 "payloadSha256": {
                   "type": "string",
-                  "minLength": 1,
-                  "maxLength": 255
+                  "pattern": "^[0-9a-f]{64}$"
                 }
               }
             }
@@ -1026,7 +1033,7 @@
         }
       ],
       "unevaluatedProperties": false,
-      "description": "Producer: webhook-inbox; consumers: channel processors; TASK-027, TASK-028. References and state only; no PII or secrets."
+      "description": "Producer: meta-webhook-gateway; consumers: product-specific webhook handlers. Contains receipt metadata and a payload hash only; provider payload and PII remain encrypted in the durable inbox."
     },
     "WhatsappMessageSendRequested": {
       "allOf": [

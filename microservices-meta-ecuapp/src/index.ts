@@ -36,4 +36,3 @@ export * from "./webhooks/infrastructure/rabbitmq/rabbitmq-meta-webhook-topology
 export * from "./webhooks/infrastructure/rabbitmq/rabbitmq-meta-webhook-publisher.js";
 export * from "./webhooks/infrastructure/rabbitmq/rabbitmq-meta-webhook-consumer.js";
 export * from "./webhooks/infrastructure/bootstrap/meta-webhook-worker.supervisor.js";
-export * from "./webhooks/infrastructure/bootstrap/meta-webhook-worker.runtime.js";

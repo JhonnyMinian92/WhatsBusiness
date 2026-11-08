@@ -50,7 +50,7 @@ El evento broker `meta.webhook.received` solo expone ID/receipt ID, schemaVersio
 
 ### No declarar listo para producción todavía
 - Los handlers de negocio de cada producto deben registrarse; el worker falla al arrancar con registry vacío y los tipos sin handler terminan en DLQ. No se debe crear un handler no-op.
-- Se incorporó `MetaWebhookWorkerRuntime` como raíz de composición desplegable: crea el pool dedicado `DATABASE_WEBHOOK_WORKER_URL`, valida TLS/AMQPS en producción, valida el keyring AES-GCM al arrancar, configura supervisor/reintento y exige handlers inyectados. La aplicación de canal debe suministrar handlers reales antes de arrancar. Falta empaquetar/activar el entrypoint de cada bounded context con dichos handlers, configurar health/liveness del despliegue y verificarlo en infraestructura.
+- Falta la integración desplegable del supervisor como proceso de worker con handlers reales, configuración de pool con rol dedicado y shutdown/liveness de producción.
 - El adapter actual de secretos lee variables de entorno para desarrollo/pruebas. Falta un adapter real para Secret Manager/KMS, gestión de IAM, rotación y despliegue de claves.
 - Ya está añadida una API tenant-scoped de solo lectura `GET /v1/tenants/:tenantId/webhooks/dead-letters` que devuelve metadatos paginados y excluye ciphertext/payloads. La función SQL exige coincidencia exacta de `app.tenant_id`; el permiso RBAC `webhooks.dead_letters.read` queda en tenant_admin y compliance_auditor, sin conceder asignaciones automáticamente. Falta todavía replay con doble aprobación, step-up, request hash y audit append-only. No hay replay manual permitido. CR-0016 debe definir retención, ventana y autorización.
 - OpenAPI WH-001..WH-007 y AsyncAPI necesitan freeze formal y validación de compatibilidad por producto/versión. WH-008 no es parte de esta implementación.
@@ -91,10 +91,3 @@ Estas consultas son ejemplos de diagnóstico. No conceden lectura directa de cip
 
 Las variables de ejemplo están en `microservices-meta-ecuapp/.env.example`. En producción deben inyectarse desde Secret Manager, no desde valores versionados. Se necesita crear y validar registros de app/asset antes de activar callback; todos los assets habilitados requieren dueño tenant identificado y suscripción vigente.
 
-## 8. Hardening incremental y evidencia pendiente — 2026-11-08
-
-- Se añadió la migración `0018-meta-webhook-ingress-app-grants.sql`: el login `whatsbusiness_app` del API se crea con `NOINHERIT`; por tanto, la membresía de `whatsbusiness_webhook_ingress_role` por sí sola no habilita sus permisos. La migración concede al login únicamente las columnas de metadata y los INSERT necesarios para delivery/inbox/outbox. No concede lectura de ciphertext ni UPDATE/DELETE.
-- Source CI ahora provisiona el login independiente `whatsbusiness_webhook_worker`, con membresía heredable del rol NOLOGIN del worker, y habilita `RUN_META_WEBHOOK_INTEGRATION_TESTS=true`.
-- La nueva suite `postgres-meta-webhook.integration.spec.ts` recorre PostgreSQL → outbox → RabbitMQ quorum queue → consumer → handler registrado → transacción tenant-scoped → recibo idempotente. Incluye deduplicación y rechazo de finalización bajo tenant incorrecto.
-- Código publicado en `environment/local`; Source CI [#42444781572](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42444781572) estaba en ejecución al actualizar este documento. No declarar la suite verificada hasta que termine SUCCESS en el HEAD exacto.
-- TASK-027/028 siguen `in_progress`: esta integración sintética no reemplaza handlers reales por producto, fixtures oficiales/versionados ni pruebas con callbacks de cuentas Meta elegibles. Replay continúa deshabilitado hasta CR-0016, políticas de retención/privacidad aprobadas y efectos externos idempotentes demostrados.

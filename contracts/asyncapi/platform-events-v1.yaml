@@ -3,7 +3,7 @@ info:
   title: WhatsBusiness Platform Events
   version: 1.0.0
   description: >
-    Full internal domain event catalog, 69 versioned event types with explicit publish and subscribe operations. Delivery is at-least-once.
+    Full internal domain event catalog, 70 versioned event types with explicit publish and subscribe operations. Delivery is at-least-once.
     This contract does not claim producers, consumers, broker topology or runtime behavior exist.
 defaultContentType: application/json
 servers:
@@ -840,6 +840,18 @@ channels:
       description: 'Consumer side of the logical event route. Delivery is at-least-once; validate schema and tenant authorization, persist deduplication, and acknowledge only after durable processing.'
       message:
         $ref: '#/components/messages/InboxHandoffRequested'
+  'meta.webhook.received.v1':
+    description: 'Producer meta-webhook-gateway; consumers product-specific webhook handlers; TASK-027/028. Carries receipt metadata only; encrypted provider payload remains in PostgreSQL.'
+    publish:
+      operationId: publishMetaWebhookReceived
+      message:
+        $ref: '#/components/messages/MetaWebhookReceived'
+    subscribe:
+      operationId: consumeMetaWebhookReceived
+      summary: 'Consume meta.webhook.received.'
+      description: 'At-least-once delivery. Resolve the durable receipt, validate tenant context, process through an idempotent registered handler and acknowledge only after the handler and consumer receipt commit atomically.'
+      message:
+        $ref: '#/components/messages/MetaWebhookReceived'
 components:
   messages:
     PlatformTenantCreated:
@@ -1671,3 +1683,13 @@ components:
       $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxOwnershipExpired'
     InboxHandoffRequested:
       $ref: '../schemas/domain-events-v1.schema.json#/$defs/InboxHandoffRequested'
+    MetaWebhookReceived:
+      name: 'meta.webhook.received'
+      title: 'meta.webhook.received'
+      summary: 'Durable Meta webhook receipt notification; payload data is not transported through the broker.'
+      schemaFormat: application/schema+json;version=draft-2020-12
+      correlationId:
+        description: 'Correlation identifier propagated across the webhook delivery flow.'
+        location: '$message.payload#/correlationId'
+      payload:
+        $ref: '../schemas/domain-events-v1.schema.json#/$defs/MetaWebhookReceived'

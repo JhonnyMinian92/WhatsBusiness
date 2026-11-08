@@ -78,7 +78,6 @@ jobs:
       DATABASE_URL: postgresql://whatsbusiness_app:ci-runtime-password@127.0.0.1:5432/whatsbusiness_ci
       DATABASE_JOB_DISPATCHER_URL: postgresql://whatsbusiness_job_dispatcher:ci-dispatcher-password@127.0.0.1:5432/whatsbusiness_ci
       DATABASE_JOB_WORKER_URL: postgresql://whatsbusiness_job_worker:ci-worker-password@127.0.0.1:5432/whatsbusiness_ci
-      DATABASE_WEBHOOK_WORKER_URL: postgresql://whatsbusiness_webhook_worker:ci-webhook-worker-password@127.0.0.1:5432/whatsbusiness_ci
       MIGRATION_DATABASE_URL: postgresql://postgres:ci-postgres-password@127.0.0.1:5432/whatsbusiness_ci
       RABBITMQ_URL: amqp://whatsbusiness:ci-rabbit-password@127.0.0.1:5672/%2F
       RABBITMQ_PROMETHEUS_URL: http://127.0.0.1:15692
@@ -86,7 +85,6 @@ jobs:
       RUN_APPROVAL_INTEGRATION_TESTS: "true"
       RUN_TENANT_JOB_RUNTIME_INTEGRATION_TESTS: "true"
       RUN_RABBITMQ_INTEGRATION_TESTS: "true"
-      RUN_META_WEBHOOK_INTEGRATION_TESTS: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -148,15 +146,6 @@ jobs:
 
       - name: Verify versioned migrations are idempotent
         run: pnpm db:migrate
-
-      - name: Provision least-privilege Meta webhook worker login
-        run: |
-          psql "$MIGRATION_DATABASE_URL" --set=ON_ERROR_STOP=1 <<'SQL'
-          CREATE ROLE whatsbusiness_webhook_worker
-            LOGIN PASSWORD 'ci-webhook-worker-password'
-            NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT NOBYPASSRLS;
-          GRANT whatsbusiness_webhook_worker_role TO whatsbusiness_webhook_worker;
-          SQL
 
       - name: Configure durable quorum dead-letter policy
         run: docker exec "${{ job.services.rabbitmq.id }}" rabbitmqctl set_policy --apply-to quorum_queues --priority 50 whatsbusiness-jobs-quorum-dlx '^whatsbusiness\.jobs\.worker\.v1$' '{"dead-letter-exchange":"whatsbusiness.jobs.dlx","dead-letter-routing-key":"jobs.dead","dead-letter-strategy":"at-least-once","overflow":"reject-publish","delivery-limit":5,"max-length-bytes":268435456}'

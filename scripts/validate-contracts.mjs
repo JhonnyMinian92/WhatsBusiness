@@ -41,7 +41,7 @@ assert(
 
 const channels = asyncapi.channels ?? {};
 const channelNames = Object.keys(channels);
-assert(channelNames.length === 69, `Expected 69 event channels, found ${channelNames.length}`);
+assert(channelNames.length === 70, `Expected 70 event channels, found ${channelNames.length}`);
 const asyncOperationIds = [];
 const messageNames = new Set();
 for (const [channel, item] of Object.entries(channels)) {
@@ -68,10 +68,10 @@ for (const [channel, item] of Object.entries(channels)) {
   }
 }
 assert(new Set(asyncOperationIds).size === asyncOperationIds.length, "AsyncAPI operationId values must be unique");
-assert(asyncOperationIds.length === 138, `Expected 138 AsyncAPI operations, found ${asyncOperationIds.length}`);
-assert(messageNames.size === 69, `Expected 69 unique messages, found ${messageNames.size}`);
-assert(Object.keys(domain.$defs ?? {}).length === 69, "Expected 69 event JSON Schema definitions");
-assert(domain.oneOf?.length === 69, "Top-level event union must include all 69 definitions");
+assert(asyncOperationIds.length === 140, `Expected 140 AsyncAPI operations, found ${asyncOperationIds.length}`);
+assert(messageNames.size === 70, `Expected 70 unique messages, found ${messageNames.size}`);
+assert(Object.keys(domain.$defs ?? {}).length === 70, "Expected 70 event JSON Schema definitions");
+assert(domain.oneOf?.length === 70, "Top-level event union must include all 70 definitions");
 
 const ajv = new Ajv2020({ allErrors: true, strict: false });
 addFormats(ajv);
@@ -125,7 +125,7 @@ const materialize = (schema, stack = new Set()) => {
     if (schema.format === "uuid") return "00000000-0000-4000-8000-000000000001";
     if (schema.format === "date-time") return "2026-01-01T00:00:00Z";
     if (schema.pattern) {
-      const candidates = ["sample", "USD", "1.25", "REASON_CODE", "https://example.test", "user@example.test", "abc123"];
+      const candidates = ["sample", "USD", "1.25", "REASON_CODE", "https://example.test", "user@example.test", "abc123", "a".repeat(64)];
       const expression = new RegExp(schema.pattern);
       const candidate = candidates.find((value) => expression.test(value));
       assert(candidate !== undefined, `No positive fixture candidate matches pattern: ${schema.pattern}`);
