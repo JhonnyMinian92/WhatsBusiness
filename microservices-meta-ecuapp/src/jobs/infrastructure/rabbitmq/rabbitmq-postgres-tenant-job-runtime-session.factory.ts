@@ -39,6 +39,7 @@ export interface RabbitMqPostgresTenantJobRuntimeSessionFactoryOptions {
   readonly connectionName: string;
   readonly dispatcherPool: Pool;
   readonly workerPool: Pool;
+  readonly metricsPool?: Pool;
   readonly database: TenantDatabaseTransactionBoundary;
   readonly handlers: readonly TenantJobHandler[];
   readonly logger: TenantJobRuntimeSessionLogger;
@@ -137,7 +138,7 @@ export class RabbitMqPostgresTenantJobRuntimeSessionFactory implements TenantJob
       options.logger,
       options.supervisor,
       metrics,
-      new PostgresTenantJobRuntimeMetricsReader(options.dispatcherPool),
+      new PostgresTenantJobRuntimeMetricsReader(options.metricsPool ?? options.dispatcherPool),
     );
     const topology = new RabbitMqJobTopology(channels.consumer, TENANT_JOB_RABBITMQ_TOPOLOGY);
 
