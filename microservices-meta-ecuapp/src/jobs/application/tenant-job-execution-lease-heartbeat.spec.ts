@@ -22,12 +22,15 @@ test("renews long-running execution before lease expiration", async () => {
     "e7d8d4cf-1d23-4dcb-80fb-1a7a2e0c4b15",
     5,
     async () => {
-      await Promise.race([
-        secondRenewal,
-        new Promise<never>((_resolve, reject) => {
-          setTimeout(() => reject(new Error("Heartbeat did not perform two renewals.")), 5_000);
-        }),
-      ]);
+      await new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error("Heartbeat did not perform two renewals."));
+        }, 5_000);
+        void secondRenewal.then(() => {
+          clearTimeout(timeout);
+          resolve();
+        }, reject);
+      });
       return "completed";
     },
   );
