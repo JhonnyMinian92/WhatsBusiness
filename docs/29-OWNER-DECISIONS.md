@@ -14,7 +14,7 @@
 | PD-002 | Código inicial | Greenfield | Construcción desde cero; no asumir legado |
 | PD-003 | Alcance Meta | Catálogo completo de META_SERVICES.md | Cobertura objetivo amplia, condicionada a capacidades y elegibilidad |
 | PD-004 | Producto propio | Backend, panel web, CRM e Inbox omnicanal | CRM e Inbox son dominios de primera clase |
-| PD-005 | IA | Automatización con visión de crecimiento | Reglas, chatbots acotados y sugerencias; evolución por fases |
+| PD-005 | IA aplicada al CRM | Machine learning clásico, estadística y algoritmos predictivos/clasificadores eficientes | Regresión, clasificación, XGBoost/boosting, clustering, forecast y redes neuronales ligeras solo cuando aporten evidencia; sin LLM ni agentes de IA dentro de CRM |
 | PD-006 | Interfaces | Backend y panel web | No se compromete app móvil nativa inicial |
 | PD-007 | Tecnología | El arquitecto puede recomendar stack | Selección técnica basada en criterios y ADR |
 | PD-008 | Hosting | VPS / servidor propio | Contenedores portables, operación medible y plan de escalado |
@@ -51,17 +51,20 @@ Estas decisiones son la respuesta operativa a las preguntas abiertas del cuestio
 6. **Integraciones específicas:** no se compromete un ERP, ecommerce, pasarela o proveedor IA concreto. La selección exige casos de uso, revisión de contrato, coste, seguridad, región y portabilidad.
 7. **Acciones productivas:** el consentimiento para planear y documentar no autoriza gasto publicitario, comunicación masiva real, eliminación irreversible, publicación de contenido ni despliegue productivo.
 
-## 4. Interpretación de la aclaración de IA
+## 4. Interpretación vigente de la aclaración de IA
 
-La frase "pero cob vision para automatizacion con IA" se interpreta, por contexto, como "pero con visión para automatización con IA". La capacidad inicial queda limitada a:
-- Automatizaciones por eventos y reglas deterministas.
-- Chatbots basados en flujos/intenciones delimitados.
-- Sugerencias de respuesta para agentes, editables antes del envío.
-- AI Gateway desacoplado de proveedores/modelos.
-- Control de datos por tenant, coste, latencia, timeout, presupuesto, evaluación y auditoría.
-- Aprobación humana para acciones externas sensibles.
+**Aclaración expresa del propietario (2026-11-07):** cuando indicó CRM con IA, se refería a que el CRM use machine learning, XGBoost, redes neuronales ligeras, algoritmos de predicción, clasificación y técnicas estadísticas de bajo consumo computacional. No se refería a LLM ni agentes de IA.
 
-No se asume RAG, voz, entrenamiento propio ni agentes autónomos con permisos de escritura general. Cualquier ampliación debe tener REQ/ADR, evaluación de datos/coste/seguridad y gate específico.
+La capacidad autorizada para CRM es CRM Intelligence. La selección de modelos depende de datos, función de pérdida, calidad, calibración, explicabilidad, coste y latencia. Casos candidatos: lead scoring, conversión, forecast, churn, propensión, segmentación, LTV, ranking de siguiente acción y deduplicación asistida.
+
+- Priorizar baselines estadísticos y modelos CPU-first; XGBoost/gradient boosting se usa cuando el benchmark lo justifique.
+- Redes neuronales solo si superan modelos simples con evidencia reproducible y respetan el presupuesto de recursos.
+- No se incluyen LLM, generación de texto, RAG, embeddings generativos, agentes autónomos ni tool calling en CRM.
+- Las predicciones apoyan decisiones; nunca conceden permisos, cambian consentimiento ni disparan por sí solas una acción irreversible.
+- Features, datasets, modelos, artefactos y predicciones respetan tenant isolation, provenance, retención, minimización y auditoría.
+- Las automatizaciones deterministas por eventos/reglas/flows permanecen en Automation y no se convierten en agentes de IA.
+
+Especificación técnica: [docs/62](62-CRM-MACHINE-LEARNING-STRATEGY.md). La especificación AI Assistance de docs/41 es un alcance separado y no autoriza LLM en CRM.
 
 ## 5. Reglas derivadas para producto y arquitectura
 
