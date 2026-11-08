@@ -53,7 +53,6 @@ export interface RabbitMqPostgresTenantJobRuntimeSessionFactoryOptions {
   readonly retryMultiplier: number;
   readonly supervisor: TenantJobRuntimeSupervisorOptions;
   readonly metrics?: TenantJobRuntimeMetrics;
-  readonly brokerMetricsReader: TenantJobBrokerMetricsReader;
 }
 
 export class RabbitMqPostgresTenantJobRuntimeSessionFactory implements TenantJobRuntimeSessionFactory {
@@ -141,7 +140,6 @@ export class RabbitMqPostgresTenantJobRuntimeSessionFactory implements TenantJob
       options.supervisor,
       metrics,
       new PostgresTenantJobRuntimeMetricsReader(options.metricsPool ?? options.dispatcherPool),
-      options.brokerMetricsReader,
     );
     const topology = new RabbitMqJobTopology(channels.consumer, TENANT_JOB_RABBITMQ_TOPOLOGY);
 
