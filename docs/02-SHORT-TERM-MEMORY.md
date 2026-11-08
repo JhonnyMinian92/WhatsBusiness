@@ -518,3 +518,13 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Alcance: mejora de API pública del paquete de jobs/observabilidad. No cierra TASK-003 ni cambia TASK-027/028.
 - Restricción de orquestación: en esta sesión solo estuvo disponible un agente ejecutor; se paralelizaron inspecciones de solo lectura. No se presenta esa actividad como revisión independiente ni como ejecución real de varios agentes.
 
+
+
+## Handoff — revisión de US-008 WhatsApp Marketing Messages (2026-11-08)
+
+- Historia revisada: US-008, criterios AC-008-01..03; tareas TASK-017 (adapter) y TASK-018 (rate card/cost ledger). TASK-055 y TASK-057 son extensiones relacionadas y permanecen pendientes.
+- Inspección de `environment/local`: `AppModule` no registra módulo WhatsApp Marketing; no se encontró adapter, rate-card repository ni cost ledger runtime. Los endpoints WAMK-001..005 permanecen `catalog-only`, `x-contract-ready=false` y `x-implementation-allowed=false` con schemas pendientes.
+- Dependencias/bloqueos: TASK-010 (capabilities/elegibilidad), TASK-039 (G0/validación de arquitectura) y TASK-056 (registro de versiones/capabilities) no están demostradas como cerradas para esta integración. Docs/49 y docs/55 prohíben implementar rutas catalog-only antes de congelar cada contrato y satisfacer el gate correspondiente.
+- Investigación: la fuente oficial de Meta sobre Max Pricing (16-06-2026) explica que el máximo por entrega es un techo y el cargo real puede ser inferior: https://developers.meta.com/resources/videos/whatsapp-max-pricing/. No se copiaron contratos de proveedores terceros ni se inventaron tarifas, scopes o elegibilidad.
+- Se inspeccionaron los patrones existentes `DatabaseService`, `IdentityModule`, `AppModule` y Source CI para preparar reutilización. No se modificó runtime ni se ejecutaron pruebas de US-008; no declarar TASK-017/018 implementadas o verificadas.
+- Documentación sincronizada en docs/11 y docs/19. Próximo paso técnico: cerrar prerequisitos de capability/version registry y contract freeze WAMK-001..007; después implementar adapter independiente + policies + rate-card/cost ledger con decimal exacto, idempotencia, auditoría, RLS y conciliación, sin habilitar envíos reales.
