@@ -47,6 +47,37 @@ export class PostgresContactIdentityRepository {
     return Object.freeze(result.rows.map(toContactIdentityRecord));
   }
 
+  async listForContacts(
+    client: PoolClient,
+    tenantId: string,
+    contactIds: readonly string[],
+  ): Promise<ReadonlyMap<string, readonly ContactIdentityRecord[]>> {
+    if (contactIds.length === 0) return new Map();
+    const ids = [...new Set(contactIds)];
+    const result = await client.query<ContactIdentityRow>(
+      [
+        "SELECT id::text, tenant_id::text, contact_id::text, provider, product, channel, identifier_type,",
+        "external_id, source_type, source_reference, observed_at, verified_at, confidence, visibility, created_at",
+        "FROM crm.contact_identities",
+        "WHERE tenant_id = $1 AND contact_id = ANY($2::uuid[])",
+        "ORDER BY contact_id ASC, created_at DESC, id DESC",
+      ].join(" "),
+      [tenantId, ids],
+    );
+    const grouped = new Map<string, ContactIdentityRecord[]>();
+    for (const row of result.rows) {
+      const records = grouped.get(row.contact_id) ?? [];
+      records.push(toContactIdentityRecord(row));
+      grouped.set(row.contact_id, records);
+    }
+    return new Map(
+      [...grouped.entries()].map(([contactId, records]) => [
+        contactId,
+        Object.freeze(records),
+      ]),
+    );
+  }
+
   async create(
     client: PoolClient,
     tenantId: string,

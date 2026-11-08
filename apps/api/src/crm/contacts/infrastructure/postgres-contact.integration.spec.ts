@@ -8,6 +8,9 @@ import { AppendOnlyAuditRepository } from "../../../platform/identity/audit/appe
 import type { TenantAccessContext } from "../../../platform/identity/tenant-access-context.js";
 import { ContactService } from "../application/contact.service.js";
 import { ContactIdentityService } from "../application/contact-identity.service.js";
+import { ContactDuplicateCandidateService } from "../application/contact-duplicate-candidate.service.js";
+import { ContactDuplicateCandidateDetector } from "../domain/contact-duplicate-candidate.js";
+import { PostgresContactDuplicateCandidateRepository } from "./postgres-contact-duplicate-candidate.repository.js";
 import { PostgresContactIdentityRepository } from "./postgres-contact-identity.repository.js";
 import { PostgresContactRepository } from "./postgres-contact.repository.js";
 
@@ -22,9 +25,19 @@ test("PostgreSQL CRM contacts enforce tenant RLS, idempotency, audit and optimis
   const runtime = new Pool({ connectionString: runtimeUrl, max: 3 });
   const database = new DatabaseService(runtime);
   const contactRepository = new PostgresContactRepository();
-  const service = new ContactService(database, contactRepository, new AppendOnlyAuditRepository());
+  const identityRepository = new PostgresContactIdentityRepository();
+  const auditRepository = new AppendOnlyAuditRepository();
+  const service = new ContactService(database, contactRepository, auditRepository);
   const identityService = new ContactIdentityService(
-    database, new PostgresContactIdentityRepository(), contactRepository, new AppendOnlyAuditRepository(),
+    database, identityRepository, contactRepository, auditRepository,
+  );
+  const duplicateCandidateService = new ContactDuplicateCandidateService(
+    database,
+    contactRepository,
+    identityRepository,
+    new PostgresContactDuplicateCandidateRepository(),
+    new ContactDuplicateCandidateDetector(),
+    auditRepository,
   );
 
   const organizationId = randomUUID();
@@ -114,6 +127,17 @@ test("PostgreSQL CRM contacts enforce tenant RLS, idempotency, audit and optimis
     assert.equal(created.version, 1);
     assert.equal(created.displayName, "Ana María López");
 
+    const duplicateContact = await service.create(
+      tenantASubject,
+      { ...createInput, displayName: "Ana P. - registro importado" },
+      "contact-duplicate-" + randomUUID(),
+    );
+    const tenantBContact = await service.create(
+      subject(tenantB, membershipB, "crm.contacts.create"),
+      { ...createInput, displayName: "Tenant B Contact" },
+      "contact-create-" + randomUUID(),
+    );
+
     const identityInput = {
       provider: "meta",
       product: "whatsapp",
@@ -132,6 +156,25 @@ test("PostgreSQL CRM contacts enforce tenant RLS, idempotency, audit and optimis
     assert.equal(linkedIdentity.verifiedAt, null, "A link request must not claim provider verification.");
     assert.equal(linkedIdentity.confidence, null, "Do not fabricate confidence without evidence.");
     assert.equal(linkedIdentity.visibility, "tenant_only");
+
+    const duplicateCandidates = await duplicateCandidateService.findCandidates(
+      subject(tenantA, membershipA, "crm.contacts.identities.read"),
+      { sourceContactId: created.id, limit: 25 },
+    );
+    assert.deepEqual(duplicateCandidates.items, [{
+      contactId: duplicateContact.id,
+      contactVersion: duplicateContact.version,
+      score: 75,
+      confidence: "medium",
+      reasons: ["SAME_SOURCE_REFERENCE"],
+      resolution: "manual_review_required",
+    }]);
+    assert.equal(JSON.stringify(duplicateCandidates).includes(duplicateContact.displayName), false);
+    assert.equal(
+      duplicateCandidates.items.some(candidate => candidate.contactId === tenantBContact.id),
+      false,
+      "A source-reference collision in another tenant must never be considered.",
+    );
 
     const replayedIdentity = await identityService.link(identitySubject, created.id, identityInput, identityLinkKey);
     assert.deepEqual(replayedIdentity, linkedIdentity);
@@ -222,11 +265,6 @@ test("PostgreSQL CRM contacts enforce tenant RLS, idempotency, audit and optimis
         && (error.getResponse() as { code?: string }).code === "CRM_CONTACT_VERSION_CONFLICT",
     );
 
-    const tenantBContact = await service.create(
-      subject(tenantB, membershipB, "crm.contacts.create"),
-      { ...createInput, displayName: "Tenant B Contact", sourceReference: "tenant-b" },
-      "contact-create-" + randomUUID(),
-    );
     const tenantBIdentity = await identityService.link(
       subject(tenantB, membershipB, "crm.contacts.identities.link"),
       tenantBContact.id,
@@ -257,7 +295,7 @@ test("PostgreSQL CRM contacts enforce tenant RLS, idempotency, audit and optimis
       new AppendOnlyAuditRepository().verifyStream(client, tenantB),
     );
     assert.equal(auditA.valid, true, `Tenant A audit verification failed: ${JSON.stringify(auditA)}`);
-    assert.equal(auditA.eventCount, 3);
+    assert.equal(auditA.eventCount, 5);
     assert.equal(auditB.valid, true, `Tenant B audit verification failed: ${JSON.stringify(auditB)}`);
     assert.equal(auditB.eventCount, 2);
   } finally {

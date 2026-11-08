@@ -6993,14 +6993,17 @@ paths:
       tags: ['CRM']
       operationId: apiCRM007
       summary: 'Detecta candidatos de duplicación; no fusiona automáticamente.'
+      description: 'Devuelve únicamente IDs, versión, score y reason codes. Requiere permiso sensible de lectura de identidades; el resultado siempre exige revisión humana y no modifica registros.'
       x-api-id: 'CRM-007'
       x-traceability: 'US-018; TASK-043,053'
-      x-contract-status: 'catalog-only'
+      x-contract-status: 'design-frozen'
       x-common-error-profile: 'problem-details-v1'
       x-contract-error-catalog: [400, 401, 403, 404, 409, 422, 429, 500, 503]
-      x-contract-ready: false
-      x-implementation-allowed: false
-      x-required-gate: API-CONTRACT-FREEZE+G0
+      x-contract-ready: true
+      x-implementation-allowed: true
+      x-required-gate: 'GO-CODE-CRM-DUPLICATE-CANDIDATES+TASK-043'
+      x-required-permission: 'crm.contacts.identities.read'
+      x-required-purpose: 'crm.contacts.identities.read'
       security:
         - bearerAuth: []
       parameters:
@@ -7008,19 +7011,21 @@ paths:
           in: path
           required: true
           schema: { type: string, format: uuid }
-        - name: Idempotency-Key
-          in: header
-          required: true
-          schema: { type: string, minLength: 16, maxLength: 255 }
         - name: X-Correlation-ID
           in: header
           required: false
           schema: { type: string, format: uuid }
-      x-request-schema-pending: true
-      x-response-schema-pending: true
-      x-error-catalog-pending: true
-      x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactDuplicateCandidatesRequest' }
       responses:
+        '200':
+          description: Candidatos ordenados por score; no se realiza merge ni se expone PII.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactDuplicateCandidatesResponse' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -7030,7 +7035,6 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
         '503': { $ref: '#/components/responses/ServiceUnavailable' }
-        'default': { $ref: '#/components/responses/ContractNotFrozen' }
   '/v1/tenants/{tenantId}/identity-resolution/merge-preview':
     post:
       tags: ['CRM']
@@ -12849,6 +12853,39 @@ components:
         identifierType: { type: string, enum: [phone_e164, bsuid, psid, ig_scoped_id, threads_user_id, external_id] }
         externalId: { type: string, minLength: 1, maxLength: 255, pattern: '^\S+$' }
         sourceReference: { type: [string, "null"], minLength: 1, maxLength: 255 }
+    ContactDuplicateCandidatesRequest:
+      type: object
+      additionalProperties: false
+      required: [sourceContactId]
+      properties:
+        sourceContactId: { type: string, format: uuid }
+        limit: { type: integer, minimum: 1, maximum: 100, default: 25 }
+    ContactDuplicateCandidate:
+      type: object
+      additionalProperties: false
+      required: [contactId, contactVersion, score, confidence, reasons, resolution]
+      properties:
+        contactId: { type: string, format: uuid }
+        contactVersion: { type: integer, minimum: 1 }
+        score: { type: integer, minimum: 70, maximum: 100 }
+        confidence: { type: string, enum: [low, medium, high] }
+        reasons:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            enum: [SAME_NAMESPACED_PROVIDER_IDENTITY, SAME_VERIFIED_PHONE_E164, SAME_SOURCE_REFERENCE, EXACT_NORMALIZED_NAME]
+        resolution: { type: string, enum: [manual_review_required] }
+    ContactDuplicateCandidatesResponse:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items: { $ref: '#/components/schemas/ContactDuplicateCandidate' }
     ContactIdentityRecord:
       type: object
       additionalProperties: false

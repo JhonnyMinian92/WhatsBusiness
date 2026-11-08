@@ -703,3 +703,14 @@ CRM-007 continúa implementado a nivel dominio, sin endpoint de producción ni m
 - Solo permite estados `invited` y `active`; deniega `suspended`, `revoked`, estado desconocido e IDs malformados.
 - Tests nuevos cubren invitación preasignada, denegación de estados suspendido/revocado y validación de IDs.
 - No cambia role template ni grants, no implementa persistencia ni endpoint. Source CI pendiente.
+
+
+### Handoff CRM-007 — API de candidatos de identidad (2026-11-08)
+
+- Se conectó el detector de dominio existente a `POST /v1/tenants/{tenantId}/identity-resolution/candidates` con request estricto, respuesta sin PII y límite 1–100.
+- El use case valida permiso/propósito `crm.contacts.identities.read`, vuelve a validar el contexto en una transacción tenant-scoped y escribe auditoría append-only. No usa Idempotency-Key porque la operación es read-only.
+- Se añadieron lecturas bulk en los repositorios Contact/ContactIdentity y un adapter PostgreSQL de candidatos que prefiltra por identidad exacta, teléfono E.164 verificado y procedencia; la comparación por nombre queda como señal débil del detector y no causa full scan.
+- Migración `0026-crm-duplicate-candidate-indexes.sql` agrega índices parciales para teléfono verificado y sourceReference activa. Batch máximo 10.000; si se supera, la consulta falla cerrada, nunca calcula resultados parciales.
+- La respuesta solo expone IDs/versiones/score/reasons y `manual_review_required`. No fusiona, verifica ni muta contactos.
+- Se agregaron parser/controller/service tests y extensión a la integración PostgreSQL/RLS A/B. Aún requiere ejecutar el Source CI/Contract CI exacto del commit, revisión independiente, calibración de reglas con datos sintéticos y aceptación del Product Owner.
+- CRM-007 queda implementado en código sujeto a CI; TASK-043/TASK-053 no se marcan verified ni accepted. Merge reversible CRM-008..010 sigue sin implementar.

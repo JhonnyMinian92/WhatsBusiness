@@ -117,6 +117,25 @@ export class PostgresContactRepository {
     return row ? toContactRecord(row) : null;
   }
 
+  async findManyByIds(
+    client: PoolClient,
+    tenantId: string,
+    contactIds: readonly string[],
+  ): Promise<readonly ContactRecord[]> {
+    if (contactIds.length === 0) return Object.freeze([]);
+    const ids = [...new Set(contactIds)];
+    if (ids.length > 10_000) throw new RangeError("CRM_CONTACT_BATCH_TOO_LARGE");
+    const result = await client.query<ContactRow>(
+      [
+        "SELECT id::text, tenant_id::text, contact_type, display_name, first_name, last_name, status, source_type, source_reference, source_captured_at, version, created_at, updated_at",
+        "FROM crm.contacts WHERE tenant_id = $1 AND id = ANY($2::uuid[])",
+        "ORDER BY id ASC",
+      ].join(" "),
+      [tenantId, ids],
+    );
+    return Object.freeze(result.rows.map(toContactRecord));
+  }
+
   async list(
     client: PoolClient,
     tenantId: string,

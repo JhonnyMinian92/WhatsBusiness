@@ -97,4 +97,4 @@ La exposición HTTP de CRM-001..004 está implementada y verificada por CI; **TA
 
 CRM-005 (GET identities) y CRM-006 (POST link identity) se congelaron e incorporaron al allowlist mediante [docs/67](67-CRM-CONTACT-IDENTITY-CONTRACT-FREEZE.md). El slice añade namespace provider/product/channel/type, unicidad por tenant, RLS, RBAC sensible, idempotencia y auditoría append-only.
 
-CRM-007..017 siguen catalog-only. No se habilitan candidatos de duplicación, merge/undo, custom fields, leads ni pipeline por el hecho de congelar CRM-005/006. La identidad vinculada no se marca como verificada ni recibe confidence sin evidencia externa.
+CRM-007 se habilita mediante el freeze específico de [docs/69](69-CRM-DUPLICATE-CANDIDATE-API-FREEZE.md). CRM-008..017 siguen catalog-only; no se habilitan merge/undo, custom fields, leads ni pipeline por el hecho de congelar CRM-005/006. La identidad vinculada no se marca como verificada ni recibe confidence sin evidencia externa.

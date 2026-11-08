@@ -190,3 +190,5 @@ El estado de validación, las propuestas de eventos pendientes y el GO/NO-GO arq
 ## CRM Identity — freeze e implementación incremental
 
 67. [Freeze de contrato CRM ContactIdentity](67-CRM-CONTACT-IDENTITY-CONTRACT-FREEZE.md) — CRM-005/006, identidad namespaced por canal, permisos, idempotencia, RLS, provenance y límites explícitos del primer slice.
+
+37. [CRM duplicate-candidate API freeze](69-CRM-DUPLICATE-CANDIDATE-API-FREEZE.md) — contrato, autorización, seguridad, consulta tenant-scoped y pruebas de CRM-007.

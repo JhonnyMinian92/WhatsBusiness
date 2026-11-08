@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-11-08  
 **Ámbito:** `environment/local`, backend `apps/api`  
-**Estado:** implementación de dominio; API/consulta y acceptance pendientes  
+**Estado:** dominio, API tenant-scoped y consulta PostgreSQL implementados; CI/acceptance independiente pendientes  
 **Dependencias:** TASK-042, TASK-043, TASK-053
 
 ## Objetivo
@@ -68,3 +68,23 @@ Source CI #586 detectó un error de compilación TypeScript: la nueva estrategia
 ## Evidencia de señal cross-channel — 2026-11-08
 
 La estrategia `SAME_VERIFIED_PHONE_E164` se verificó en commit `d3d3b0722a61494eb8b8ba1d2e7c769ab2383f3d`: Source CI #587 SUCCESS y CodeQL #122 SUCCESS. Source CI ejecutó lockfile congelado, validador de observabilidad, migrations/idempotencia, build, typecheck, suites API/PostgreSQL y Meta backend PostgreSQL/RabbitMQ. El target `api:test` incluye 11 casos CRM del detector. La coincidencia cross-channel requiere mismo provider, E.164 exacto y `verifiedAt` no nulo en ambos perfiles; el resultado sigue siendo `manual_review_required`.
+
+
+## Integración de producto — CRM-007 (2026-11-08)
+
+Se implementó el endpoint:
+
+`POST /v1/tenants/{tenantId}/identity-resolution/candidates`
+
+- Request estricto: `sourceContactId` UUID y `limit` opcional de 1 a 100 (default 25). No requiere `Idempotency-Key` porque es una consulta sin efectos de negocio.
+- OIDC + tenant context + permiso y propósito `crm.contacts.identities.read`; el caso de uso vuelve a validar `authzVersion` dentro de la transacción.
+- La consulta SQL busca únicamente señales fuertes: identidad namespaced exacta, teléfono E.164 verificado por el mismo provider o coincidencia de sourceType/sourceReference. La igualdad de nombre solo aporta evidencia adicional a un candidato que ya superó el prefilter; no provoca escaneo masivo por nombres comunes.
+- La carga de perfiles/identidades reutiliza los repositorios existentes mediante lecturas bulk tenant-scoped. El SQL no puede cruzar tenant; el límite duro de 10.000 candidatos falla cerrado y nunca puntúa un subconjunto truncado.
+- Dos índices parciales soportan la búsqueda por teléfono verificado y procedencia activa. Se conserva la unicidad de namespace existente.
+- La respuesta contiene solo contactId, contactVersion, score, confidence, reason codes y `manual_review_required`. No devuelve nombres, teléfonos, external IDs ni ciphertext.
+- Cada consulta exitosa agrega un evento a la cadena append-only de auditoría, ligado al contacto fuente, propósito, correlación y hash de la consulta.
+- Se añadieron tests de parser, servicio, controller y una integración PostgreSQL/RLS que compara dos tenants con el mismo sourceReference.
+
+### Límites que no se declaran resueltos
+
+CRM-007 no fusiona contactos, no verifica identidades frente a Meta y no altera `verifiedAt`/confidence. La cobertura real de matching depende de que existan identidades verificadas o procedencia confiable. Los pesos son reglas deterministas sin calibración probabilística; revisión independiente, validación con datasets sintéticos representativos, Contract CI/Source CI del commit y aceptación del Product Owner siguen pendientes. TASK-043 y TASK-053 permanecen `in_progress`.
