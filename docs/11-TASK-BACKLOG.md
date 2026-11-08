@@ -454,3 +454,9 @@ Se añadió una regresión de integración a `microservices-meta-ecuapp/src/jobs
 - La integración inicial con parser 3.4.0 chocó con compilación de reglas Spectral/Ajv en Node 26.13. Se subió a `@asyncapi/specs@6.11.1` y se comprobará en el siguiente Contract CI.
 
 - El parser Spectral falló al compilar Ajv bajo Node 26.13; se reemplazó por el schema oficial `@asyncapi/specs@6.11.1` (AsyncAPI 2.6.0, variante sin $id) y Ajv draft-07. El validador propio mantiene Ajv 2020 para schemas de dominio. Contract CI #24 terminó SUCCESS: [run](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42445689549).
+
+### Estado de verificación al cierre de esta iteración (2026-11-08)
+
+- Contract CI #24: SUCCESS; OpenAPI válido y AsyncAPI 2.6.0 validado con schema oficial; el validador de dominio confirma 69 canales/eventos, 138 operaciones y fixtures válidos.
+- CodeQL #65: SUCCESS para el código con la integración y las migraciones recuperadas.
+- Source CI #527: sigue `in_progress` en el paso de verificación de idempotencia de migraciones. No se declara TASK-003 ni TASK-027/028 como cerrada hasta obtener SUCCESS en Source CI para el HEAD que incluye la prueba PostgreSQL/RabbitMQ.
