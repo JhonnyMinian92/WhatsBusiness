@@ -39,37 +39,41 @@ export class RabbitMqTenantJobQueueMetricsReader implements TenantJobBrokerMetri
     }
 
     let timeout: ReturnType<typeof setTimeout> | undefined;
+    let worker: Awaited<ReturnType<QueueMetricsChannel["checkQueue"]>>;
+    let deadLetter: Awaited<ReturnType<QueueMetricsChannel["checkQueue"]>>;
+
     try {
-      const [worker, deadLetter] = await Promise.race([
+      [worker, deadLetter] = await Promise.race([
         Promise.all([
           this.channel.checkQueue(this.workerQueue),
           this.channel.checkQueue(this.deadLetterQueue),
         ]),
         new Promise<never>((_resolve, reject) => {
           timeout = setTimeout(() => {
-            this.unavailable = true;
-            void Promise.resolve()
-              .then(() => this.channel.close())
-              .catch(() => undefined);
             reject(new Error("RabbitMQ queue metrics sample timed out; channel circuit opened."));
           }, this.timeoutMs);
         }),
       ]);
-
-      return Object.freeze({
-        workerQueueReadyMessages: safeCount(worker.messageCount, "worker_queue_ready_messages"),
-        workerQueueConsumers: safeCount(worker.consumerCount, "worker_queue_consumers"),
-        deadLetterQueueReadyMessages: safeCount(deadLetter.messageCount, "dead_letter_queue_ready_messages"),
-        deadLetterQueueConsumers: safeCount(deadLetter.consumerCount, "dead_letter_queue_consumers"),
-      });
     } catch (error) {
-      // A closed channel or passive-declare failure will not recover in place.
-      // Stop issuing RPCs; the worker session will supply a fresh reader on reconnect.
+      // AMQP RPC failures cannot be cancelled on a channel. Disable this
+      // dedicated channel until a new runtime session creates another one.
       this.unavailable = true;
+      void Promise.resolve()
+        .then(() => this.channel.close())
+        .catch(() => undefined);
       throw error;
     } finally {
       if (timeout) clearTimeout(timeout);
     }
+
+    // Validate response values outside the RPC failure handler: malformed
+    // counts must not poison a healthy channel or disable later snapshots.
+    return Object.freeze({
+      workerQueueReadyMessages: safeCount(worker.messageCount, "worker_queue_ready_messages"),
+      workerQueueConsumers: safeCount(worker.consumerCount, "worker_queue_consumers"),
+      deadLetterQueueReadyMessages: safeCount(deadLetter.messageCount, "dead_letter_queue_ready_messages"),
+      deadLetterQueueConsumers: safeCount(deadLetter.consumerCount, "dead_letter_queue_consumers"),
+    });
   }
 }
 
