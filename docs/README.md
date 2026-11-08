@@ -90,7 +90,8 @@ La estructura documental y el sistema de instrucciones para agentes se encuentra
 34. [Meta Ads AI, Andromeda, GEM y evolución de plataforma](34-META-ADS-AI-AND-PLATFORM-OUTLOOK.md) — anuncios inteligentes, creatividades, MCP, Business Agent y proyecciones.
 35. [Benchmark de proyectos de referencia](35-REFERENCE-PROJECTS-TECHNICAL-BENCHMARK.md) — Chatwoot, Twilio, httpSMS, Android SMS Gateway y OpenWA.
 36. [Campaign Intelligence y escalado controlado](36-CAMPAIGN-INTELLIGENCE-AND-GUARDED-SCALING.md) — aprendizaje comercial, Creative Lab, experimentos y guardrail +20%.
-61. [Evaluación CRM vs ARM](61-ARM-STRATEGY-AND-ARCHITECTURE-ASSESSMENT.md) — decisión provisional de conservar CRM y añadir Agent Relationship Management como capa de agentes, pendiente de confirmar la expansión de ARM.
+61. [Evaluación CRM vs ARM](61-ARM-STRATEGY-AND-ARCHITECTURE-ASSESSMENT.md) — investigación histórica de ARM; su recomendación de agentic CRM fue supersedida por la decisión vigente del propietario.
+62. [CRM Intelligence basada en machine learning](62-CRM-MACHINE-LEARNING-STRATEGY.md) — scoring, clasificación, predicción, XGBoost, clustering, redes ligeras, feature governance, entrenamiento offline e inferencia CPU-first; excluye LLM y agentes dentro del CRM.
 
 
 ## Especificaciones de implementación y arranque (docs/37–46)
