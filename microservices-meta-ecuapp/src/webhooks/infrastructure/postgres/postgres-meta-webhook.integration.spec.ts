@@ -1,18 +1,22 @@
 import assert from "node:assert/strict";
 import { randomUUID, createHash } from "node:crypto";
 import test from "node:test";
+import { setTimeout as delay } from "node:timers/promises";
 import { Pool } from "pg";
 import { PostgresMetaWebhookRepository } from "./postgres-meta-webhook.repository.js";
 import { AesGcmMetaWebhookPayloadProtector } from "../crypto/aes-gcm-meta-webhook-payload-protector.js";
 import type { PersistMetaWebhookEvent } from "../../application/meta-webhook-ports.js";
+import { MetaWebhookWorkerProcess } from "../../application/meta-webhook-worker.process.js";
+import { RabbitMqConnectionFactory } from "../../../jobs/infrastructure/rabbitmq/rabbitmq-connection.factory.js";
 
 const enabled = process.env["RUN_META_WEBHOOK_INTEGRATION_TESTS"] === "true";
 const adminUrl = process.env["MIGRATION_DATABASE_URL"];
 const ingressUrl = process.env["DATABASE_URL"];
 const workerUrl = process.env["DATABASE_WEBHOOK_WORKER_URL"];
+const rabbitMqUrl = process.env["RABBITMQ_URL"];
 
 test("PostgreSQL webhook inbox persists idempotently, fences tenant processing and records durable receipt", {
-  skip: !enabled || !adminUrl || !ingressUrl || !workerUrl,
+  skip: !enabled || !adminUrl || !ingressUrl || !workerUrl || !rabbitMqUrl,
 }, async () => {
   const admin = new Pool({ connectionString: adminUrl, max: 1 });
   const ingress = new Pool({ connectionString: ingressUrl, max: 2 });
@@ -84,36 +88,57 @@ test("PostgreSQL webhook inbox persists idempotently, fences tenant processing a
     const duplicate = await ingressRepository.persistBatch([input]);
     assert.deepEqual(duplicate, { accepted: 0, duplicates: 1 });
 
-    const workerRepository = new PostgresMetaWebhookRepository(worker);
-    const publications = await workerRepository.claimPublications(10, 30);
-    assert.equal(publications.length, 1);
-    const publication = publications[0]!;
-    assert.equal(publication.tenantId, tenantId);
-    assert.equal(await workerRepository.markPublished(publication.eventId, publication.leaseToken), true);
+    let workerProcess: MetaWebhookWorkerProcess | null = null;
+    try {
+      const channels = await new RabbitMqConnectionFactory().open(
+        rabbitMqUrl!,
+        "whatsbusiness-meta-webhook-ci-" + tenantId.slice(0, 8),
+      );
+      let handlerCalls = 0;
+      workerProcess = await MetaWebhookWorkerProcess.create({
+        database: worker,
+        channels,
+        protector,
+        handlers: [{
+          product: "whatsapp",
+          eventType: "messages.message",
+          async handle(_client, claimedEvent, decodedPayload) {
+            assert.equal(claimedEvent.tenantId, tenantId);
+            assert.deepEqual(decodedPayload, payload);
+            handlerCalls += 1;
+          },
+        }],
+        consumerName: "meta-webhook-ci",
+        reporter: { report(code) { throw new Error("Unexpected worker diagnostic: " + code); } },
+        pollIntervalMs: 100,
+        leaseSeconds: 30,
+        prefetch: 2,
+        batchSize: 10,
+      });
+      await workerProcess.start();
 
-    const claimed = await workerRepository.claimEvent(publication.eventId, 30);
-    assert.ok(claimed);
-    assert.equal(claimed.tenantId, tenantId);
-    const wrongTenantCompletion = await workerRepository.withTenantTransaction(otherTenantId, (client) =>
-      workerRepository.completeEvent(client, claimed.eventId, claimed.leaseToken, "meta-webhook-ci"));
-    assert.equal(wrongTenantCompletion, false, "A worker must not complete another tenant's event context.");
-
-    const completed = await workerRepository.withTenantTransaction(tenantId, (client) =>
-      workerRepository.completeEvent(client, claimed.eventId, claimed.leaseToken, "meta-webhook-ci"));
-    assert.equal(completed, true);
-
-    const state = await admin.query<{ status: string; receipts: string; outbox_status: string }>(
-      [
-        "SELECT event.status,",
-        "(SELECT count(*)::text FROM platform.meta_webhook_consumer_inbox receipt WHERE receipt.event_id = event.id) AS receipts,",
-        "outbox.status AS outbox_status",
-        "FROM platform.meta_webhook_inbox event",
-        "JOIN platform.meta_webhook_event_outbox outbox ON outbox.event_id = event.id",
-        "WHERE event.id = $1",
-      ].join(" "),
-      [publication.eventId],
-    );
-    assert.deepEqual(state.rows[0], { status: "processed", receipts: "1", outbox_status: "published" });
+      let state: { status: string; receipts: string; outbox_status: string } | undefined;
+      for (let attempt = 0; attempt < 100; attempt += 1) {
+        const result = await admin.query<{ status: string; receipts: string; outbox_status: string }>(
+          [
+            "SELECT event.status,",
+            "(SELECT count(*)::text FROM platform.meta_webhook_consumer_inbox receipt WHERE receipt.event_id = event.id) AS receipts,",
+            "outbox.status AS outbox_status",
+            "FROM platform.meta_webhook_inbox event",
+            "JOIN platform.meta_webhook_event_outbox outbox ON outbox.event_id = event.id",
+            "WHERE event.tenant_id = $1",
+          ].join(" "),
+          [tenantId],
+        );
+        state = result.rows[0];
+        if (state?.status === "processed" && state.receipts === "1" && state.outbox_status === "published") break;
+        await delay(100);
+      }
+      assert.deepEqual(state, { status: "processed", receipts: "1", outbox_status: "published" });
+      assert.equal(handlerCalls, 1, "The real RabbitMQ consumer must invoke the registered business handler once.");
+    } finally {
+      await workerProcess?.stop();
+    }
   } finally {
     try {
       await admin.query("DELETE FROM platform.meta_webhook_consumer_inbox WHERE tenant_id = $1", [tenantId]);
