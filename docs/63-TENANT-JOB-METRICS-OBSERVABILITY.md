@@ -94,3 +94,9 @@ La migración `0025-tenant-job-execution-backlog-metrics.sql` conserva el único
 
 Source CI #576 detectó dos defectos corregibles en el slice de backlog de ejecución: validación de edad decimal confundida con gauge contador y un jobType sintético no válido (execution-backlog contenía un guion). El exporter ahora permite valores fraccionarios en las dos métricas AgeSeconds y el test utiliza el jobType válido inbox.metrics.executionbacklog. El test PostgreSQL mide el backlog previo y verifica incremento exacto de uno tras publicación.
 La corrección necesita Source CI verde antes de marcar esta ampliación verificada; CodeQL sobre el commit anterior ya pasó.
+
+
+## Corrección post-CI #577 (2026-11-08)
+
+La integración PostgreSQL se reordenó para no llamar a la operación batch `claim_tenant_job_publications` mientras el job de finalización principal seguía pendiente. Primero se completa el dispatch/claim de ese job con el helper existente; después se inserta y publica el fixture de métrica cuando es el único nuevo job elegible en la topología de prueba. Esto elimina el efecto colateral real de `LIMIT` + `FOR UPDATE SKIP LOCKED` al filtrar fuera de la función por `job_id`, y evita dejar leases de otros fixtures en estado `publishing`.
+**Estado:** el orden corregido se somete nuevamente a Source CI; no se afirma todavía verificación.

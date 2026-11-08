@@ -606,3 +606,9 @@ Fuera de este cierre parcial: CRM-007 candidatos de duplicación, CRM-008..010 m
 - El exporter ahora acepta edad fraccionaria en oldestPendingDispatchAgeSeconds y oldestPendingExecutionAgeSeconds, manteniendo los demás gauges como contadores enteros seguros.
 - El fixture PostgreSQL usa inbox.metrics.executionbacklog, jobType que respeta el regex de la base; se compara el backlog posterior con el valor previo, no con un supuesto de base vacía.
 - **Estado:** corrección preparada; TASK-003 y GO-PRODUCTION continúan sin cierre ni aceptación.
+
+
+## Corrección post-CI #577 (2026-11-08)
+
+La integración PostgreSQL se reordenó para no llamar a la operación batch `claim_tenant_job_publications` mientras el job de finalización principal seguía pendiente. Primero se completa el dispatch/claim de ese job con el helper existente; después se inserta y publica el fixture de métrica cuando es el único nuevo job elegible en la topología de prueba. Esto elimina el efecto colateral real de `LIMIT` + `FOR UPDATE SKIP LOCKED` al filtrar fuera de la función por `job_id`, y evita dejar leases de otros fixtures en estado `publishing`.
+**Estado:** el orden corregido se somete nuevamente a Source CI; no se afirma todavía verificación.

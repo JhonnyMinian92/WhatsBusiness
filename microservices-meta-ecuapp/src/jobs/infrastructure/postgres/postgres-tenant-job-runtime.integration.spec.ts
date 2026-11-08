@@ -230,6 +230,26 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
     assert.ok((metricsAfterStage.rows[0]?.oldest_pending_dispatch_age_seconds ?? -1) >= 0);
     assert.ok((metricsAfterStage.rows[0]?.oldest_pending_execution_age_seconds ?? -1) >= 0);
 
+    await assert.rejects(
+      runtimePool.query("SELECT * FROM platform.claim_tenant_job_publications(1, 30)"),
+      (error: unknown) => typeof error === "object" && error !== null && "code" in error
+        && (error as { code: string }).code === "42501",
+    );
+    await assert.rejects(
+      workerPool.query("SELECT * FROM platform.claim_tenant_job_publications(1, 30)"),
+      (error: unknown) => typeof error === "object" && error !== null && "code" in error
+        && (error as { code: string }).code === "42501",
+    );
+    await assert.rejects(
+      dispatcherPool.query(
+        "SELECT * FROM platform.claim_tenant_job_execution($1, 30)",
+        [completionJobId],
+      ),
+      (error: unknown) => typeof error === "object" && error !== null && "code" in error
+        && (error as { code: string }).code === "42501",
+    );
+
+    const completion = await publishAndClaim(dispatcherPool, workerPool, completionJobId);
     const pendingExecutionMetricsJobId = await stageJob(
       runtimePool, tenantId, actorUserId, correlationId,
       "inbox.metrics.executionbacklog", { messageId: "synthetic-message-metrics" },
@@ -255,26 +275,6 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
     assert.equal(Number(metricsAfterPublish.rows[0]?.pending_execution_jobs), executionPendingBefore + 1);
     assert.ok((metricsAfterPublish.rows[0]?.oldest_pending_execution_age_seconds ?? -1) >= 0);
 
-    await assert.rejects(
-      runtimePool.query("SELECT * FROM platform.claim_tenant_job_publications(1, 30)"),
-      (error: unknown) => typeof error === "object" && error !== null && "code" in error
-        && (error as { code: string }).code === "42501",
-    );
-    await assert.rejects(
-      workerPool.query("SELECT * FROM platform.claim_tenant_job_publications(1, 30)"),
-      (error: unknown) => typeof error === "object" && error !== null && "code" in error
-        && (error as { code: string }).code === "42501",
-    );
-    await assert.rejects(
-      dispatcherPool.query(
-        "SELECT * FROM platform.claim_tenant_job_execution($1, 30)",
-        [completionJobId],
-      ),
-      (error: unknown) => typeof error === "object" && error !== null && "code" in error
-        && (error as { code: string }).code === "42501",
-    );
-
-    const completion = await publishAndClaim(dispatcherPool, workerPool, completionJobId);
     const staleRenewal = await workerPool.query<{ lease_expires_at: Date | null }>(
       "SELECT platform.renew_tenant_job_execution_lease($1, $2, 30) AS lease_expires_at",
       [completionJobId, randomUUID()],
