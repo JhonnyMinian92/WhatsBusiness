@@ -1023,3 +1023,7 @@ La matriz anterior agrupa tareas por historia para facilitar lectura. Esta tabla
 ## Implementación habilitada — Platform foundation (2026-11-07)
 
 Por instrucción expresa de continuar Identity/Tenant/Membership bajo GO-CODE, PLT-003 GET /v1/me, PLT-004 GET /v1/tenants y PLT-005 GET /v1/tenants/{tenantId}/context quedan habilitadas solo para la lectura autenticada descrita en docs/58, con OIDC/JWKS, provisioning previo, contexto transaccional y RLS. No se habilitan rutas de creación, invitaciones, grants, mutaciones de roles, approvals, suspensión ni soporte JIT.
+
+### Handoff de contrato — CRM Contacts (2026-11-08)
+
+CRM-001..004 cuentan con schemas completos de request/response, filtros/paginación, Idempotency-Key, If-Match/ETag, permisos, códigos de error y límites explícitos en docs/66-CRM-CONTACTS-API-CONTRACT-FREEZE.md y contracts/openapi/platform-v1.yaml. El diseño está congelado; sin embargo, el allowlist de Contract CI vigente solo permite x-implementation-allowed=true para PLT-001..005. CRM-001..004 permanecen false y CrmContactsModule no está registrado en AppModule. El código fuente interno de TASK-042 está creado, pero las rutas HTTP no se deben presentar como habilitadas ni disponibles hasta obtener el siguiente gate GO-CODE y Contract CI verde.
