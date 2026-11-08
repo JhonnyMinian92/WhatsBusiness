@@ -222,3 +222,10 @@ Estado actual:
 - RabbitMqConnectionFactory.close ahora cierra directamente la conexión AMQP padre, lo que invalida operaciones pendientes y termina sus canales. El test real de redelivery ahora simula el crash cerrando la conexión completa, no únicamente el consumer channel.
 - Source CI #561 todavía estaba en el test backend al preparar el cambio; no se toma como resultado. El siguiente push lo sustituye por concurrency cancel-in-progress; Source CI/CodeQL del nuevo HEAD pendientes.
 - TASK-003 sigue in_progress. El nuevo gate debe pasar unidad, PostgreSQL/RabbitMQ, build/typecheck y CodeQL antes de atribuir verificación.
+
+## Actualización de ejecución — compatibilidad RabbitMQ 4.4 del test live (2026-11-08)
+
+- Source CI #560/#562 superaron instalación frozen, migraciones 0001–0023/idempotencia, build, typecheck y API tests; la suite backend falló en la prueba live de Management API.
+- El log de RabbitMQ reveló que el fixture temporal no exclusivo activaba `transient_nonexcl_queues`, una característica rechazada por RabbitMQ 4.4.
+- Commit `92b46d68bc8070a086b95352d504797fe1bf0c3d` modifica únicamente el fixture para usar colas efímeras exclusivas de la conexión. Se mantienen intactas las quorum queues durables del runtime.
+- Source CI #563 y CodeQL #98 deben confirmar el cambio. No declarar las métricas live verificadas ni cerrar TASK-003 sin SUCCESS del HEAD corregido y review operativo. TASK-003/027/028 permanecen `in_progress`; GO-PRODUCTION sigue NO-GO.

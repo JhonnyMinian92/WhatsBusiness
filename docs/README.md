@@ -177,3 +177,11 @@ El estado de validación, las propuestas de eventos pendientes y el GO/NO-GO arq
 ## 63 — Observabilidad Prometheus de tenant jobs
 
 [63 — Exposición segura de métricas](63-TENANT-JOB-METRICS-OBSERVABILITY.md) documenta el endpoint HTTP `/metrics`, autenticación, configuración y los gauges/alertas/SLO aún pendientes.
+
+## 64 — Meta Webhook Gateway e inbox durable
+
+[64 — Meta Webhook Gateway, inbox durable y event bus](64-META-WEBHOOK-GATEWAY-AND-EVENT-BUS.md) documenta la recepción autenticada, inbox cifrada, outbox, consumers, DLQ y las pruebas sintéticas de TASK-027/028; registra los handlers de negocio, replay/política de retención y gates operativos que siguen pendientes.
+
+## 66 — CRM Contacts API contract freeze
+
+[66 — CRM Contacts API contract freeze](66-CRM-CONTACTS-API-CONTRACT-FREEZE.md) registra el slice CRM-001..004, sus contratos congelados y el gate que impide activar las rutas HTTP antes de completar las condiciones de implementación y validación.

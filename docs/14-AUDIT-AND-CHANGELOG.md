@@ -422,3 +422,13 @@ No se conceden permisos de consumo/publicación/configuración al usuario de mé
 | AUD-135 | Cierre de conexión padre implementado; test real de redelivery cambia de cerrar solo consumer channel a cerrar el proceso/conexión completa dejando una entrega sin ACK. | Implementado; Source CI/CodeQL nuevos pendientes. |
 
 La API documentada de amqplib establece que connection.close invalida operaciones pendientes y espera a que se cierre el socket subyacente; los canales existen dentro de la conexión. Se elimina la espera previa por handshake de los dos canales para evitar que bloquee el cierre de la conexión. No se afirma que el defecto esté verificado hasta que pase Source CI. TASK-003 sigue in_progress.
+
+## 36. RabbitMQ 4.4 — corrección del fixture live de métricas (AUD-136..138; 2026-11-08)
+
+| ID | Evidencia / cambio | Estado |
+|---|---|---|
+| AUD-136 | Source CI #560 y #562 pasaron instalación, migraciones 0001–0023/idempotencia, provisioning, build, typecheck y API tests; el target backend falló en la integración live de Management API y alcanzó timeout. El log del broker identificó el rechazo de `transient_nonexcl_queues`. | Causa en el fixture identificada; no es un fallo de la topología durable de producción. |
+| AUD-137 | La integración declaraba colas temporales con `durable=false, exclusive=false, autoDelete=true`. El commit `92b46d68bc8070a086b95352d504797fe1bf0c3d` las cambia a `exclusive=true`, conservando nombres únicos, auto-delete, publisher confirms y el ciclo de métricas/ACK. | Implementado; Source CI #563 pendiente al registrar esta entrada. |
+| AUD-138 | docs/63, docs/02, docs/11 y README del backend sincronizan el diagnóstico y el gate siguiente. | Documentado; no equivale a verificación. |
+
+La corrección conserva RabbitMQ 4.4 y no habilita la característica obsoleta, no relaja permisos del usuario `monitoring` y no modifica la topología quorum de jobs. Source CI #563 debe completar la suite backend; CodeQL #98 debe revisarse por separado. TASK-003 permanece `in_progress`; TASK-027/028 no cambian de estado y GO-PRODUCTION sigue NO-GO.

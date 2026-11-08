@@ -19,3 +19,7 @@ Los umbrales son guardrails operativos iniciales, no SLO aprobados ni SLA. Deben
 ## Limitaciones conocidas
 
 Las métricas RabbitMQ se obtienen de RabbitMQ Management API y reflejan `messages_ready`, `messages_unacknowledged` y consumer count por cola. `messages_unacknowledged` son deliveries entregadas aún no confirmadas; no equivalen a consumer lag ni a edad de mensaje. Los contadores/histogramas viven en memoria y se reinician al reiniciar el proceso. El dashboard no sustituye una plataforma de métricas duradera ni una revisión de alertas.
+
+## Compatibilidad del fixture live con RabbitMQ 4.4
+
+El test del Management API crea colas temporales únicas y exclusivas de la misma conexión (`durable=false, exclusive=true, autoDelete=true`). RabbitMQ 4.4 rechaza colas clásicas transitorias no exclusivas. No habilitar `transient_nonexcl_queues` ni cambiar la topología quorum durable utilizada por los workers. El cambio está en el commit `92b46d68bc8070a086b95352d504797fe1bf0c3d`; Source CI #563 es el gate pendiente.
