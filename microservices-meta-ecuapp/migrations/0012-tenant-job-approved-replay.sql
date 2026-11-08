@@ -7,7 +7,7 @@ ON CONFLICT (permission_key) DO NOTHING;
 
 -- Read access is column-scoped and remains protected by tenant RLS.
 GRANT SELECT (
-  id, tenant_id, actor_user_id, purpose, correlation_id, job_type, payload,
+  id, tenant_id, actor_user_id, purpose, correlation_id, job_type,
   request_sha256, status, attempts, max_attempts, error_code, dead_letter_reason
 ) ON platform.tenant_job_records TO whatsbusiness_app;
 
@@ -34,9 +34,6 @@ CREATE UNIQUE INDEX tenant_job_replay_approval_once_idx
   ON platform.tenant_job_records (replay_approval_id) WHERE replay_approval_id IS NOT NULL;
 
 GRANT SELECT (replay_approval_id) ON platform.tenant_job_records TO whatsbusiness_app;
-GRANT INSERT (replay_of_job_id, replay_approval_id, replay_requested_by_user_id, replay_reason_code)
-  ON platform.tenant_job_records TO whatsbusiness_app;
-
 CREATE OR REPLACE FUNCTION platform.prevent_tenant_job_replay_lineage_mutation()
 RETURNS trigger LANGUAGE plpgsql SET search_path = pg_catalog, platform
 AS $function$
