@@ -136,3 +136,17 @@ La prueba PostgreSQL encontró que el rol `whatsbusiness_app` tenía permisos IN
 
 **Verificación pendiente:** la migración 0019, su idempotencia y ambas integraciones deben pasar en el siguiente Source CI. TASK-027/028 no están cerradas ni aceptadas.
 undefined
+
+## 11. Source CI #539 — prueba end-to-end de evento terminal y consulta DLQ (2026-11-08)
+
+Source CI [#539](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42486976106) terminó SUCCESS en commit `c2bb65fc1a506ba54ab3f7662c9bbc759e2b0536`; CodeQL [#77](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42486976151) también terminó SUCCESS. La ejecución validó frozen install, migraciones 0001–0021 e idempotencia, provisioning de logins mínimos, build, typecheck, target de pruebas API y target backend con PostgreSQL/RabbitMQ efímeros.
+
+La integración PostgreSQL/RabbitMQ ahora ejerce en la misma transacción de ingress dos eventos distintos con un mismo delivery:
+- `messages.message`: handler registrado; tenant validado, receipt idempotente y estado `processed`.
+- `messages.status`: sin handler registrado; el processor clasifica el fallo como permanente, el repository lo persiste como `dead_letter` y la consumer confirma la entrega broker después de confirmar el resultado durable.
+
+La suite verifica que los dos outbox fueron publicados, que solo se ejecutó una vez el handler registrado, que existe una dead letter con `META_WEBHOOK_HANDLER_NOT_REGISTERED`, y que el login de ingress puede listar únicamente metadata a través de `platform.list_meta_webhook_dead_letters`. Al cambiar `app.tenant_id` a otro tenant, la función falla con SQLSTATE `42501`. Ni payload cifrado ni body nativo se exponen.
+
+La prueba de transporte RabbitMQ valida routing y ACK/DLX con entregas AMQP directas; ya no usa scraping de métricas asíncronas como señal de entrega. El exporter y sus métricas siguen teniendo suites separadas.
+
+**Estado:** la secuencia de código, persistencia, dispatch, consumo, terminal dead-letter y lectura tenant-scoped está verificada por CI sintético. TASK-027/028 continúan `in_progress`, no `accepted`: no existen handlers reales de negocio conectados a los bounded contexts Meta/CRM, fixtures/conformance probados con una app/cuenta Meta elegible, Secret Manager/KMS y rotación operativa, limitación de abuso perimetral, política de retención y replay aprobado por CR-0016, despliegue de topología/alertas/SLO, carga/DR ni review independiente. GO-PRODUCTION continúa NO-GO.
