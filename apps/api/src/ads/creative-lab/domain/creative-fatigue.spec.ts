@@ -130,6 +130,7 @@ test("stale or low-sample observations are not presented as fatigue", () => {
     windowEnd: "2026-11-07T00:00:00.000Z",
     observedAt: "2026-11-07T12:00:00.000Z",
     impressions: 10,
+    reach: 8,
     outboundClicks: 0,
     reportedCtrPercent: null,
   });

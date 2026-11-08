@@ -122,7 +122,7 @@ test("expired rights and unknown consent block experiment readiness", () => {
 });
 
 test("unverifiable claim evidence and unsafe storage keys are rejected", () => {
-  assert.throws(() => parseCreativeVariantDraft(validInput({
+  const expiredClaim = parseCreativeVariantDraft(validInput({
     claims: [{
       claim: "Aumenta ventas 300%",
       evidenceReference: "no-evidence",
@@ -130,7 +130,8 @@ test("unverifiable claim evidence and unsafe storage keys are rejected", () => {
       verifiedAt: "2026-11-08T16:00:00.000Z",
       validUntil: "2026-11-07T16:00:00.000Z",
     }],
-  }), NOW), /CREATIVE_CLAIM_EVIDENCE_INVALID_OR_EXPIRED/);
+  }), NOW);
+  assert.ok(creativeVariantReadiness(expiredClaim, NOW).includes("CREATIVE_CLAIM_EVIDENCE_INVALID_OR_EXPIRED"));
   assert.throws(() => parseCreativeVariantDraft(validInput({
     asset: {
       storageKey: "../secrets/token",
