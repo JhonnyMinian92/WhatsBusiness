@@ -318,3 +318,10 @@ La migración 0007 fue reemplazada completa para corregir un fragmento SQL dupli
 Source CI #42431530685 terminó SUCCESS para el commit `6059822896987fc618c479d53117354e1a785144`: A→B y limpieza tras ROLLBACK quedaron verificadas. La prueba no sustituye validación con carga concurrente ni revisión de configuración de pool en deployment.
 
 | AUD-097 | Cleanup tras rollback | `apps/api/src/platform/database/database.context.integration.spec.ts` fuerza fallo dentro de `DatabaseService.withTenantContext`, verifica rollback y reusa la misma conexión sin GUC residuales. Source CI #42431530685 SUCCESS para commit `6059822896987fc618c479d53117354e1a785144`. |
+
+## 27. Regresión de aislamiento concurrente de tenant — TASK-003 (2026-11-08)
+
+| ID | Cambio | Evidencia / resultado |
+|---|---|---|
+| AUD-098 | Transacciones tenant A/B concurrentes | Commit `9b497d0805b53f79e658fd874d0ebfbec3863b12` amplía `apps/api/src/platform/database/database.context.integration.spec.ts`: mantiene dos transacciones simultáneas, exige dos `pg_backend_pid()` distintos, valida GUC tenant/actor en cada conexión y consulta RLS para asegurar que cada sesión solo ve su tenant. Source CI exacto pendiente de verificación; no se marca como prueba aprobada. |
+
