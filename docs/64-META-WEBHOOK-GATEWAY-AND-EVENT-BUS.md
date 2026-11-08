@@ -181,3 +181,16 @@ Pruebas añadidas en `microservices-meta-ecuapp/src/webhooks/domain/meta-webhook
 Commits de implementación: `96506d956c4af70b061d02623fd42c0749f12fea` y `5b7374ef39113d4a264bd1c0ccf9d8cda8428948`. El resultado Source CI/CodeQL debe leerse sobre el HEAD que contiene código y documentación; no se deduce verificación por la existencia de los tests. No cambia el contrato externo ni la versión del envelope RabbitMQ, porque `providerContext` se encuentra dentro del payload cifrado que permanece en PostgreSQL.
 
 Este ajuste no habilita handlers de negocio, no altera las políticas de replay/retención, y no permite efectos externos. TASK-027/028 permanecen `in_progress` hasta cerrar todos sus DoD y evidencias operativas.
+
+
+## 12. Composition root del worker Meta — 2026-11-08
+
+Se implementó `MetaWebhookWorkerRuntime` en `microservices-meta-ecuapp/src/webhooks/infrastructure/bootstrap/meta-webhook-worker.runtime.ts`, exportado desde `src/index.ts`. Es el composition root de infraestructura dedicado a webhooks: recibe handlers y reporter del host; valida registry (tipos y duplicados) y nombre del consumer antes de asignar recursos; valida URL PostgreSQL/AMQP y exige `DB_SSL=true` + `amqps://` en producción; valida/carga el keyring AES-GCM antes de crear el pool; crea un pool PostgreSQL independiente con `application_name=whatsbusiness-meta-webhook-worker`; configura connection/consumer/reconnect/lease/prefetch/batch bounds; y cierra el pool si falla el bootstrap.
+
+`run(shutdownSignal)` mantiene el proceso activo hasta la cancelación y delega el drenado/cierre al supervisor. `close()` es single-flight y cierra el pool una sola vez. Los factories de pool/protector/supervisor son inyectables para pruebas, sin acoplar el dominio a PostgreSQL ni RabbitMQ. Se añadió `validateConfiguration()` al protector de entorno para que la carga de clave no sea perezosa durante el arranque del worker.
+
+Suite `meta-webhook-worker.runtime.spec.ts` registrada en el target Nx: rechaza lista vacía, handlers duplicados y nombre inválido antes de crear recursos; exige TLS/AMQPS en producción; comprueba validación de keyring antes del pool; comprueba drenado/cierre ordenado y cleanup del pool en bootstrap inválido. Variables opcionales documentadas en `microservices-meta-ecuapp/.env.example`; uso de host documentado en `microservices-meta-ecuapp/README.md`.
+
+Commits del runtime y hardening: `b2fae18c07b1ede450a7ee8248df1ceceb3c0fd2`, `65e173921ff83461a22bce86198305b21816b252`, `7daebb92507e51a3f2e6316bee592fa2e4edb583`, `7d6e33c10ceb19a4f4f68af3fb932c8783f1ed5b`, `7d10cf3f1fc22bc01facf69a44f09dffc3121d1a`, `12cabafa446e1b1408e42a219e0f5638838dbba2` y `d6d1e015d01b9810f7b92a047f5a5ed51ab097bf`. Source CI debe confirmarse sobre el último commit de código; agregar el composition root no significa que exista ya un entrypoint por bounded context ni un deployment instalado.
+
+No quedan habilitados handlers falsos. El host sigue responsable de registrar los casos de uso reales, reporter productivo, entrypoint y health/liveness; KMS/Secret Manager, credenciales/rotación, TLS/AMQPS reales, revisión de roles SQL, topología desplegada, pruebas de fallos/carga/DR y aceptación continúan pendientes.
