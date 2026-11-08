@@ -399,3 +399,15 @@ Se añadió una regresión de integración a `microservices-meta-ecuapp/src/jobs
 
 - **Verificación posterior:** Source CI [#42435984569](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42435984569) SUCCESS en commit `6db028bb7123dfd50bafe3d6f4f5e66bce06207d`: migraciones/idempotencia, build, typecheck y unit + PostgreSQL/RabbitMQ integration tests pasaron. El fallo previo #42435877166 fue un error sintáctico de aserción de tipo en la nueva spec; corregido y cubierto por el run SUCCESS.
 - **SAST:** workflow `.github/workflows/codeql-security.yml` agregado. El primer intento falló por `build-mode: autobuild` no soportado por el extractor JavaScript/TypeScript; se cambió a `build-mode: none`. Source CI CodeQL [#42435984426](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42435984426) terminó SUCCESS en commit `6db028bb7123dfd50bafe3d6f4f5e66bce06207d`; queda pendiente el triage de hallazgos en Code Scanning y revisión independiente.
+
+
+### Handoff incremental TASK-003 — métricas RabbitMQ unacknowledged (2026-11-08)
+
+- El contrato `TenantJobBrokerMetricsSnapshot` incorpora `workerQueueUnacknowledgedMessages` y `deadLetterQueueUnacknowledgedMessages`.
+- `RabbitMqManagementTenantJobQueueMetricsReader` valida y consume `messages_unacknowledged` de RabbitMQ Management API junto con `messages_ready` y `consumers`; mantiene HTTPS fuera de loopback, identidad monitoring separada, sin permisos AMQP de recursos, timeout abortable y respuestas sanitizadas.
+- `PrometheusTenantJobRuntimeMetrics` expone gauges fijos de unacked para worker queue y DLQ, sin etiquetas tenant/actor/job. Se añadieron tests del reader, render Prometheus, validación de snapshots y supervisor.
+- Se actualizó alerta Prometheus para unacked sostenido, panel Grafana, README, runbook y docs/63. `messages_unacknowledged` no representa consumer lag ni edad de mensaje; no se afirma esa medición.
+- Código en commits `6a0cd876`, `770a50b2`, `296db341`, `6dff5fee`, `0990d761`, `753d30f8`, `4dbfa826`, `a5b1ae78`, `0cc8555b`, `37632ed9`, `ff2f873a`, `65eb2746`, `d3542c5f` y `0b9b3c7c` (rama `environment/local`).
+- Source CI [#42436455186](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42436455186) y CodeQL [#42436455184](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42436455184) fueron disparados para el código actualizado; su resultado final aún no se certifica en este handoff.
+- La cobertura de unacked mejora la visibilidad de deliveries en curso, pero consumer lag temporal sigue pendiente de una fuente autoritativa (por ejemplo, timestamp de publicación/edad del mensaje en broker con semántica verificada).
+- TASK-003 permanece `in_progress`; no marcar `verified` ni `accepted`. Permanecen pendientes handlers de negocio reales y replay E2E, workflow operativo de DLQ, adapters Valkey/object storage, stack Prometheus/Grafana y alert routing desplegados, TLS/mTLS y Secret Manager/rotación reales, carga/backup/restore/DR, revisión independiente y aceptación del propietario. GO-PRODUCTION sigue NO-GO.
