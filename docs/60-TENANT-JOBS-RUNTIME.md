@@ -3,7 +3,7 @@
 **Fecha:** 2026-11-07  
 **Rama:** `environment/local`  
 **Tarea primaria:** TASK-003 / REQ-0001 / REQ-0010  
-**Estado:** runtime durable parcialmente implementado; Source CI #42432745586 terminó SUCCESS en commit `6c93efdfea0cef7f1819402ab872e439ef858ccd`, incluyendo migraciones 0001–0013/idempotencia, build, typecheck, unit e integraciones PostgreSQL/RabbitMQ. Pool A→B, cleanup tras COMMIT/ROLLBACK y aislamiento concurrente están verificados. Se añadió el backend de replay autorizado/auditado, pero su policy registry está vacío (fail-closed): todavía no se puede ejecutar replay real hasta registrar handlers con idempotencia de efecto externo y validar el flujo end-to-end. TASK-003 permanece in_progress; GO-PRODUCTION NO-GO.
+**Estado (actualizado 2026-11-08):** runtime durable parcialmente implementado. Source CI #42433941375 terminó SUCCESS en commit `f136cff710fe8c60c8430c82928092320b9d90b5`; verificó migraciones versionadas/idempotencia, privilegios DB, policy DLX, build, typecheck y pruebas unitarias + PostgreSQL/RabbitMQ. Pool A→B, cleanup COMMIT/ROLLBACK, aislamiento concurrente y recuperación/fencing de leases también cuentan con evidencia CI. El consumer evita enviar a DLQ jobs válidos por fallos ambiguos de persistencia o ACK, y agrupa cierres concurrentes. Replay sigue fail-closed porque no hay handlers de negocio con idempotencia externa registrada. TASK-003 permanece `in_progress`; GO-PRODUCTION sigue NO-GO.
 
 ## 1. Objetivo y límites
 
@@ -67,7 +67,7 @@ Si publisher devuelve unroutable se bloquea la fila para intervención; los fall
 
 El consumer reclama el job en PostgreSQL, obtiene metadata canónica, compara tenant/actor/purpose/correlation y resuelve un handler registrado por `jobType`. El transaction boundary vuelve a establecer y validar el contexto tenant, exige el fencing token, ejecuta el handler y escribe inbox + estado succeeded en la misma transacción.
 
-El adapter RabbitMQ usa manual ACK, prefetch bounded y ACK solo tras resolución del caso de uso. El cierre normal cancela el consumo y espera entregas activas antes de cerrar el canal. Un mensaje inválido se NACK sin requeue para evitar loops; el DLX de quorum lo conserva para inspección.
+El adapter RabbitMQ usa manual ACK, prefetch bounded y ACK solo tras resolución del caso de uso. El cierre normal cancela el consumo y espera entregas activas antes de cerrar el canal. Un envelope inválido se NACK sin requeue para evitar loops; el DLX de quorum lo conserva para inspección. Si el envelope es válido pero `consumer.handle` no puede confirmar un resultado durable (por ejemplo, PostgreSQL no disponible), el adapter no hace ACK ni NACK: cierra la sesión worker para que RabbitMQ redeliver. Si el ACK falla después de que el negocio pudo hacer COMMIT, se sigue la misma recuperación sin NACK destructivo. Cierres concurrentes de deliveries prefetched comparten una única operación (`single-flight`).
 
 Un handler no debe hacer llamadas HTTP/Meta ni efectos externos irreversibles dentro de la transacción PostgreSQL. Debe stagear su siguiente comando/outbox en la misma transacción. La entrega exactly-once extremo a extremo no existe; los duplicados siguen siendo posibles y requieren idempotencia en cada frontera.
 
@@ -98,8 +98,8 @@ Suites fuente registradas en Nx:
 - Application lifecycle: desconexión, reconnect y cierre de sesión.
 - Bootstrap: handlers obligatorios, env, TLS y timeout de ejecución acotado.
 - Heartbeat/deadline: renovación, pérdida de lease, cancelación cooperativa, timeout y handler que ignora AbortSignal.
-- Publisher/consumer RabbitMQ: confirms, unroutable, ACK/NACK y drain.
-- PostgreSQL gated: roles separados, claims, fencing, renovación de lease con token válido/obsoleto, inbox/rollback, retry, dead-letter, lease expiry y denegación de acceso directo al payload.
+- Publisher/consumer RabbitMQ: confirms, unroutable, ACK/NACK y drain; redelivery tras pérdida de canal; errores de procesamiento durable y ACK ambiguo; cierre single-flight bajo fallos concurrentes.
+- PostgreSQL gated: roles separados, claims, fencing, renovación de lease con token válido/obsoleto, inbox/rollback, retry, dead-letter, lease expiry, recuperación de dispatch/worker y denegación de acceso directo al payload.
 - RabbitMQ gated: quorum queue, confirm, mandatory return y DLX.
 
 Source CI declara PostgreSQL 18.6 y RabbitMQ 4.4 para pruebas de integración. Run #42428439526 (commit 489b8cd) pasó instalación frozen, migraciones 0001–0009 e idempotencia, configuración RabbitMQ DLX, build y typecheck. Fallaron dos integraciones: (1) claim_tenant_job_execution por ambigüedad de tenant_id en RETURNING; (2) publisher RabbitMQ por rechazar routing keys válidas con guion. Los errores de permisos observados en logs corresponden a aserciones negativas esperadas de los roles least-privilege, no a fallos adicionales. Se añadió migración 0010-tenant-job-execution-claim-ambiguity.sql que cualifica columnas y conserva EXECUTE solo para el rol worker; se amplió el validador de routing keys para aceptar jobs.dead y segmentos kebab-case, con prueba unitaria. Run #42429156061 (commit `b96ec893397dda413164edaf56b0914135cee9b0`) falló por `assert.ok(wrongContext)` después de `assert.rejects()`. La aserción se corrigió para validar SQLSTATE `40001` en commit `7b6e2a180a9049054245fa34f2d649269930bd8f`. Source CI #42430321770 superó esa aserción y encontró SQLSTATE `42702` en la recuperación: variable RECORD `job` colisionaba con alias SQL `job`. La migración `0011-tenant-job-recovery-variable-ambiguity.sql` renombró la variable a `execution_row`. Source CI #42430605576 terminó SUCCESS, incluyendo PostgreSQL y RabbitMQ.
@@ -119,8 +119,10 @@ Source CI declara PostgreSQL 18.6 y RabbitMQ 4.4 para pruebas de integración. R
 - [ ] Registrar policies de replay solo para handlers reales que prueben idempotencia mediante stable domain-effect key; el registry de producción permanece vacío y rechaza por defecto todos los tipos.
 - [ ] Validar el flujo end-to-end de replay con un handler real registrado, approvals quorum, consumo, auditoría, publicación al broker y efecto de negocio idempotente.
 - [ ] Implementar lease/lock y replay seguro de broker DLQ, retención, acceso restringido y audit.
-- [ ] Agregar métricas/alertas: age de outbox, publishing leases expired, queue depth, consumer lag, failed/blocked/dead-letter y replays.
-- [ ] Añadir pruebas de crash entre publish/confirm/mark, ACK perdido, redelivery, lease expiry concurrente y fencing token obsoleto.
+- [x] Métricas Prometheus in-memory con contadores/histogramas y allowlists de outcomes fijos; sin labels de tenant, actor, job ni payload. Source CI #42433578446 SUCCESS (la cobertura se mantiene en commits posteriores).
+- [ ] Completar observabilidad operativa: servidor HTTP `/metrics`, gauges de outbox age/queue depth/consumer lag/leases/DLQ/replays, alertas y SLO. `renderMetrics()` solo genera texto en memoria; no existe endpoint de scrape.
+- [x] Probar pérdida de canal y redelivery real RabbitMQ; error de persistencia en job válido; ACK ambiguo después del commit; cierres concurrentes single-flight; expiración de execution/dispatch leases y fencing de tokens viejos. Source CI #42433941375 SUCCESS para commit `f136cff710fe8c60c8430c82928092320b9d90b5`.
+- [ ] Extender crash tests para todas las ventanas publish/confirm/mark, recovery concurrente bajo carga y fault injection con infraestructura de deployment.
 - [ ] Validar topology/policy en un deployment RabbitMQ real; CI no sustituye infraestructura de producción.
 - [ ] Registrar handlers de negocio reales, conectados a casos de uso/Meta adapters; no iniciar el worker solo con handlers ficticios.
 - [ ] Revisar seguridad/arquitectura independiente y obtener aceptación del propietario.
@@ -149,3 +151,17 @@ El rol `whatsbusiness_app` no puede leer `payload` ni insertar genealogía de re
 **Límite deliberado:** `TenantJobReplayPolicyRegistry` se instancia vacío. El test unitario verifica que solicitudes sin policy explícita para un handler que use stable domain-effect idempotency se rechazan antes de crear una aprobación. No hay aún handlers reales elegibles; por ello el replay está implementado como capacidad controlada, pero no habilitado para jobs de negocio.
 
 Source CI #42432745586 SUCCESS para commit `6c93efdfea0cef7f1819402ab872e439ef858ccd`: migraciones 0012–0013/idempotencia, build, typecheck, pruebas unitarias y suites PostgreSQL/RabbitMQ. Incluye verificación con el rol API real de que payload y genealogía no son accesibles/escribibles, pero sí puede ejecutarse la función aprobada.
+
+## 11. Handoff de fiabilidad RabbitMQ, métricas y fencing (2026-11-08)
+
+**Código verificado:** Source CI [#42433941375](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42433941375) terminó SUCCESS en commit `f136cff710fe8c60c8430c82928092320b9d90b5`. La ejecución completó instalación frozen, provisioning de roles DB, migraciones versionadas e idempotencia, política quorum DLX, build, typecheck, suite unitaria e integraciones PostgreSQL/RabbitMQ.
+
+Cambios y regresiones cubiertas en la punta verificada:
+- `RabbitMqTenantJobConsumerAdapter` diferencia un envelope inválido de un procesamiento durable interrumpido. Solo el envelope inválido va a DLQ con NACK sin requeue. Si el mensaje es válido pero el procesamiento no pudo confirmar su estado durable, cierra la sesión completa sin ACK/NACK para permitir redelivery.
+- Un fallo del ACK después de que el caso de uso pudo confirmar su transacción no provoca NACK ni dead-letter de un job posiblemente completado; la sesión se cierra y la entrega queda sujeta a redelivery/idempotencia.
+- Los cierres simultáneos de varios deliveries prefetched se agrupan en una misma promesa single-flight. Tests verifican dos fallos concurrentes y una única invocación de cierre.
+- RabbitMQ real: prueba gated de pérdida del canal con un mensaje persistente y comprobación de redelivery.
+- PostgreSQL real: recuperación de execution/dispatch leases expirados; fencing de tokens antiguos que impide renew/complete/mark publicados; completion e inbox transaccionales.
+- Prometheus: contadores/histogramas in-memory con allowlists y outcomes fijos, sin dimensiones de tenant/actor/job/payload. No existe todavía listener HTTP ni gauges operativos.
+
+**Limitaciones que siguen abiertas:** el runtime no registra handlers de negocio Meta/CRM; el registry de replay continúa vacío y fail-closed. No se ha demostrado todavía replay end-to-end con handler real ni idempotencia de efectos externos. El adapter Prometheus aún no tiene endpoint de scrape, gauges de cola/outbox/leases/DLQ/replays o alertas/SLO. Tampoco existe evidencia de topology/policies en un cluster RabbitMQ productivo, secret manager/rotación, pruebas de carga/DR, revisión independiente ni aceptación final del propietario. TASK-003 continúa `in_progress` y GO-PRODUCTION permanece NO-GO.
