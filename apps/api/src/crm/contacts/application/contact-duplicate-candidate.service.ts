@@ -123,7 +123,7 @@ export class ContactDuplicateCandidateService {
         await this.audit.append(client, {
           tenantId: subject.tenantId,
           actorUserId: subject.actorId,
-          actionKey: "crm.contacts.identity_resolution.candidates",
+          actionKey: "crm.contacts.duplicates.candidates",
           resourceType: "contact",
           resourceId: sourceContact.id,
           purpose: subject.purpose,

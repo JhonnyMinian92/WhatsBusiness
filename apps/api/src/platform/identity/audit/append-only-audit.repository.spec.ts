@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { computeAuditEventHash } from "./append-only-audit.repository.js";
+import { AppendOnlyAuditRepository, computeAuditEventHash, type AppendAuditEvent } from "./append-only-audit.repository.js";
+import type { PoolClient } from "pg";
 
 const event = {
   id: "a2cbecb4-bda0-4cf4-a43b-ecb34c11b025",
@@ -34,4 +35,57 @@ test("audit event hash binds sequence, actor, resource, outcome and previous has
   assert.notEqual(first, computeAuditEventHash({ ...event, resourceId: "campaign-0002" }));
   assert.notEqual(first, computeAuditEventHash({ ...event, outcome: "approval_rejected" }));
   assert.notEqual(first, computeAuditEventHash({ ...event, previousHash: "a".repeat(64) }));
+});
+
+
+test("append accepts valid dotted action and purpose identifiers", async () => {
+  const calls: string[] = [];
+  const client = {
+    query: async (sql: string) => {
+      calls.push(sql);
+      if (sql.startsWith("SELECT last_sequence")) {
+        return { rows: [{ last_sequence: "0", last_hash: "0".repeat(64) }], rowCount: 1 };
+      }
+      return { rows: [], rowCount: 1 };
+    },
+  } as unknown as PoolClient;
+  const input: AppendAuditEvent = {
+    tenantId: event.tenantId,
+    actorUserId: event.actorUserId,
+    actionKey: "crm.contacts.duplicates.candidates",
+    resourceType: "contact",
+    resourceId: "contact-0001",
+    purpose: "crm.contacts.identities.read",
+    outcome: "allowed",
+    correlationId: event.correlationId,
+    requestHash: "a".repeat(64),
+    occurredAt: new Date("2026-11-08T12:00:00.000Z"),
+  };
+
+  const record = await new AppendOnlyAuditRepository().append(client, input);
+  assert.equal(record.actionKey, input.actionKey);
+  assert.equal(record.purpose, input.purpose);
+  assert.equal(calls.length, 4);
+});
+
+test("audit validation reports invalid field names without disclosing values", async () => {
+  const client = {
+    query: async () => ({ rows: [{ last_sequence: "0", last_hash: "0".repeat(64) }], rowCount: 1 }),
+  } as unknown as PoolClient;
+  const unsafePurpose = "private-customer-purpose";
+  await assert.rejects(
+    new AppendOnlyAuditRepository().append(client, {
+      tenantId: event.tenantId,
+      actorUserId: event.actorUserId,
+      actionKey: "crm.contacts.duplicates.candidates",
+      resourceType: "contact",
+      resourceId: "contact-0001",
+      purpose: unsafePurpose,
+      outcome: "allowed",
+      correlationId: event.correlationId,
+    }),
+    error => error instanceof Error
+      && error.message.includes("purpose")
+      && !error.message.includes(unsafePurpose),
+  );
 });

@@ -93,7 +93,7 @@ test("returns explainable candidates without exposing PII and audits the sensiti
   assert.equal(fixture.auditEvents.length, 1);
   assert.equal(fixture.getDatabaseCalls(), 1);
   assert.equal((fixture.auditEvents[0] as { actionKey: string }).actionKey,
-    "crm.contacts.identity_resolution.candidates");
+    "crm.contacts.duplicates.candidates");
 });
 
 test("requires the sensitive identity-read permission before opening a transaction", async () => {
