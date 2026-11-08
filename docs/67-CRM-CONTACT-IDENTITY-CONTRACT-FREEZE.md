@@ -136,3 +136,8 @@ ContactDuplicateCandidateDetector quedó CI-verified en commit 82eff584655212c16
 ## Addendum CRM-007 — señal cross-channel de teléfono verificado
 
 La estrategia `SAME_VERIFIED_PHONE_E164` puntúa 80 solo cuando ambas identidades tienen `identifierType=phone_e164`, mismo provider/valor E.164 y `verifiedAt` presente. No requiere igual product/channel, pues busca una señal cross-channel. Los números no verificados no se comparan. La salida sigue siendo candidato para revisión humana, nunca merge.
+
+
+### Handoff post-CI #586
+
+El build detectó que el reason code `SAME_VERIFIED_PHONE_E164` faltaba en `ContactDuplicateCandidateReason`. Se incorpora al union para mantener tipado exhaustivo de estrategias y resultados; sin cambios a los criterios de verificación ni a la autorización. Source CI de la corrección pendiente.

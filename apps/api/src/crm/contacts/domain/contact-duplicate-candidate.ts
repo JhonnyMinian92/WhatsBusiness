@@ -9,6 +9,7 @@ export interface ContactDedupeProfile {
 
 export type ContactDuplicateCandidateReason =
   | "SAME_NAMESPACED_PROVIDER_IDENTITY"
+  | "SAME_VERIFIED_PHONE_E164"
   | "SAME_SOURCE_REFERENCE"
   | "EXACT_NORMALIZED_NAME";
 

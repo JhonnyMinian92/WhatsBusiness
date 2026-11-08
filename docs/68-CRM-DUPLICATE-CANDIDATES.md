@@ -58,3 +58,8 @@ Se corrige el fixture para que origen y candidato compartan la misma identidad c
 Se incorpora `SameVerifiedPhoneE164Strategy` con peso 80 (confianza media). Compara el teléfono E.164 canónico dentro del mismo provider, permitiendo distinto product/channel. Ambos ContactIdentity deben tener `identifierType=phone_e164` y `verifiedAt` no nulo. No compara valores sin evidencia de verificación. Los números compartidos o reciclados siguen siendo posibles, por lo que el resultado es exclusivamente `manual_review_required`; el detector no enlaza ni fusiona identidades.
 
 Dos pruebas nuevas garantizan match cross-channel cuando ambas identidades están verificadas y ausencia de match cuando ambas carecen de verificación. Los pesos continúan siendo reglas deterministas, no probabilidades calibradas.
+
+
+## Corrección post-CI #586 — catálogo de reason codes (2026-11-08)
+
+Source CI #586 detectó un error de compilación TypeScript: la nueva estrategia `SameVerifiedPhoneE164Strategy` emitía `SAME_VERIFIED_PHONE_E164`, pero el union `ContactDuplicateCandidateReason` no incluía el literal. Se incorpora el reason code al tipo público del dominio; no se cambia el peso (80), la exigencia de `verifiedAt` ni la regla manual-review. La corrección requiere un nuevo Source CI y CodeQL.

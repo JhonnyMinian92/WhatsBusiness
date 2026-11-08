@@ -680,3 +680,11 @@ La nota anterior que señalaba Source CI pendiente quedó supersedida: commit ea
 - Se añade `SameVerifiedPhoneE164Strategy` (80 puntos) para mismo provider y E.164 exacto en canales/productos diferentes, exigiendo `verifiedAt` en ambos perfiles.
 - Números sin verificación no generan esa coincidencia. Se documenta el riesgo de números compartidos/reciclados y se mantiene `manual_review_required`; no se fusiona ni se vincula automáticamente.
 - Dos pruebas nuevas cubren coincidencia cross-channel verificada y rechazo de números sin verificación. Source CI pendiente del nuevo commit.
+
+
+### Corrección CRM-007 post-CI #586 (2026-11-08)
+
+- Source CI #586 falló en `api:build` porque el literal `SAME_VERIFIED_PHONE_E164` no se añadió al union discriminado `ContactDuplicateCandidateReason`; la estrategia y el test estaban presentes, pero TS impidió compilar.
+- Se añade el reason code al union. El cálculo de score, provider scope, verificación `verifiedAt` y `manual_review_required` no cambian.
+- El job también registró una advertencia/error de readiness del endpoint RabbitMQ Prometheus en setup; se inspeccionará por separado después de repetir el build/API test con el fix de tipos.
+- Estado del nuevo slice cross-channel: no verificado hasta Source CI + CodeQL verdes.
