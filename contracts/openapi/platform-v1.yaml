@@ -6667,31 +6667,53 @@ paths:
     get:
       tags: ['CRM']
       operationId: apiCRM001
-      summary: 'Busca/lista contactos con filtros y scopes de campos.'
+      summary: 'Busca contactos por texto y filtros con paginación estable.'
       x-api-id: 'CRM-001'
       x-traceability: 'US-018; TASK-042'
-      x-contract-status: 'catalog-only'
+      x-contract-status: 'design-frozen'
       x-common-error-profile: 'problem-details-v1'
       x-contract-error-catalog: [400, 401, 403, 404, 409, 422, 429, 500, 503]
-      x-contract-ready: false
-      x-implementation-allowed: false
-      x-required-gate: API-CONTRACT-FREEZE+G0
+      x-contract-ready: true
+      x-implementation-allowed: true
+      x-required-gate: 'G0-CODE; TASK-042'
       security:
         - bearerAuth: []
       parameters:
-        - name: 'tenantId'
+        - name: tenantId
           in: path
           required: true
           schema: { type: string, format: uuid }
+        - name: q
+          in: query
+          required: false
+          description: 'Substring search over displayName; case-insensitive; no wildcard syntax.'
+          schema: { type: string, maxLength: 100 }
+        - name: contactType
+          in: query
+          required: false
+          schema: { type: string, enum: [person, organization] }
+        - name: status
+          in: query
+          required: false
+          schema: { type: string, enum: [active, archived] }
+        - name: pageSize
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+        - name: cursor
+          in: query
+          required: false
+          schema: { type: string, maxLength: 1024 }
         - name: X-Correlation-ID
           in: header
           required: false
           schema: { type: string, format: uuid }
-      x-request-schema-pending: true
-      x-response-schema-pending: true
-      x-error-catalog-pending: true
-      x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
+        '200':
+          description: Tenant-scoped contact page.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactListResponse' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6701,39 +6723,49 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
         '503': { $ref: '#/components/responses/ServiceUnavailable' }
-        'default': { $ref: '#/components/responses/ContractNotFrozen' }
     post:
       tags: ['CRM']
       operationId: apiCRM002
-      summary: 'Crea contacto con source/provenance.'
+      summary: 'Crea un contacto preservando la procedencia de captura.'
       x-api-id: 'CRM-002'
       x-traceability: 'US-018; TASK-042'
-      x-contract-status: 'catalog-only'
+      x-contract-status: 'design-frozen'
       x-common-error-profile: 'problem-details-v1'
       x-contract-error-catalog: [400, 401, 403, 404, 409, 422, 429, 500, 503]
-      x-contract-ready: false
-      x-implementation-allowed: false
-      x-required-gate: API-CONTRACT-FREEZE+G0
+      x-contract-ready: true
+      x-implementation-allowed: true
+      x-required-gate: 'G0-CODE; TASK-042'
       security:
         - bearerAuth: []
       parameters:
-        - name: 'tenantId'
+        - name: tenantId
           in: path
           required: true
           schema: { type: string, format: uuid }
         - name: Idempotency-Key
           in: header
           required: true
-          schema: { type: string, minLength: 16, maxLength: 255 }
+          description: 'Scopes the create command to tenant, actor and operation; a conflicting payload returns 409.'
+          schema: { type: string, minLength: 16, maxLength: 255, pattern: '^[\x21-\x7e]+$' }
         - name: X-Correlation-ID
           in: header
           required: false
           schema: { type: string, format: uuid }
-      x-request-schema-pending: true
-      x-response-schema-pending: true
-      x-error-catalog-pending: true
-      x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactCreateRequest' }
       responses:
+        '201':
+          description: Contact created or idempotent create result replayed.
+          headers:
+            ETag:
+              description: 'Optimistic concurrency token for subsequent PATCH.'
+              schema: { type: string, pattern: '^"contact-[1-9][0-9]*"$' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactRecord' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6743,40 +6775,43 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
         '503': { $ref: '#/components/responses/ServiceUnavailable' }
-        'default': { $ref: '#/components/responses/ContractNotFrozen' }
   '/v1/tenants/{tenantId}/contacts/{contactId}':
     get:
       tags: ['CRM']
       operationId: apiCRM003
-      summary: 'Consulta perfil y campos autorizados.'
+      summary: 'Consulta un perfil de contacto dentro del tenant autorizado.'
       x-api-id: 'CRM-003'
       x-traceability: 'US-018; TASK-042'
-      x-contract-status: 'catalog-only'
+      x-contract-status: 'design-frozen'
       x-common-error-profile: 'problem-details-v1'
       x-contract-error-catalog: [400, 401, 403, 404, 409, 422, 429, 500, 503]
-      x-contract-ready: false
-      x-implementation-allowed: false
-      x-required-gate: API-CONTRACT-FREEZE+G0
+      x-contract-ready: true
+      x-implementation-allowed: true
+      x-required-gate: 'G0-CODE; TASK-042'
       security:
         - bearerAuth: []
       parameters:
-        - name: 'tenantId'
+        - name: tenantId
           in: path
           required: true
           schema: { type: string, format: uuid }
-        - name: 'contactId'
+        - name: contactId
           in: path
           required: true
-          schema: { type: string, maxLength: 255 }
+          schema: { type: string, format: uuid }
         - name: X-Correlation-ID
           in: header
           required: false
           schema: { type: string, format: uuid }
-      x-request-schema-pending: true
-      x-response-schema-pending: true
-      x-error-catalog-pending: true
-      x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
+        '200':
+          description: Contact profile and immutable provenance metadata.
+          headers:
+            ETag:
+              schema: { type: string, pattern: '^"contact-[1-9][0-9]*"$' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactRecord' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6786,43 +6821,56 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
         '503': { $ref: '#/components/responses/ServiceUnavailable' }
-        'default': { $ref: '#/components/responses/ContractNotFrozen' }
     patch:
       tags: ['CRM']
       operationId: apiCRM004
-      summary: 'Actualiza atributos, origen y versionado.'
+      summary: 'Actualiza atributos permitidos del contacto con control optimista.'
       x-api-id: 'CRM-004'
       x-traceability: 'US-018; TASK-042'
-      x-contract-status: 'catalog-only'
+      x-contract-status: 'design-frozen'
       x-common-error-profile: 'problem-details-v1'
       x-contract-error-catalog: [400, 401, 403, 404, 409, 422, 429, 500, 503]
-      x-contract-ready: false
-      x-implementation-allowed: false
-      x-required-gate: API-CONTRACT-FREEZE+G0
+      x-contract-ready: true
+      x-implementation-allowed: true
+      x-required-gate: 'G0-CODE; TASK-042'
       security:
         - bearerAuth: []
       parameters:
-        - name: 'tenantId'
+        - name: tenantId
           in: path
           required: true
           schema: { type: string, format: uuid }
-        - name: 'contactId'
+        - name: contactId
           in: path
           required: true
-          schema: { type: string, maxLength: 255 }
+          schema: { type: string, format: uuid }
         - name: Idempotency-Key
           in: header
           required: true
-          schema: { type: string, minLength: 16, maxLength: 255 }
+          schema: { type: string, minLength: 16, maxLength: 255, pattern: '^[\x21-\x7e]+$' }
+        - name: If-Match
+          in: header
+          required: true
+          description: 'Exact ETag returned by the last contact read/update; stale versions return 409.'
+          schema: { type: string, pattern: '^"contact-[1-9][0-9]*"$' }
         - name: X-Correlation-ID
           in: header
           required: false
           schema: { type: string, format: uuid }
-      x-request-schema-pending: true
-      x-response-schema-pending: true
-      x-error-catalog-pending: true
-      x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactUpdateRequest' }
       responses:
+        '200':
+          description: Updated contact or idempotent update result replayed.
+          headers:
+            ETag:
+              schema: { type: string, pattern: '^"contact-[1-9][0-9]*"$' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactRecord' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6832,7 +6880,6 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
         '503': { $ref: '#/components/responses/ServiceUnavailable' }
-        'default': { $ref: '#/components/responses/ContractNotFrozen' }
   '/v1/tenants/{tenantId}/contacts/{contactId}/identities':
     get:
       tags: ['CRM']
@@ -12722,3 +12769,52 @@ components:
             properties:
               path: { type: string }
               code: { type: string }
+    ContactCreateRequest:
+      type: object
+      additionalProperties: false
+      required: [contactType, displayName, sourceType]
+      properties:
+        contactType: { type: string, enum: [person, organization] }
+        displayName: { type: string, minLength: 1, maxLength: 200 }
+        firstName: { type: [string, "null"], minLength: 1, maxLength: 120 }
+        lastName: { type: [string, "null"], minLength: 1, maxLength: 120 }
+        sourceType: { type: string, enum: [manual, api, import, webhook] }
+        sourceReference: { type: [string, "null"], minLength: 1, maxLength: 255 }
+        sourceCapturedAt: { type: [string, "null"], format: date-time }
+    ContactUpdateRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        displayName: { type: string, minLength: 1, maxLength: 200 }
+        firstName: { type: [string, "null"], minLength: 1, maxLength: 120 }
+        lastName: { type: [string, "null"], minLength: 1, maxLength: 120 }
+        status: { type: string, enum: [active, archived] }
+    ContactRecord:
+      type: object
+      additionalProperties: false
+      required: [id, tenantId, contactType, displayName, firstName, lastName, status, sourceType, sourceReference, sourceCapturedAt, version, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        tenantId: { type: string, format: uuid }
+        contactType: { type: string, enum: [person, organization] }
+        displayName: { type: string }
+        firstName: { type: [string, "null"] }
+        lastName: { type: [string, "null"] }
+        status: { type: string, enum: [active, archived] }
+        sourceType: { type: string, enum: [manual, api, import, webhook] }
+        sourceReference: { type: [string, "null"] }
+        sourceCapturedAt: { type: [string, "null"], format: date-time }
+        version: { type: integer, minimum: 1 }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    ContactListResponse:
+      type: object
+      additionalProperties: false
+      required: [items, nextCursor]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/ContactRecord' }
+        nextCursor: { type: [string, "null"], maxLength: 1024 }
+
