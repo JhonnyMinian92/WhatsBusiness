@@ -154,11 +154,13 @@ test("rejects invalid broker gauges without replacing the last valid snapshot", 
     workerQueueUnacknowledgedMessages: 0,
     workerQueueConsumers: 1,
     deadLetterQueueReadyMessages: 0,
+    deadLetterQueueUnacknowledgedMessages: 0,
     deadLetterQueueConsumers: 0,
   });
   assert.throws(
     () => metrics.recordBrokerRuntimeSnapshot({
       workerQueueReadyMessages: -1,
+      workerQueueUnacknowledgedMessages: 0,
       workerQueueConsumers: 1,
       deadLetterQueueReadyMessages: 0,
       deadLetterQueueUnacknowledgedMessages: 0,
