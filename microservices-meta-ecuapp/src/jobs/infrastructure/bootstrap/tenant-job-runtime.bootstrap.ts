@@ -47,7 +47,7 @@ export class TenantJobRuntimeProcess {
     const metrics = options.metrics ?? new PrometheusTenantJobRuntimeMetrics();
     const metricsServer = new TenantJobMetricsHttpServer(metrics, {
       host: environment["TENANT_JOB_METRICS_HOST"]?.trim() || "127.0.0.1",
-      port: boundedInteger(environment, "TENANT_JOB_METRICS_PORT", 9464, 0, 65_535),
+      port: boundedInteger(environment, "TENANT_JOB_METRICS_PORT", 9_464, 1, 65_535),
       bearerToken: environment["TENANT_JOB_METRICS_BEARER_TOKEN"],
     }, () => options.logger.failed("TENANT_JOB_METRICS_SERVER_ERROR"));
     const poolOptions = {
