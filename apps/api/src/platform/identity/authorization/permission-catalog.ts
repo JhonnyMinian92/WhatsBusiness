@@ -88,6 +88,26 @@ export const PERMISSION_CATALOG = {
     riskClass: "normal",
     requiresIndependentApproval: false,
   },
+  "whatsapp.templates.read": {
+    description: "Read tenant WhatsApp template drafts, provider status and revision history",
+    riskClass: "normal",
+    requiresIndependentApproval: false,
+  },
+  "whatsapp.templates.create": {
+    description: "Create tenant WhatsApp template drafts",
+    riskClass: "normal",
+    requiresIndependentApproval: false,
+  },
+  "whatsapp.templates.update": {
+    description: "Update tenant WhatsApp template drafts with optimistic concurrency",
+    riskClass: "sensitive",
+    requiresIndependentApproval: false,
+  },
+  "whatsapp.templates.delete": {
+    description: "Archive tenant WhatsApp template drafts without deleting immutable history",
+    riskClass: "sensitive",
+    requiresIndependentApproval: false,
+  },
   "crm.contacts.read": {
     description: "Read tenant contacts",
     riskClass: "normal",

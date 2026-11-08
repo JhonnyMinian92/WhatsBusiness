@@ -492,3 +492,17 @@ Límites: no hay Meta API adapter, conexión ni token runtime para esta historia
 | AUD-162 | Tests de policy y de integración PostgreSQL cubren solicitud, step-up sintético, aprobación independiente, asignación/revocación, catálogo exacto, último owner, retry y ledger hash-chain. | Suite añadida y conectada a Source CI; resultado pendiente. |
 
 El IdP real y su semántica ACR/AMR no se han verificado; la configuración permanece fail-closed. IAM-007..020 siguen catalog-only. No hay aceptación independiente ni del propietario. GO-PRODUCTION permanece NO-GO.
+
+
+## 42. US-006 — núcleo tenant-scoped de administración de plantillas (AUD-163..168; 2026-11-08)
+
+| ID | Evidencia / cambio | Estado |
+|---|---|---|
+| AUD-163 | Dominio de plantillas con categoría, idioma, componentes, placeholders, botones, validación y preview local. | Código y suite añadidos a api:test; CI pendiente. |
+| AUD-164 | Migración 0027 crea registro de plantillas, revisiones e idempotencia con RLS FORCE y triggers actor/tenant. | Migración añadida; ejecución e idempotencia PostgreSQL pendientes de CI. |
+| AUD-165 | Repositorio tenant-scoped para list/get/draft create/update/archive/revisions con compare-and-swap. | Código añadido; build e integración pendientes. |
+| AUD-166 | PermissionCatalog, módulo NestJS interno, auditoría append-only e idempotency hash. | Código añadido; sin grants automáticos. |
+| AUD-167 | Unit tests de dominio/servicio e integración PostgreSQL multi-tenant conectados a Source CI. | Pruebas añadidas; resultado de nuevo commit pendiente. |
+| AUD-168 | WAM-001..007 continúan catalog-only; no se expusieron controllers ni mutaciones Meta. | Gate docs/49 respetado; aprobación y sender enforcement pendientes. |
+
+TASK-014 y TASK-015 continúan in_progress. AC-006-01/02/04 tienen implementación parcial; AC-006-03 está abierto hasta conectar el gate de plantillas aprobadas al sender. No hay uso de cuenta Meta real ni mutaciones externas. Véase docs/71.

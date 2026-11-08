@@ -378,3 +378,15 @@ No se ejecutó Meta API real, no hay conexión/token disponible y no se validó 
 | Public IAM routes | No se añaden; IAM-007..020 siguen bloqueadas en docs/49 hasta contract freeze | Contract CI no se amplía | No habilitado por diseño |
 
 No se eleva US-002 a accepted: faltan CI del commit, IdP real, review independiente y aceptación del Product Owner. GO-PRODUCTION continúa NO-GO.
+
+
+## 12. Evidencia de implementación incremental — US-006
+
+| Criterio | Implementación | Prueba / evidencia | Estado |
+|---|---|---|---|
+| AC-006-01 — CRUD según permiso | MessageTemplateService, repositorio PostgreSQL, whatsapp.templates.*, contexto tenant y archive lógico. | Service unit + integración PostgreSQL RLS A/B. | Parcial; sin HTTP por WAM-001..005 catalog-only. |
+| AC-006-02 — category/locale/components/quality/Meta status | Dominio validador y columnas tipadas de status/quality en registry. | Parser specs; constraints DB. | Parcial; no sincroniza proveedor real. |
+| AC-006-03 — no enviar no aprobadas/incompatibles | No se añade sender ni llamada externa desde Templates Module. | Requiere test del gate compartido de sender. | Pendiente; no afirmar enforcement. |
+| AC-006-04 — historial inmutable/aprobación | template_revisions, trigger inmutable, snapshots versionados, actor/timestamp e idempotencia/audit. | Postgres integration spec: inmutabilidad, versión y audit chain. | Historial parcial; falta approval workflow y evento real. |
+
+Código en apps/api/src/whatsapp/templates/**; migración 0027 en microservices-meta-ecuapp. Source CI todavía pendiente; TASK-014/015 no verified/accepted.

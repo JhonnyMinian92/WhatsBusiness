@@ -764,3 +764,13 @@ La inspección encontró que las plantillas RBAC/ABAC eran declarativas y la pol
 Cobertura añadida: tenant-role-assignment.policy.spec.ts amplía request/revoke y anti-escalation; tenant-role-assignment.integration.spec.ts prueba PostgreSQL para assign/revoke, plantilla exacta, aprobación step-up, retry seguro, protección del último owner, rollback y auditoría por denegación.
 
 Restricciones conservadas: no se añaden controllers ni rutas públicas; IAM-007..020 siguen catalog-only según docs/49. No se inventan valores ACR/AMR. No se habilita acceso a credenciales, spend ni export sin aprobación. TASK-004/005 continúan in_progress hasta CI, review independiente y Product Owner acceptance. GO-PRODUCTION NO-GO.
+
+
+## US-006 — administración de plantillas WhatsApp (corte 2026-11-08)
+
+| Tarea | Estado | Implementación comprobable | Bloqueos / siguiente entregable |
+|---|---|---|---|
+| TASK-014 | in_progress | Servicio interno list/get/createDraft/updateDraft/archiveDraft; permisos; persistencia RLS tenant-scoped; idempotencia; audit y optimistic concurrency. | WAM-001..005 catalog-only; contract freeze/controller, TASK-008 Meta connection/provider, TASK-010 capability runtime, CRUD remoto/reconciliación y CI. |
+| TASK-015 | in_progress | Metadata tipada status/quality, validación de variables/componentes/botones, preview local y revisiones append-only. | WAM-006/007 catalog-only; sync de status/calidad, flujo de aprobación, sender policy enforcement y CI. |
+
+AC-006-01 parcial, AC-006-02 parcial, AC-006-03 pendiente y AC-006-04 parcial. No declarar verified/accepted por contar solo código. La trazabilidad técnica y los paths están en docs/71.

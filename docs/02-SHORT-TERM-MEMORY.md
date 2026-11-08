@@ -566,3 +566,15 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Pruebas nuevas: policy spec amplía request/revoke y una integración PostgreSQL cubre asignación, permisos exactos, revocación, reintento idempotente, protección del último propietario, step-up sintético y cadena de auditoría.
 - Estado al crear este handoff: código preparado en environment/local; Source CI completo pendiente. No elevar TASK-004/005 a verified/accepted hasta leer CI, realizar review independiente y obtener aceptación del propietario.
 - Límites abiertos: valores ACR/AMR del IdP real no verificados (fail-closed); contratos/endpoints IAM siguen cerrados; sin anclaje externo del ledger ni consumer de outbox de negocio; revisión independiente y aceptación pendientes. GO-PRODUCTION continúa NO-GO.
+
+
+## Handoff — US-006: núcleo de plantillas (2026-11-08)
+
+- Se añade bounded context interno apps/api/src/whatsapp/templates con parser/preview, service, idempotency support, PostgreSQL repository y módulo NestJS.
+- Migración 0027 en microservices-meta-ecuapp crea plantillas, revisiones append-only e idempotencia; RLS FORCE y triggers validan actor/tenant.
+- El rol de aplicación no puede alterar metadata de proveedor, ni modificar/eliminar revisiones. Permisos whatsapp.templates.read/create/update/delete declarados, sin grants automáticos.
+- El service reutiliza TenantAccessContext, DatabaseService.withTenantContextAtVersion y AppendOnlyAuditRepository; no crea pools ni invoca HTTP Meta.
+- WAM-001..007 continúan catalog-only según docs/49; sin controller ni operaciones remotas hasta TASK-008/TASK-010 runtime y contract freeze.
+- AC-006-01/02/04 parciales; AC-006-03 pendiente de gate compartido en sender para estado APPROVED y compatibilidad/capability.
+- Unit specs de dominio/servicio e integración PostgreSQL A/B añadidas a api:test; Source CI añade RUN_WHATSAPP_TEMPLATE_INTEGRATION_TESTS=true. Resultado CI de este commit aún pendiente.
+- TASK-014/015 continúan in_progress; no se ha utilizado WABA real ni se ha obtenido Product Owner acceptance. Ver docs/71.

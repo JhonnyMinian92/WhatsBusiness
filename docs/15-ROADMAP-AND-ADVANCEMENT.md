@@ -303,3 +303,12 @@ Se añadió el primer núcleo de Meta Control Plane:
 - Source CI con migraciones, build, typecheck, policy tests e integración PostgreSQL está pendiente al corte de este documento. No declarar verified hasta obtener resultado SUCCESS.
 - Step-up real permanece bloqueado por ausencia de IdP verificado y allowlist ACR/AMR. IAM-007..020 siguen catalog-only: no se crearon rutas ni se alteró Contract CI. Review independiente y Product Owner acceptance permanecen pendientes.
 - GO-PRODUCTION NO-GO; no calcular porcentaje global a partir de esta historia aislada.
+
+
+## US-006 — primer slice de templates management (2026-11-08)
+
+Se incorporó el bounded context interno de plantillas: validación de estructura, placeholders y botones; preview local; repositorio PostgreSQL; RLS multi-tenant; historial append-only; idempotencia; versiones optimistas; auditoría y permisos. La migración 0027 y las pruebas unitarias/integ se conectan al pipeline.
+
+El alcance es interno: no se añadieron WAM controllers porque WAM-001..007 siguen catalog-only, sin contract freeze por operación ni adapter Meta con conexión/capability runtime. No hay prueba con WABA real ni mutación externa.
+
+Estado propuesto: TASK-014/015 in_progress; AC-006-01/02/04 parciales; AC-006-03 pendiente de integrar y probar un gate de plantillas aprobadas en el sender. Source CI de este cambio pendiente. Aceptación final requiere CI verde, review independiente y evidencia del Product Owner; detalle en docs/71.

@@ -195,3 +195,8 @@ El estado de validación, las propuestas de eventos pendientes y el GO/NO-GO arq
 
 ## Especificación de Meta Assets y Capability Registry
 70. [Meta Asset Registry y Capability Engine](70-META-ASSET-AND-CAPABILITY-REGISTRY.md) — modelo namespaced WAAC/PMA/legacy WABA, reconciliación de inventario, evaluación explicable de permisos y gates pendientes de integración.
+
+
+## 71 — WhatsApp Template Lifecycle
+
+[71 — Administración del ciclo de vida de plantillas WhatsApp](71-WHATSAPP-TEMPLATE-LIFECYCLE.md) documenta US-006, TASK-014/015, implementación interna tenant-scoped, validación, preview, revisiones, RLS, idempotencia, pruebas y bloqueos reales.

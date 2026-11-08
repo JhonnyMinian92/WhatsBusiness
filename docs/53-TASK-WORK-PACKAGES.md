@@ -194,3 +194,13 @@ TASK-046 y TASK-064 nombran “frontend foundation” sin ID ni entregable acept
 - El flujo de asignación/revocación requiere approval roles.assign con step-up OIDC reciente, firmado y configurado por allowlist; el valor ACR/AMR de prueba es sintético y no se habilita en producción.
 - La integración PostgreSQL prueba aprobador distinto, consumo único, persistencia de rol, revocación y protección del último owner, además de auditoría append-only.
 - Persisten gates: IdP y allowlist real, consumer/outbox de acciones de negocio, anclaje externo del hash-chain, revisión independiente y Product Owner acceptance. TASK-005 continúa in_progress y GO-PRODUCTION permanece NO-GO.
+
+
+### Handoff US-006 — TASK-014/015 (2026-11-08)
+
+- Bounded context: apps/api/src/whatsapp/templates/{domain,application,infrastructure} y whatsapp-templates.module.ts.
+- Migración 0027: RLS FORCE, actor/tenant triggers, provider fields inmutables para app role, revisions append-only y one-time idempotency completion.
+- AppModule registra el módulo interno y PermissionCatalog declara cuatro permission keys; no crea role grants automáticos ni controllers WAM.
+- Tests de dominio y servicio; integración PostgreSQL para tenant A/B, stale version, idempotency, revision immutability, archive y audit.
+- api:test y Source CI incluyen el integration spec, activado con RUN_WHATSAPP_TEMPLATE_INTEGRATION_TESTS=true.
+- Estado: implemented slice / verification pending; TASK-014/015 in_progress. WAM-001..007 requieren contract freeze; no hay Meta reads/writes ni status sync sin TASK-008/010 runtime evidence.
