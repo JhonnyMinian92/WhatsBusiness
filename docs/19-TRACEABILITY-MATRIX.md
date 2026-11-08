@@ -449,3 +449,19 @@ No se cierra AC-014-03: replay webhooks permanece sujeto a CR-0016, handler/prod
 | AC-013-03 — match quality + resultado | `conversion-measurement-report.ts`: provider-only observation; delivery/dedupe/attribution axes distinct | `conversion-measurement-report.spec.ts`: unavailable and explicit provider observation cases | Parcial: no provider response, reporting UI or approved attribution window |
 
 Tests añadidos a `api:test`; Source CI debe registrarse desde el run resultante antes de reclamar CI verification. CAPI-001..004 permanecen catalog-only. Ver docs/72.
+
+
+## 12. Evidencia incremental — composition root US-014 (2026-11-08)
+
+| TEST ID | Criterio / riesgo | Implementación y regresión | Estado |
+|---|---|---|---|
+| TEST-WEBHOOK-017 | AC-014-03/DoD TASK-028 — no iniciar sin handler real | `meta-webhook-worker.runtime.spec.ts`: `requires real handlers before creating database or broker resources` | Implementado; CI pendiente |
+| TEST-WEBHOOK-018 | Integridad del registry — no admitir handler duplicado | `meta-webhook-worker.runtime.spec.ts`: `rejects duplicate event handlers before allocating infrastructure` | Implementado; CI pendiente |
+| TEST-WEBHOOK-019 | Configuración del consumer coherente con Processor | `meta-webhook-worker.runtime.spec.ts`: `rejects a consumer name outside the processor contract before allocating infrastructure` | Implementado; CI pendiente |
+| TEST-WEBHOOK-020 | Seguridad de transporte en producción | `meta-webhook-worker.runtime.spec.ts`: `requires TLS database and AMQPS broker connections in production` | Implementado; CI pendiente |
+| TEST-WEBHOOK-021 | Arranque/stop seguro y protección de clave eager | `meta-webhook-worker.runtime.spec.ts`: `validates encryption before pool creation and drains the worker before shutdown` | Implementado; CI pendiente |
+| TEST-WEBHOOK-022 | No filtrar pools al fallar validación de opciones | `meta-webhook-worker.runtime.spec.ts`: `closes the dedicated pool when bootstrap validation fails after pool creation` | Implementado; CI pendiente |
+
+El runtime factory recibe `handlers`, `reporter`, `poolFactory`, `protectorFactory` y `supervisorFactory`; el dominio permanece desacoplado de implementaciones de infraestructura. `MetaWebhookWorkerRuntime.run(AbortSignal)` delega cancelación y drenado al supervisor; el worker posee el pool dedicado `DATABASE_WEBHOOK_WORKER_URL`. Se exporta desde `microservices-meta-ecuapp/src/index.ts` y la suite se ejecuta desde el target Nx del paquete.
+
+Commits de runtime: `b2fae18c07b1ede450a7ee8248df1ceceb3c0fd2`, `65e173921ff83461a22bce86198305b21816b252`, `7daebb92507e51a3f2e6316bee592fa2e4edb583`, `7d6e33c10ceb19a4f4f68af3fb932c8783f1ed5b`, `12cabafa446e1b1408e42a219e0f5638838dbba2` y `d6d1e015d01b9810f7b92a047f5a5ed51ab097bf`. No cerrar el criterio global: faltan handlers reales, ejecución CI del último código, replay gobernado por CR-0016 y operación/despliegue real.
