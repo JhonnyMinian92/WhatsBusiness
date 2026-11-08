@@ -91,3 +91,10 @@ Estas consultas son ejemplos de diagnóstico. No conceden lectura directa de cip
 
 Las variables de ejemplo están en `microservices-meta-ecuapp/.env.example`. En producción deben inyectarse desde Secret Manager, no desde valores versionados. Se necesita crear y validar registros de app/asset antes de activar callback; todos los assets habilitados requieren dueño tenant identificado y suscripción vigente.
 
+## 8. Hardening incremental y evidencia pendiente — 2026-11-08
+
+- Se añadió la migración `0018-meta-webhook-ingress-app-grants.sql`: el login `whatsbusiness_app` del API se crea con `NOINHERIT`; por tanto, la membresía de `whatsbusiness_webhook_ingress_role` por sí sola no habilita sus permisos. La migración concede al login únicamente las columnas de metadata y los INSERT necesarios para delivery/inbox/outbox. No concede lectura de ciphertext ni UPDATE/DELETE.
+- Source CI ahora provisiona el login independiente `whatsbusiness_webhook_worker`, con membresía heredable del rol NOLOGIN del worker, y habilita `RUN_META_WEBHOOK_INTEGRATION_TESTS=true`.
+- La nueva suite `postgres-meta-webhook.integration.spec.ts` recorre PostgreSQL → outbox → RabbitMQ quorum queue → consumer → handler registrado → transacción tenant-scoped → recibo idempotente. Incluye deduplicación y rechazo de finalización bajo tenant incorrecto.
+- Código publicado en `environment/local`; Source CI [#42444781572](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42444781572) estaba en ejecución al actualizar este documento. No declarar la suite verificada hasta que termine SUCCESS en el HEAD exacto.
+- TASK-027/028 siguen `in_progress`: esta integración sintética no reemplaza handlers reales por producto, fixtures oficiales/versionados ni pruebas con callbacks de cuentas Meta elegibles. Replay continúa deshabilitado hasta CR-0016, políticas de retención/privacidad aprobadas y efectos externos idempotentes demostrados.
