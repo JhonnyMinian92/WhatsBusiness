@@ -780,3 +780,17 @@ La ejecución de CI anterior pasó build/typecheck y 355/356 API tests; el fallo
 | ID | Hallazgo | Corrección |
 |---|---|---|
 | AUD-216 | Build API reportó TS7053 al indexar la configuración nativa inferida como \`Readonly<{}>\` | Tipo \`Readonly<Record<string, unknown>>\` explícito y prueba de snapshot vacío por defecto. Verificar build en el siguiente HEAD. |
+
+
+## 56. Evidencia de validación US-030 y bloqueos del workspace compartido (2026-11-08)
+
+| Alcance | Run / commit | Resultado | Interpretación |
+|---|---|---|---|
+| Suites Creative Lab | Source \`42532889134\`, commit \`1dc4545e844c0b7ccdcb2dc808da905b5253fa08\` | 26/26 pruebas específicas aprobadas | Variant lineage/review, duplicate similarity, experiment cells, fatigue, native configuration y capability/preview adapter. |
+| Build, typecheck y migración | Source \`42532889134\`, mismo commit | Build, typecheck, migration apply e idempotency aprobados | El slice de US-030 compila y la migración 0031 se puede repetir sin error en ese commit. |
+| Análisis de seguridad | CodeQL \`42532889226\`, mismo commit | Aprobado | No se registran hallazgos de CodeQL para ese commit. |
+| Platform Administration baseline | Source \`42531885574\`, commit previo \`d6251d567a003b196744b93f2e7ee70f0ae690ef\` | Falla preexistente | La integración de Platform Administration recibe RLS violation al insertar platform.usage_ledger. El fallo precede a US-030; no se reduce RLS desde esta historia. |
+| HEAD compartido posterior | Source \`42533056750\`, commit \`e48b229388391b5c741711c18baac397f06ea59d\` | Build fallido | 63 errores TypeScript en tres archivos \`apps/api/src/platform/developer/\`, añadidos por el trabajo paralelo de Developer Platform; fuera del alcance US-030. |
+| Seguridad de HEAD compartido | CodeQL \`42533056607\`, mismo HEAD | Aprobado | CodeQL pasó, pero no sustituye el build ni hace verde el Source workflow. |
+
+**Decisión:** TASK-069, TASK-070, TASK-073 y TASK-079 permanecen \`in_progress\`. Los tests de dominio pasan, pero faltan providers autoritativos de derechos/consentimiento/marca/claims, ingestión TASK-072, asignación server-side de audiencias disjuntas, adapter oficial Meta con capabilities por cuenta/versión/placement, contract tests, review independiente y Product Owner acceptance. No se habilitan endpoints públicos, publicación ni gasto.

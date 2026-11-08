@@ -79,7 +79,13 @@ Cinco suites de dominio y una suite de adapter quedaron agregadas al target api:
 - creative-native-configuration.spec.ts: safe native spec, secret rejection.
 - creative-provider.adapter.spec.ts: unknown capability no transport calls, feature allowlist y Performance Recommendations gate.
 
-**Resultado de ejecución:** pendiente. No se han ejecutado localmente ni se reporta PASS hasta validar Source CI del commit exacto, migraciones idempotentes y PostgreSQL/RLS. La indisponibilidad de red local impidió clonar el repo para ejecución manual.
+**Evidencia de validación automatizada (2026-11-08):**
+- En el commit de US-030 \`1dc4545e844c0b7ccdcb2dc808da905b5253fa08\`, Source workspace validation run \`42532889134\`: las seis suites nuevas registraron **26/26 pruebas específicas Creative Lab aprobadas** (variant/provenance, similarity, experiment cells, fatigue, native creative configuration y provider preview/recommendations).
+- En ese mismo run pasaron build de todas las aplicaciones, typecheck, aplicación de migraciones e idempotencia de migraciones PostgreSQL. CodeQL del mismo commit pasó en run \`42532889226\`.
+- El workflow completo **no quedó verde**: el agregador falló por una prueba existente de Platform Administration, que intenta insertar en \`platform.usage_ledger\` y es rechazada por RLS. El mismo fallo ya aparece en el run pre-US-030 \`42531885574\`, commit base \`d6251d567a003b196744b93f2e7ee70f0ae690ef\`. No se debilita RLS desde US-030 para ocultar esa regresión.
+- El HEAD compartido posterior \`e48b229388391b5c741711c18baac397f06ea59d\` incorporó en paralelo Developer Platform. Su Source run \`42533056750\` falla en build con 63 errores TypeScript en tres archivos de \`apps/api/src/platform/developer/\`; CodeQL de ese HEAD pasó (\`42533056607\`). Es un bloqueo ajeno a los archivos US-030 y debe resolverse por la historia propietaria antes de tener Source CI verde en HEAD.
+
+No se afirma que el workflow global esté verde ni que los providers externos estén integrados. La ejecución local no fue posible por la indisponibilidad de red del entorno; las pruebas se contrastan con el log de CI.
 
 ## 8. Gates necesarios para cierre
 
