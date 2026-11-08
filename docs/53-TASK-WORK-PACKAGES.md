@@ -335,3 +335,15 @@ Las policies son código de dominio y no habilitan endpoints congelados. Source 
 - Suite API general: 356 casos; 352 pass, 4 fail ajenos a Inbox: tres pruebas de CRM con expectativa de `OidcAuthGuard` distinta al guard declarado en el controller y una integración de Platform Administration sin correlation ID requerido.
 - Source CI: [42531505463](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42531505463); CodeQL: [42531505359](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42531505359).
 - **TASK-047/US-021 continúa in_progress** por contract freeze/G0, almacenamiento durable/RLS, CAS/outbox, workers, API habilitada, UI/E2E y aceptación/revisión independiente.
+
+
+## TASK-058 — US-025 Partner Access: handoff técnico (2026-11-08)
+
+- **Implementado:** PartnerTenantGrantPolicy bajo apps/api/src/platform/identity/partners; provider/export en IdentityModule; 22 tests registrados en api:test.
+- **Dominio:** tenant customer/active; partner agency/reseller/provider active; sujeto active con membership activa en tenant de partner; owner y approver tenant owners distintos; snapshot de roles versionados no owner/admin/support; permisos de catálogo y action/asset exactos; purpose/expiry; scope reduction monotónica; revoke idempotente.
+- **Modelo:** platform.memberships relaciona user↔tenant. La organización partner se deriva de tenant activo propio y membership activa. No convertir esto en membership al tenant cliente.
+- **Pendiente:** persistencia/constraints/FKs de partner grants; contexto delegado explícito en IdentityService/TenantContextGuard; predicate RLS limitado al grant vigente y activo; use cases/repository; ApprovalWorkflowService.consumeAndStage; audit/outbox transaccional; eventos revoke/membership y consumer; invalidación jobs/sessions/cache; E2E PostgreSQL, BOLA/IDOR y carreras revoke-vs-worker.
+- **Separación:** support JIT de TASK-052 es interno y no autoriza can_use_tenant; mantener separado de partner grants.
+- **API gate:** PAR-001..007 continúan catalog-only (x-implementation-allowed=false) hasta API contract freeze + G0. No añadir controllers ni editar contratos públicos antes del gate.
+- **CI:** primera Source CI falló por fixture partner y cuatro expectativas/validadores del baseline; fixture corregido y branch base ya contiene fixes CRM/administración. Ejecutar Source CI/CodeQL del SHA final. No marcar PASS aún.
+- **Estado:** in_progress; falta revisión independiente, Product Owner acceptance y GO-PRODUCTION. Ver docs/77.

@@ -718,3 +718,19 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Tests registrados en \`api:test\`: domain policies + PostgreSQL integration con usuarios synthetic. El CI anterior falló en migration 0030 por delimiter de función SQL; fix aplicado. Inspeccionar Source CI del HEAD actual antes de llamar PASS. CodeQL también debe corresponder al HEAD verificado.
 - Sigue pendiente TASK-041/G0, contract freeze IAM/BILL/PAR, publisher/outbox TASK-028, productores y conciliación reales, uso de autorización JIT en handlers por recurso, revisión independiente y Product Owner acceptance.
 - Detalle y estado AC-024-01..04: \`docs/76-US-024-TASK-052-PLATFORM-ADMINISTRATION.md\`. GO-PRODUCTION NO-GO.
+
+
+## Handoff US-025 / TASK-058 — grants delegados para partners (2026-11-08)
+
+- Rama: feature/us-025-partner-access-final-ci, basada en environment/local HEAD e9fa00eaa3a1b8d6c658540f70411a692ed1c09d.
+- Policy pura: apps/api/src/platform/identity/partners/partner-tenant-grant.policy.ts; registrada/exportada en IdentityModule.
+- Operaciones de dominio: evaluateCreation, evaluateAccess, evaluateScopeReduction y revoke. Reutiliza PermissionKey, isPermissionKey, findTenantRole y ApprovalEvidence.
+- El grant delimita tenant cliente, partner, subject, roles versionados, acción/activo exactos, purpose, vigencia, creador y aprobador independiente.
+- Roles tenant_owner, tenant_admin y support_jit excluidos; acciones meta/ads/whatsapp requieren activo concreto, sin wildcard. Evaluación fail-closed, reducción monotónica y revocación idempotente.
+- 22 casos unitarios registrados en api:test. Primer Source CI encontró un fixture partner defectuoso; corregido. También halló tres expectativas CRM desalineadas y un UUID regex de TASK-052 defectuoso; los cambios concurrentes de environment/local ya integran las correcciones de baseline.
+- CodeQL pasó para SHA 04c56a0b9220e601383df1574529b48baa34be70. Source CI de ese SHA falló; el SHA final del PR necesita Source CI/CodeQL propios antes de marcar PASS.
+- platform.memberships enlaza user↔tenant, no user↔organization. La membership del actor partner se deriva de un tenant activo de su organización; nunca crear membership sintética en tenant cliente.
+- IdentityService/TenantContextGuard y DatabaseService.can_use_tenant siguen resolviendo membership directa. Esta policy no concede aún acceso partner runtime; faltan contexto delegado y predicate RLS estrecho.
+- TASK-052 support JIT es interno; platform.support_grants no satisface can_use_tenant ni se reutiliza para agencies.
+- PAR-001..007 siguen catalog-only y x-implementation-allowed=false hasta API contract freeze + G0. No hay controllers, persistencia partner, outbox/consumer ni invalidadores runtime en este slice.
+- US-025/TASK-058 continúan in_progress. Falta persistencia/RLS/partner context, approval consumeAndStage, audit/outbox atómicos, revocación durable, pruebas PostgreSQL/BOLA/concurrencia, contract freeze/G0, revisión independiente y aceptación PO.

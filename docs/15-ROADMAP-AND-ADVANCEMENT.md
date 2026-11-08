@@ -441,3 +441,13 @@ Se añadió un slice puro bajo `apps/api/src/inbox/domain`:
 - La suite API general tiene 4 fallos ajenos a Inbox (tres expectations de guards CRM y un fixture de Platform Administration sin correlation ID); el workflow completo mantiene FAILURE por ese gate, no por Inbox.
 - No cerrar la historia: operaciones INB-006..014/018 siguen contract-only hasta API-CONTRACT-FREEZE+G0. Persistencia/RLS, CAS/outbox, workers de presencia/expiry, controllers, integración TASK-045, UI/E2E, revisión independiente y Product Owner acceptance siguen pendientes.
 - Evidencia, run IDs y causas: [docs/75-US-021-INBOX-COLLABORATION-DOMAIN-SLICE.md](75-US-021-INBOX-COLLABORATION-DOMAIN-SLICE.md).
+
+
+## US-025 / TASK-058 — acceso delegado de partners (2026-11-08)
+
+- Policy pura implementada en apps/api/src/platform/identity/partners; registrada/exportada por IdentityModule y con 22 casos en api:test.
+- Controla alta, evaluación por tenant/partner/subject/action/asset/purpose, vigencia, rol/versionado, reducción de privilegios y revocación.
+- platform.memberships enlaza user↔tenant, por lo que la pertenencia a partner debe resolverse mediante membership activa en tenant de su organización.
+- No se relaja RLS can_use_tenant y no se usa support_grants de TASK-052 como grant partner. PAR-001..007 permanecen catalog-only/G0.
+- Primera Source CI reportó fixture partner defectuoso y cuatro fallos del baseline; fixture corregido y branch base actual contiene fixes CRM/administración. Source CI/CodeQL del SHA final aún pendientes.
+- Persistencia, partner context/RLS, approval transaction, audit/outbox, workers/invalidación, pruebas PostgreSQL/BOLA, contract freeze, revisión independiente y aceptación PO pendientes. US-025/TASK-058 no está cerrada. Ver docs/77. GO-PRODUCTION NO-GO.

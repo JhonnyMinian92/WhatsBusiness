@@ -971,3 +971,10 @@ La tabla kickoff de TASK-034..041 se conserva como registro histórico. Esta fil
 **Migración:** apps/api/migrations/0031-ads-creative-lab.sql.  
 **Evidencia de pruebas incorporada al target api:test:** cinco suites unitarias de dominio y una suite del adapter. Resultado de Source CI, migraciones PostgreSQL/RLS y CodeQL debe anotarse con el commit exacto antes de marcar cualquier tarea verified.  
 **Bloqueos transversales:** TASK-024/025/056, TASK-067/072, API contract freeze, Meta credentials/capability runtime, derechos/brand review, integración oficial, review independiente y Product Owner acceptance. GO-PRODUCTION permanece NO-GO.
+
+
+## Ejecución US-025 / TASK-058 — actualización 2026-11-08
+
+Se incorporó una policy de dominio reutilizable para grants agency/reseller/provider hacia tenant cliente en apps/api/src/platform/identity/partners/partner-tenant-grant.policy.ts. Quedó registrada/exportada por IdentityModule y su spec de 22 casos se añadió al target api:test. Detalle y criterios: docs/77-US-025-PARTNER-ACCESS-FOUNDATION.md.
+
+**Estado: in_progress.** El slice aún no es acceso productivo de partner: faltan almacenamiento y transacciones de grants, context partner explícito, predicate SQL/RLS de alcance exacto, use cases/repository, consumo durable de aprobación, audit/outbox, invalidación de sesiones/cache/jobs y pruebas PostgreSQL/BOLA/concurrencia. No se relaja can_use_tenant, no se inventa membership cliente y no se mezcla con el soporte JIT interno de TASK-052. PAR-001..007 siguen catalog-only hasta API contract freeze + G0.
