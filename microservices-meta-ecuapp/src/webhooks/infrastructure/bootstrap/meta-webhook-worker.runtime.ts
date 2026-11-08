@@ -1,4 +1,5 @@
 import { Pool, type PoolConfig } from "pg";
+import { MetaWebhookEventHandlerRegistry } from "../../application/meta-webhook-handler.registry.js";
 import type {
   MetaWebhookEventHandler,
   MetaWebhookPayloadProtector,
@@ -51,6 +52,8 @@ export class MetaWebhookWorkerRuntime {
     if (options.handlers.length === 0) {
       throw new Error("Meta webhook runtime requires at least one real business handler.");
     }
+    // Validate event types and duplicate registrations before allocating pools.
+    new MetaWebhookEventHandlerRegistry(options.handlers);
 
     const environment = options.environment ?? process.env;
     const databaseUrl = requiredEnvironment(environment, "DATABASE_WEBHOOK_WORKER_URL");
@@ -69,6 +72,11 @@ export class MetaWebhookWorkerRuntime {
 
     const protector = (options.protectorFactory ?? (() => new EnvironmentMetaWebhookPayloadProtector()))();
     protector.validateConfiguration();
+
+    const consumerName = environment["META_WEBHOOK_CONSUMER_NAME"]?.trim() || "meta-webhook-inbox";
+    if (!/^[a-z][a-z0-9.-]{1,95}$/.test(consumerName)) {
+      throw new Error("META_WEBHOOK_CONSUMER_NAME contains invalid characters or length.");
+    }
 
     const poolMaximum = boundedInteger(environment, "DATABASE_POOL_MAX", 10, 1, 50);
     const databaseSsl = production || sslSetting === "true";
@@ -90,7 +98,7 @@ export class MetaWebhookWorkerRuntime {
         database,
         rabbitMqUrl,
         connectionName: safeName(environment["META_WEBHOOK_CONNECTION_NAME"], "whatsbusiness-meta-webhook-worker", "META_WEBHOOK_CONNECTION_NAME"),
-        consumerName: safeName(environment["META_WEBHOOK_CONSUMER_NAME"], "meta-webhook-inbox", "META_WEBHOOK_CONSUMER_NAME"),
+        consumerName,
         protector,
         handlers: options.handlers,
         reporter: options.reporter,
