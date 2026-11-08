@@ -50,7 +50,7 @@ export class PostgresTenantJobRecordWriter implements TenantJobRecordWriter {
         "INSERT INTO platform.tenant_job_records",
         "(tenant_id, actor_user_id, purpose, correlation_id, job_type, idempotency_key, payload, request_sha256, max_attempts, available_at)",
         "VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8, $9, $10)",
-        "ON CONFLICT (tenant_id, actor_user_id, job_type, idempotency_key) DO NOTHING",
+        "ON CONFLICT DO NOTHING",
         "RETURNING id::text",
       ].join(" "),
       [
