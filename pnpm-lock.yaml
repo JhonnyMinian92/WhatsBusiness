@@ -73,7 +73,11 @@ importers:
         specifier: 6.0.3
         version: 6.0.3
 
-  apps/api: {}
+  apps/api:
+    dependencies:
+      '@whatsbusiness/microservices-meta-ecuapp':
+        specifier: workspace:*
+        version: link:../../microservices-meta-ecuapp
 
   microservices-meta-ecuapp:
     dependencies:
