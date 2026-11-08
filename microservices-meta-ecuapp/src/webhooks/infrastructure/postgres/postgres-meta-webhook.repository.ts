@@ -141,7 +141,7 @@ export class PostgresMetaWebhookRepository implements MetaWebhookEventRepository
     const row = result.rows[0];
     if (!row) return null;
     return Object.freeze({
-      eventId: row.event_id, appId: row.app_id, tenantId: row.tenant_id, idempotencyKey: row.idempotency_key,
+      eventId: row.event_id, appId: row.app_id, tenantId: row.tenant_id, idempotencyKey: row.idempotency_key.trim(),
       product: row.provider_product, assetId: row.asset_id, eventType: row.event_type, occurredAt: row.occurred_at instanceof Date
         ? new Date(row.occurred_at.getTime())
         : new Date(row.occurred_at),

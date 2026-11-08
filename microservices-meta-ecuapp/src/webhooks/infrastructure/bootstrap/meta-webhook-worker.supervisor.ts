@@ -63,6 +63,7 @@ export class MetaWebhookWorkerSupervisor {
       try {
         const openedChannels = await this.connections.open(this.options.rabbitMqUrl, this.options.connectionName);
         channels = openedChannels;
+        const connectionEnded = waitForConnectionEnd(openedChannels, signal);
         process = await MetaWebhookWorkerProcess.create({
           database: this.options.database,
           channels: openedChannels,
@@ -76,7 +77,7 @@ export class MetaWebhookWorkerSupervisor {
           batchSize: this.options.batchSize,
         });
         await process.start();
-        await waitForConnectionEnd(openedChannels, signal);
+        await connectionEnded;
         if (Date.now() - sessionStartedAt >= (this.options.reconnectStableSessionMs ?? 30_000)) {
           consecutiveFailures = 0;
         } else {

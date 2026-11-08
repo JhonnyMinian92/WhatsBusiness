@@ -27,3 +27,22 @@ test("rejects product mismatch and unbounded entry arrays", () => {
     object: "whatsapp_business_account", entry: [],
   }));
 });
+
+test("does not collapse distinct WhatsApp delivery status transitions into one idempotency key", () => {
+  const base = {
+    object: "whatsapp_business_account",
+    entry: [{
+      id: "waba-1",
+      time: 1_800_000_000,
+      changes: [{ field: "messages", value: { statuses: [
+        { id: "wamid.same", status: "sent", timestamp: "1800000000", recipient_id: "555" },
+        { id: "wamid.same", status: "delivered", timestamp: "1800000001", recipient_id: "555" },
+        { id: "wamid.same", status: "delivered", timestamp: "1800000001", recipient_id: "555" },
+      ] } }],
+    }],
+  };
+  const events = decodeMetaWebhookPayload("whatsapp", base, new Date("2026-01-01T00:00:00.000Z"));
+  assert.equal(events.length, 3);
+  assert.notEqual(events[0]?.idempotencyKey, events[1]?.idempotencyKey);
+  assert.equal(events[1]?.idempotencyKey, events[2]?.idempotencyKey);
+});

@@ -114,7 +114,7 @@ function createEvent(
   if (!isRecord(rawPayload)) throw new Error("META_WEBHOOK_EVENT_INVALID");
   const providerEventId = extractProviderEventId(rawPayload);
   const occurredAt = extractOccurredAt(rawPayload, entryTime, now);
-  const basis = providerEventId === null ? canonicalJson(rawPayload) : providerEventId;
+  const basis = idempotencyBasis(eventType, providerEventId, rawPayload, occurredAt);
   const idempotencyKey = createHash("sha256")
     .update(product + "\n" + assetId + "\n" + eventType + "\n" + basis, "utf8")
     .digest("hex");
@@ -127,6 +127,23 @@ function createEvent(
     payload: Object.freeze({ ...rawPayload }),
     idempotencyKey,
   });
+}
+
+
+function idempotencyBasis(
+  eventType: string,
+  providerEventId: string | null,
+  payload: Readonly<Record<string, unknown>>,
+  occurredAt: string,
+): string {
+  if (providerEventId === null) return canonicalJson(payload);
+  if (eventType.endsWith(".message")) return "message:" + providerEventId;
+  if (eventType.endsWith(".status")) {
+    const status = typeof payload["status"] === "string" ? payload["status"] : "unknown";
+    return "status:" + providerEventId + ":" + status + ":" + occurredAt;
+  }
+  if (eventType === "leadgen") return "lead:" + providerEventId;
+  return canonicalJson(payload);
 }
 
 function extractProviderEventId(payload: Readonly<Record<string, unknown>>): string | null {
