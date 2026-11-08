@@ -1,6 +1,7 @@
 import { ConflictException, ForbiddenException, Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
 import { createHash } from "node:crypto";
 import type { TenantAccessContext } from "../../../platform/identity/tenant-access-context.js";
+import type { PermissionKey } from "../../../platform/identity/authorization/permission-catalog.js";
 import { AppendOnlyAuditRepository } from "../../../platform/identity/audit/append-only-audit.repository.js";
 import { DatabaseService } from "../../../platform/database/database.module.js";
 import {
@@ -143,7 +144,7 @@ export class ContactService {
     );
   }
 
-  private assertPermission(subject: TenantAccessContext, permission: string): void {
+  private assertPermission(subject: TenantAccessContext, permission: PermissionKey): void {
     if (!subject.permissionKeys.includes(permission)) {
       throw new ForbiddenException({ code: "CRM_CONTACT_PERMISSION_REQUIRED", detail: "No tienes permiso para esta operación CRM." });
     }
