@@ -27,7 +27,7 @@
 | `apps/api/src/ads/campaigns/domain/campaign-lifecycle.ts` | Máquina de estados cerrada. No permite saltar validación, aprobación ni staging de submit; un resultado externo desconocido solo avanza mediante reconciliación. |
 | `apps/api/src/ads/campaigns/domain/campaign-validation.ts` | Preflight fail-closed de objetivo, versión API, vigencia de evidencia, cuenta, moneda, capability, targeting, billing y creative. |
 | `apps/api/src/ads/campaigns/domain/ads-execution-guard.ts` | Policy central para escrituras externas: actor, asset grant, capability vigente, aprobación exacta y quorum independiente; kill switch bloquea publicación/aumento y conserva la posibilidad de pausar. |
-| `apps/api/src/ads/campaigns/domain/*.spec.ts` | 26 pruebas unitarias focalizadas sobre dinero, límites, bypass acumulativo, cambios de estado, evidencia expirada y autorización. |
+| `apps/api/src/ads/campaigns/domain/*.spec.ts` | 28 pruebas unitarias focalizadas sobre dinero, límites, bypass acumulativo, cambios de estado, evidencia expirada y autorización. |
 | `apps/api/project.json` | Incorpora las cinco suites nuevas al target oficial `api:test`. |
 
 ## 3. Invariantes de seguridad y dinero
@@ -68,7 +68,7 @@ Queda pendiente para completar TASK-024/TASK-025:
 
 ## 6. Refinamientos de exactitud monetaria (2026-11-08)
 
-- El parser aplica la precisión fraccionaria ISO 4217 por moneda mediante Intl.NumberFormat: USD admite 2 decimales, JPY 0 y KWD 3. El motor conserva aritmética BigInt exacta; comparadores y operaciones vuelven a validar sus operandos.
+- El parser admite importes no negativos para conciliación y aplica la precisión fraccionaria ISO 4217 por moneda mediante Intl.NumberFormat: USD admite 2 decimales, JPY 0 y KWD 3. El motor conserva aritmética BigInt exacta; comparadores y operaciones vuelven a validar sus operandos. El preflight exige presupuesto de campaña estrictamente positivo y el guardrail rechaza cero como sustituto de una pausa.
 - Se añadieron regresiones para precisión de USD/JPY/KWD y límites inclusivos en la unidad fraccionaria mínima.
 - Los cambios de reducción y las solicitudes sin variación se resuelven antes de comprobar el baseline de aumentos. Un baseline vencido no bloquea una reducción; cualquier incremento sigue exigiendo ventana de 24 horas válida y kill switch inactivo.
-- Las cinco suites contienen ahora 26 casos de dominio. La ejecución Source CI #645 está en curso; no declarar PASS hasta conocer build, typecheck y test.
+- Las cinco suites contienen ahora 28 casos de dominio. En Source CI #653 pasaron build y typecheck, pero las pruebas detectaron una aserción sobre presupuesto/moneda y otra sobre ownership Human Agent en Messenger. Ambas causas se corrigieron en commits posteriores; la ejecución completa del HEAD actualizado sigue pendiente.
