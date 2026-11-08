@@ -24,15 +24,17 @@ test("reads ready messages and consumer counts via a dedicated monitoring identi
       const url = new URL(input.toString());
       requests.push({ url, init });
       return jsonResponse(url.pathname.endsWith(encodeURIComponent(TENANT_JOB_RABBITMQ_TOPOLOGY.queue))
-        ? { messages_ready: 12, consumers: 3 }
-        : { messages_ready: 2, consumers: 0 });
+        ? { messages_ready: 12, messages_unacknowledged: 4, consumers: 3 }
+        : { messages_ready: 2, messages_unacknowledged: 1, consumers: 0 });
     },
   });
 
   assert.deepEqual(await reader.readSnapshot(), {
     workerQueueReadyMessages: 12,
+    workerQueueUnacknowledgedMessages: 4,
     workerQueueConsumers: 3,
     deadLetterQueueReadyMessages: 2,
+    deadLetterQueueUnacknowledgedMessages: 1,
     deadLetterQueueConsumers: 0,
   });
   assert.equal(requests.length, 2);
@@ -133,7 +135,7 @@ test("rejects management errors without leaking response bodies", async () => {
 test("rejects invalid broker counters", async () => {
   const reader = new RabbitMqManagementTenantJobQueueMetricsReader({
     ...credentials,
-    fetcher: async () => jsonResponse({ messages_ready: -1, consumers: Number.MAX_SAFE_INTEGER + 1 }),
+    fetcher: async () => jsonResponse({ messages_ready: -1, messages_unacknowledged: 0, consumers: Number.MAX_SAFE_INTEGER + 1 }),
   });
   await assert.rejects(reader.readSnapshot(), /invalid aggregate metric/);
 });
