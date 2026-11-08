@@ -756,3 +756,13 @@ El run Source Validation termina FAILURE únicamente por las cuatro aserciones e
 | AUD-218 | Migration 0031 con tablas tenant-scoped, FKs compuestas, RLS, snapshots y recommendations append-only. | SQL incorporado; replay/migración PostgreSQL y Source CI del HEAD pendiente. |
 
 Se añaden suites al target api:test. No se atribuye ejecución exitosa de pruebas, no se habilita API catalog-only y no se realiza gasto/publicación. TASK-069/070/073/079 siguen in_progress hasta Source CI, contract freeze, provider integrations, revisión independiente y aceptación.
+
+
+## 53. RLS contextual para usage ingestor y soporte JIT (2026-11-08)
+
+| ID | Hallazgo | Corrección |
+|---|---|---|
+| AUD-213 | \`platform.is_meterable_tenant\` consultaba tenants bajo FORCE RLS y el medidor sin membership no veía la fila | SELECT limitado a una sola fila cuyo ID coincide con \`app.tenant_id\`, condicionado al rol \`usage_ingestor\` |
+| AUD-214 | La validación de grant JIT debe inspeccionar lifecycle activo sin convertir soporte en miembro | SELECT contextual para \`support_jit\` solo sobre el tenant explícitamente enlazado. \`can_use_tenant()\` y RLS de recursos permanecen sin bypass. |
+
+La ejecución de CI anterior pasó build/typecheck y 355/356 API tests; el fallo restante fue precisamente el INSERT de \`usage_ledger\` bloqueado por esa visibilidad contextual. Se conserva no-verificado hasta que pase el test de integración completo en el nuevo HEAD.

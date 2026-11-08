@@ -93,3 +93,8 @@ La migración 0030 también siembra las cinco claves \`developer.*\` que ya cons
 
 
 El chequeo estático completo del PermissionCatalog frente a todas las migraciones históricas identificó además cuatro claves de plantillas WhatsApp consumidas por \`TENANT_ROLE_CATALOG\` que no estaban sembradas en SQL (\`whatsapp.templates.read/create/update/delete\`). Migration 0030 se encarga de provisionar esas cuatro claves además de las claves \`developer.*\` y \`billing.usage.read\`. Esto evita que el rol canónico del nuevo tenant falle al materializar permisos; la validación de integración PostgreSQL del nuevo HEAD deberá confirmarlo.
+
+
+## Addendum RLS de workers y soporte — 2026-11-08
+
+La segunda ejecución PostgreSQL mostró que la política de INSERT del ledger invocaba la función de tenant medible, pero RLS impedía leer la fila tenant cuando el actor era \`usage_ingestor\` (sin membership). Se agregaron dos políticas SELECT estrictamente contextuales: usage ingestor y soporte JIT pueden ver la fila metadata de un único tenant, solo cuando coincide con \`app.tenant_id\`. Ninguna política convierte esos roles en miembros ni permite leer entidades/contactos/conversaciones. El test PostgreSQL debe volver a confirmar ingestion, resumen y grants JIT.

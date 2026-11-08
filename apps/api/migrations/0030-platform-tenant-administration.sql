@@ -310,6 +310,19 @@ CREATE POLICY tenants_platform_admin_update ON platform.tenants FOR UPDATE
 USING(platform.is_platform_admin(NULLIF(current_setting('app.user_id',true),'')::uuid))
 WITH CHECK(platform.is_platform_admin(NULLIF(current_setting('app.user_id',true),'')::uuid));
 
+-- Metering workers and JIT support can inspect only the tenant row explicitly
+-- bound to the transaction context. This never grants membership or tenant data access.
+CREATE POLICY tenants_usage_ingestor_context_read ON platform.tenants FOR SELECT
+USING(
+  id=NULLIF(current_setting('app.tenant_id',true),'')::uuid
+  AND platform.is_usage_ingestor(NULLIF(current_setting('app.user_id',true),'')::uuid)
+);
+CREATE POLICY tenants_support_jit_context_read ON platform.tenants FOR SELECT
+USING(
+  id=NULLIF(current_setting('app.tenant_id',true),'')::uuid
+  AND platform.has_platform_role(NULLIF(current_setting('app.user_id',true),'')::uuid,'support_jit')
+);
+
 CREATE POLICY memberships_platform_admin_read ON platform.memberships FOR SELECT
 USING(platform.is_platform_admin(NULLIF(current_setting('app.user_id',true),'')::uuid));
 CREATE POLICY memberships_platform_admin_insert ON platform.memberships FOR INSERT
