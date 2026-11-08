@@ -473,7 +473,7 @@ function mapObservation(row: ObservationRow): CreativePerformanceObservation {
 
 function variantSnapshot(variant: CreativeVariantRecord): Readonly<Record<string, unknown>> {
   const { id, tenantId, status, version, createdBy, updatedBy, approvalRequestId, approvalTarget,
-    createdAt, updatedAt, ...definition } = variant;
+    approvalPreviousStatus, createdAt, updatedAt, ...definition } = variant;
   return Object.freeze({
     ...definition,
     id,
