@@ -58,19 +58,36 @@ export class RabbitMqTenantJobConsumerAdapter {
     try {
       const job = parseTenantJobMessage(message.content);
       await this.consumer.handle(job, this.leaseSeconds);
-      this.channel.ack(message, false);
     } catch (error) {
-      const code = classifyConsumerTransportError(error);
-      try {
-        this.reporter.report(code);
-      } catch {
-        // Telemetry is best-effort and must never prevent broker disposition.
-      }
-      try {
-        this.channel.nack(message, false, false);
-      } catch {
-        // A closed channel will be redelivered by RabbitMQ when its connection ends.
-      }
+      this.report(classifyConsumerTransportError(error));
+      this.rejectWithoutRequeue(message);
+      return;
+    }
+
+    try {
+      this.channel.ack(message, false);
+    } catch {
+      // The business transaction may already be committed. An ACK failure is
+      // ambiguous: never NACK here, because that could dead-letter a completed
+      // job. Closing the channel lets RabbitMQ redeliver if it did not persist
+      // the ACK; PostgreSQL's terminal state/inbox makes that delivery safe.
+      this.report("BROKER_ACK_FAILED");
+    }
+  }
+
+  private rejectWithoutRequeue(message: ConsumeMessage): void {
+    try {
+      this.channel.nack(message, false, false);
+    } catch {
+      // A closed channel will be redelivered by RabbitMQ when its connection ends.
+    }
+  }
+
+  private report(code: string): void {
+    try {
+      this.reporter.report(code);
+    } catch {
+      // Telemetry is best-effort and must never prevent broker disposition.
     }
   }
 }
