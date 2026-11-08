@@ -21,6 +21,7 @@ export interface TenantJobRuntimeRecoveryMetrics {
 
 export interface TenantJobRuntimeMetricsSnapshot {
   readonly pendingDispatchJobs: number;
+  readonly pendingExecutionJobs: number;
   readonly blockedDispatchJobs: number;
   readonly activeDispatchLeases: number;
   readonly expiredDispatchLeases: number;
@@ -28,6 +29,7 @@ export interface TenantJobRuntimeMetricsSnapshot {
   readonly expiredExecutionLeases: number;
   readonly deadLetterJobs: number;
   readonly oldestPendingDispatchAgeSeconds: number;
+  readonly oldestPendingExecutionAgeSeconds: number;
   readonly replayedJobs: number;
   readonly rabbitMqWorkerQueueReadyMessages: number;
   readonly rabbitMqWorkerQueueUnacknowledgedMessages: number;

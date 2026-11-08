@@ -6,6 +6,7 @@ import type {
 
 interface RuntimeMetricsRow {
   readonly pending_dispatch_jobs: string | number;
+  readonly pending_execution_jobs: string | number;
   readonly blocked_dispatch_jobs: string | number;
   readonly active_dispatch_leases: string | number;
   readonly expired_dispatch_leases: string | number;
@@ -13,6 +14,7 @@ interface RuntimeMetricsRow {
   readonly expired_execution_leases: string | number;
   readonly dead_letter_jobs: string | number;
   readonly oldest_pending_dispatch_age_seconds: string | number;
+  readonly oldest_pending_execution_age_seconds: string | number;
   readonly replayed_jobs: string | number;
 }
 
@@ -26,10 +28,10 @@ export class PostgresTenantJobRuntimeMetricsReader implements TenantJobRuntimeMe
   async readSnapshot(): Promise<TenantJobRuntimeMetricsSnapshotPatch> {
     const result = await this.pool.query<RuntimeMetricsRow>(
       [
-        "SELECT pending_dispatch_jobs, blocked_dispatch_jobs,",
+        "SELECT pending_dispatch_jobs, pending_execution_jobs, blocked_dispatch_jobs,",
         "active_dispatch_leases, expired_dispatch_leases,",
         "active_execution_leases, expired_execution_leases, dead_letter_jobs,",
-        "oldest_pending_dispatch_age_seconds, replayed_jobs",
+        "oldest_pending_dispatch_age_seconds, oldest_pending_execution_age_seconds, replayed_jobs",
         "FROM platform.read_tenant_job_runtime_metrics()",
       ].join(" "),
     );
@@ -40,6 +42,7 @@ export class PostgresTenantJobRuntimeMetricsReader implements TenantJobRuntimeMe
 
     return Object.freeze({
       pendingDispatchJobs: safeCount(row.pending_dispatch_jobs, "pending_dispatch_jobs"),
+      pendingExecutionJobs: safeCount(row.pending_execution_jobs, "pending_execution_jobs"),
       blockedDispatchJobs: safeCount(row.blocked_dispatch_jobs, "blocked_dispatch_jobs"),
       activeDispatchLeases: safeCount(row.active_dispatch_leases, "active_dispatch_leases"),
       expiredDispatchLeases: safeCount(row.expired_dispatch_leases, "expired_dispatch_leases"),
@@ -49,6 +52,10 @@ export class PostgresTenantJobRuntimeMetricsReader implements TenantJobRuntimeMe
       oldestPendingDispatchAgeSeconds: safeAge(
         row.oldest_pending_dispatch_age_seconds,
         "oldest_pending_dispatch_age_seconds",
+      ),
+      oldestPendingExecutionAgeSeconds: safeAge(
+        row.oldest_pending_execution_age_seconds,
+        "oldest_pending_execution_age_seconds",
       ),
       replayedJobs: safeCount(row.replayed_jobs, "replayed_jobs"),
     });

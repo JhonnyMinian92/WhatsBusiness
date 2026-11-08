@@ -590,3 +590,11 @@ Fuera de este cierre parcial: CRM-007 candidatos de duplicación, CRM-008..010 m
 - Fallo 2: el test de ContactIdentityController usaba assert.rejects para una excepción síncrona lanzada al validar tenant; corrección a assert.throws.
 - Contract CI #30 y CodeQL #109 pasaron en el commit anterior, pero el cierre técnico requiere que Source CI vuelva a pasar en el commit correctivo y que Contract CI vuelva a validar la documentación/contrato reconciliados.
 - TASK-043 y TASK-053 permanecen in_progress; no marcar aceptación ni GO-PRODUCTION por este slice.
+
+### Handoff incremental — métrica durable de backlog de ejecución (2026-11-08)
+
+- Se amplía `platform.read_tenant_job_runtime_metrics()` con `pending_execution_jobs` y `oldest_pending_execution_age_seconds`. Se mide desde `published_at` el conjunto `status='queued' AND dispatch_status='published'`, que representa trabajos durables publicados aún no reclamados por worker.
+- Se agregan los campos del snapshot y gauges Prometheus `tenant_job_execution_pending` y `tenant_job_oldest_pending_execution_age_seconds`. No se infiere lag de la cantidad de mensajes; RabbitMQ conserva sus propios gauges ready/unacknowledged/consumers.
+- Migración `0025-tenant-job-execution-backlog-metrics.sql`: reemplazo controlado de función `RETURNS TABLE`, `SECURITY DEFINER`, `search_path` fijo y EXECUTE únicamente para `whatsbusiness_job_dispatcher_role`. No concede SELECT directo ni expone IDs/payloads.
+- Unit tests del reader/exporter y PostgreSQL integration test cubren mapping, validación de contadores/edad, staging sin publicar y job publicado antes del claim.
+- **Estado:** implementación añadida; Source CI del commit resultante pendiente. TASK-003/027/028 siguen `in_progress`; no se declara producción ni aceptación del propietario.

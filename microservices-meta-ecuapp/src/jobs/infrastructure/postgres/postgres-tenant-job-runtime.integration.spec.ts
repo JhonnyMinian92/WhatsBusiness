@@ -216,12 +216,41 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
 
     const metricsAfterStage = await dispatcherPool.query<{
       pending_dispatch_jobs: string;
+      pending_execution_jobs: string;
       oldest_pending_dispatch_age_seconds: number;
+      oldest_pending_execution_age_seconds: number;
     }>(
-      "SELECT pending_dispatch_jobs::text, oldest_pending_dispatch_age_seconds FROM platform.read_tenant_job_runtime_metrics()",
+      "SELECT pending_dispatch_jobs::text, pending_execution_jobs::text, oldest_pending_dispatch_age_seconds, oldest_pending_execution_age_seconds FROM platform.read_tenant_job_runtime_metrics()",
     );
     assert.equal(Number(metricsAfterStage.rows[0]?.pending_dispatch_jobs), pendingBefore + 1);
+    assert.equal(Number(metricsAfterStage.rows[0]?.pending_execution_jobs), 0);
     assert.ok((metricsAfterStage.rows[0]?.oldest_pending_dispatch_age_seconds ?? -1) >= 0);
+    assert.equal(metricsAfterStage.rows[0]?.oldest_pending_execution_age_seconds, 0);
+
+    const pendingExecutionMetricsJobId = await stageJob(
+      runtimePool, tenantId, actorUserId, correlationId,
+      "inbox.metrics.execution-backlog", { messageId: "synthetic-message-metrics" },
+    );
+    insertedJobs.push(pendingExecutionMetricsJobId);
+    const metricsDispatch = await dispatcherPool.query<{ lease_token: string }>(
+      "SELECT lease_token FROM platform.claim_tenant_job_publications(10, 30) WHERE job_id = $1",
+      [pendingExecutionMetricsJobId],
+    );
+    const metricsDispatchToken = metricsDispatch.rows[0]?.lease_token;
+    assert.ok(metricsDispatchToken);
+    const metricsPublished = await dispatcherPool.query<{ marked: boolean }>(
+      "SELECT platform.mark_tenant_job_published($1, $2) AS marked",
+      [pendingExecutionMetricsJobId, metricsDispatchToken],
+    );
+    assert.equal(metricsPublished.rows[0]?.marked, true);
+    const metricsAfterPublish = await dispatcherPool.query<{
+      pending_execution_jobs: string;
+      oldest_pending_execution_age_seconds: number;
+    }>(
+      "SELECT pending_execution_jobs::text, oldest_pending_execution_age_seconds FROM platform.read_tenant_job_runtime_metrics()",
+    );
+    assert.ok(Number(metricsAfterPublish.rows[0]?.pending_execution_jobs) >= 1);
+    assert.ok((metricsAfterPublish.rows[0]?.oldest_pending_execution_age_seconds ?? -1) >= 0);
 
     await assert.rejects(
       runtimePool.query("SELECT * FROM platform.claim_tenant_job_publications(1, 30)"),

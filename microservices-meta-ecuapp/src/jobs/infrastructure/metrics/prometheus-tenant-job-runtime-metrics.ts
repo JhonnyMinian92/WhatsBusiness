@@ -38,6 +38,7 @@ type Outcome = TenantJobDispatchMetricOutcome
 
 const RUNTIME_GAUGES = [
   { name: "tenant_job_dispatch_pending", help: "Jobs waiting in the durable dispatch outbox.", key: "pendingDispatchJobs" },
+  { name: "tenant_job_execution_pending", help: "Published jobs waiting to be claimed by a worker.", key: "pendingExecutionJobs" },
   { name: "tenant_job_dispatch_blocked", help: "Jobs blocked from dispatch for operator repair.", key: "blockedDispatchJobs" },
   { name: "tenant_job_dispatch_leases_active", help: "Unexpired publisher leases.", key: "activeDispatchLeases" },
   { name: "tenant_job_dispatch_leases_expired", help: "Expired publisher leases awaiting recovery.", key: "expiredDispatchLeases" },
@@ -45,6 +46,7 @@ const RUNTIME_GAUGES = [
   { name: "tenant_job_execution_leases_expired", help: "Expired worker leases awaiting recovery.", key: "expiredExecutionLeases" },
   { name: "tenant_job_dead_letter_jobs", help: "Jobs in terminal dead-letter state.", key: "deadLetterJobs" },
   { name: "tenant_job_oldest_pending_dispatch_age_seconds", help: "Age of the oldest job waiting in the dispatch outbox.", key: "oldestPendingDispatchAgeSeconds" },
+  { name: "tenant_job_oldest_pending_execution_age_seconds", help: "Age since publication of the oldest queued job awaiting worker claim.", key: "oldestPendingExecutionAgeSeconds" },
   { name: "tenant_job_replayed_jobs", help: "Persisted child jobs created by the approved replay workflow.", key: "replayedJobs" },
   { name: "tenant_job_rabbitmq_worker_queue_ready_messages", help: "Messages ready in the worker queue.", key: "rabbitMqWorkerQueueReadyMessages" },
   { name: "tenant_job_rabbitmq_worker_queue_unacknowledged_messages", help: "Delivered worker queue messages awaiting ACK/NACK.", key: "rabbitMqWorkerQueueUnacknowledgedMessages" },

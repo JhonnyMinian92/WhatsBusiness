@@ -228,3 +228,17 @@ Source CI [#539](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42
 - Conectar handlers de negocio reales sobre modelos canónicos de conversaciones/mensajes y contactos, con idempotencia externa aprobada; no crear handlers fake/no-op.
 - Cerrar replay end-to-end, retención, Secret Manager/KMS, revisión independiente y aceptación.
 - TASK-003 continúa \`in_progress\`; TASK-027/028 permanecen \`in_progress\`; GO-PRODUCTION sigue NO-GO.
+
+## 18. Antigüedad del backlog durable de ejecución (2026-11-08)
+
+Se amplía la función agregada de PostgreSQL mediante la migración `0025-tenant-job-execution-backlog-metrics.sql`, sin cambiar el rol autorizado ni conceder lecturas directas de tablas.
+
+- `pendingExecutionJobs` cuenta filas con `status='queued'` y `dispatch_status='published'`: trabajos persistidos y publicados que aún no han sido reclamados por un worker.
+- `oldestPendingExecutionAgeSeconds` mide desde el menor `published_at` de ese conjunto hasta `statement_timestamp()`. Es una edad durable de trabajo pendiente de ejecución, no una estimación basada en el scrape de RabbitMQ.
+- El exporter publica `tenant_job_execution_pending` y `tenant_job_oldest_pending_execution_age_seconds`, sin labels de tenant, actor ni job.
+- Los seis gauges físicos RabbitMQ permanecen independientes y describen ready/unacknowledged/consumers en worker y DLQ.
+- La integración PostgreSQL crea un trabajo sintético, lo publica y verifica que la función lo mida antes de reclamarlo; el fixture se elimina en `finally`.
+
+La migración reemplaza la función porque PostgreSQL no permite cambiar el tipo de fila `RETURNS TABLE` mediante `CREATE OR REPLACE FUNCTION`. Reaplica el mismo `SECURITY DEFINER`, `search_path` fijo, revocaciones y EXECUTE exclusivo de `whatsbusiness_job_dispatcher_role`.
+
+**Estado de esta iteración:** código, migración, pruebas y documentación preparados; Source CI en el commit que introduce la migración debe confirmar instalación, segunda ejecución idempotente, build, typecheck y suites unitarias/PostgreSQL/RabbitMQ antes de declarar el slice verificado. TASK-003 permanece `in_progress`; GO-PRODUCTION continúa NO-GO.

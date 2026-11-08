@@ -64,6 +64,7 @@ test("renders only fixed aggregate runtime gauges without tenant dimensions", ()
   const metrics = new PrometheusTenantJobRuntimeMetrics();
   metrics.recordRuntimeSnapshot({
     pendingDispatchJobs: 7,
+    pendingExecutionJobs: 3,
     blockedDispatchJobs: 2,
     activeDispatchLeases: 1,
     expiredDispatchLeases: 3,
@@ -71,6 +72,7 @@ test("renders only fixed aggregate runtime gauges without tenant dimensions", ()
     expiredExecutionLeases: 5,
     deadLetterJobs: 6,
     oldestPendingDispatchAgeSeconds: 95.5,
+    oldestPendingExecutionAgeSeconds: 47.25,
     replayedJobs: 8,
   });
 
@@ -78,6 +80,7 @@ test("renders only fixed aggregate runtime gauges without tenant dimensions", ()
 
   assert.match(output, /# TYPE tenant_job_dispatch_pending gauge/);
   assert.match(output, /^tenant_job_dispatch_pending 7$/m);
+  assert.match(output, /^tenant_job_execution_pending 3$/m);
   assert.match(output, /^tenant_job_dispatch_blocked 2$/m);
   assert.match(output, /^tenant_job_dispatch_leases_active 1$/m);
   assert.match(output, /^tenant_job_dispatch_leases_expired 3$/m);
@@ -85,6 +88,7 @@ test("renders only fixed aggregate runtime gauges without tenant dimensions", ()
   assert.match(output, /^tenant_job_execution_leases_expired 5$/m);
   assert.match(output, /^tenant_job_dead_letter_jobs 6$/m);
   assert.match(output, /^tenant_job_oldest_pending_dispatch_age_seconds 95\.5$/m);
+  assert.ok(output.includes("tenant_job_oldest_pending_execution_age_seconds 47.25"));
   assert.match(output, /^tenant_job_replayed_jobs 8$/m);
   assert.equal(/tenant_job_.*\{.*tenant/i.test(output), false);
 });
@@ -93,6 +97,7 @@ test("rejects invalid aggregate gauges without replacing the last valid snapshot
   const metrics = new PrometheusTenantJobRuntimeMetrics();
   const valid = {
     pendingDispatchJobs: 1,
+    pendingExecutionJobs: 0,
     blockedDispatchJobs: 0,
     activeDispatchLeases: 0,
     expiredDispatchLeases: 0,
@@ -100,6 +105,7 @@ test("rejects invalid aggregate gauges without replacing the last valid snapshot
     expiredExecutionLeases: 0,
     deadLetterJobs: 0,
     oldestPendingDispatchAgeSeconds: 0,
+    oldestPendingExecutionAgeSeconds: 0,
     replayedJobs: 0,
   };
   metrics.recordRuntimeSnapshot(valid);

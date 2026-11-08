@@ -74,3 +74,17 @@ Los umbrales son guardrails iniciales, no SLO/SLA aprobados. Dashboards y reglas
 Source CI [#568](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42496866164) verificó por primera vez el lector Prometheus, build, typecheck, migraciones y pruebas live. Source CI [#572](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42498026616) terminó SUCCESS sobre el fixture final \`exclusive=true, autoDelete=false\`, verificando ready → unacknowledged/consumer → idle tras ACK/cancelación. CodeQL [#107](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42498026686) terminó SUCCESS.
 
 Source CI #572 también ejecutó pruebas del controller CRM, incluida la exigencia de TenantContextGuard y AuthorizationGuard en list/create/get/update. TASK-003 permanece \`in_progress\`: faltan despliegue Prometheus/Grafana, alert routing, SLO, load/DR, handlers de negocio, retención, secretos gestionados y aceptación independiente. Este documento no habilita GO-PRODUCTION.
+
+## Actualización 2026-11-08 — edad durable de ejecución pendiente
+
+Se añadió el complemento PostgreSQL que faltaba para medir backlog de ejecución de forma autoritativa:
+
+- `pendingExecutionJobs`: cantidad de trabajos con estado `queued` y dispatch `published`, aún no reclamados por worker.
+- `oldestPendingExecutionAgeSeconds`: tiempo desde `published_at` del más antiguo de esos trabajos hasta la hora del snapshot.
+- Prometheus: `tenant_job_execution_pending` y `tenant_job_oldest_pending_execution_age_seconds`.
+
+Esto no sustituye los gauges RabbitMQ. Los gauges de broker describen ready, unacknowledged y consumers; la métrica PostgreSQL describe trabajos durables publicados que siguen esperando ejecución. La separación evita inferir antigüedad de un mensaje desde el número de mensajes o desde el intervalo de scrape.
+
+La migración `0025-tenant-job-execution-backlog-metrics.sql` conserva el único permiso EXECUTE en `whatsbusiness_job_dispatcher_role`; API y worker siguen sin permiso de lectura del agregado ni de payload. La suite PostgreSQL comprueba staging → publicación → métrica antes del claim del worker.
+
+**Verificación:** pendiente de Source CI para el commit de esta ampliación. Los cambios son candidatos implementados, no todavía un slice CI-verified ni cierre de TASK-003.
