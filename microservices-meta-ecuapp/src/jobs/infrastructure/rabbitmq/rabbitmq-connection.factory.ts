@@ -1,7 +1,7 @@
-import { connect, type Channel, type Connection, type ConfirmChannel } from "amqplib";
+import { connect, type Channel, type ChannelModel, type ConfirmChannel } from "amqplib";
 
 export interface RabbitMqWorkerChannels {
-  readonly connection: Connection;
+  readonly connection: ChannelModel;
   readonly publisher: ConfirmChannel;
   readonly consumer: Channel;
   close(): Promise<void>;
@@ -25,8 +25,10 @@ export class RabbitMqConnectionFactory {
       throw new Error("RabbitMQ connection name is invalid.");
     }
 
-    const connection = await connect(url, {
-      heartbeat: 30,
+    // Heartbeat is an AMQP URI tuning parameter, not a TCP/TLS socket option.
+    // Preserve existing URI settings while enforcing an explicit liveness interval.
+    parsed.searchParams.set("heartbeat", "30");
+    const connection = await connect(parsed.toString(), {
       clientProperties: { connection_name: connectionName },
     });
     try {
