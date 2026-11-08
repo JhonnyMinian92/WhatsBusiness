@@ -631,3 +631,13 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Regresiones nuevas: `preserves WhatsApp metadata and emits both message and status arrays from one change`; `provider context does not change a message's stable idempotency key`.
 - Source CI #42527271340 y CodeQL #42527271448 iniciados para HEAD `5b7374ef39113d4a264bd1c0ccf9d8cda8428948`; resultado pendiente al corte. No marcar el slice como CI-verified hasta inspeccionar sus conclusiones.
 - US-014/TASK-027/028 continúan `in_progress`. Sin handlers reales, sin replay habilitado; CR-0016, retención, KMS, WAF/rate limit, callbacks Meta reales, deploy/SLO/load/DR, review independiente y aceptación aún abiertos. GO-PRODUCTION NO-GO.
+
+
+## Handoff — US-013 / TASK-026 CAPI domain slice (2026-11-08)
+
+- Rama exclusiva: `environment/local`. Se inspeccionaron workspace, permisos, DB context, auditoría append-only, job writer, módulos CRM/Privacy y gates CAPI OpenAPI antes del cambio.
+- Código: `apps/api/src/marketing/conversions/domain` contiene validación pura fail-closed de action_source/event ID/website fields/consent; identidad local dataset + event_name + event_id; report tipado sin inferencia de match quality o atribución. El port `ConversionConsentVerifier` no tiene adapter permisivo.
+- Suites unitarias integradas en el target `api:test`; Source CI del HEAD posterior todavía debe confirmar el resultado.
+- US-013/TASK-026: `in_progress`; AC-013-01/02/03 parciales. No existe persistencia/dedupe DB, outbox/worker CAPI, Meta adapter, endpoints ni observaciones reales del proveedor.
+- Bloqueadores: TASK-023 (Lead lifecycle), TASK-031 (security review), TASK-032 (consent adapter), CAPI-001..004 catalog-only, CR-0015 attribution window y capability/credenciales Meta.
+- Documento: docs/72. GO-PRODUCTION permanece NO-GO; no hubo envío Meta ni uso de datos personales reales.
