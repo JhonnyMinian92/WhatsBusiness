@@ -19,6 +19,17 @@ interface TenantRow { readonly id: string; readonly status: string; readonly aut
 interface PlanRow { readonly id: string; readonly plan_key: string; readonly version: number; }
 interface UsageRow { readonly id: string; readonly payload_hash: string; }
 interface GrantRow { readonly id: string; readonly expires_at: Date | string; }
+interface TenantLifecycleOutboxEnvelope {
+  readonly id: string;
+  readonly type: "platform.tenant.created" | "platform.tenant.suspended";
+  readonly schemaVersion: "1.0.0";
+  readonly occurredAt: string;
+  readonly tenantId: string;
+  readonly aggregate: { readonly type: "tenant"; readonly id: string; readonly version: number };
+  readonly source: string;
+  readonly correlationId: string;
+  readonly data: Readonly<Record<string, string>>;
+}
 
 @Injectable()
 export class PlatformAdministrationRepository implements PlatformAdministrationPort {
@@ -112,7 +123,7 @@ export class PlatformAdministrationRepository implements PlatformAdministrationP
       await client.query("UPDATE platform.tenants SET status='active' WHERE id=$1",[tenantId]);
       const tenant=await this.lockTenant(client,tenantId);
       const occurredAt=new Date().toISOString();
-      const envelope={
+      const envelope:TenantLifecycleOutboxEnvelope={
         id:randomUUID(),type:"platform.tenant.created",schemaVersion:"1.0.0",occurredAt,
         tenantId,aggregate:{type:"tenant",id:tenantId,version:Number(tenant.authz_version)},
         source:"platform-identity",correlationId:command.correlationId,
@@ -147,7 +158,7 @@ export class PlatformAdministrationRepository implements PlatformAdministrationP
         [command.tenantId,command.actorUserId]);
       const updated=await this.lockTenant(client,command.tenantId);
       const occurredAt=new Date().toISOString();
-      const envelope={
+      const envelope:TenantLifecycleOutboxEnvelope={
         id:randomUUID(),type:"platform.tenant.suspended",schemaVersion:"1.0.0",occurredAt,
         tenantId:command.tenantId,aggregate:{type:"tenant",id:command.tenantId,version:Number(updated.authz_version)},
         source:"platform-identity",correlationId:command.correlationId,
@@ -391,11 +402,7 @@ export class PlatformAdministrationRepository implements PlatformAdministrationP
     return tenant;
   }
 
-  private async insertLifecycleOutbox(client:PoolClient,envelope:{
-    id:string;type:"platform.tenant.created"|"platform.tenant.suspended";schemaVersion:"1.0.0";
-    occurredAt:string;tenantId:string;aggregate:{type:"tenant";id:string;version:number};
-    source:string;correlationId:string;data:Record<string,string>;
-  }):Promise<void> {
+  private async insertLifecycleOutbox(client:PoolClient,envelope:TenantLifecycleOutboxEnvelope):Promise<void> {
     await client.query(
       "INSERT INTO platform.domain_outbox_events(id,tenant_id,event_type,schema_version,aggregate_type,aggregate_id,aggregate_version,correlation_id,envelope,occurred_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10)",
       [envelope.id,envelope.tenantId,envelope.type,envelope.schemaVersion,envelope.aggregate.type,

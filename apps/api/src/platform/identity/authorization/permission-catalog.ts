@@ -233,6 +233,31 @@ export const PERMISSION_CATALOG = {
     riskClass: "critical",
     requiresIndependentApproval: true,
   },
+  "developer.api_clients.read": {
+    description: "Read metadata for tenant API client credentials without disclosing stored secrets",
+    riskClass: "sensitive",
+    requiresIndependentApproval: false,
+  },
+  "developer.api_clients.manage": {
+    description: "Create, rotate and revoke tenant API client credentials",
+    riskClass: "critical",
+    requiresIndependentApproval: true,
+  },
+  "developer.webhooks.read": {
+    description: "Read tenant webhook endpoint, subscription and delivery metadata",
+    riskClass: "sensitive",
+    requiresIndependentApproval: false,
+  },
+  "developer.webhooks.manage": {
+    description: "Register and change outbound webhook destinations and subscriptions",
+    riskClass: "critical",
+    requiresIndependentApproval: true,
+  },
+  "developer.webhooks.retry": {
+    description: "Request a controlled retry of an outbound tenant webhook delivery",
+    riskClass: "critical",
+    requiresIndependentApproval: true,
+  },
   "billing.usage.read": {
     description: "Read source-separated Meta, infrastructure and AI usage records for the tenant",
     riskClass: "sensitive",

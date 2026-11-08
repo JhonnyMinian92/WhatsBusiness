@@ -702,3 +702,15 @@ No se realizaron entrevistas, grabaciones, pilotos, pagos, integraciones reales 
 | AUD-204 | Planes inmutables, retiro versionado, asignación de suscripción y materialización de entitlements | Implementación incorporada; TASK-041 y validación de owner sobre modelo comercial pendientes |
 
 **Límites:** no se activaron endpoints IAM/BILL/PAR catalog-only; no se conectaron fuentes reales ni se cobraron importes; no se declara verified/accepted. Ver docs/76.
+
+
+## 50. Corrección de bloqueos de compilación del workspace (2026-11-08)
+
+| ID | Hallazgo | Tratamiento |
+|---|---|---|
+| AUD-205 | Referencias CRM al guard/módulo Developer Platform inexistentes | Se creó boundary NestJS que delega exclusivamente a OidcAuthGuard; API clients denegados hasta TASK-062/G0. |
+| AUD-206 | Cinco permission keys \`developer.*\` usadas por tenant role catalog pero ausentes de PermissionCatalog | Definiciones agregadas; operaciones de gestión/retry clasificadas críticas y sujetas a aprobación independiente. |
+| AUD-207 | \`TenantContextGuard\` lanzaba \`NotFoundException\` sin import | Import corregido. |
+| AUD-208 | Eventos de outbox tenían tipos de literales ensanchados | Contrato de envelope explícito reutilizable agregado al repositorio. |
+
+El Source Validation del HEAD previo también reportó indisponibilidad del endpoint RabbitMQ Prometheus durante el job de observabilidad. Es un bloqueo ambiental/configuración CI separado de la compilación de US-024, que requiere un diagnóstico independiente; no se registra como PASS.

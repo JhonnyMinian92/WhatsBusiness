@@ -5,6 +5,7 @@ import {
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
   SetMetadata,
 } from "@nestjs/common";

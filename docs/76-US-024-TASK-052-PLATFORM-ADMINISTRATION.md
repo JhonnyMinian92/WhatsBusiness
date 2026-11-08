@@ -80,3 +80,8 @@ TASK-052 / US-024 permanece **in_progress**. El slice de dominio, persistencia y
 ## Addendum de verificación — 2026-11-08
 
 El Source CI del commit anterior encontró un error real de sintaxis SQL en el delimitador de \`platform.is_active_platform_user\`; la migración se corrigió a delimitador etiquetado \`$function$\`. También se agregó comprobación explícita de \`has_active_support_grant(tenant, operator, scope)\` justo antes de resolver autorización de recurso. El CI del HEAD que contiene ambos fixes debe pasar antes de registrar validación positiva. No se considera terminada ni aceptada la historia.
+
+
+## Addendum de build del workspace — 2026-11-08
+
+El Source CI del commit \`6d8e6d3\` confirmó que PostgreSQL aplicó la migración 0030, pero el build completo falló también por deuda de módulos anterior a US-024: faltaba el DeveloperPlatformModule/OIDC boundary referenciado por CRM; faltaban cinco claves \`developer.*\` en el catálogo aunque estaban utilizadas por plantillas de roles; y \`TenantContextGuard\` usaba \`NotFoundException\` sin importarlo. Se corrigió el boundary mediante OIDC JWT verificado únicamente. API-client tokens siguen denegados/no implementados hasta TASK-062 y el contract freeze; no se simula ni se acepta un token no validado. Se agregaron las cinco definiciones de permiso con aprobación independiente para operaciones críticas y se corrigió el import faltante. El siguiente Source CI debe confirmar el estado de compilación.
