@@ -410,9 +410,9 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Source CI [#42433941375](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42433941375) terminó SUCCESS: frozen install, provisionamiento de logins DB mínimos, migraciones versionadas e idempotencia, quorum DLX, build, typecheck, unit tests y pruebas PostgreSQL/RabbitMQ.
 - RabbitMQ consumer: envelope inválido → NACK sin requeue/DLX; mensaje válido pero fallo de procesamiento durable (p. ej. PostgreSQL no disponible) → cerrar sesión worker sin ACK/NACK para redelivery; ACK ambiguo después del posible COMMIT → también cerrar sesión, nunca NACK destructivo. Varias entregas prefetched fallidas comparten cierre single-flight.
 - Tests CI incluyen persistencia/redelivery tras pérdida de canal, procesamiento válido interrumpido, ACK ambiguo, dos fallos concurrentes con una sola llamada a close, leases dispatch/execution expirados y rechazo de fencing tokens antiguos para renew/complete/mark-published.
-- Prometheus actual: counters/histograms in-memory con outcomes acotados; `GET /metrics` está integrado al lifecycle del worker, loopback por defecto y bearer token obligatorio para binding remoto. Aún faltan gauges operativos, alertas y SLO.
+- Prometheus actual: counters/histograms in-memory y `GET /metrics` integrado (loopback por defecto; bearer remoto + TLS/mTLS y red privada). La migración 0014 y el reader agregado PostgreSQL ya implementan gauges de outbox/leases/dead letters/edad/replays, muestreados cada 15 s; CI de este segundo tramo pendiente. Faltan broker queue depth/consumer lag, alertas y SLO.
 - Replay SQL/API protegido: aprobación two-person + step-up + hash/snapshot/audit y child lineage inmutable; registry de policies vacío y fail-closed. No hay handlers reales Meta/CRM registrados: se requiere probar stable domain-effect idempotency antes de habilitar replay.
-- Pendientes: DLQ operator workflow/replay, handler real end-to-end, gauges/alerts/SLO, validar topology/policy en broker desplegado, secret manager y rotación, TLS/AMQPS reales, carga/DR, revisión independiente y aceptación del propietario. TASK-003 está `in_progress`, no `accepted`; GO-PRODUCTION NO-GO.
+- Pendientes: DLQ operator workflow/replay, handler real end-to-end, gauges de broker queue depth/consumer lag, alerts/SLO, validar topology/policy desplegada, Secret Manager/rotación, TLS/AMQPS reales, carga/DR, revisión independiente y aceptación. TASK-003 está `in_progress`, no `accepted`; GO-PRODUCTION NO-GO.
 - No crear frontend `app-meta-ecuapp` sin historia frontend; prioridad inmediata sigue siendo terminar backend `microservices-meta-ecuapp` por work packages verificables. CRM Intelligence es ML clásico/estadística CPU-first según docs/62, no LLM ni agentes; sus modelos aún no están implementados.
 
 ## Handoff — exposición HTTP Prometheus del runtime de jobs
@@ -422,4 +422,12 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Superficie limitada a `GET /metrics`; loopback por defecto; binding remoto exige bearer token de al menos 32 bytes, comparado en tiempo constante.
 - La suite HTTP está registrada en `microservices-meta-ecuapp:test`; Source CI [#42434224485](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42434224485) terminó SUCCESS e incluyó build, typecheck y tests.
 - Se actualizaron `microservices-meta-ecuapp/.env.example`, README del backend y docs/60/63. Para binding remoto, el bearer token no sustituye TLS/mTLS ni la restricción de red.
-- TASK-003 continúa `in_progress`; faltan gauges, alertas/SLO, DLQ operator workflow/replay, handler real e2e, revisión independiente y aceptación. GO-PRODUCTION continúa NO-GO.
+- TASK-003 continúa `in_progress`; faltan métricas de profundidad/lag del broker, alertas/SLO, DLQ operator workflow/replay, handler real e2e, revisión independiente y aceptación. Los gauges SQL agregados están implementados, CI pendiente. GO-PRODUCTION continúa NO-GO.
+
+## Handoff — gauges operativos agregados de tenant jobs
+
+- Migración `microservices-meta-ecuapp/migrations/0014-tenant-job-runtime-metrics.sql`: función `platform.read_tenant_job_runtime_metrics()`, SECURITY DEFINER, sin IDs ni payloads, EXECUTE solo para `whatsbusiness_job_dispatcher_role`.
+- `PostgresTenantJobRuntimeMetricsReader` lee nueve valores agregados: dispatch pending/blocked, leases active/expired (dispatcher y worker), dead letters, edad del pending más antiguo y replayed jobs.
+- `TenantJobRuntimeSupervisor` refresca cada 15 s por defecto; errores de muestreo no bloquean recuperación ni dispatch. `PrometheusTenantJobRuntimeMetrics` publica gauges sin labels.
+- Nuevas pruebas unitarias y extensión de integración PostgreSQL registradas; Source CI de este tramo pendiente. El endpoint HTTP ya cuenta con Source CI #403 SUCCESS.
+- TASK-003 global sigue `in_progress`; quedan broker queue depth/consumer lag, alertas/SLO, operador DLQ, handlers reales/idempotencia externa, despliegue broker/secrets/TLS, carga/DR, revisión independiente y owner acceptance.
