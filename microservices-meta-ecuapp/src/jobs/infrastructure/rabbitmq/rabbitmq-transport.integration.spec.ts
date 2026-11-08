@@ -4,6 +4,7 @@ import test from "node:test";
 import { RabbitMqConnectionFactory } from "./rabbitmq-connection.factory.js";
 import { RabbitMqJobTopology, TENANT_JOB_RABBITMQ_TOPOLOGY } from "./rabbitmq-topology.js";
 import { RabbitMqTenantJobPublisher } from "./rabbitmq-tenant-job-publisher.js";
+import { RabbitMqTenantJobQueueMetricsReader } from "./rabbitmq-tenant-job-queue-metrics.reader.js";
 import { createTenantJobMessage, parseTenantJobMessage } from "../../domain/tenant-job-message.js";
 
 const brokerUrl = process.env["RABBITMQ_URL"];
@@ -40,6 +41,11 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
     await channels.consumer.purgeQueue(TENANT_JOB_RABBITMQ_TOPOLOGY.queue);
     await channels.consumer.purgeQueue(TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue);
 
+    const queueMetrics = new RabbitMqTenantJobQueueMetricsReader(channels.metrics);
+    const emptyMetrics = await queueMetrics.readSnapshot();
+    assert.equal(emptyMetrics.workerQueueReadyMessages, 0);
+    assert.equal(emptyMetrics.deadLetterQueueReadyMessages, 0);
+
     const publisher = new RabbitMqTenantJobPublisher(
       channels.publisher,
       TENANT_JOB_RABBITMQ_TOPOLOGY.exchange,
@@ -47,6 +53,10 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
     const job = createTenantJobMessage(TEST_JOB_ID);
 
     await publisher.publish(job, "jobs.integration.confirm");
+    const queuedMetrics = await queueMetrics.readSnapshot();
+    assert.equal(queuedMetrics.workerQueueReadyMessages, 1);
+    assert.equal(queuedMetrics.workerQueueConsumers, 0);
+
     const delivered = await waitForMessage(
       channels.consumer,
       TENANT_JOB_RABBITMQ_TOPOLOGY.queue,
