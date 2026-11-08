@@ -500,3 +500,10 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Se añadieron seis tests del controller. La suite API/PostgreSQL también verifica el agregado, RLS, separación tenant A/B, replay idempotente, If-Match/versión, audit chain y restricción organization.
 - Contract metadata corregida en `559cd2255fade6b4fc338463bef417fd992192ac`; Contract CI [#29](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42497491129) SUCCESS. Source CI [#570](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42497391908) SUCCESS; CodeQL [#105](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42497391953) SUCCESS.
 - Quedan fuera CRM-005..017, identities/merge/custom fields/companies, event publishing hasta TASK-028 y política de retención/legal hasta TASK-059. TASK-042 no está aceptada: falta review independiente y aceptación del Product Owner.
+## Handoff — Source CI #572 SUCCESS y fixture RabbitMQ estable (2026-11-08)
+
+- El fixture de métricas usa colas únicas `durable=false, exclusive=true, autoDelete=false`. Son exclusivas de la conexión; `finally` las elimina explícitamente tras verificar ready → unacknowledged/consumer → idle.
+- `autoDelete=true` borraba la cola al cancelar el último consumer y el exporter dejaba de exponer métricas; no era un defecto de la topología quorum de producción.
+- Source CI [#572](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42498026616) SUCCESS y CodeQL [#107](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42498026686) SUCCESS: migraciones 0001–0023/idempotencia, provisioning, quorum DLX, plugin Prometheus, build, typecheck, API/PostgreSQL y backend/RabbitMQ.
+- La misma ejecución verifica OIDC a nivel de clase y TenantContextGuard + AuthorizationGuard en cada método CRM list/create/get/update.
+- No implica despliegue Prometheus/Grafana, SLO, load/DR ni aceptación independiente. TASK-003/027/028 y TASK-042 siguen `in_progress`; GO-PRODUCTION NO-GO.

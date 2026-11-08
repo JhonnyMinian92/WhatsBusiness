@@ -236,3 +236,9 @@ Estado actual:
 - El allowlist de contratos acepta exactamente nueve operaciones (PLT-001..005 + CRM-001..004); no se abre el catálogo restante.
 - Source CI #570, Contract CI #29 y CodeQL #105 terminaron SUCCESS en los HEAD indicados en `docs/66-CRM-CONTACTS-API-CONTRACT-FREEZE.md`.
 - TASK-042 permanece `in_progress` por review y aceptación, y CRM-005..017 siguen fuera de alcance. El siguiente trabajo CRM de producto depende del cierre de Contact API y del event bus (TASK-028).
+## Actualización — Source CI #572 SUCCESS (2026-11-08)
+
+- El reader RabbitMQ utiliza Prometheus Detailed Metrics, no Management API ni permisos AMQP de lectura.
+- El fixture live mantiene las colas exclusivas por conexión con `autoDelete=false`; `finally` las elimina después del scrape idle, evitando que desaparezcan al cancelar el último consumer.
+- Source CI #572 y CodeQL #107 SUCCESS en `1c6e682eb755e77b8359e52d4e7091a41e4ef6d5`; suite incluye migraciones/idempotencia, provisioning, build/typecheck, API/PostgreSQL, backend/PostgreSQL/RabbitMQ y refuerzo de guards CRM.
+- TASK-003/027/028 siguen `in_progress` por handlers de negocio, operación desplegada, alert routing, SLO, carga/DR y aceptación. TASK-042 sigue `in_progress` por review/aceptación del propietario.

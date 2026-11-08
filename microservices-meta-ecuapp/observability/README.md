@@ -2,24 +2,30 @@
 
 ## Componentes
 
-- `prometheus/tenant-job-alerts.yml`: reglas de alerta para disponibilidad de scraping, dispatch bloqueado, DLQ, deliveries unacknowledged y consumers ausentes, edad del outbox, leases vencidos, errores de supervisor y pérdida de execution lease.
-- `grafana/tenant-job-runtime.dashboard.json`: dashboard de counters, latencias, gauges PostgreSQL y métricas disponibles de RabbitMQ.
-- `RUNBOOK.md`: diagnóstico, recuperación y límites operativos.
+- \`prometheus/tenant-job-alerts.yml\`: alertas para scraping, dispatch bloqueado, DLQ, deliveries unacknowledged y consumers ausentes, outbox age, leases vencidos, errores del supervisor y pérdida de execution lease.
+- \`grafana/tenant-job-runtime.dashboard.json\`: counters, latencias, gauges PostgreSQL y métricas RabbitMQ.
+- \`RUNBOOK.md\`: diagnóstico, recuperación y límites operativos.
 
 ## Instalación
 
-1. Configurar Prometheus para scrapear `GET /metrics` desde una red privada y enviar el bearer token desde Secret Manager.
-2. Proteger el transporte remoto con TLS/mTLS en el proxy/service mesh y restringir el puerto mediante firewall.
-3. Cargar las reglas de `prometheus/tenant-job-alerts.yml`; el job debe llamarse `whatsbusiness-tenant-jobs` o debe ajustarse el selector de `up`.
-4. Importar el JSON del dashboard en Grafana y seleccionar el datasource Prometheus.
-5. Configurar los receivers y routing de alertas en el stack de operación; este repositorio no presupone un proveedor de notificaciones.
+1. Configurar Prometheus para scrapear \`GET /metrics\` del runtime desde red privada; obtener el bearer token desde Secret Manager cuando el listener no sea loopback.
+2. Habilitar \`rabbitmq_prometheus\` en cada nodo RabbitMQ. Mantener \`/metrics/detailed\` y el puerto 15692 en red privada, protegido por firewall y TLS/mTLS al cruzar nodos/redes.
+3. Inyectar opcionalmente \`RABBITMQ_PROMETHEUS_USERNAME\` y \`RABBITMQ_PROMETHEUS_PASSWORD\` como pareja desde Secret Manager si Basic auth está habilitada en el exporter.
+4. Cargar reglas \`prometheus/tenant-job-alerts.yml\`; el job del runtime debe llamarse \`whatsbusiness-tenant-jobs\` o ajustarse el selector de \`up\`.
+5. Importar el dashboard JSON en Grafana y configurar receivers/routing de alertas.
 
-Los umbrales son guardrails operativos iniciales, no SLO aprobados ni SLA. Deben revisarse con evidencia de carga y ventanas de operación antes de producción.
+Los umbrales son guardrails iniciales, no SLO aprobados ni SLA. Deben revisarse con carga/capacidad antes de producción.
 
-## Limitaciones conocidas
+## Métricas RabbitMQ
 
-Las métricas RabbitMQ se obtienen de RabbitMQ Management API y reflejan `messages_ready`, `messages_unacknowledged` y consumer count por cola. `messages_unacknowledged` son deliveries entregadas aún no confirmadas; no equivalen a consumer lag ni a edad de mensaje. Los contadores/histogramas viven en memoria y se reinician al reiniciar el proceso. El dashboard no sustituye una plataforma de métricas duradera ni una revisión de alertas.
+El backend usa \`RabbitMqPrometheusTenantJobQueueMetricsReader\`, no Management API. Consulta \`GET /metrics/detailed\` con \`queue_coarse_metrics\` y \`queue_consumer_count\`, filtradas por vhost y solo worker queue/DLQ. No lee mensajes ni cuerpos, ni requiere permiso AMQP \`read\`.
 
-## Compatibilidad del fixture live con RabbitMQ 4.4
+Se exponen ready, unacknowledged y consumers. Un mensaje unacknowledged ya fue entregado y espera ACK/NACK; no equivale a consumer lag ni edad. El reader valida labels y contadores, rechaza redirects, limita respuesta y aplica timeout. Basic auth es opcional y siempre se configura como pareja.
 
-El test del Management API crea colas temporales únicas y exclusivas de la misma conexión (`durable=false, exclusive=true, autoDelete=true`). RabbitMQ 4.4 rechaza colas clásicas transitorias no exclusivas. No habilitar `transient_nonexcl_queues` ni cambiar la topología quorum durable utilizada por los workers. El cambio está en el commit `92b46d68bc8070a086b95352d504797fe1bf0c3d`; Source CI #563 es el gate pendiente.
+RabbitMQ actualiza estadísticas por intervalo. La integración distingue el snapshot incompleto transitorio y reintenta solo ese estado por máximo 20 segundos. El fixture live usa colas exclusivas por conexión, \`durable=false\`, \`autoDelete=false\`; las elimina explícitamente después de verificar los gauges idle. No afecta las quorum queues durables de producción.
+
+## Verificación y limitaciones
+
+Source CI [#572](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42498026616) y CodeQL [#107](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42498026686) terminaron SUCCESS en \`1c6e682eb755e77b8359e52d4e7091a41e4ef6d5\`. Esto verifica build, typecheck, pruebas unitarias e integraciones sintéticas PostgreSQL/RabbitMQ; no demuestra exporter instalado en infraestructura, scraping de todos los nodos, firewall/TLS, alert routing ni SLO.
+
+TASK-003 continúa \`in_progress\`; runtime no está aceptado para producción y GO-PRODUCTION sigue NO-GO.

@@ -444,3 +444,13 @@ La corrección conserva RabbitMQ 4.4 y no habilita la característica obsoleta, 
 | AUD-148 | CodeQL #105 verificó el código del slice CRM. | SUCCESS. |
 
 El contrato mantuvo deshabilitadas las 287 operaciones restantes; CRM-005..017 siguen catalog-only. TASK-042 continúa `in_progress` hasta revisión independiente y aceptación del Product Owner. No se habilitó producción ni se alteró GO-PRODUCTION NO-GO.
+## 39. Source CI #572 — fixture de métricas estable y guardas CRM (AUD-149..152; 2026-11-08)
+
+| ID | Evidencia / cambio | Estado |
+|---|---|---|
+| AUD-149 | El live test usaba `autoDelete=true`; RabbitMQ borraba la cola al cancelar su último consumer y el exporter dejaba de publicar gauges para esa cola. | Causa identificada por log de Source CI #571. |
+| AUD-150 | Fixture final: `durable=false, exclusive=true, autoDelete=false`; cola efímera exclusiva de conexión, eliminada explícitamente en `finally` después de la aserción idle. | Implementado. |
+| AUD-151 | Source CI [#572](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42498026616) verificó instalación frozen, migraciones 0001–0023/idempotencia, provisioning, quorum DLX, Prometheus plugin, build, typecheck, API/PostgreSQL y backend/RabbitMQ integrations. | SUCCESS. |
+| AUD-152 | CodeQL [#107](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42498026686) y test CRM de guards por método; OIDC class guard, TenantContextGuard + AuthorizationGuard list/create/get/update. | SUCCESS. |
+
+El cambio afecta solo el fixture de pruebas; la topología productiva conserva quorum queues durables. TASK-003/027/028 siguen `in_progress`; TASK-042 sigue pendiente de review/aceptación. GO-PRODUCTION no se habilita.

@@ -560,3 +560,10 @@ Se añadió una regresión de integración a `microservices-meta-ecuapp/src/jobs
 - Se añadió suite del controller con seis pruebas para guard OIDC, RBAC, propósito, tenant context, mismatch de tenant, ETag e If-Match. La suite PostgreSQL existente cubre RLS, tenant A/B, idempotencia, optimistic concurrency, audit chain e invariante de organization.
 - Source CI [#570](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42497391908) SUCCESS; Contract CI [#29](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42497491129) SUCCESS tras corregir cuatro claves YAML de gate; CodeQL [#105](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42497391953) SUCCESS.
 - Estado: endpoints HTTP CRM-001..004 habilitados y CI-verified. TASK-042 permanece `in_progress` hasta revisión independiente y aceptación del Product Owner. No activar CRM-005..017 ni declarar completado el bounded context.
+### Estado vigente — Source CI #572 SUCCESS, métricas y guardas CRM (2026-11-08)
+
+- El test live de RabbitMQ utiliza colas efímeras por ejecución `durable=false, exclusive=true, autoDelete=false`; se eliminan explícitamente tras comprobar contadores idle. `autoDelete=true` borraba las colas al cancelar el último consumer.
+- El reader usa `RabbitMqPrometheusTenantJobQueueMetricsReader` sobre `/metrics/detailed`; no usa Management API ni usuario AMQP con permiso `read`.
+- Source CI [#572](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42498026616) y CodeQL [#107](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42498026686) SUCCESS en `1c6e682eb755e77b8359e52d4e7091a41e4ef6d5`.
+- CRM-001..004 está habilitado y CI-verificado; el controller exige OIDC, tenant context y RBAC por ruta. TASK-042 sigue pendiente de revisión independiente y aceptación del Product Owner.
+- TASK-003/027/028 permanecen `in_progress`: handlers reales y event bus, operación desplegada, alert routing, SLO, retención y DR siguen pendientes. GO-PRODUCTION NO-GO.
