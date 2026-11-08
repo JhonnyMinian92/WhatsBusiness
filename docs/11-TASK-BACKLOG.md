@@ -171,8 +171,8 @@ All tasks below are proposed until an implementation exists and evidence is atta
 - **Objetivo:** validar el foco sectorial en servicios/comercio y canal agencias antes de fijar precios, packaging o inversión comercial.
 - **Incluye:** desk research oficial INEC; entrevistas cualitativas; mapeo de workflows y alternativas; willingness-to-pay exploratoria; pilotos con métricas instrumentadas de activación, time-to-value, seats, uso por canal, retención y outcome.
 - **No incluye:** extrapolar entrevistas cualitativas como muestra estadística, declarar TAM/SAM/SOM sin criterio de elegibilidad, ni fijar tarifas/forecast solo con estadísticas macro.
-- **Dependencias:** PD-012, docs/32 MKT-OBS-001/002.
-- **Estado:** proposed.
+- **Dependencias:** PD-012, docs/32 MKT-OBS-001..004.
+- **Estado:** in_progress.
 - **DoD:** investigación documentada, participantes segmentados y anonimizados, síntesis de patrones/contradicciones, falsación explícita de hipótesis, propuesta de ICP revisada y criterios de pricing basados en unit economics reales.
 - **Evidencia base:** INEC REEM 2025 provisional: 1.204.276 empresas totales; servicios 645,8k y comercio 388,9k; advertencias metodológicas en docs/32.
 
@@ -922,3 +922,16 @@ IG-001..IG-012 continúan catalog-only (x-implementation-allowed=false). No habi
 Se agregan 19 casos unitarios (10 comments y 9 messaging). El slice US-010 contiene 42 pruebas (14 capability, 9 publicación, 10 comentarios y 9 Direct). La validación Source CI exitosa del SHA 1ba349c ejecutó 287 pruebas API + 112 Meta backend; se produjo antes del commit que agregó los dos módulos finales. Requerido: nuevo Source CI y CodeQL sobre el SHA de cierre.
 
 TASK-021 continúa in_progress: Insights sigue fail-closed/unknown, y las operaciones externas no están cableadas. US-010 no está aceptada.
+
+
+## Handoff TASK-066 — US-028 discovery (2026-11-08)
+
+**Estado real:** in_progress. El desk research y el diseño de instrumentos quedaron documentados; las entrevistas, la evidencia de compra, los pilotos y la cuantificación TAM/SAM/SOM aún no se han ejecutado.
+
+- Informe principal: docs/75-US-028-MARKET-DISCOVERY-AND-ICP.md.
+- Fuentes nuevas: MKT-OBS-003 (ENESEM 2024: módulo TIC empresarial, muestra de grandes/medianas) y MKT-OBS-004 (TIC Empresas 2015: antecedente histórico, no proxy actual).
+- Instrumentos: docs/research/us-028/INTERVIEW-GUIDE.md; participant-register.template.csv; interview-coding.template.csv; PILOT-METRICS-DICTIONARY.md; pilot-metrics.template.csv.
+- AC-028-01: baseline oficial contextual documentado. AC-028-02/03: guía/registro preparados; no se registran participantes. AC-028-04: métricas diseñadas; no hay piloto. AC-028-05: método con filtros; no hay TAM/SAM/SOM numérico. AC-028-06: prohibición de precio/forecast basada solo en REEM o entrevistas cualitativas preservada.
+- No se añadieron endpoints, eventos de runtime ni código de producto: TASK-066 es discovery y el work package indica “Sin API REST”. El diccionario de pilotos es un instrumento de investigación, no un contrato AsyncAPI.
+- Límites: sin PII/credenciales/archivos de clientes en Git; GO-PRODUCTION sigue NO-GO; cualquier piloto con datos reales requiere gates de privacidad/seguridad y autorización del propietario.
+- No existe evidencia para confirmar product-market fit ni disposición a pagar. La aceptación final pertenece al Product Owner.
