@@ -1,6 +1,6 @@
 # 66 — Freeze del contrato CRM Contacts API (CRM-001..004)
 
-**Estado:** diseño de contrato congelado para implementación bajo GO-CODE; la validación Contract CI y la aceptación del propietario siguen pendientes.
+**Estado:** diseño de contrato congelado; Contract CI #27 terminó SUCCESS el 2026-11-08. La aceptación del propietario sigue pendiente.
 **Bounded context:** CRM / Contacts.
 **Owner técnico de implementación:** WhatsBusiness API.
 **Reviewer independiente:** pendiente; el autor solo puede registrar self-review.
