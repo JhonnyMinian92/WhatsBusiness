@@ -51,6 +51,9 @@ CREATE UNIQUE INDEX tenant_job_replay_approval_once_idx
   ON platform.tenant_job_records (replay_approval_id)
   WHERE replay_approval_id IS NOT NULL;
 
+GRANT SELECT (replay_approval_id)
+  ON platform.tenant_job_records TO whatsbusiness_app;
+
 GRANT INSERT (
   replay_of_job_id, replay_approval_id, replay_requested_by_user_id, replay_reason_code
 ) ON platform.tenant_job_records TO whatsbusiness_app;
