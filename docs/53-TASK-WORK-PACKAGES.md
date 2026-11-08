@@ -246,3 +246,12 @@ Commit 966edff: Source CI #42513964425 y CodeQL #42513964419 success; PostgreSQL
 **Entregables técnicos verificados:** política y catálogo RBAC/ABAC; persistencia tenant-role con RLS/grants mínimos y validación de plantillas; solicitud y revocación mediante aprobación independiente ligada a snapshot; consumo único/transaccional; protección de último owner; audit append-only para acciones y denegaciones; integración y suites registradas en CI.
 
 **No equivale a aceptación formal:** reviewer independiente y Product Owner acceptance pendientes. Dependencias restantes: bootstrap confiable del primer tenant_owner; ACR/AMR/freshness verificados con el IdP real; IAM-007..020 siguen catalog-only hasta contract freeze; outbox/consumer de acciones de negocio y garantías externas/operativas de auditoría pendientes según sus tareas. GO-PRODUCTION permanece NO-GO.
+
+
+## TASK-026 — execution handoff (2026-11-08)
+
+- **Owner role:** Leads / Ads. **Story:** US-013. **Dependencies:** TASK-023; TASK-031. Consent implementation additionally requires TASK-032. **APIs:** CAPI-001..004 remain catalog-only.
+- **Implemented slice:** domain validator, action source rules, event ID/tuple dedup identity, consent verifier port, provider-only measurement report and unit specs. Exact paths and test names: docs/72.
+- **Not delivered:** HTTP API, DB dedupe ledger, transactional outbox, broker handler, Meta adapter, dataset capability verification, provider match quality/attribution and dashboard.
+- **DoD remaining:** lead lifecycle/security/privacy readiness; official Meta contract and CR-0015; CAPI contract freeze; PostgreSQL uniqueness/RLS/idempotency, outbox and replay; provider contract/integration tests; independent review and Product Owner acceptance.
+- **Status:** in_progress; this slice is not verified until Source CI succeeds and not accepted.
