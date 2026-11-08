@@ -407,3 +407,8 @@ Source CI 42513396813: 181 PASS / 5 FAIL; no aceptar US-002 ni cerrar TASK-004/0
 ## US-006 — extensión de matriz de envío
 
 La policy de dominio template-send-policy exige plantilla activa, Meta ID, status APPROVED, coincidencia exacta de categoría/idioma y capability available. La política falla cerrada cuando falta cualquiera de esas evidencias. La integración con el sender y la comprobación runtime por activo WABA siguen abiertas; AC-006-03 no se cierra.
+
+
+### US-006 — evidencia automatizada final
+
+Commit 966edff; Source CI #42513964425 y CodeQL #42513964419 success. 191/191 API tests y 87/87 Meta backend tests success; migration/replay, build y typecheck success. AC-006-03 conserva estado pendiente de integración end-to-end del sender; la story sigue sin acceptance.

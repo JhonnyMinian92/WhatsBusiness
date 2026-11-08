@@ -597,3 +597,14 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - El cleanup tenant-job elimina tenant_job_inbox antes de tenant_job_records por FK RESTRICT.
 - La política template-send-policy deniega por defecto y solo permite estado APPROVED, Meta ID, ciclo local activo, category/language compatibles y capability available. Está lista como dominio pero no conectada al sender.
 - Source CI #42513649341: migration/build/typecheck correctos, API 184/186; se corrigieron los dos fallos restantes. Nueva ejecución pendiente.
+
+
+## Handoff US-006 — verificación final del slice local
+
+- Commit validado: 966edfffe668f495dfbc2ac07072fb93b616c7c9.
+- Source CI #42513964425: SUCCESS. CodeQL #42513964419: SUCCESS.
+- Migration/replay idempotente, build y typecheck completados.
+- API: 191/191 pruebas pass; Meta backend: 87/87 pass; ambos 0 fail y 0 skipped.
+- La integración PostgreSQL de templates, los roles audit.read por tenant, RLS y revisiones append-only se verificaron en CI.
+- El template-send-policy fail-closed está probado, pero todavía no hay sender real en apps/api/src ni wiring; no se afirma enforcement E2E.
+- TASK-014/015 y US-006 continúan en progreso/no aceptados por los gates WAM-001..007, TASK-008/TASK-010 runtime, aprobación/sincronización Meta y falta de WABA real.

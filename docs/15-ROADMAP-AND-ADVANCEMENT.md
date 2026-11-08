@@ -325,3 +325,14 @@ CI run 42513396813: migraciones 0001–0007 e idempotencia, build y typecheck SU
 ## US-006 — policy y hardening de pruebas (2026-11-08)
 
 Se añadió una política pura fail-closed de elegibilidad de plantillas para el futuro sender, con tests para status no aprobado, archived, incompatibilidad y capability unknown/unavailable. Todavía no se integra al servicio real de envío, así que AC-006-03 continúa pendiente. La integración PostgreSQL ahora asigna audit.read por tenant para verificar el ledger bajo RLS. El test tenant-job elimina inbox antes de job rows para respetar FK RESTRICT. Source CI #42513649341 alcanzó build/typecheck/migración y 184/186 tests; nueva ejecución requerida.
+
+
+## US-006 — resultado de validación
+
+Evidencia en commit 966edfffe668f495dfbc2ac07072fb93b616c7c9:
+- Source CI run 42513964425: success.
+- CodeQL run 42513964419: success.
+- API 191/191 y Meta backend 87/87, sin fallos ni skips.
+- Migración 0027 y replay, build y typecheck: success.
+
+Esto cierra la verificación automatizada del slice. No cierra la aceptación del producto: WAM operations, capability runtime, Meta status sync, approval workflow y sender integration aún están pendientes.

@@ -523,3 +523,6 @@ En Source CI run 42513396813 la migración 0007, su idempotencia, build y typech
 
 | AUD-171 | Source CI #42513649341: build/typecheck y migración correctos; tests API 184/186. Los fallos restantes fueron (a) auditoría invisible por falta de rol audit.read en el fixture de templates y (b) FK tenant_job_inbox durante la limpieza de tenant-job-record. | Corrección de fixtures y cleanup añadida; reejecución pendiente. |
 | AUD-172 | Se añade policy pura de elegibilidad de plantilla para el futuro sender: exige lifecycle activo, Meta ID, APPROVED, categoría/idioma exactos y capability available. | Tests añadidos al target; sigue sin invocación desde el sender. |
+
+
+| AUD-173 | Commit 966edfffe668f495dfbc2ac07072fb93b616c7c9: Source CI #42513964425 success; CodeQL #42513964419 success; migrations/replay, build y typecheck success; API 191/191 y Meta backend 87/87 sin fallos ni skips. | Verificado en el run del commit exacto. TASK-014/015 siguen in_progress por dependencias Meta/contracts/sender. |

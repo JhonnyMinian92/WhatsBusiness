@@ -222,3 +222,8 @@ TASK-046 y TASK-064 nombran “frontend foundation” sin ID ni entregable acept
 - Se elimina tenant_job_inbox antes de tenant_job_records en la limpieza debido a la FK restrictiva.
 - Se añade template-send-policy y su spec al target api:test; no se integra aún al sender.
 - Source CI #42513649341 pasó build/typecheck/migration, tests API 184/186; nueva ejecución correctiva pendiente.
+
+
+### US-006 — estado validado en Source CI
+
+Commit 966edff: Source CI #42513964425 y CodeQL #42513964419 success; PostgreSQL migration/replay, build/typecheck, API 191/191 y Meta backend 87/87 pass, 0 fail/skip. Núcleo local verificado, no aceptación completa: TASK-014/015 continúan in_progress por los gates WAM y la integración real pendiente.

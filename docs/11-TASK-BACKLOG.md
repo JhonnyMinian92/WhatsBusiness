@@ -793,3 +793,8 @@ Estado de TASK-004/005: implementación amplia con nueva compatibilidad y tests;
 ### Corrección 2 — integración multi-tenant y política de envío (2026-11-08)
 
 La integración US-006 configura roles de lectura de auditoría por tenant para que RLS muestre la cadena al verificarla; las claves whatsapp.templates.* permanecen separadas de audit.read. Se corrige el test de limpieza tenant-job eliminando tenant_job_inbox antes de tenant_job_records por su FK RESTRICT. Se añade template-send-policy, determinista y fail-closed, aún sin integración al sender. Validación Source CI pendiente.
+
+
+### US-006 — validación automatizada completada (2026-11-08)
+
+Commit 966edfffe668f495dfbc2ac07072fb93b616c7c9: Source CI #42513964425 SUCCESS y CodeQL #42513964419 SUCCESS; migración 0027 + idempotent replay, build/typecheck, API 191/191 y Meta backend 87/87 sin fallos ni skipped. Esto verifica el slice local, no la integración Meta, el sender o la aceptación completa. TASK-014/015 permanecen in_progress; ver docs/71.

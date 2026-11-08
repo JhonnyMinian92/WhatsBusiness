@@ -79,3 +79,22 @@ docs/10-USER-STORIES.md; docs/11-TASK-BACKLOG.md; docs/18-EXECUTION-GRAPH.md; do
 Se añade template-send-policy.ts y su suite. La política falla cerrada y devuelve reason codes: solo permite cuando la plantilla está activa, enlazada a un ID Meta, status APPROVED, coincide exactamente la categoría/idioma esperado y el consumidor aporta capabilityState=available. PENDING, PAUSED, REJECTED, status ausente, plantilla archivada o capability unknown/unavailable deniegan el resultado.
 
 La policy es determinista y no invoca el sender ni consulta Meta. No sustituye la verificación runtime TASK-010: el consumidor debe aportar una decisión de capability verificada para el tenant/WABA/operación correctos. AC-006-03 continúa abierto hasta integrar esta policy con el sender y probar end-to-end.
+
+
+## 10. Verificación Source CI y CodeQL — 2026-11-08
+
+<badge>Source CI SUCCESS</badge> Commit validado: 966edfffe668f495dfbc2ac07072fb93b616c7c9.
+
+- Source workspace validation: run 42513964425, conclusión success.
+- CodeQL security analysis: run 42513964419, conclusión success.
+- Migrations: 0027 aplicada y verificación de replay idempotente correctas.
+- Build: todas las aplicaciones success.
+- Typecheck: todas las aplicaciones success.
+- API test: 191 tests, 191 pass, 0 fail, 0 skipped. Incluye integración PostgreSQL de plantillas y template-send-policy.
+- Meta backend test: 87 tests, 87 pass, 0 fail, 0 skipped.
+
+La rama tenía ejecuciones anteriores fallidas durante la corrección; el resultado final arriba corresponde al commit 966edff y es el estado que debe usarse como evidencia. No prueba conexión real con Meta/WABA ni contract freeze de WAM-001..007.
+
+## 11. Estado de aceptación
+
+CI y CodeQL del núcleo local están verificados. TASK-014 y TASK-015 siguen in_progress, y US-006 no se declara accepted, porque todavía faltan contratos congelados y endpoints autorizados, conexión/capability Meta runtime, sincronización real de estados/calidad, integración de la policy en un sender real, flujo de aprobación y verificación con WABA. La política de envío ya está implementada como dominio puro y probada, pero no se ejecuta desde un sender en esta rama.
