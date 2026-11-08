@@ -185,6 +185,7 @@ export const PLATFORM_ROLE_KEYS = [
   "platform_owner",
   "platform_operations",
   "support_jit",
+  "usage_ingestor",
 ] as const;
 
 /** Lookup without leaking a mutable role/permission registry. */
