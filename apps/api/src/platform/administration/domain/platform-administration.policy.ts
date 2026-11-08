@@ -103,6 +103,9 @@ export interface SupportGrantDefinition {
   readonly scopes: readonly string[];
   readonly validFrom: string;
   readonly expiresAt: string;
+  readonly stepUpAuthTime: string;
+  readonly stepUpAcr?: string;
+  readonly stepUpAmr: readonly string[];
 }
 
 export class SupportGrantPolicy {
@@ -133,6 +136,14 @@ export class SupportGrantPolicy {
     }
     if (end - start > maxDurationMinutes * 60_000) {
       throw new PlatformAdministrationPolicyViolation("SUPPORT_WINDOW_TOO_LONG", "El acceso de soporte supera la duración máxima.");
+    }
+    const stepUpTime = Date.parse(grant.stepUpAuthTime);
+    const now = Date.now();
+    if (!Number.isFinite(stepUpTime) || stepUpTime > now + 30_000 || stepUpTime < now - 5 * 60_000
+      || ((!grant.stepUpAcr || grant.stepUpAcr.trim().length === 0) && grant.stepUpAmr.length === 0)
+      || grant.stepUpAmr.length > 10
+      || grant.stepUpAmr.some((method) => typeof method !== "string" || method.trim().length < 1 || method.length > 64)) {
+      throw new PlatformAdministrationPolicyViolation("SUPPORT_STEP_UP_REQUIRED", "La aprobación requiere evidencia OIDC step-up vigente y verificable.");
     }
   }
 }
