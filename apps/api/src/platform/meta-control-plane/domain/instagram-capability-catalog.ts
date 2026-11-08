@@ -49,6 +49,7 @@ function createProfile(
 ): InstagramCapabilityProfile {
   const facebookLogin = loginMode === "facebook_login";
   const directMessages = capability === "direct_messages";
+  const instagramLogin = loginMode === "instagram_login";
   const stories = capability === "stories_publish";
   const defaultTasks: Readonly<Record<string, readonly string[]>> = {
     media_publish: ["CREATE_CONTENT"],
@@ -63,8 +64,10 @@ function createProfile(
     ...(directMessages ? [
       "El destinatario debe iniciar la conversación.",
       "No se admite mensajería grupal.",
-      "Los medios compartidos deben pertenecer a la cuenta conectada.",
-      "Requests inactivos durante 30 días no aparecen en las consultas descritas por Meta.",
+      ...(instagramLogin ? [
+        "Los medios compartidos deben pertenecer a la cuenta conectada.",
+        "Requests inactivos durante 30 días no aparecen en las llamadas a la API descritas por Meta.",
+      ] : []),
     ] : []),
     ...(overrides.limitations ?? []),
   ];
@@ -89,8 +92,8 @@ function createProfile(
     advancedAccessRequiredForExternalRecipients: overrides.advancedAccessRequiredForExternalRecipients
       ?? (facebookLogin && directMessages),
     groupMessagingSupported: false,
-    outgoingSharedMediaMustBeOwned: directMessages,
-    requestsInactivityLimitDays: directMessages ? 30 : null,
+    outgoingSharedMediaMustBeOwned: directMessages && instagramLogin,
+    requestsInactivityLimitDays: directMessages && instagramLogin ? 30 : null,
     limitations: Object.freeze(limitations),
     sourceUrls: Object.freeze(sources),
   });
