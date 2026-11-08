@@ -101,11 +101,17 @@ Las variables de ejemplo están en `microservices-meta-ecuapp/.env.example`. En 
 
 ## 9. Contrato del evento interno
 
-- Se añadió `meta.webhook.received.v1` a AsyncAPI y `MetaWebhookReceived` al union JSON Schema de eventos (70 eventos). El contrato exige receipt UUID, producto soportado y SHA-256; no permite payload Meta ni PII en el mensaje del broker.
+- El evento preexistente `meta.webhook.received.v1` y el schema `MetaWebhookReceived` se conservaron en el catálogo canónico; se eliminaron definiciones/referencias duplicadas. El catálogo queda en 69 eventos, 69 canales, 138 operaciones y 69 schemas. El payload del broker contiene receipt metadata y SHA-256, nunca el payload Meta ni PII.
 - `scripts/validate-contracts.mjs` amplió las verificaciones de estructura, referencias y fixtures positivos/negativos a 70 esquemas y 140 operaciones AsyncAPI. La instalación de validadores se aisló fuera del workspace pnpm para evitar que npm intente resolver dependencias `workspace:` del monorepo.
 - Contract CI falló inicialmente por instalación npm en la raíz del workspace y después por lint warnings históricos del CLI. Se reemplazó el paso CLI por el parser oficial `@asyncapi/specs@6.11.1`, ejecutado dentro del validador, con bloqueo explícito solo ante diagnósticos de error. Se fijó 3.4.0 evitando 3.4.1/3.4.2, señaladas por advisories de paquete comprometido.
 - Contract CI #15/#17 ejecutaron la validación, pero el CLI devolvió exit code 1 por diagnósticos de lint heredados (sin errores de especificación). Se eliminó ese falso gate y se integró el parser oficial directamente en `validate-contracts.mjs`; la siguiente ejecución debe demostrar parseo válido y las comprobaciones JSON Schema.
 
-- La primera integración directa del parser 3.4.0 falló al compilar reglas Spectral bajo Node 26.13 (SyntaxError en Ajv). Se actualizó a `@asyncapi/parser@3.6.3`, versión posterior no comprometida según el advisory consultado; la nueva ejecución debe validar la compatibilidad en CI.
+- La primera integración directa del parser 3.4.0 falló al compilar reglas Spectral bajo Node 26.13 (SyntaxError en Ajv). Se actualizó a `@asyncapi/specs@6.11.1`, versión posterior no comprometida según el advisory consultado; la nueva ejecución debe validar la compatibilidad en CI.
 
-- La API de parser ejecutaba reglas Spectral/Ajv que fallaban en Node 26.13 antes de validar el documento. Se sustituyó por la fuente oficial de JSON Schema `@asyncapi/specs@6.11.1`, validada directamente con Ajv draft-07 y el schema `schemasWithoutId['2.6.0']`; el contrato interno continúa validándose con Ajv 2020.
+- La API de parser ejecutaba reglas Spectral/Ajv que fallaban en Node 26.13 antes de validar el documento. Se sustituyó por el JSON Schema oficial `@asyncapi/specs@6.11.1`, validado directamente con Ajv draft-07 y `schemasWithoutId['2.6.0']`; los eventos de dominio continúan validándose con Ajv 2020.
+
+
+## 10. Resultado de validación contractual
+
+- Contract CI [#24](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42445689549) terminó SUCCESS. Redocly validó OpenAPI; el schema oficial AsyncAPI 2.6.0 y los fixtures del catálogo de 69 eventos pasaron.
+- Se mantienen tres warnings OpenAPI conocidos de rutas ambiguas en endpoints de Leads. No impidieron la validación, pero siguen siendo deuda contractual que debe resolverse antes de congelar esas rutas.
