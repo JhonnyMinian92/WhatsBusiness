@@ -24,6 +24,10 @@ import { RabbitMqConnectionFactory, type RabbitMqWorkerChannels } from "./rabbit
 import { RabbitMqTenantJobPublisher } from "./rabbitmq-tenant-job-publisher.js";
 import { RabbitMqTenantJobConsumerAdapter, type TenantJobConsumerErrorReporter } from "./rabbitmq-tenant-job-consumer.js";
 import { RabbitMqJobTopology, TENANT_JOB_RABBITMQ_TOPOLOGY } from "./rabbitmq-topology.js";
+import {
+  NOOP_TENANT_JOB_RUNTIME_METRICS,
+  type TenantJobRuntimeMetrics,
+} from "../../application/tenant-job-runtime-metrics.js";
 
 export interface TenantJobRuntimeSessionLogger extends TenantJobRuntimeLogger, TenantJobConsumerErrorReporter {
   reconnecting(delayMs: number): void;
@@ -45,6 +49,7 @@ export interface RabbitMqPostgresTenantJobRuntimeSessionFactoryOptions {
   readonly retryMaximumDelayMs: number;
   readonly retryMultiplier: number;
   readonly supervisor: TenantJobRuntimeSupervisorOptions;
+  readonly metrics?: TenantJobRuntimeMetrics;
 }
 
 export class RabbitMqPostgresTenantJobRuntimeSessionFactory implements TenantJobRuntimeSessionFactory {
@@ -79,6 +84,7 @@ export class RabbitMqPostgresTenantJobRuntimeSessionFactory implements TenantJob
     const workerRepository = new PostgresTenantJobRuntimeRepository(options.workerPool);
     const clock = { now: () => new Date() };
     const random = { next: () => randomInt(0, 1_000_000) / 1_000_000 };
+    const metrics = options.metrics ?? NOOP_TENANT_JOB_RUNTIME_METRICS;
     const retryPolicy = new TenantJobRetryPolicy({
       initialDelayMs: options.retryInitialDelayMs,
       maximumDelayMs: options.retryMaximumDelayMs,
@@ -96,6 +102,7 @@ export class RabbitMqPostgresTenantJobRuntimeSessionFactory implements TenantJob
       retryPolicy,
       clock,
       random,
+      metrics,
     );
     const consumer = new TenantJobConsumer(
       workerRepository,
@@ -106,7 +113,13 @@ export class RabbitMqPostgresTenantJobRuntimeSessionFactory implements TenantJob
       clock,
       random,
       options.consumerName,
-      new TenantJobExecutionLeaseHeartbeat(workerRepository, undefined, options.handlerExecutionTimeoutMs),
+      new TenantJobExecutionLeaseHeartbeat(
+        workerRepository,
+        undefined,
+        options.handlerExecutionTimeoutMs,
+        metrics,
+      ),
+      metrics,
     );
     const adapter = new RabbitMqTenantJobConsumerAdapter(
       channels.consumer,
@@ -121,6 +134,7 @@ export class RabbitMqPostgresTenantJobRuntimeSessionFactory implements TenantJob
       dispatcher,
       options.logger,
       options.supervisor,
+      metrics,
     );
     const topology = new RabbitMqJobTopology(channels.consumer, TENANT_JOB_RABBITMQ_TOPOLOGY);
 
