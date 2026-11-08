@@ -526,3 +526,17 @@ Insights e Instagram Login Stories permanecen unknown/fail-closed. Instagram Log
 | AC-010-03 — conversación Direct alineada a reglas Meta | Conversación 1:1, recipient-initiated, no grupos, ownership de media solo para Instagram Login, idempotencia y visibilidad de requests antiguos como dato independiente | 9 | No existe sender HTTP ni consumer Inbox conectado; webhook y Advanced Access/Business Verification reales pendientes. |
 
 El slice US-010 suma 42 pruebas de dominio: 14 evaluator + 9 publishing + 10 comments + 9 messaging. Los 287 API + 112 Meta backend de Source CI exitoso se ejecutaron en SHA 1ba349cf013f4d34b5d3496e9a8adddee49a71ad, anterior a estos dos módulos. CI y CodeQL del commit de cierre continúan siendo gates obligatorios.
+
+
+## 13. US-028 / TASK-066 — estado de trazabilidad de market discovery (2026-11-08)
+
+| Criterio | Artefacto | Evidencia al corte | Estado |
+|---|---|---|---|
+| AC-028-01 — baseline sectorial oficial | docs/32 MKT-OBS-001..004; docs/75 sección 3 | REEM 2024 definitivo y 2025 provisional; ENESEM 2024 con límite de empresas grandes/medianas; TIC Empresas 2015 marcada como histórica | Documentado |
+| AC-028-02 — entrevistas por segmento | research/us-028/INTERVIEW-GUIDE.md | Guion y primera ola exploratoria definidos; ningún participante registrado | Preparado / no ejecutado |
+| AC-028-03 — oportunidades/objeciones codificadas sin PII | participant-register.template.csv + interview-coding.template.csv | Plantillas y reglas anti-PII listas; no hay hallazgos reales | Preparado / no ejecutado |
+| AC-028-04 — pilotos y métricas | PILOT-METRICS-DICTIONARY.md + pilot-metrics.template.csv | Definiciones de activación, TTV, asientos, canal, retención, outcome y stop rules | Diseñado / no ejecutado |
+| AC-028-05 — TAM/SAM/SOM con elegibilidad | docs/75 sección 7 | Unidad, filtros, fórmulas y advertencias definidos; valores no estimados | Método definido / pendiente datos |
+| AC-028-06 — no aprobar pricing/forecast con evidencia insuficiente | docs/29 PD-012..014 + docs/75 | No se creó tarifa ni forecast; WTP se mide por señales conductuales/compromiso | Guardrail documentado |
+
+TASK-066/US-028 permanece **in_progress**. El informe y los instrumentos son entregables documentales; la muestra real, los resultados de campo, el piloto autorizado y la estimación cuantitativa siguen pendientes. REEM no equivale a TAM; entrevistas de conveniencia no equivalen a muestra representativa. No se creó API ni evento runtime.
