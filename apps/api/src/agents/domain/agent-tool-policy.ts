@@ -125,9 +125,10 @@ export function fingerprintAgentToolAction(
 function canonicalize(value: AgentJsonValue): AgentJsonValue {
   if (value === null || typeof value !== "object") return value;
   if (Array.isArray(value)) return Object.freeze(value.map((item) => canonicalize(item)));
+  const record = value as { readonly [key: string]: AgentJsonValue };
   const normalized: Record<string, AgentJsonValue> = {};
-  for (const key of Object.keys(value).sort()) {
-    normalized[key] = canonicalize(value[key]!);
+  for (const key of Object.keys(record).sort()) {
+    normalized[key] = canonicalize(record[key]!);
   }
   return Object.freeze(normalized);
 }

@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
-import { isIsoInstant, isOwnershipLeaseActive, isUuid } from "./value-validation.js";
-import type { OwnershipLeaseSnapshot } from "./ownership-lease.policy.js";
+import { isIsoInstant, isUuid } from "./value-validation.js";
+import { isOwnershipLeaseActive, type OwnershipLeaseSnapshot } from "./ownership-lease.policy.js";
 
 export type AgentMessageChannel = "whatsapp" | "messenger" | "instagram";
 export type AgentMessageProvider = "meta" | "partner";
