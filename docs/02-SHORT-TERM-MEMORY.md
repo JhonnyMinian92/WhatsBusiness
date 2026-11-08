@@ -657,12 +657,14 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 
 - Rama de trabajo: `environment/local`; se añadió el núcleo de dominio Ads bajo `apps/api/src/ads/campaigns/domain`.
 - Componentes: aritmética exacta con BigInt; política PD-024 (20% por operación y rolling baseline 24h); máquina de estados de campaña; preflight que exige catálogo y evidencia Meta versionados/vigentes; policy central de ejecución/approval/quorum/kill switch.
-- Cinco suites de dominio, con 24 casos unitarios focalizados, añadidas al target `api:test`. No declarar PASS hasta revisar Source CI del commit que incorpora estos archivos.
+- Cinco suites de dominio, con 28 casos unitarios focalizados, añadidas al target `api:test`. No declarar PASS hasta revisar Source CI del commit que incorpora estos archivos.
 - No se registraron controllers Ads ni rutas públicas porque ADS API contracts siguen catalog-only según docs/49/55; tampoco se afirma que TASK-010/TASK-029 o Meta permissions/tier/account estén resueltos.
 - TASK-024 y TASK-025 permanecen `in_progress`. Faltan persistencia/RLS, application use cases, approval consumption/outbox, worker, Marketing API adapter, pause/kill switch remoto, reconciler, insights/spend ledger, contract freeze + review independiente. Evidencia y estado AC en docs/73-US-012-ADS-CAMPAIGN-IMPLEMENTATION.md.
 
 
 - Hardening adicional TASK-026: `validateConversionEvent` ahora exige `evaluatedAt` confiable al evaluar consent; rechaza consentimiento expirado o revocado después del evento y antes del despacho, así como evento futuro/reloj inválido. El port recibe ambas referencias temporales. Tests añadidos para withdrawal mientras el evento está pendiente. Ver docs/72.
+- Refinamiento: Ads Money admite cero para conciliación, valida decimales ISO 4217 y los presupuestos de campaña/updates deben ser positivos; una reducción se conserva disponible con baseline de incremento vencido. Source CI #653 ya pasó build/typecheck pero encontró dos fallos de aserción que se corrigieron después; nueva ejecución completa pendiente.
+
 
 ## US-009 / TASK-019 — handoff de implementación (2026-11-08)
 
