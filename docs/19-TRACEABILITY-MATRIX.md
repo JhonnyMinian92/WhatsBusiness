@@ -478,3 +478,6 @@ Commits de runtime: `b2fae18c07b1ede450a7ee8248df1ceceb3c0fd2`, `65e173921ff8346
 | TEST-ADS-005 | AC-012-02 — requerir asset, capability y quorum independiente | `ads-execution-guard.ts`; `ads-execution-guard.spec.ts` prueba kill switch, pausa segura y falta de evidencia/aprobación | Código/test añadido; Source CI pendiente |
 
 Las pruebas cubren el dominio, no una ejecución de campañas real. TASK-024/025 continúan `in_progress`; faltan contratos HTTP congelados y reviewer, PostgreSQL/RLS, approval/outbox wiring, TASK-010, TASK-029, adapters, conciliación y review independiente. No existe evidencia de publicación ni gasto Meta.
+
+
+Addendum AC-013-02: además del consentimiento efectivo en `occurredAt`, la suite ahora exige consentimiento aún vigente y no revocado en `evaluatedAt` (momento de despacho), y rechaza reloj inválido/evento futuro. Ver `conversion-event.spec.ts` y docs/72. Adapter confiable y review legal/privacy permanecen pendientes.
