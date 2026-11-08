@@ -608,3 +608,16 @@ Límite: no se modificó OpenAPI/AsyncAPI ni se registraron endpoints Ads, porqu
 | AUD-189 | Cuatro suites añadidas a \`api:test\`; catálogo, evidencia, backlog, trazabilidad, roadmap y memoria sincronizados. | Implementado; Source CI del commit exacto y revisión independiente pendientes. |
 
 No se modificó OpenAPI/allowlist ni se implementaron FB-001..014/WH-003. TASK-019 y US-009 siguen \`in_progress\`; TASK-008/010/027/028 e Inbox TASK-045..047 siguen como dependencias. Sin llamadas de escritura a Meta, cuentas/tokens reales ni habilitación productiva. GO-PRODUCTION permanece NO-GO.
+
+
+## 44. Implementación incremental US-010 — Instagram (2026-11-08)
+
+| ID | Cambio / evidencia | Resultado |
+|---|---|---|
+| AUD-174 | Catálogo por Facebook Login / Instagram Login; selector por conjunto de capabilities, cuenta, scopes y restricciones. | Implementado en dominio; CI pendiente |
+| AUD-175 | Reutilización de MetaCapabilityEvaluator; wrapper para Page linkage/tasks, Page access token, user-initiated DM, Business Verification y Advanced Access. | Implementado en dominio; CI pendiente |
+| AUD-176 | Publication preflight con aprobación, Idempotency-Key, container FINISHED y state machine outcome_unknown/reconciliation. | Implementado en dominio; CI pendiente |
+| AUD-177 | Validator de metadatos Reels y suites unitarias incluidas en api:test. | Implementado en dominio; CI pendiente |
+| AUD-178 | Instagram Login Ads/tagging unsupported; Insights y Stories Instagram Login unknown; IG-001..IG-012 siguen catalog-only. | Gates preservados |
+
+No existe integración HTTP ni escritura externa real. TASK-020/021 siguen in_progress hasta CI exacto, dependencias runtime, revisión independiente y Product Owner acceptance. GO-PRODUCTION NO-GO.

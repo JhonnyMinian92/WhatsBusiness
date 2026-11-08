@@ -481,3 +481,14 @@ Las pruebas cubren el dominio, no una ejecución de campañas real. TASK-024/025
 
 
 Addendum AC-013-02: además del consentimiento efectivo en `occurredAt`, la suite ahora exige consentimiento aún vigente y no revocado en `evaluatedAt` (momento de despacho), y rechaza reloj inválido/evento futuro. Ver `conversion-event.spec.ts` y docs/72. Adapter confiable y review legal/privacy permanecen pendientes.
+
+
+## US-010 — trazabilidad Instagram profesional (2026-11-08)
+
+| Criterio | Implementación / prueba | Estado | Pendiente |
+|---|---|---|---|
+| AC-010-01 — seleccionar login mode por capability | Catálogo de dos modos y selector que exige cubrir el conjunto; tests de preferencia, selección por superficie mínima y bloqueo por capacidades unknown/unsupported | Slice de dominio implementado; CI pendiente | TASK-008 OAuth/token lifecycle y evidencia runtime |
+| AC-010-02 — verificar tipo de cuenta y scopes | Wrapper MetaCapabilityEvaluator; Business/Creator, scopes observados, Page link/tasks, Page token type en FB Login Direct, Business Verification y Advanced Access | Slice de dominio implementado; CI pendiente | TASK-010 sync/persistencia/evidence runtime; scope mapping por operación/version |
+| AC-010-03 — preservar restricciones publish/comments/DM/Insights | Catálogo y policy de publicación con human approval, idempotencia, container status y reconciliation; DM user-initiated; Stories Business-only en Facebook Login; Reel metadata validator | Parcial; CI pendiente | Adapter/HTTP, comments, Inbox/DM events, Insights scopes, webhook TASK-027/028 y E2E |
+
+Insights e Instagram Login Stories permanecen unknown/fail-closed. Instagram Login Ads/tagging unsupported. IG-001..IG-012 siguen catalog-only. No existe integración Meta real ni aceptación de producto.

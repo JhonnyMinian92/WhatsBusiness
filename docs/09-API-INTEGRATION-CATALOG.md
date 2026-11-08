@@ -173,3 +173,16 @@ Fuentes oficiales:
 \`MetaCapabilityEvaluator\` modela \`requiredAnyAssetTasks\` con semántica OR y \`requiredAccessTokenType\`, sin sustituir tareas AND ni validaciones de evidencia/expiración/versión. El módulo Messenger define los descriptors con versión explícita del caller.
 
 No extrapolar scopes/tareas a listados Page, publicaciones, comentarios, moderación o insights; requieren evidencia independiente. Advanced Access es distinto de OAuth scope y Marketing API Access Tier. La documentación pública no demuestra que app/Page real de WhatsBusiness tenga permisos concedidos; sin evidencia runtime vigente, el estado sigue \`unknown\`.
+
+
+## Instagram profesional — baseline por modo de login (2026-11-08)
+
+- **Facebook Login:** Instagram Professional Business/Creator vinculada a Facebook Page. La colección Meta lista pages_show_list, instagram_basic, instagram_content_publish, pages_read_engagement e instagram_manage_comments. Documenta media/profile, publicación, comentarios y métricas básicas. Stories publishing solo está documentado para Business en esta modalidad.
+- **Instagram Login:** cuentas profesionales Business/Creator. Scopes de colección: instagram_business_basic, instagram_business_manage_messages, instagram_business_manage_comments e instagram_business_content_publish. No ofrece acceso a Ads ni tagging.
+- **Direct Messaging con Facebook Login:** Conversations API requiere instagram_manage_messages, pages_manage_metadata, Page task MESSAGING y Page access token. Business Verification y Advanced Access aplican a los escenarios documentados de acceso a conversaciones externas.
+- **Direct Messaging con Instagram Login:** exige instagram_business_manage_messages y que el destinatario inicie la conversación. No admite grupos; los medios compartidos deben pertenecer a la cuenta conectada y Requests inactivos por 30 días no se devuelven en las consultas descritas.
+- **Insights:** no habilitar hasta fijar scopes exactos por edge, login mode, API version y tipo de cuenta. Capability permanece unknown.
+- **Instagram Login + Stories:** elegibilidad no confirmada por la referencia consultada; mantener unknown. No extrapolar la restricción Business del apartado Facebook Login.
+- API version, login mode, scopes concedidos, Page tasks, token type, App Review, Advanced Access, Business Verification y elegibilidad de cuenta son evidencias distintas. Un token presente no habilita una operación.
+
+La implementación incremental está descrita en [74-INSTAGRAM-AUTH-MODES-AND-CAPABILITIES.md](74-INSTAGRAM-AUTH-MODES-AND-CAPABILITIES.md). Fuentes oficiales: [Meta Instagram API](https://www.postman.com/meta/instagram/documentation/6yqw8pt/instagram-api), [Meta Instagram Login](https://www.postman.com/meta/instagram/folder/1z5vxzu/instagram-api-with-instagram-login), [Meta Conversations API](https://www.postman.com/meta/messenger-platform-api/folder/22794852-255610cd-47f5-4f4d-b3fa-71aec360be9a).

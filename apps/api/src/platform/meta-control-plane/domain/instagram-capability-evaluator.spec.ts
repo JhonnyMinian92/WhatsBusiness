@@ -24,6 +24,7 @@ function baseEvidence(): MetaCapabilityEvidence {
     assetTasks: observed([]), entitlementKeys: observed([]),
     appMode: observed("live"), appReview: observed("approved"),
     accessTier: observed("limited"), accountType: observed("business"),
+    accessTokenType: observed("page" as const),
     country: observed("EC"), consentAndLegalBasis: observed(true), explicitApproval: observed(true),
   };
 }
@@ -98,9 +99,23 @@ test("Facebook Login Direct exige Page task, Business Verification y Advanced Ac
   assert.ok(codes.includes("INSTAGRAM_BUSINESS_VERIFICATION_REQUIRED"));
   assert.ok(codes.includes("INSTAGRAM_ADVANCED_ACCESS_UNKNOWN"));
 });
-test("Stories solo se habilitan para cuentas Business", () => {
-  const result = evaluate("instagram_login", "stories_publish", { accountType: observed("creator") });
+test("Facebook Login Stories solo se habilita para cuentas Business", () => {
+  const result = evaluate("facebook_login", "stories_publish", { accountType: observed("creator") });
   assert.ok(result.reasons.some((reason) => reason.code === "ACCOUNT_TYPE_INELIGIBLE"));
+});
+
+test("Instagram Login Stories permanece unknown hasta verificar su elegibilidad", () => {
+  const result = evaluate("instagram_login", "stories_publish");
+  assert.equal(result.state, "unknown");
+  assert.equal(result.available, false);
+});
+
+test("Facebook Login Direct exige Page access token y rechaza user token", () => {
+  const result = evaluate("facebook_login", "direct_messages", {
+    evidence: { ...baseEvidence(), accessTokenType: observed("user" as const) },
+  });
+  assert.equal(result.state, "unavailable");
+  assert.ok(result.reasons.some((reason) => reason.code === "ACCESS_TOKEN_TYPE_MISMATCH"));
 });
 test("evidencia expirada de Page linkage no habilita la operación", () => {
   const result = evaluate("facebook_login", "media_publish", {

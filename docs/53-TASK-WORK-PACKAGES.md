@@ -258,3 +258,13 @@ Commit 966edff: Source CI #42513964425 y CodeQL #42513964419 success; PostgreSQL
 
 
 TASK-026 addendum: la validación y el port ahora toman `evaluatedAt` del servidor además de `occurredAt`; rechazan retiro/caducidad de consentimiento mientras el evento espera despacho, timestamps de validación inválidos y eventos futuros. El snapshot ligado a la página oficial de Meta reporta dedupe por `event_name + event_id` en 48 horas y `user_data` requerido; la referencia oficial directa devolvió 429 en la revisión, por lo que ventana/semántica se ratificarán al congelar CAPI-001..004. El slice no arma payload ni hace envío, pues aún no hay user_data permitido, adapter de consentimiento, Lead source ni contrato congelado.
+
+
+## US-010 — implementación incremental de TASK-020 / TASK-021 (2026-11-08)
+
+| TASK | Slice implementado | Estado |
+|---|---|---|
+| TASK-020 | Catálogo de login modes/capabilities y selector; MetaCapabilityEvaluator; scopes, account type, Page linkage/tasks y token type específico de Facebook Login Direct; verificación/Advanced Access de DM. | in_progress; CI y dependencias runtime pendientes |
+| TASK-021 | Preflight/state machine de publicaciones, idempotency, container readiness, timeout reconciliation, límites Reel y restricciones de DM. | in_progress; adapter, persistence, comments, Direct, Insights, webhook consumers pendientes |
+
+No hay endpoint Instagram permitido por el freeze actual. IG-001..IG-012 permanecen catalog-only. No marcar accepted.

@@ -211,3 +211,8 @@ El estado de validación, las propuestas de eventos pendientes y el GO/NO-GO arq
 ## 73 — US-012 Ads Campaign Lifecycle
 
 [72 — US-012: Campaign Lifecycle & Spend Guardrails](73-US-012-ADS-CAMPAIGN-IMPLEMENTATION.md) registra el núcleo de dominio de campañas, validación con evidencia Meta, límites exactos PD-024, kill switch fail-closed, pruebas y gates de integración aún abiertos.
+
+
+## 74 — Instagram Auth Modes y Capability Registry
+
+[74 — Instagram: modos de autenticación y capacidades](74-INSTAGRAM-AUTH-MODES-AND-CAPABILITIES.md) registra US-010/TASK-020/021, las dos modalidades de login, scopes/restricciones oficiales, token type, publication safety, pruebas y dependencias para completar la integración.

@@ -876,3 +876,13 @@ Implementado en este slice:
 - Cuatro suites nuevas añadidas a \`apps/api/project.json\` y regresiones del evaluador común.
 
 **Pendiente:** integrar policies al adapter/sender e Inbox; completar OAuth/token vault y capability runtime (TASK-008/010); handlers Messenger y fixtures oficiales por versión para WH-003 (TASK-027/028); outbox durable, lease/CAS, routing/bot suppression y E2E Inbox (TASK-045..047); contratos FB-001..014 congelados por operación; CI del HEAD, revisión independiente y aceptación Product Owner. No se publicaron endpoints catalog-only ni se ejecutaron mutaciones Meta.
+
+
+## US-010 — Instagram profesional (2026-11-08)
+
+| Tarea | Estado técnico actual | Entregable en el slice | Pendiente / gate de cierre |
+|---|---|---|---|
+| TASK-020 — auth modes y capabilities | in_progress; slice de dominio agregado | Catálogo Facebook Login / Instagram Login, selector por capacidades, scopes, Business/Creator, Page linkage/tasks, token type para Facebook Login Direct, Business Verification y Advanced Access; wrapper de Capability Engine común | OAuth/Embedded Signup y token lifecycle TASK-008; asset/evidence runtime TASK-010; verificar scopes por endpoint, App Review y Advanced Access con app/cuenta elegible; CI, review y aceptación |
+| TASK-021 — publish/comments/DM/insights | in_progress; policy de dominio agregada | Preflight de publicación, aprobación, idempotencia, container FINISHED, outcome_unknown/reconciliation, límites Reel y restricciones DM/Stories | Adapter HTTP, repositorios, IG-002..IG-012, Inbox/DM consumer, webhook handlers TASK-027/028, comments/Insights runtime, sync y E2E |
+
+IG-001..IG-012 continúan catalog-only (x-implementation-allowed=false). No habilitar rutas. Insights e Instagram Login Stories permanecen unknown. Los scopes de publishing/comments se registran como evidencia de colección, sujetos a verificación por endpoint/version antes de activar operaciones. No hubo escrituras Meta ni pruebas con cuenta real. Implemented no equivale a verified ni accepted.

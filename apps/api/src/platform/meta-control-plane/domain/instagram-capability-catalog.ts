@@ -1,4 +1,4 @@
-import type { MetaCapabilityDefinition } from "./meta-capability.js";
+import type { MetaAccessTokenType, MetaCapabilityDefinition } from "./meta-capability.js";
 
 export type InstagramLoginMode = "facebook_login" | "instagram_login";
 export type InstagramAccountType = "business" | "creator" | "consumer";
@@ -14,6 +14,7 @@ export interface InstagramCapabilityProfile {
   readonly support: InstagramSupport;
   readonly requiredScopes: readonly string[];
   readonly scopeEvidence: InstagramScopeEvidence;
+  readonly requiredAccessTokenType?: MetaAccessTokenType;
   readonly pageLinkRequired: boolean;
   readonly requiredPageTasks: readonly string[];
   readonly accountTypes: readonly InstagramAccountType[];
@@ -37,7 +38,7 @@ const PROFESSIONAL_ACCOUNT_TYPES = ["business", "creator"] as const;
 type ProfileOverrides = Partial<Pick<InstagramCapabilityProfile,
   | "support" | "scopeEvidence" | "requiredPageTasks" | "accountTypes"
   | "businessVerificationRequired" | "advancedAccessRequiredForExternalRecipients"
-  | "limitations"
+  | "limitations" | "requiredAccessTokenType"
 >>;
 
 function createProfile(
@@ -58,7 +59,7 @@ function createProfile(
   };
   const limitations = [
     ...(facebookLogin ? ["Facebook Login requiere una Facebook Page vinculada a la cuenta profesional."] : []),
-    ...(stories ? ["Meta limita la publicación de Stories a cuentas Business."] : []),
+    ...(stories && facebookLogin ? ["Meta limita la publicación de Stories a cuentas Business en Facebook Login."] : []),
     ...(directMessages ? [
       "El destinatario debe iniciar la conversación.",
       "No se admite mensajería grupal.",
@@ -78,8 +79,11 @@ function createProfile(
     requiredScopes: Object.freeze([...requiredScopes]),
     scopeEvidence: overrides.scopeEvidence ?? (directMessages ? "operation" : "documented_collection"),
     pageLinkRequired: facebookLogin,
+    ...(overrides.requiredAccessTokenType
+      ? { requiredAccessTokenType: overrides.requiredAccessTokenType }
+      : (facebookLogin && directMessages ? { requiredAccessTokenType: "page" as const } : {})),
     requiredPageTasks: Object.freeze([...(overrides.requiredPageTasks ?? (facebookLogin ? (defaultTasks[capability] ?? []) : []))]),
-    accountTypes: Object.freeze([...(overrides.accountTypes ?? (stories ? ["business"] : PROFESSIONAL_ACCOUNT_TYPES))]),
+    accountTypes: Object.freeze([...(overrides.accountTypes ?? (stories && facebookLogin ? ["business"] : PROFESSIONAL_ACCOUNT_TYPES))]),
     recipientMustInitiate: directMessages,
     businessVerificationRequired: overrides.businessVerificationRequired ?? (facebookLogin && directMessages),
     advancedAccessRequiredForExternalRecipients: overrides.advancedAccessRequiredForExternalRecipients
@@ -105,7 +109,7 @@ const PROFILES: readonly InstagramCapabilityProfile[] = Object.freeze([
   createProfile("instagram_login", "profile_read", ["instagram_business_basic"]),
   createProfile("instagram_login", "media_read", ["instagram_business_basic"]),
   createProfile("instagram_login", "media_publish", ["instagram_business_basic", "instagram_business_content_publish"]),
-  createProfile("instagram_login", "stories_publish", ["instagram_business_basic", "instagram_business_content_publish"]),
+  createProfile("instagram_login", "stories_publish", ["instagram_business_basic", "instagram_business_content_publish"], { support: "unknown", scopeEvidence: "unknown", limitations: ["La fuente consultada no confirma la elegibilidad de Stories para Instagram Login; no habilitar hasta verificar el endpoint oficial."] }),
   createProfile("instagram_login", "comments_manage", ["instagram_business_basic", "instagram_business_manage_comments"]),
   createProfile("instagram_login", "direct_messages", ["instagram_business_basic", "instagram_business_manage_messages"]),
   createProfile("instagram_login", "insights_read", [], { support: "unknown", scopeEvidence: "unknown" }),
@@ -218,6 +222,9 @@ export function toMetaCapabilityDefinition(
     requiredAppMode: "live",
     requiresAppReview: true,
     eligibleAccountTypes: profileValue.accountTypes,
+    ...(profileValue.requiredAccessTokenType
+      ? { requiredAccessTokenType: profileValue.requiredAccessTokenType }
+      : {}),
     requiresConsentAndLegalBasis: false,
     requiresExplicitApproval: profileValue.capability === "media_publish"
       || profileValue.capability === "stories_publish",

@@ -672,3 +672,15 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Documentación: docs/09, docs/32, docs/74, docs/11, docs/19, docs/14 y docs/15.
 - Inspeccionar Source CI del commit exacto antes de marcar CI-verified.
 - TASK-019/US-009 siguen \`in_progress\`: faltan connection/vault (TASK-008), capability runtime/persistencia/refresh (TASK-010), handlers webhook Messenger reales (TASK-027/028), Inbox durable/lease/outbox/agent routing (TASK-045..047), contract freeze FB-001..014, review independiente y Product Owner acceptance. Sin llamadas externas Meta ni GO-PRODUCTION.
+
+
+## Handoff US-010 — Instagram profesional (2026-11-08)
+
+- Commit inicial del slice: 88e94e28bacb9ae73a4ab3ed286de1121605d371 en environment/local.
+- TASK-020 incorpora el catálogo Facebook Login / Instagram Login, selector por capabilities y evaluación con MetaCapabilityEvaluator; TASK-021 incorpora policy y state machine de publicación.
+- La evaluación exige evidencia vigente de actor, tenant, finalidad, grants, API version, App Review, scopes, tipo de cuenta y Page linkage/tasks. Facebook Login Direct exige además Page access token, MESSAGING, Business Verification y Advanced Access para destinatarios externos.
+- Insights permanece unknown/fail-closed por falta de scope exacto por operación. Instagram Login Ads/tagging unsupported. Instagram Login Stories unknown hasta verificar elegibilidad; Facebook Login Stories solo Business según la colección consultada.
+- Publication preflight exige aprobación humana, Idempotency-Key y container FINISHED. Timeout remoto queda outcome_unknown y requiere reconciliación.
+- Suites unitarias registradas en apps/api/project.json. Source CI del commit de Instagram y CodeQL exactos pendientes.
+- IG-001..IG-012 siguen catalog-only. No hay OAuth runtime, adapter Meta HTTP, DM consumer, comment handlers, Insights runtime ni pruebas con cuenta real. TASK-008, TASK-010 y TASK-027/028 siguen como dependencias.
+- TASK-020/021 continúan in_progress; revisión independiente y Product Owner acceptance pendientes. GO-PRODUCTION NO-GO.

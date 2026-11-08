@@ -372,3 +372,12 @@ TASK-004 (RBAC/ABAC y asignación persistente) y TASK-005 (step-up, approvals y 
 Se añadió un slice de dominio: MetaCapabilityEvaluator ahora expresa tareas OR y tipo de Page access token; Messenger capability descriptors por operación; Advanced Access para participantes externos; política ventana estándar de 24 h con ownership y soporte; y handoff policy con authorization, tenant y versión optimista que construye el envelope \`inbox.handoff.requested\`. Cuatro nuevas suites fueron incorporadas al target \`api:test\`.
 
 **No es cierre de historia:** faltan OAuth/connection runtime y Page inventory persistente (TASK-008/009/010); handlers y fixtures webhook Messenger (TASK-027/028); Inbox lease/CAS/outbox/routing/bot suppression (TASK-045..047). FB-001..014 y WH-003 siguen catalog-only. Source CI del HEAD, review independiente y Product Owner acceptance están pendientes. GO-PRODUCTION sigue NO-GO.
+
+
+## US-010 — avance técnico Instagram (2026-11-08)
+
+- TASK-020: catálogo por modo/capability y selector según conjunto de funciones; scopes, cuenta Business/Creator, Page link/tasks, Page token type para Facebook Login Direct, Business Verification y Advanced Access se evalúan con el motor Meta general. Pendiente OAuth real y registry/evidence runtime.
+- TASK-021: publication preflight y state machine; timeout queda outcome_unknown y exige reconciliación; Reel metadata validator. Pendiente API adapter, comments/DM/Insights handlers, webhook consumer, Inbox, persistencia y E2E.
+- Insights e Instagram Login Stories permanecen unknown; Instagram Login Ads/tagging unsupported.
+- IG-001..IG-012 siguen catalog-only y sus rutas públicas no están habilitadas.
+- Source CI del commit exacto, revisión independiente y aceptación formal pendientes. GO-PRODUCTION NO-GO.
