@@ -180,7 +180,7 @@ El endpoint sirve los counters e histogramas existentes, que siguen siendo in-me
 
 ## 14. Gauges operativos agregados desde PostgreSQL
 
-La migración `microservices-meta-ecuapp/migrations/0014-tenant-job-runtime-metrics.sql` crea `platform.read_tenant_job_runtime_metrics()`. Es una función `SECURITY DEFINER` con `search_path` fijado y devuelve únicamente agregados globales: dispatch pending/blocked, leases de dispatcher y worker activos/expirados, jobs dead-letter, edad del pending más antiguo y jobs replayed. Nunca devuelve tenant ID, actor ID, correlation ID, job ID ni payload.
+La migración `microservices-meta-ecuapp/migrations/0015-tenant-job-runtime-metrics.sql` crea `platform.read_tenant_job_runtime_metrics()`. Es una función `SECURITY DEFINER` con `search_path` fijado y devuelve únicamente agregados globales: dispatch pending/blocked, leases de dispatcher y worker activos/expirados, jobs dead-letter, edad del pending más antiguo y jobs replayed. Nunca devuelve tenant ID, actor ID, correlation ID, job ID ni payload.
 
 El único rol con `EXECUTE` es `whatsbusiness_job_dispatcher_role`. `whatsbusiness_app` y `whatsbusiness_job_worker_role` no pueden ejecutar la función; el dispatcher tampoco tiene `SELECT` directo de `platform.tenant_job_records`. El diseño usa el pool dedicado de dispatcher, sin ampliar permisos de API o worker.
 
