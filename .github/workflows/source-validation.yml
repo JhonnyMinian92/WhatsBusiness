@@ -123,6 +123,9 @@ jobs:
             echo "lockfile_changed=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Validate Grafana and Prometheus observability assets
+        run: node scripts/validate-observability-assets.mjs
+
       - name: Provision restricted API database role
         run: |
           psql "$MIGRATION_DATABASE_URL" --set=ON_ERROR_STOP=1 <<'SQL'
