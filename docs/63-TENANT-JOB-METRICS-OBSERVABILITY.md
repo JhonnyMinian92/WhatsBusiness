@@ -20,7 +20,7 @@ Proveer scraping Prometheus utilizable para el runtime de `microservices-meta-ec
 | `TENANT_JOB_METRICS_PORT` | `9464` | Entero entre 0 y 65535; `0` permite puerto efímero en tests. |
 | `TENANT_JOB_METRICS_BEARER_TOKEN` | vacío | Obligatorio fuera de loopback y mínimo 32 bytes UTF-8. |
 
-Para scraping desde otro contenedor/host, configurar el host de escucha a una interfaz privada y suministrar un bearer token aleatorio desde Secret Manager. Prometheus debe enviar `Authorization: Bearer <token>`. No guardar el secreto en Git, logs, labels, imágenes de contenedor ni documentación. El firewall/security group debe limitar el puerto al scraper interno; la autenticación no sustituye al aislamiento de red.
+Para scraping desde otro contenedor/host, configurar el host de escucha a una interfaz privada y suministrar un bearer token aleatorio desde Secret Manager. Prometheus debe enviar `Authorization: Bearer <token>`. El tráfico remoto debe quedar protegido por TLS/mTLS en un service mesh o reverse proxy de confianza; el bearer token no cifra el transporte. No guardar el secreto en Git, logs, labels, imágenes de contenedor ni documentación. El firewall/security group debe limitar el puerto al scraper interno; la autenticación no sustituye al aislamiento de red.
 
 ## Superficie HTTP
 
@@ -44,13 +44,12 @@ No se han añadido todavía gauges de outbox age, queue depth, consumer lag, nú
 
 ## Estado y criterios pendientes
 
-**Implementado en source; verificación CI de este cambio pendiente.** No marcar TASK-003 como verified o accepted por este endpoint aislado.
+**Implementado y CI-verificado como componente aislado.** Source CI [#42434224485](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42434224485) terminó SUCCESS para commit `abbc86cfbd72e89ab5db82b0e3207159a66eba71`, incluyendo build, typecheck y `tenant-job-metrics-http.server.spec.ts`. Esto no cierra TASK-003 ni permite marcarla accepted.
 
 Para el cierre de observabilidad de TASK-003 aún se requiere:
-1. Ejecutar Source CI y revisar logs del nuevo test.
-2. Diseñar gauges consultando PostgreSQL/RabbitMQ sin mezclar credenciales de API, dispatcher y worker.
-3. Añadir dashboards y alertas basados en umbrales/SLO aprobados y evidencia de carga.
-4. Validar scraping desde la topología real de despliegue, TLS/autenticación, firewall y secret rotation.
-5. Incorporar revisión independiente de seguridad/operación y aceptación del propietario.
+1. Diseñar gauges consultando PostgreSQL/RabbitMQ sin mezclar credenciales de API, dispatcher y worker.
+2. Añadir dashboards y alertas basados en umbrales/SLO aprobados y evidencia de carga.
+3. Validar scraping desde la topología real de despliegue, TLS/mTLS, firewall y secret rotation.
+4. Incorporar revisión independiente de seguridad/operación y aceptación del propietario.
 
 GO-PRODUCTION permanece NO-GO.

@@ -420,6 +420,6 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Añadido `TenantJobMetricsHttpServer` como adapter de infraestructura sin dependencias externas.
 - `TenantJobRuntimeProcess.run()` inicia el listener y el cierre del proceso apaga el servidor junto con los pools.
 - Superficie limitada a `GET /metrics`; loopback por defecto; binding remoto exige bearer token de al menos 32 bytes, comparado en tiempo constante.
-- Pruebas nuevas registradas en el target Nx; su resultado CI aún debe comprobarse. No se declara verificación por el hecho de haber escrito la suite.
-- Se actualizaron `microservices-meta-ecuapp/.env.example`, README del backend y docs/60/63.
+- La suite HTTP está registrada en `microservices-meta-ecuapp:test`; Source CI [#42434224485](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42434224485) terminó SUCCESS e incluyó build, typecheck y tests.
+- Se actualizaron `microservices-meta-ecuapp/.env.example`, README del backend y docs/60/63. Para binding remoto, el bearer token no sustituye TLS/mTLS ni la restricción de red.
 - TASK-003 continúa `in_progress`; faltan gauges, alertas/SLO, DLQ operator workflow/replay, handler real e2e, revisión independiente y aceptación. GO-PRODUCTION continúa NO-GO.

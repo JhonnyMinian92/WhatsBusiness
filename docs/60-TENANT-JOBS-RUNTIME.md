@@ -172,6 +172,6 @@ Se añadió `TenantJobMetricsHttpServer` en infraestructura y se conectó al cic
 
 La configuración usa `TENANT_JOB_METRICS_HOST=127.0.0.1` y `TENANT_JOB_METRICS_PORT=9464` por defecto. Un binding fuera de loopback exige `TENANT_JOB_METRICS_BEARER_TOKEN` con al menos 32 bytes; la comparación usa `timingSafeEqual`. Para contenedores, limitar el puerto a la red de monitorización privada y suministrar el token mediante Secret Manager. No se incorporan labels de tenant, actor, job ni payload.
 
-El nuevo test cubre GET/404/405, headers, bearer token, binding remoto sin token, renderer fallido, doble startup y cierre idempotente. Está agregado a `microservices-meta-ecuapp:test`; no se afirma PASS hasta que Source CI complete.
+El nuevo test cubre GET/404/405, headers, bearer token, binding remoto sin token, renderer fallido, doble startup y cierre idempotente. Está agregado a `microservices-meta-ecuapp:test`. Source CI [#42434224485](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42434224485) terminó SUCCESS para commit `abbc86cfbd72e89ab5db82b0e3207159a66eba71`, incluyendo build, typecheck y esta suite.
 
 El endpoint sirve los counters e histogramas existentes, que siguen siendo in-memory. Todavía faltan gauges de outbox/cola/consumer lag/leases/DLQ/replay, reglas de alertas, SLO cuantificados, dashboards y validación de scraping en la topología desplegada. TASK-003 sigue `in_progress`; GO-PRODUCTION permanece NO-GO.
