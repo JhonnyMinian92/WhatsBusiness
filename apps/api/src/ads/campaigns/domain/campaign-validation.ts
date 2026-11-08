@@ -1,4 +1,4 @@
-import { parseAdsMoney, type AdsMoney } from "./ads-money.js";
+import { isAdsMoneyPositive, parseAdsMoney, type AdsMoney } from "./ads-money.js";
 
 export interface AdsObjectiveCatalogEvidence {
   readonly apiVersion: string;
@@ -78,8 +78,12 @@ export function validateAdsCampaignDraft(
   }
 
   let budget: AdsMoney | null = null;
-  try { budget = parseAdsMoney(input.dailyBudget); }
-  catch { add("ADS_CAMPAIGN_BUDGET_INVALID", "error"); }
+  try {
+    budget = parseAdsMoney(input.dailyBudget);
+    if (!isAdsMoneyPositive(budget)) add("ADS_CAMPAIGN_BUDGET_MUST_BE_POSITIVE", "error");
+  } catch {
+    add("ADS_CAMPAIGN_BUDGET_INVALID", "error");
+  }
 
   if (input.startsAt !== undefined && input.startsAt !== null && !isIsoDate(input.startsAt)) {
     add("ADS_CAMPAIGN_START_TIME_INVALID", "error");
