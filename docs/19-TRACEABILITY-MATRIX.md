@@ -251,5 +251,6 @@ Source CI run #112 [42387272987](https://github.com/JhonnyMinian92/WhatsBusiness
 | Object keys quedan bajo prefijo tenant y rechazan traversal | US-001; TASK-003 | TenantScopedObjectStorage, ObjectStorage | tenant-scoped-object-storage.spec.ts | implemented; CI pending |
 | Cada ejecución worker revalida membership/tenant vía DB | US-001; TASK-003 | TenantJobContextResolver, TenantJobRecordReader, TenantJobExecutor, DatabaseService.withTenantContext | tenant-job-context.spec.ts | primitive implemented; PostgreSQL worker integration pending |
 | Telemetría no filtra tenant ID en metric labels | US-001; TASK-003 | TenantTelemetryContext, HmacTenantPseudonymizer | tenant-telemetry-context.spec.ts | implemented; secret manager adapter/wiring pending |
+| Scraping Prometheus se limita a GET /metrics y protege bindings remotos | US-001; TASK-003 | TenantJobMetricsHttpServer, TenantJobRuntimeProcess | tenant-job-metrics-http.server.spec.ts | implemented; Source CI pending |
 
-No se afirma runtime completo: adapters Valkey/object storage, outbox/inbox consumer, retry/DLQ/replay, broker validation, pool Node A→B, HMAC secret-backed pseudonymization y review independiente siguen pendientes. TASK-003 no está verified ni accepted.
+No se afirma runtime completo: adapters Valkey/object storage, DLQ operator workflow/replay con handlers reales, gauges/alertas/SLO, broker validation, Secret Manager/rotación HMAC y review independiente siguen pendientes. TASK-003 no está verified ni accepted.
