@@ -143,7 +143,7 @@ export class RabbitMqPrometheusTenantJobQueueMetricsReader implements TenantJobR
     const headers: Record<string, string> = {
       accept: "text/plain; version=0.0.4; charset=utf-8",
     };
-    if (this.authorization) headers.authorization = this.authorization;
+    if (this.authorization) headers["authorization"] = this.authorization;
 
     let response: Response;
     try {
