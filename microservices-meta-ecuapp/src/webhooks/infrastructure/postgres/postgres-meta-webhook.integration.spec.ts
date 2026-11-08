@@ -87,7 +87,13 @@ test("PostgreSQL webhook inbox persists idempotently, fences tenant processing a
     assert.deepEqual(first, { accepted: 1, duplicates: 0 });
     const duplicate = await ingressRepository.persistBatch([input]);
     assert.deepEqual(duplicate, { accepted: 0, duplicates: 1 });
+    await assert.rejects(
+      ingress.query("SELECT payload_ciphertext FROM platform.meta_webhook_inbox WHERE tenant_id = $1", [tenantId]),
+      (error: unknown) => (error as { code?: string }).code === "42501",
+      "The API ingress login must not read encrypted provider payloads.",
+    );
 
+    const workerRepository = new PostgresMetaWebhookRepository(worker);
     let workerProcess: MetaWebhookWorkerProcess | null = null;
     try {
       const channels = await new RabbitMqConnectionFactory().open(
@@ -106,6 +112,9 @@ test("PostgreSQL webhook inbox persists idempotently, fences tenant processing a
           async handle(_client, claimedEvent, decodedPayload) {
             assert.equal(claimedEvent.tenantId, tenantId);
             assert.deepEqual(decodedPayload, payload);
+            const wrongTenantCompletion = await workerRepository.withTenantTransaction(otherTenantId, (client) =>
+              workerRepository.completeEvent(client, claimedEvent.eventId, claimedEvent.leaseToken, "meta-webhook-ci"));
+            assert.equal(wrongTenantCompletion, false, "A worker must not complete another tenant's event context.");
             handlerCalls += 1;
           },
         }],
