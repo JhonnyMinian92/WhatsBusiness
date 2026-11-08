@@ -1,7 +1,6 @@
 import type { PoolClient } from "pg";
 import type { ApprovalRequestSummary } from "../../../platform/identity/approvals/approval-workflow.service.js";
 import type { JsonSnapshot } from "../../../platform/identity/approvals/approval-request-hash.js";
-import type { AdsBudgetGuardrailDecision } from "../domain/budget-guardrail.js";
 import type { AdsCampaignStatus } from "../domain/campaign-lifecycle.js";
 import type { AdsCampaignValidationIssue } from "../domain/campaign-validation.js";
 import type { AdsCampaignDraftCommand } from "./campaign-draft-command.js";
