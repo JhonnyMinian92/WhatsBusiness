@@ -5,6 +5,7 @@ import type {
   TenantJobPublishMetricOutcome,
   TenantJobRuntimeMetrics,
   TenantJobRuntimeRecoveryMetrics,
+  TenantJobRuntimeMetricsSnapshot,
 } from "../../application/tenant-job-runtime-metrics.js";
 
 const HISTOGRAM_BUCKETS_SECONDS = Object.freeze([
@@ -34,6 +35,22 @@ type Outcome = TenantJobDispatchMetricOutcome
   | "stale_publication"
   | "worker";
 
+const RUNTIME_GAUGES = [
+  { name: "tenant_job_dispatch_pending", help: "Jobs waiting in the durable dispatch outbox.", key: "pendingDispatchJobs" },
+  { name: "tenant_job_dispatch_blocked", help: "Jobs blocked from dispatch for operator repair.", key: "blockedDispatchJobs" },
+  { name: "tenant_job_dispatch_leases_active", help: "Unexpired publisher leases.", key: "activeDispatchLeases" },
+  { name: "tenant_job_dispatch_leases_expired", help: "Expired publisher leases awaiting recovery.", key: "expiredDispatchLeases" },
+  { name: "tenant_job_execution_leases_active", help: "Unexpired worker execution leases.", key: "activeExecutionLeases" },
+  { name: "tenant_job_execution_leases_expired", help: "Expired worker leases awaiting recovery.", key: "expiredExecutionLeases" },
+  { name: "tenant_job_dead_letter_jobs", help: "Jobs in terminal dead-letter state.", key: "deadLetterJobs" },
+  { name: "tenant_job_oldest_pending_dispatch_age_seconds", help: "Age of the oldest job waiting in the dispatch outbox.", key: "oldestPendingDispatchAgeSeconds" },
+  { name: "tenant_job_replayed_jobs", help: "Persisted child jobs created by the approved replay workflow.", key: "replayedJobs" },
+] as const satisfies ReadonlyArray<{
+  readonly name: string;
+  readonly help: string;
+  readonly key: keyof TenantJobRuntimeMetricsSnapshot;
+}>;
+
 interface HistogramState {
   count: number;
   sum: number;
@@ -44,6 +61,7 @@ export class PrometheusTenantJobRuntimeMetrics implements TenantJobRuntimeMetric
   private readonly counters = new Map<string, number>();
   private readonly executionHistograms = new Map<TenantJobExecutionMetricOutcome, HistogramState>();
   private readonly publishHistograms = new Map<TenantJobPublishMetricOutcome, HistogramState>();
+  private readonly gauges = new Map<string, number>();
 
   recordDispatch(outcome: TenantJobDispatchMetricOutcome): void {
     if (DISPATCH_OUTCOMES.has(outcome)) {
@@ -79,6 +97,22 @@ export class PrometheusTenantJobRuntimeMetrics implements TenantJobRuntimeMetric
     this.increment("tenant_job_runtime_errors_total", "worker");
   }
 
+  recordRuntimeSnapshot(snapshot: TenantJobRuntimeMetricsSnapshot): void {
+    for (const gauge of RUNTIME_GAUGES) {
+      const value = snapshot[gauge.key];
+      if (!Number.isFinite(value) || value < 0) {
+        throw new Error("Tenant job runtime gauge value is invalid: " + gauge.key + ".");
+      }
+      if (gauge.key !== "oldestPendingDispatchAgeSeconds" && !Number.isSafeInteger(value)) {
+        throw new Error("Tenant job runtime count gauge must be a safe integer: " + gauge.key + ".");
+      }
+    }
+
+    for (const gauge of RUNTIME_GAUGES) {
+      this.gauges.set(gauge.name, snapshot[gauge.key]);
+    }
+  }
+
   renderPrometheus(): string {
     const lines: string[] = [];
     this.appendCounter(lines, "tenant_job_dispatch_total", "Dispatch outcomes by fixed outcome.");
@@ -87,10 +121,20 @@ export class PrometheusTenantJobRuntimeMetrics implements TenantJobRuntimeMetric
     this.appendCounter(lines, "tenant_job_recovery_total", "Recovered leases and stale publications.");
     this.appendCounter(lines, "tenant_job_lease_renewal_total", "Execution lease heartbeat outcomes.");
     this.appendCounter(lines, "tenant_job_runtime_errors_total", "Runtime supervisor errors.");
+    this.appendRuntimeGauges(lines);
 
     this.appendHistogram(lines, "tenant_job_execution_duration_seconds", "Tenant job handler duration.", this.executionHistograms);
     this.appendHistogram(lines, "tenant_job_publish_duration_seconds", "Tenant job broker publish duration.", this.publishHistograms);
     return lines.join("\n") + (lines.length ? "\n" : "");
+  }
+
+  private appendRuntimeGauges(lines: string[]): void {
+    for (const gauge of RUNTIME_GAUGES) {
+      lines.push("# HELP " + gauge.name + " " + gauge.help);
+      lines.push("# TYPE " + gauge.name + " gauge");
+      const value = this.gauges.get(gauge.name);
+      if (value !== undefined) lines.push(gauge.name + " " + value);
+    }
   }
 
   private increment(metric: string, outcome: Outcome, amount = 1): void {
