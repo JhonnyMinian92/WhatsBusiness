@@ -29,14 +29,22 @@ export interface TenantJobRuntimeMetricsSnapshot {
   readonly deadLetterJobs: number;
   readonly oldestPendingDispatchAgeSeconds: number;
   readonly replayedJobs: number;
+  readonly rabbitMqWorkerQueueReadyMessages: number;
+  readonly rabbitMqWorkerQueueUnacknowledgedMessages: number;
+  readonly rabbitMqWorkerQueueConsumers: number;
+  readonly rabbitMqDeadLetterQueueReadyMessages: number;
+  readonly rabbitMqDeadLetterQueueUnacknowledgedMessages: number;
+  readonly rabbitMqDeadLetterQueueConsumers: number;
 }
 
+export type TenantJobRuntimeMetricsSnapshotPatch = Partial<TenantJobRuntimeMetricsSnapshot>;
+
 export interface TenantJobRuntimeMetricsReader {
-  readSnapshot(): Promise<TenantJobRuntimeMetricsSnapshot>;
+  readSnapshot(): Promise<TenantJobRuntimeMetricsSnapshotPatch>;
 }
 
 export interface TenantJobRuntimeMetrics {
-  recordRuntimeSnapshot(snapshot: TenantJobRuntimeMetricsSnapshot): void;
+  recordRuntimeSnapshot(snapshot: TenantJobRuntimeMetricsSnapshotPatch): void;
   recordDispatch(outcome: TenantJobDispatchMetricOutcome): void;
   recordExecution(outcome: TenantJobExecutionMetricOutcome, durationMs: number): void;
   recordPublish(outcome: TenantJobPublishMetricOutcome, durationMs: number): void;

@@ -1,7 +1,7 @@
 import type { Pool } from "pg";
 import type {
   TenantJobRuntimeMetricsReader,
-  TenantJobRuntimeMetricsSnapshot,
+  TenantJobRuntimeMetricsSnapshotPatch,
 } from "../../application/tenant-job-runtime-metrics.js";
 
 interface RuntimeMetricsRow {
@@ -23,7 +23,7 @@ interface RuntimeMetricsRow {
 export class PostgresTenantJobRuntimeMetricsReader implements TenantJobRuntimeMetricsReader {
   constructor(private readonly pool: Pool) {}
 
-  async readSnapshot(): Promise<TenantJobRuntimeMetricsSnapshot> {
+  async readSnapshot(): Promise<TenantJobRuntimeMetricsSnapshotPatch> {
     const result = await this.pool.query<RuntimeMetricsRow>(
       [
         "SELECT pending_dispatch_jobs, blocked_dispatch_jobs,",

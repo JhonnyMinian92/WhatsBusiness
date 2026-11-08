@@ -97,6 +97,11 @@ export class TenantJobRuntimeProcess {
         dispatcherPool,
         metricsPool,
         workerPool,
+        managementMetrics: {
+          endpoint: managementUrl,
+          username: monitoringUsername,
+          password: monitoringPassword,
+        },
         database: options.databaseFactory(workerPool),
         handlers: options.handlers,
         logger: options.logger,

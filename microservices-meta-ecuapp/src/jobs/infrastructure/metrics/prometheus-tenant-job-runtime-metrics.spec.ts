@@ -114,3 +114,32 @@ test("rejects invalid aggregate gauges without replacing the last valid snapshot
   );
   assert.match(metrics.renderPrometheus(), /^tenant_job_dispatch_pending 1$/m);
 });
+
+test("exposes RabbitMQ worker and dead-letter gauges without tenant labels", () => {
+  const metrics = new PrometheusTenantJobRuntimeMetrics();
+  metrics.recordRuntimeSnapshot({
+    rabbitMqWorkerQueueReadyMessages: 11,
+    rabbitMqWorkerQueueUnacknowledgedMessages: 3,
+    rabbitMqWorkerQueueConsumers: 2,
+    rabbitMqDeadLetterQueueReadyMessages: 5,
+    rabbitMqDeadLetterQueueUnacknowledgedMessages: 1,
+    rabbitMqDeadLetterQueueConsumers: 0,
+  });
+  const output = metrics.renderPrometheus();
+  assert.match(output, /^tenant_job_rabbitmq_worker_queue_ready_messages 11$/m);
+  assert.match(output, /^tenant_job_rabbitmq_worker_queue_unacknowledged_messages 3$/m);
+  assert.match(output, /^tenant_job_rabbitmq_worker_queue_consumers 2$/m);
+  assert.match(output, /^tenant_job_rabbitmq_dead_letter_queue_ready_messages 5$/m);
+  assert.match(output, /^tenant_job_rabbitmq_dead_letter_queue_unacknowledged_messages 1$/m);
+  assert.match(output, /^tenant_job_rabbitmq_dead_letter_queue_consumers 0$/m);
+  assert.equal(/tenant_job_.*\{.*tenant/i.test(output), false);
+});
+
+test("partial snapshots do not overwrite another source's last valid gauges", () => {
+  const metrics = new PrometheusTenantJobRuntimeMetrics();
+  metrics.recordRuntimeSnapshot({ pendingDispatchJobs: 4, rabbitMqWorkerQueueReadyMessages: 9 });
+  metrics.recordRuntimeSnapshot({ pendingDispatchJobs: 2 });
+  const output = metrics.renderPrometheus();
+  assert.match(output, /^tenant_job_dispatch_pending 2$/m);
+  assert.match(output, /^tenant_job_rabbitmq_worker_queue_ready_messages 9$/m);
+});

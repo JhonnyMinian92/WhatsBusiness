@@ -6,6 +6,7 @@ import type {
   TenantJobRuntimeMetrics,
   TenantJobRuntimeRecoveryMetrics,
   TenantJobRuntimeMetricsSnapshot,
+  TenantJobRuntimeMetricsSnapshotPatch,
 } from "../../application/tenant-job-runtime-metrics.js";
 
 const HISTOGRAM_BUCKETS_SECONDS = Object.freeze([
@@ -45,6 +46,12 @@ const RUNTIME_GAUGES = [
   { name: "tenant_job_dead_letter_jobs", help: "Jobs in terminal dead-letter state.", key: "deadLetterJobs" },
   { name: "tenant_job_oldest_pending_dispatch_age_seconds", help: "Age of the oldest job waiting in the dispatch outbox.", key: "oldestPendingDispatchAgeSeconds" },
   { name: "tenant_job_replayed_jobs", help: "Persisted child jobs created by the approved replay workflow.", key: "replayedJobs" },
+  { name: "tenant_job_rabbitmq_worker_queue_ready_messages", help: "Messages ready in the worker queue.", key: "rabbitMqWorkerQueueReadyMessages" },
+  { name: "tenant_job_rabbitmq_worker_queue_unacknowledged_messages", help: "Delivered worker queue messages awaiting ACK/NACK.", key: "rabbitMqWorkerQueueUnacknowledgedMessages" },
+  { name: "tenant_job_rabbitmq_worker_queue_consumers", help: "Consumers registered on the worker queue.", key: "rabbitMqWorkerQueueConsumers" },
+  { name: "tenant_job_rabbitmq_dead_letter_queue_ready_messages", help: "Messages ready in the dead-letter queue.", key: "rabbitMqDeadLetterQueueReadyMessages" },
+  { name: "tenant_job_rabbitmq_dead_letter_queue_unacknowledged_messages", help: "Delivered dead-letter messages awaiting ACK/NACK.", key: "rabbitMqDeadLetterQueueUnacknowledgedMessages" },
+  { name: "tenant_job_rabbitmq_dead_letter_queue_consumers", help: "Consumers registered on the dead-letter queue.", key: "rabbitMqDeadLetterQueueConsumers" },
 ] as const satisfies ReadonlyArray<{
   readonly name: string;
   readonly help: string;
@@ -97,9 +104,10 @@ export class PrometheusTenantJobRuntimeMetrics implements TenantJobRuntimeMetric
     this.increment("tenant_job_runtime_errors_total", "worker");
   }
 
-  recordRuntimeSnapshot(snapshot: TenantJobRuntimeMetricsSnapshot): void {
+  recordRuntimeSnapshot(snapshot: TenantJobRuntimeMetricsSnapshotPatch): void {
     for (const gauge of RUNTIME_GAUGES) {
       const value = snapshot[gauge.key];
+      if (value === undefined) continue;
       if (!Number.isFinite(value) || value < 0) {
         throw new Error("Tenant job runtime gauge value is invalid: " + gauge.key + ".");
       }
@@ -109,7 +117,8 @@ export class PrometheusTenantJobRuntimeMetrics implements TenantJobRuntimeMetric
     }
 
     for (const gauge of RUNTIME_GAUGES) {
-      this.gauges.set(gauge.name, snapshot[gauge.key]);
+      const value = snapshot[gauge.key];
+      if (value !== undefined) this.gauges.set(gauge.name, value);
     }
   }
 
