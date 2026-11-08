@@ -53,13 +53,24 @@ export function evaluateAdsBudgetChange(
 ): AdsBudgetGuardrailDecision {
   const current = parseAdsMoney(input.current);
   const requested = parseAdsMoney(input.requested);
-  const baseline = parseAdsMoney(input.window.baseline);
-
-  if (current.currency !== requested.currency || current.currency !== baseline.currency) {
+  if (current.currency !== requested.currency) {
     return decision(false, "unchanged", "ADS_BUDGET_CURRENCY_MISMATCH");
   }
-  if (input.killSwitchActive && compareAdsMoney(requested, current) > 0) {
+  const comparison = compareAdsMoney(requested, current);
+  if (comparison === 0) {
+    return decision(true, "unchanged", "ADS_BUDGET_NO_CHANGE");
+  }
+  if (comparison < 0) {
+    // Risk-reducing actions remain available even if increase evidence expired.
+    return decision(true, "decrease", null);
+  }
+  if (input.killSwitchActive) {
     return decision(false, "increase", "ADS_BUDGET_KILL_SWITCH_ACTIVE");
+  }
+
+  const baseline = parseAdsMoney(input.window.baseline);
+  if (current.currency !== baseline.currency) {
+    return decision(false, "increase", "ADS_BUDGET_CURRENCY_MISMATCH");
   }
 
   const now = input.now.getTime();
@@ -80,15 +91,6 @@ export function evaluateAdsBudgetChange(
   }
   if (now >= expiresAt) {
     return decision(false, "unchanged", "ADS_BUDGET_WINDOW_EXPIRED");
-  }
-  const comparison = compareAdsMoney(requested, current);
-  if (comparison === 0) {
-    return decision(true, "unchanged", "ADS_BUDGET_NO_CHANGE");
-  }
-  if (comparison < 0) {
-    // A decrease is always permitted by the spend guardrail, including while
-    // the kill switch is active or the old baseline has already been exceeded.
-    return decision(true, "decrease", null);
   }
   if (!isAdsMoneyIncreaseWithinPercent(current, requested, ADS_BUDGET_CHANGE_LIMIT_PERCENT)) {
     return decision(false, "increase", "ADS_BUDGET_OPERATION_LIMIT_EXCEEDED");
