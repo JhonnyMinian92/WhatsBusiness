@@ -304,3 +304,18 @@ No hay endpoint Instagram permitido por el freeze actual. IG-001..IG-012 permane
 | TASK-021 | Publicación segura + policy de Comments reply/hide/unhide/delete + policy de Instagram Direct recipient-initiated/no groups/media ownership por login mode + visibilidad de requests antiguos. | in_progress; HTTP adapters, persistence, webhooks, consumer Inbox, Insights y pruebas reales pendientes. |
 
 Las policies son código de dominio y no habilitan endpoints congelados. Source CI con 287 API + 112 Meta backend green es del padre anterior a los nuevos módulos; repetir CI y CodeQL después del commit de cierre. No marcar accepted.
+
+
+## TASK-058 — execution handoff US-025 Partner Access (2026-11-08)
+
+- **Owner role:** Platform Identity / Partner Access. **Independent reviewer:** Platform Architecture + Security/Privacy; el autor no puede declararse reviewer independiente. Product Owner acceptance es un gate separado.
+- **Story/AC:** US-025, AC-025-01..05.
+- **Dependencies:** TASK-001 (tenant boundary), TASK-004 (RBAC/ABAC + approval/audit baseline), TASK-034 (identity/tenant design), TASK-052 (tenant lifecycle/admin y support JIT).
+- **Implementado:** `apps/api/src/platform/identity/partners/partner-tenant-grant.policy.ts` y `partner-tenant-grant.policy.spec.ts`. La policy valida el grantor y aprobador tenant owners distintos; organización partner activa + usuario/member activo; tenant cliente activo; roles existentes/versionados; action scopes vinculados a un activo exacto; purpose, vigencia, reducción monotónica y revocación idempotente.
+- **Seguridad:** no concede acceso por pertenencia a otra organización/tenant; roles tenant_owner, tenant_admin y support_jit se rechazan; assets Meta/Ads/WhatsApp requieren ID concreto sin wildcard; cada acceso vuelve a validar status, actor, tenant, partner, purpose, permiso, asset, vigencia y versión RBAC.
+- **Tests:** 19 casos agregados al target `api:test`; incluyen tenant/partner boundaries, approval/self-approval, privilegios, asset/action mismatch, expiración, revoke, stale role version y monotonic reduction. La ejecución Source CI de este HEAD aún debe confirmar resultados.
+- **No implementado:** migración/repository/RLS de grants, org membership durable, use cases, endpoints PAR-001..007, transaction-bound audit/outbox, consumer de grant.revoked/membership.changed, sesión/cache/job invalidation, API contract freeze, PlatformGrant JIT independiente y e2e PostgreSQL.
+- **Gate:** PAR-001..007 siguen catalog-only y `x-implementation-allowed=false` según docs/49/55. No cambiar OpenAPI ni crear controladores hasta cerrar schemas request/response/error, permisos, idempotencia, auditoría, tests, revisión y G0.
+- **Rollback:** revertir los dos archivos fuente, el test target y docs/75/hand-off. El slice no cambia DB ni produce efectos externos.
+- **Estado:** `in_progress`; no declarar verified/accepted ni GO-PRODUCTION.
+- **Siguiente acción exacta:** verificar Source CI + CodeQL del commit; después cerrar TASK-052 / API contract freeze y desarrollar persistencia/RLS, application layer y propagación durable de revocación con pruebas de carrera revoke-vs-worker.

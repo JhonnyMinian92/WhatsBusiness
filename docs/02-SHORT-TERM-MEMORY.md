@@ -668,12 +668,12 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 
 ## US-009 / TASK-019 — handoff de implementación (2026-11-08)
 
-- Repositorio: \`JhonnyMinian92/WhatsBusiness\`; rama: \`environment/local\`.
-- Slice Messenger: capability requirements por operación, OR tasks y token type en MetaCapabilityEvaluator; Advanced Access de Conversations API; ventana estándar 24 h y gate de ownership humano; policy que prepara \`inbox.handoff.requested\`.
-- Cuatro suites añadidas al target \`api:test\`: facebook-messenger-capabilities, messenger-conversation-access, messenger-send y messenger-handoff; también se amplió meta-capability-evaluator.spec.ts.
+- Repositorio: `JhonnyMinian92/WhatsBusiness`; rama: `environment/local`.
+- Slice Messenger: capability requirements por operación, OR tasks y token type en MetaCapabilityEvaluator; Advanced Access de Conversations API; ventana estándar 24 h y gate de ownership humano; policy que prepara `inbox.handoff.requested`.
+- Cuatro suites añadidas al target `api:test`: facebook-messenger-capabilities, messenger-conversation-access, messenger-send y messenger-handoff; también se amplió meta-capability-evaluator.spec.ts.
 - Documentación: docs/09, docs/32, docs/74, docs/11, docs/19, docs/14 y docs/15.
 - Inspeccionar Source CI del commit exacto antes de marcar CI-verified.
-- TASK-019/US-009 siguen \`in_progress\`: faltan connection/vault (TASK-008), capability runtime/persistencia/refresh (TASK-010), handlers webhook Messenger reales (TASK-027/028), Inbox durable/lease/outbox/agent routing (TASK-045..047), contract freeze FB-001..014, review independiente y Product Owner acceptance. Sin llamadas externas Meta ni GO-PRODUCTION.
+- TASK-019/US-009 siguen `in_progress`: faltan connection/vault (TASK-008), capability runtime/persistencia/refresh (TASK-010), handlers webhook Messenger reales (TASK-027/028), Inbox durable/lease/outbox/agent routing (TASK-045..047), contract freeze FB-001..014, review independiente y Product Owner acceptance. Sin llamadas externas Meta ni GO-PRODUCTION.
 
 
 ## Handoff US-010 — Instagram profesional (2026-11-08)
@@ -695,3 +695,15 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - instagram-messaging-policy.ts: Direct individual, destinatario inició, no grupos, media ownership solo IG Login, idempotency y clasificación de requests fuera de ventana de recuperación de 30 días sin convertirla en ventana de envío.
 - Se agregan tests al target api:test: 10 comments y 9 messaging. El slice US-010 suma 42 tests.
 - Source CI del padre 1ba349cf013f4d34b5d3496e9a8adddee49a71ad: build y typecheck all apps success; 287 API tests y 112 Meta backend tests success. Esto no valida aún el commit final con las nuevas policies. CodeQL para 4e012e4 success; ejecutar sobre cierre.
+
+
+## Handoff — US-025 / TASK-058 (2026-11-08)
+
+- Rama aislada: `feature/us-025-partner-access`, creada desde `environment/local` en el commit base `a2f44c25d037dc2819ea318a75bba700a22ed5da` para no interferir con escrituras concurrentes de otros agentes.
+- Investigación: US-025 exige delegación explícita agency/reseller/provider → tenant cliente; actor partner, roles/actions/assets, purpose, expiración, aprobación independiente, revocación, auditoría y separación de soporte JIT. TASK-058 depende de TASK-001/004/034/052.
+- Implementación: `apps/api/src/platform/identity/partners/partner-tenant-grant.policy.ts`; policy pura con creación, autorización por actor/tenant/acción/activo, reducción estricta de alcance y revocación idempotente.
+- Tests: `apps/api/src/platform/identity/partners/partner-tenant-grant.policy.spec.ts`; 19 casos registrados en `api:test` mediante `apps/api/project.json`. No afirmar PASS hasta verificar Source CI para el commit exacto.
+- Documento técnico: `docs/75-US-025-PARTNER-ACCESS-FOUNDATION.md`.
+- Contratos PAR-001..007 siguen catalog-only y bloqueados por API freeze/G0. No se añadieron controladores, migraciones, dispatcher de eventos ni invalidadores runtime; no hay persistencia partner ni propagación durable de revocación.
+- AC-025-01..05 tienen cobertura parcial de dominio; AC-025-03/04/05 requieren integración operativa, audit/outbox y TASK-052/JIT. US-025 y TASK-058 siguen `in_progress`, no verified/accepted.
+- Handoff siguiente: ejecutar Source CI/CodeQL; corregir cualquier fallo real; luego, con TASK-052 y freeze/G0 aprobados, completar modelo relacional/RLS, application services, auditoría/outbox e invalidación de sesiones/cache/jobs.

@@ -95,7 +95,7 @@ Los nombres de contextos son límites lógicos propuestos; no asignar paths o MO
 | WhatsApp marketing adapter y sunset legacy path | US-008 | TASK-055 | WhatsApp Integration / Cost Ledger | contract tests, policy, migration plan before Meta announced 2027-10-13 sunset |
 | API version, changelog, sunset, scope, asset grant y Marketing API Access Tier | US-004, US-017 | TASK-056, TASK-065 | Capability Registry / Operations | dated official evidence, deny matrix, change impact record and deprecation alerts |
 | Diferenciar estimación, máximo, coste real y conciliación en Max Pricing | US-008, US-026 | TASK-057 | Billing & Usage / Cost Ledger | decimal/currency/rate-card tests and statement reconciliation |
-| Acceso agency-to-client tenant explícito, temporal, revocable y auditado | US-025 | TASK-058 | Platform Identity / Partner Access | actor/tenant/asset/action grants, expiry/revoke, BOLA and audit tests |
+| Acceso agency-to-client tenant explícito, temporal, revocable y auditado | US-025 | TASK-058 | Platform Identity / Partner Access | implemented domain policy + 19 registered unit cases; pending PostgreSQL/RLS, PAR contract freeze, outbox invalidation, BOLA and audit integration (docs/75) |
 | Retención configurable, data inventory y derechos LOPDP | US-016 | TASK-059 | Privacy & Compliance | end-to-end export/delete, derived-data purge, legal review evidence |
 | Carga, saturación y capacidad reproducibles | US-015 | TASK-060 | SRE / Performance | scripts, hardware/config, p50/p95/p99, throughput, concurrency, queue age and error report |
 | Backup/restore, HA, DR, RPO/RTO measured | US-015, US-016 | TASK-061 | SRE / Security | clean-host restore, consistency check, measured RPO/RTO and signed runbook |

@@ -371,7 +371,7 @@ TASK-004 (RBAC/ABAC y asignación persistente) y TASK-005 (step-up, approvals y 
 
 ## US-009 — Facebook Pages y Messenger (2026-11-08)
 
-Se añadió un slice de dominio: MetaCapabilityEvaluator ahora expresa tareas OR y tipo de Page access token; Messenger capability descriptors por operación; Advanced Access para participantes externos; política ventana estándar de 24 h con ownership y soporte; y handoff policy con authorization, tenant y versión optimista que construye el envelope \`inbox.handoff.requested\`. Cuatro nuevas suites fueron incorporadas al target \`api:test\`.
+Se añadió un slice de dominio: MetaCapabilityEvaluator ahora expresa tareas OR y tipo de Page access token; Messenger capability descriptors por operación; Advanced Access para participantes externos; política ventana estándar de 24 h con ownership y soporte; y handoff policy con authorization, tenant y versión optimista que construye el envelope `inbox.handoff.requested`. Cuatro nuevas suites fueron incorporadas al target `api:test`.
 
 **No es cierre de historia:** faltan OAuth/connection runtime y Page inventory persistente (TASK-008/009/010); handlers y fixtures webhook Messenger (TASK-027/028); Inbox lease/CAS/outbox/routing/bot suppression (TASK-045..047). FB-001..014 y WH-003 siguen catalog-only. Source CI del HEAD, review independiente y Product Owner acceptance están pendientes. GO-PRODUCTION sigue NO-GO.
 
@@ -395,3 +395,12 @@ TASK-033 tiene un slice interno implementado: adapter por producto, scopes/capab
 El slice Threads quedó verificado por Source CI: build SUCCESS; typecheck SUCCESS; API/PostgreSQL 287/287 sin fallos; Meta backend/PostgreSQL/RabbitMQ 112/112 sin fallos; control de suites independientes SUCCESS; CodeQL SUCCESS. Evidencias: [Source CI run 42528782609](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42528782609) y [CodeQL run 42528566180](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42528566180).
 
 El avance técnico de adapter y pruebas está verificado. El cierre integral de US-017 no se declara hasta integrar providers reales de credenciales/evidencias, autorizar y probar una cuenta Meta/Threads habilitada, congelar contratos HTTP y de webhook, completar handler idempotente/métricas runtime, y recibir revisión/aceptación formal. El estado permanece `in_progress`.
+
+
+## US-025 — base de acceso delegado de partners (2026-11-08)
+
+- Se añadió `PartnerTenantGrantPolicy` y 19 pruebas al target `api:test`: grants explícitos por tenant/partner/subject, rol versionado, acción/activo exactos, purpose, expiración, aprobación independiente, reducción monotónica y revocación.
+- Se reutiliza el catálogo RBAC actual y su snapshot de versión; el rol partner nunca puede ser tenant_owner, tenant_admin ni support_jit.
+- El slice está implementado en una rama aislada; Source CI/CodeQL del commit resultante deben inspeccionarse antes de marcarlo verified.
+- TASK-058/US-025 siguen `in_progress`. Faltan TASK-052 y soporte JIT separado, persistencia/RLS, servicios de aplicación, contratos PAR-001..007 congelados, outbox/consumer, invalidación de sesiones/cache/jobs, auditoría transaccional, pruebas PostgreSQL/BOLA/concurrencia, revisión independiente y Product Owner acceptance.
+- No se modificaron contratos catalog-only, ni se habilitaron endpoints o escrituras externas. GO-PRODUCTION permanece NO-GO. Ver docs/75.

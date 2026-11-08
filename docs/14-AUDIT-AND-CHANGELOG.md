@@ -600,14 +600,14 @@ Límite: no se modificó OpenAPI/AsyncAPI ni se registraron endpoints Ads, porqu
 
 | ID | Cambio / control | Estado |
 |---|---|---|
-| AUD-184 | \`MetaCapabilityDefinition\` soporta tareas alternativas OR y tipo de token; evaluador valida con MetaEvidence y fail-closed. | Implementado; CI pendiente. |
+| AUD-184 | `MetaCapabilityDefinition` soporta tareas alternativas OR y tipo de token; evaluador valida con MetaEvidence y fail-closed. | Implementado; CI pendiente. |
 | AUD-185 | Descriptores Messenger Conversations y Send separan scopes, Page tasks y Page token por operación/version. | Implementado; requiere runtime registry y evidencia de cuenta. |
 | AUD-186 | Policy lectura exige Advanced Access solo para conversaciones de participantes externos sin rol en app/Page/business. | Implementado con tests; sin endpoint/controller. |
 | AUD-187 | Policy Send aplica ventana estándar 24 h, soporte, ownership y deadline Human Agent confiable. | Implementado con tests; no conectado al sender ni a provider de extensión. |
-| AUD-188 | Policy handoff genera envelope \`inbox.handoff.requested\` con tenant/correlation/reason/version optimista. | Policy pura; Inbox debe persistir y completar transición. |
-| AUD-189 | Cuatro suites añadidas a \`api:test\`; catálogo, evidencia, backlog, trazabilidad, roadmap y memoria sincronizados. | Implementado; Source CI del commit exacto y revisión independiente pendientes. |
+| AUD-188 | Policy handoff genera envelope `inbox.handoff.requested` con tenant/correlation/reason/version optimista. | Policy pura; Inbox debe persistir y completar transición. |
+| AUD-189 | Cuatro suites añadidas a `api:test`; catálogo, evidencia, backlog, trazabilidad, roadmap y memoria sincronizados. | Implementado; Source CI del commit exacto y revisión independiente pendientes. |
 
-No se modificó OpenAPI/allowlist ni se implementaron FB-001..014/WH-003. TASK-019 y US-009 siguen \`in_progress\`; TASK-008/010/027/028 e Inbox TASK-045..047 siguen como dependencias. Sin llamadas de escritura a Meta, cuentas/tokens reales ni habilitación productiva. GO-PRODUCTION permanece NO-GO.
+No se modificó OpenAPI/allowlist ni se implementaron FB-001..014/WH-003. TASK-019 y US-009 siguen `in_progress`; TASK-008/010/027/028 e Inbox TASK-045..047 siguen como dependencias. Sin llamadas de escritura a Meta, cuentas/tokens reales ni habilitación productiva. GO-PRODUCTION permanece NO-GO.
 
 
 ## 44. Implementación incremental US-010 — Instagram (2026-11-08)
@@ -659,3 +659,14 @@ Estado de validación al registrar: Source CI #662 ejecuta build, typecheck y la
 | CodeQL, run 42528566180 (commit Threads 46f57247) | SUCCESS |
 
 El run 42528782609 valida el commit pipeline `1ba349cf013f4d34b5d3496e9a8adddee49a71ad`; el código Threads está en `46f57247d667abb7e9626c639514bfd8e74ebc30`. Este registro demuestra CI verde para build, typecheck, API y backend; no es evidencia de OAuth/App Review/live API, deployment ni aceptación de producto. TASK-033/US-017 conserva `in_progress` para esos gates externos/runtime.
+
+
+## 48. US-025 / TASK-058 — núcleo de política de acceso delegado (2026-11-08)
+
+| ID | Cambio / evidencia | Estado |
+|---|---|---|
+| AUD-193 | Política pura `PartnerTenantGrantPolicy`: creación aprobada por tenant owners distintos, actor con membership activa en partner, tenant cliente activo, roles versionados y sin privilegios owner/admin/support. | Implementado en dominio; CI pendiente |
+| AUD-194 | Autorización por combinación exacta tenant + partner + usuario + purpose + acción + activo; expiración, revocación, reducción monotónica/versionada y transición idempotente. | Implementado en dominio; integración runtime pendiente |
+| AUD-195 | 19 casos de policy registrados en `api:test`; memoria, backlog, trazabilidad, roadmap, work package e índice docs actualizados. | Registrado; Source CI del commit exacto pendiente |
+
+La rama `feature/us-025-partner-access` se creó desde `environment/local` para aislar la implementación de cambios concurrentes. No se habilitaron PAR-001..007 ni se alteró OpenAPI/AsyncAPI: siguen catalog-only bajo docs/49/55 y gate API contract freeze + G0. Sin migración partner, repository, outbox/consumer ni invalidadores runtime; TASK-052 JIT sigue dependencia. AC-025-01..05 están cubiertos parcialmente por policy, no por el sistema completo. TASK-058/US-025 permanecen `in_progress`; revisión independiente, pruebas PostgreSQL/RLS, aceptación PO y GO-PRODUCTION pendientes.

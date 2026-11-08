@@ -221,3 +221,8 @@ El estado de validación, las propuestas de eventos pendientes y el GO/NO-GO arq
 ## 74 — Threads Adapter y Conformance
 
 [74 — Threads adapter, capabilities y conformance](74-THREADS-ADAPTER-AND-CONFORMANCE.md) registra US-017/TASK-033, el adapter interno, catálogo de scopes, versión independiente, pruebas y límites reales de integración.
+
+
+## Implementaciones incrementales de producto
+
+- [75 — US-025: base de acceso delegado de partners](75-US-025-PARTNER-ACCESS-FOUNDATION.md) — política de grants, evaluación por activo/acción, revocación y criterios/gates pendientes.

@@ -865,15 +865,15 @@ El validador recibe el instante de evaluación del servidor y rechaza consentimi
 
 ## US-009 / TASK-019 — implementación de políticas Messenger (2026-11-08)
 
-**Estado real: \`in_progress\`; no marcar \`verified\` ni \`accepted\`.**
+**Estado real: `in_progress`; no marcar `verified` ni `accepted`.**
 
 Implementado en este slice:
 - Se amplía el evaluador genérico Meta para expresar tareas alternativas OR y tipo de access token sin duplicar validación de evidencia.
 - Descriptores fuente-controlados para Messenger Conversations API y Send API con scopes/Page tasks de las colecciones oficiales.
 - Política lectura conversaciones separa Advanced Access de OAuth scopes y lo exige para participantes externos a roles de app/activos.
 - Política pura Send impone 24 h desde último inbound, soporte no promocional, capability available y ownership actual; extensión Human Agent solo con deadline confiable de política server-side.
-- Política handoff humano con authorization, tenant boundary, optimistic ownership version y envelope \`inbox.handoff.requested\` del AsyncAPI v1.
-- Cuatro suites nuevas añadidas a \`apps/api/project.json\` y regresiones del evaluador común.
+- Política handoff humano con authorization, tenant boundary, optimistic ownership version y envelope `inbox.handoff.requested` del AsyncAPI v1.
+- Cuatro suites nuevas añadidas a `apps/api/project.json` y regresiones del evaluador común.
 
 **Pendiente:** integrar policies al adapter/sender e Inbox; completar OAuth/token vault y capability runtime (TASK-008/010); handlers Messenger y fixtures oficiales por versión para WH-003 (TASK-027/028); outbox durable, lease/CAS, routing/bot suppression y E2E Inbox (TASK-045..047); contratos FB-001..014 congelados por operación; CI del HEAD, revisión independiente y aceptación Product Owner. No se publicaron endpoints catalog-only ni se ejecutaron mutaciones Meta.
 
@@ -922,3 +922,10 @@ IG-001..IG-012 continúan catalog-only (x-implementation-allowed=false). No habi
 Se agregan 19 casos unitarios (10 comments y 9 messaging). El slice US-010 contiene 42 pruebas (14 capability, 9 publicación, 10 comentarios y 9 Direct). La validación Source CI exitosa del SHA 1ba349c ejecutó 287 pruebas API + 112 Meta backend; se produjo antes del commit que agregó los dos módulos finales. Requerido: nuevo Source CI y CodeQL sobre el SHA de cierre.
 
 TASK-021 continúa in_progress: Insights sigue fail-closed/unknown, y las operaciones externas no están cableadas. US-010 no está aceptada.
+
+
+## Estado de ejecución — TASK-058 / US-025 (2026-11-08)
+
+Se implementó un primer slice de política pura de grants en `apps/api/src/platform/identity/partners/partner-tenant-grant.policy.ts`, con 19 casos registrados en `api:test`. La policy valida organización/tenant, actor partner, aprobador independiente, roles versionados, acción por activo exacto, purpose, expiración, reducción de alcance y revocación.
+
+**Estado: `in_progress`.** No equivale al cierre de TASK-058: no hay persistencia/RLS de partner grants, endpoints, invalidación real de sesiones/cache/jobs, outbox/consumer, auditoría transaccional de concesión/revocación ni JIT operativo. PAR-001..007 continúan catalog-only y el freeze/G0 de docs/49/55 permanece obligatorio. Revisar docs/75 para alcance implementado y handoff reproducible.
