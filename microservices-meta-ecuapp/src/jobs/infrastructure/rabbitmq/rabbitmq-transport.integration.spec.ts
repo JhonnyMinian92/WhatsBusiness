@@ -116,17 +116,9 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
     const job = createTenantJobMessage(TEST_JOB_ID);
 
     await publisher.publish(job, "jobs.integration.confirm");
-    await waitForQueueMetric(
-      "rabbitmq_detailed_queue_messages_ready",
-      queue,
-      1,
-    );
-    await waitForQueueMetric(
-      "rabbitmq_detailed_queue_messages_unacked",
-      queue,
-      0,
-    );
-
+    // Publisher confirms prove broker acceptance; consume directly to prove
+    // routing. Prometheus ready gauges are asynchronous and must not gate a
+    // message-delivery assertion.
     const delivered = await waitForUnackedDelivery(
       channels.consumer,
       queue,
