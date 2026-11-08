@@ -29,6 +29,7 @@ export interface RoleAssignmentDecision {
 }
 
 type RoleAssignmentDenyReason =
+  | AuthorizationDenyReason
   | "TARGET_MEMBERSHIP_INVALID"
   | "TARGET_MEMBERSHIP_NOT_ASSIGNABLE"
   | "TARGET_TENANT_MISMATCH"
@@ -151,12 +152,5 @@ function isUuid(value: string): boolean {
 
 
 function mapAuthorizationDenyReason(reason: AuthorizationDenyReason | undefined): RoleAssignmentDenyReason {
-  switch (reason) {
-    case "TENANT_SCOPE_MISMATCH":
-      return "TARGET_TENANT_MISMATCH";
-    case "PERMISSION_NOT_GRANTED":
-      return "PERMISSION_NOT_GRANTED";
-    default:
-      return "PERMISSION_NOT_GRANTED";
-  }
+  return reason ?? "PERMISSION_NOT_GRANTED";
 }

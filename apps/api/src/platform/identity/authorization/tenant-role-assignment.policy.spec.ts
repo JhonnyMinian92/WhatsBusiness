@@ -191,3 +191,12 @@ test("assignment request still rejects privilege escalation before approval crea
   assert.equal(decision.allowed, false);
   assert.equal(decision.reason, "ROLE_PRIVILEGES_EXCEED_ACTOR");
 });
+
+
+test("role assignment preserves authoritative authorization denial reasons", () => {
+  const decision = policy.evaluateRequest(request({
+    actor: ownerContext({ membershipStatus: "suspended" }),
+  }));
+  assert.equal(decision.allowed, false);
+  assert.equal(decision.reason, "MEMBERSHIP_NOT_ACTIVE");
+});
