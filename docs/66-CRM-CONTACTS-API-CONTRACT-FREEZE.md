@@ -72,3 +72,6 @@ Las rutas conservan UUID como ID interno. El cursor y ETag son opacos al consumi
 ## 7. Límites de implementación
 
 Este freeze solo habilita CRM-001..004 en el alcance anterior. CRM-005..017 siguen catalog-only hasta que se congelen sus contratos y dependencias. TASK-042 no se considera aceptada por el mero hecho de crear rutas; aún se requieren evidencia verde, revisión independiente y aceptación del Product Owner.
+## 8. Gate de activación del runtime (2026-11-08)
+
+La revisión automática de contratos impone que únicamente PLT-001..005 estén con x-implementation-allowed=true durante la foundation actual. CRM-001..004 mantienen el diseño y schemas completos (x-contract-ready=true), pero permanecen x-implementation-allowed=false y el CrmContactsModule no está importado por AppModule. El código de dominio/aplicación/repositorio y sus pruebas se compilan como fuente y no están expuestos por HTTP. Para activar rutas será necesaria la autorización específica del siguiente slice GO-CODE y que Contract CI acepte el cambio; no se fuerza ni se elude el allowlist.
