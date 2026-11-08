@@ -187,6 +187,33 @@ export class PlatformAdministrationRepository implements PlatformAdministrationP
     });
   }
 
+  async retirePlanVersion(command:import("../application/platform-administration.port.js").RetirePlanVersionCommand):Promise<void> {
+    await this.withAdmin(command.actorUserId,null,async(client)=>{
+      const retired=await client.query<{id:string}>(
+        "UPDATE platform.plan_versions SET status='retired' WHERE plan_key=$1 AND version=$2 AND status='active' RETURNING id::text",
+        [command.planKey,command.planVersion]);
+      if(!retired.rows[0]) {
+        const exists=await client.query("SELECT 1 FROM platform.plan_versions WHERE plan_key=$1 AND version=$2",[command.planKey,command.planVersion]);
+        if(!exists.rowCount) throw new NotFoundException({code:"PLAN_VERSION_NOT_FOUND",detail:"La versión del plan no existe."});
+        return;
+      }
+      await this.platformAudit.append(client,{
+        actorUserId:command.actorUserId,actionKey:"platform.plan.version.retired",
+        resourceType:"plan_version",resourceId:retired.rows[0].id,purpose:"platform.plan.retire",
+        correlationId:command.correlationId,requestHash:this.hash({planKey:command.planKey,version:command.planVersion}),
+      });
+    });
+  }
+
+  async getUsageSummary(query:import("../application/platform-administration.port.js").UsageSummaryQuery):Promise<readonly import("../application/platform-administration.port.js").UsageSummaryEntry[]> {
+    return this.database.withTenantContext(query.actorUserId,query.tenantId,async(client)=>{
+      const result=await client.query<import("../application/platform-administration.port.js").UsageSummaryEntry>(
+        "SELECT category,metric_key AS \"metricKey\",unit,sum(quantity)::text AS quantity,CASE WHEN count(cost_amount)=0 THEN NULL ELSE sum(cost_amount)::text END AS \"costAmount\",currency,count(*)::int AS \"entryCount\" FROM platform.usage_ledger WHERE tenant_id=$1 AND observed_at >= $2 AND observed_at < $3 GROUP BY category,metric_key,unit,currency ORDER BY category,metric_key,unit,currency",
+        [query.tenantId,query.from,query.to]);
+      return result.rows;
+    });
+  }
+
   async assignTenantPlan(command:AssignTenantPlanCommand):Promise<{subscriptionId:string}> {
     return this.withAdmin(command.actorUserId,command.tenantId,async(client)=>{
       const tenant=await this.lockTenant(client,command.tenantId);
