@@ -107,7 +107,7 @@ Source CI declara PostgreSQL 18.6 y RabbitMQ 4.4 para pruebas de integración. R
 ## 9. Pendientes reales para cerrar TASK-003
 
 - [x] Source CI #42430605576 SUCCESS en commit `be9d3dc14aa26b38c20013b98ff5238bac564a4e`: instalación frozen, migraciones 0001–0011/idempotencia, build, typecheck, unit, PostgreSQL y RabbitMQ.
-- [ ] Probar pool reuse A→B en worker login y en DatabaseService boundary.
+- [x] Añadida prueba de integración para reutilizar el mismo backend PostgreSQL worker en secuencia tenant A→B, comprobando `pg_backend_pid()` y los GUC `app.user_id`/`app.tenant_id`; ejecución CI del nuevo commit pendiente. La prueba cubre el login worker y el helper transaccional de test; la validación específica de `DatabaseService` real y carga concurrente sigue pendiente.
 - [x] Implementar heartbeat/renew del execution lease mediante token de fencing y PostgreSQL; el worker cancela cooperativamente el handler si pierde el lease. La suite unitaria e integración quedan sujetas a Source CI.
 - [x] Añadir deadline configurable `TENANT_JOB_HANDLER_TIMEOUT_MS` (1–900 s; default 300 s), abortar el handler y rechazar el procesamiento al perder lease o exceder el deadline. La cancelación exige cooperación del handler mediante AbortSignal; JavaScript no puede terminar forzosamente una promesa no cooperativa. Build/typecheck de #42428439526 pasaron; integración posterior pendiente.
 - [ ] Implementar replay administrativo de DLQ/job dead-letter, con permission/approval/audit; no crear bypass SQL público.
