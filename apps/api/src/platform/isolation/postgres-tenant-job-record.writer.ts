@@ -49,7 +49,7 @@ export class PostgresTenantJobRecordWriter implements TenantJobRecordWriter {
       [
         "INSERT INTO platform.tenant_job_records",
         "(tenant_id, actor_user_id, purpose, correlation_id, job_type, idempotency_key, payload, request_sha256, max_attempts, available_at)",
-        "VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8, $9, $10)",
+        "VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8, $9, COALESCE($10::timestamptz, now()))",
         "ON CONFLICT DO NOTHING",
         "RETURNING id::text",
       ].join(" "),
@@ -63,7 +63,7 @@ export class PostgresTenantJobRecordWriter implements TenantJobRecordWriter {
         payload,
         requestSha256,
         input.maxAttempts ?? 8,
-        input.availableAt ?? new Date(),
+        input.availableAt ?? null,
       ],
     );
     if (inserted.rows[0]) return inserted.rows[0].id;

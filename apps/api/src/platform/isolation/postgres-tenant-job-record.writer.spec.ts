@@ -35,6 +35,8 @@ test("job writer stages a bounded tenant job using the caller transaction", asyn
   assert.deepEqual(JSON.parse(String(observedValues[6])), input.payload);
   assert.match(String(observedValues[7]), /^[0-9a-f]{64}$/);
   assert.equal(observedValues[8], 8);
+  assert.equal(observedValues[9], null, "PostgreSQL must own the default availability timestamp");
+  assert.match(observedSql, /COALESCE\(\$10::timestamptz, now\(\)\)/);
 });
 
 test("same idempotency key returns the original job only for the same canonical request", async () => {
