@@ -137,3 +137,15 @@ test("permits a budget decrease after the increase window expires", () => {
   assert.equal(result.direction, "decrease");
   assert.equal(result.reason, null);
 });
+
+test("rejects zero budget requests instead of treating them as a pause", () => {
+  const result = evaluateAdsBudgetChange({
+    current: money("100"),
+    requested: money("0"),
+    window: windowFor("100"),
+    now,
+    killSwitchActive: false,
+  });
+  assert.equal(result.allowed, false);
+  assert.equal(result.reason, "ADS_BUDGET_AMOUNT_INVALID");
+});
