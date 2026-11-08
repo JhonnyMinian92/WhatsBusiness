@@ -51,5 +51,12 @@ import {
       useClass: OidcStepUpEvidenceVerifier,
     },
   ],
+  exports: [
+    ApprovalWorkflowService,
+    AppendOnlyAuditRepository,
+    OidcAuthGuard,
+    TenantContextGuard,
+    AuthorizationGuard,
+  ],
 })
 export class IdentityModule {}
