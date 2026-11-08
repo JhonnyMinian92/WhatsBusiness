@@ -116,8 +116,8 @@ export class RabbitMqPrometheusTenantJobQueueMetricsReader implements TenantJobR
       metrics.set(sample.name, safeCount(sample.value, sample.name));
     }
 
-    const worker = requireQueueMetrics(queues.get(this.options.workerQueue));
-    const deadLetter = requireQueueMetrics(queues.get(this.options.deadLetterQueue));
+    const worker = requireQueueMetrics(queues.get(this.options.workerQueue), "worker");
+    const deadLetter = requireQueueMetrics(queues.get(this.options.deadLetterQueue), "dead-letter");
     return Object.freeze({
       rabbitMqWorkerQueueReadyMessages: worker.messagesReady,
       rabbitMqWorkerQueueUnacknowledgedMessages: worker.messagesUnacknowledged,
@@ -271,13 +271,20 @@ function parseLabels(source: string): ReadonlyMap<string, string> {
   return labels;
 }
 
-function requireQueueMetrics(metrics: Map<QueueMetricName, number> | undefined): QueueMetrics {
-  if (!metrics) throw new Error("RabbitMQ Prometheus response omitted a configured queue.");
-  const ready = metrics.get("rabbitmq_detailed_queue_messages_ready");
-  const unacknowledged = metrics.get("rabbitmq_detailed_queue_messages_unacked");
-  const consumers = metrics.get("rabbitmq_detailed_queue_consumers");
+function requireQueueMetrics(
+  metrics: Map<QueueMetricName, number> | undefined,
+  queueRole: "worker" | "dead-letter",
+): QueueMetrics {
+  const ready = metrics?.get("rabbitmq_detailed_queue_messages_ready");
+  const unacknowledged = metrics?.get("rabbitmq_detailed_queue_messages_unacked");
+  const consumers = metrics?.get("rabbitmq_detailed_queue_consumers");
   if (ready === undefined || unacknowledged === undefined || consumers === undefined) {
-    throw new Error("RabbitMQ Prometheus response omitted a required queue metric.");
+    // Queue statistics are emitted on the broker collection interval. A newly
+    // created queue can therefore be absent from an otherwise healthy scrape.
+    throw new Error(
+      "RABBITMQ_PROMETHEUS_METRICS_INCOMPLETE: " + queueRole
+      + " queue statistics are not available in this collection yet.",
+    );
   }
   return {
     messagesReady: ready,

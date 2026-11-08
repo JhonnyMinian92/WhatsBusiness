@@ -151,15 +151,30 @@ async function waitForSnapshot(
   predicate: (snapshot: TenantJobRuntimeMetricsSnapshotPatch) => boolean,
   expectation: string,
 ): Promise<TenantJobRuntimeMetricsSnapshotPatch> {
-  const deadline = Date.now() + 12_000;
+  // RabbitMQ exports queue statistics on a periodic collection interval. New
+  // queues may be absent from the first scrape; retry only that incomplete state.
+  const deadline = Date.now() + 20_000;
   let lastSnapshot: TenantJobRuntimeMetricsSnapshotPatch = {};
+  let lastIncompleteMetricsError: Error | undefined;
   while (Date.now() < deadline) {
-    lastSnapshot = await reader.readSnapshot();
-    if (predicate(lastSnapshot)) return lastSnapshot;
+    try {
+      lastSnapshot = await reader.readSnapshot();
+      lastIncompleteMetricsError = undefined;
+      if (predicate(lastSnapshot)) return lastSnapshot;
+    } catch (error) {
+      if (!(error instanceof Error)
+        || !error.message.startsWith("RABBITMQ_PROMETHEUS_METRICS_INCOMPLETE:")) {
+        throw error;
+      }
+      lastIncompleteMetricsError = error;
+    }
     await delay(250);
   }
+  const lastObservation = lastIncompleteMetricsError
+    ? lastIncompleteMetricsError.message
+    : "Last complete snapshot: " + JSON.stringify(lastSnapshot);
   throw new Error("RabbitMQ Prometheus endpoint did not expose the expected state: " + expectation
-    + ". Last snapshot: " + JSON.stringify(lastSnapshot));
+    + ". " + lastObservation);
 }
 
 async function waitForDeliveries(predicate: () => boolean): Promise<void> {

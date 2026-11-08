@@ -94,7 +94,7 @@ test("rejects negative, fractional, missing and duplicate metric samples", async
     /invalid queue metric: rabbitmq_detailed_queue_messages_ready/,
     /invalid queue metric: rabbitmq_detailed_queue_messages_ready/,
     /invalid queue metric: rabbitmq_detailed_queue_messages_ready/,
-    /omitted a required queue metric/,
+    /RABBITMQ_PROMETHEUS_METRICS_INCOMPLETE: worker queue statistics/,
     /duplicate queue metric/,
   ];
   for (let index = 0; index < invalidValues.length; index += 1) {
