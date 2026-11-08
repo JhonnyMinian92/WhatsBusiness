@@ -36,7 +36,7 @@ La comparación del bearer token usa `timingSafeEqual`; el endpoint no devuelve 
 
 Counters: dispatch outcomes, execution outcomes, publish outcomes, recuperación de leases/publicaciones, renovación de execution lease y errores del supervisor. Histograms: duración de ejecución de handlers y publicación al broker, con buckets fijos.
 
-Se implementó un snapshot de gauges agregados en PostgreSQL mediante `platform.read_tenant_job_runtime_metrics()` (migración `0014-tenant-job-runtime-metrics.sql`). La función `SECURITY DEFINER` retorna solo conteos globales y edad del outbox pendiente; no retorna tenant IDs, actor IDs, job IDs ni payloads. `EXECUTE` se concede únicamente a `whatsbusiness_job_dispatcher_role`; `whatsbusiness_app` y `whatsbusiness_job_worker_role` no pueden invocarla ni tienen `SELECT` directo sobre `tenant_job_records`.
+Se implementó un snapshot de gauges agregados en PostgreSQL mediante `platform.read_tenant_job_runtime_metrics()` (migración `0015-tenant-job-runtime-metrics.sql`). La función `SECURITY DEFINER` retorna solo conteos globales y edad del outbox pendiente; no retorna tenant IDs, actor IDs, job IDs ni payloads. `EXECUTE` se concede únicamente a `whatsbusiness_job_dispatcher_role`; `whatsbusiness_app` y `whatsbusiness_job_worker_role` no pueden invocarla ni tienen `SELECT` directo sobre `tenant_job_records`.
 
 Gauges: outbox pending, dispatch blocked, dispatch leases active/expired, execution leases active/expired, dead-letter jobs, oldest pending dispatch age y jobs replayed. `PostgresTenantJobRuntimeMetricsReader` mapea el resultado a un snapshot tipado; el supervisor lo muestrea cada 15 s por defecto (`TENANT_JOB_METRICS_POLL_INTERVAL_MS`). El muestreo usa el pool dispatcher y su fallo se registra sin bloquear recovery ni dispatch. Los gauges se cachean en memoria entre scrapes; los contadores/histogramas también son in-memory y se reinician con el proceso.
 
@@ -48,7 +48,7 @@ Aún no hay broker queue depth/consumer lag ni profundidad de la cola RabbitMQ D
 
 ## Estado y criterios pendientes
 
-**Endpoint HTTP implementado y CI-verificado como componente aislado.** Source CI [#42434224485](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42434224485) terminó SUCCESS para commit `abbc86cfbd72e89ab5db82b0e3207159a66eba71`, incluyendo build, typecheck y `tenant-job-metrics-http.server.spec.ts`. Los gauges PostgreSQL, reader y migración `0014` están implementados en source, pero su verificación CI está pendiente. Esto no cierra TASK-003 ni permite marcarla accepted.
+**Endpoint HTTP implementado y CI-verificado como componente aislado.** Source CI [#42434224485](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42434224485) terminó SUCCESS para commit `abbc86cfbd72e89ab5db82b0e3207159a66eba71`, incluyendo build, typecheck y `tenant-job-metrics-http.server.spec.ts`. Los gauges PostgreSQL, reader y migración `0015` están implementados en source, pero su verificación CI está pendiente. Esto no cierra TASK-003 ni permite marcarla accepted.
 
 Para el cierre de observabilidad de TASK-003 aún se requiere:
 1. Ejecutar Source CI para la migración, reader, muestreo y nuevas pruebas de integración.
