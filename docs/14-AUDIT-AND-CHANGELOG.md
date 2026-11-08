@@ -336,3 +336,16 @@ Source CI #42431530685 terminó SUCCESS para el commit `6059822896987fc618c479d5
 | AUD-102 | Aprobación y autorización | `jobs.replay.request` crítico, two-person quorum=2 y step-up; hash incluye snapshot y version de policy; source job original permanece terminal. |
 | AUD-103 | Policy fail-closed y pruebas | Registry vacío por defecto; solo acepta handler con versión `tenant-job-replay.v1` y garantía `stable-domain-effect-key`. Tests cubren registry, ausencia de policy y privilegios reales del rol API. |
 | AUD-104 | Source CI | Run #42432745586 SUCCESS para commit `6c93efdfea0cef7f1819402ab872e439ef858ccd`, incluyendo migraciones 0012/0013/idempotencia, build, typecheck, unit y PostgreSQL/RabbitMQ integration. No hay handler real registrado; el replay no queda habilitado en producción. |
+
+## 29. Recuperación segura del consumer RabbitMQ, métricas y fencing — TASK-003 (AUD-105..110; 2026-11-08)
+
+| ID | Cambio | Evidencia / resultado |
+|---|---|---|
+| AUD-105 | ACK ambiguo no destructivo | Si la transacción de negocio pudo confirmar COMMIT pero `channel.ack` falla, el adapter no emite NACK sin requeue. Cierra sesión y permite redelivery; PostgreSQL terminal state/inbox hacen reconciliable el duplicado. Test de regresión incluido. |
+| AUD-106 | Fallo de persistencia con locator válido | Envelope válido + excepción de `consumer.handle` se trata como resultado durable desconocido. El adapter cierra sesión sin ACK/NACK para redelivery; envelopes inválidos sí se rechazan a DLQ. No se envían jobs válidos a DLQ por outage DB. |
+| AUD-107 | Shutdown single-flight | Cierres concurrentes de varios deliveries prefetched comparten una única promesa de cierre de la sesión worker. Test concurrente de dos entregas comprueba una sola invocación. |
+| AUD-108 | Recuperación real broker/DB | Se verifican redelivery RabbitMQ tras pérdida de canal, recuperación PostgreSQL de execution/dispatch leases expirados y fencing de tokens antiguos contra renew/complete/mark-published. El fixture de job type conserva la whitelist SQL de producción. |
+| AUD-109 | Métricas bounded | Counters/histograms Prometheus in-memory usan outcomes allowlisted, sin labels de tenant/actor/job/payload. Pruebas comprueban buckets, contadores y rechazo de labels desconocidas. El endpoint HTTP, gauges operativos, alertas y SLO no están implementados. |
+| AUD-110 | Source CI integral | Run [#42433941375](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42433941375) finalizó SUCCESS para commit `f136cff710fe8c60c8430c82928092320b9d90b5`: instalación frozen, roles DB, migraciones/idempotencia, DLX quorum, build, typecheck, unit tests, integraciones PostgreSQL/RabbitMQ y cleanup de contenedores. |
+
+**Límites y estado:** TASK-003 permanece `in_progress`. El registry de replay sigue vacío/fail-closed; faltan handlers reales y prueba e2e de side-effect idempotente, operación de DLQ/replay, endpoint/gauges/alertas/SLO, validación de broker desplegado, secrets/rotación, carga/DR y revisión/aceptación independiente. No hay autorización GO-PRODUCTION.
