@@ -20,7 +20,7 @@ export function attachMetaCreativeConfiguration<T extends CreativeVariantDraft>(
   input: unknown,
 ): T & { readonly metaCreativeConfiguration: MetaCreativeConfiguration } {
   const root = asRecord(input);
-  const native = root["metaCreativeConfiguration"] === undefined
+  const native: Readonly<Record<string, unknown>> = root["metaCreativeConfiguration"] === undefined
     ? Object.freeze({})
     : asRecord(root["metaCreativeConfiguration"]);
   const configuration = Object.freeze({

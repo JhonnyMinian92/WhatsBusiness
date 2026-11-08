@@ -773,3 +773,10 @@ La ejecución de CI anterior pasó build/typecheck y 355/356 API tests; el fallo
 | ID | Hallazgo | Corrección |
 |---|---|---|
 | AUD-215 | \`0031-ads-creative-lab.sql\` comparaba \`experiment.created_by uuid\` con \`current_setting() text\` sin conversión | Cast \`::uuid\` agregado a la política tenant-scoped. Corrección de migración adyacente US-030; sin cambio de alcance contractual. |
+
+
+## 55. Tipo explícito para configuración Meta nativa (2026-11-08)
+
+| ID | Hallazgo | Corrección |
+|---|---|---|
+| AUD-216 | Build API reportó TS7053 al indexar la configuración nativa inferida como \`Readonly<{}>\` | Tipo \`Readonly<Record<string, unknown>>\` explícito y prueba de snapshot vacío por defecto. Verificar build en el siguiente HEAD. |

@@ -44,6 +44,15 @@ const draft = {
   tags: [],
 };
 
+test("native Meta configuration defaults are stable and structured", () => {
+  const result = attachMetaCreativeConfiguration(draft, {});
+  assert.deepEqual(result.metaCreativeConfiguration, {
+    assetFeedSpec: {},
+    degreesOfFreedomSpec: {},
+    creativeFeaturesSpec: {},
+  });
+});
+
 test("native Meta creative specifications are preserved as structured snapshots", () => {
   const result = attachMetaCreativeConfiguration(draft, {
     metaCreativeConfiguration: {

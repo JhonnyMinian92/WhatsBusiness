@@ -103,3 +103,8 @@ La segunda ejecución PostgreSQL mostró que la política de INSERT del ledger i
 ## Addendum de compatibilidad de migraciones adyacentes — 2026-11-08
 
 La siguiente migración preexistente, \`0031-ads-creative-lab.sql\` (US-030), contenía una comparación UUID/text sin cast en la política de lectura de \`ads.creative_experiments\`. El pipeline aplicaba 0030 correctamente y luego fallaba al procesar 0031. Se corrigió la conversión explícita \`::uuid\` del contexto OIDC. Este ajuste no amplía el alcance funcional de US-024; se registra como defecto de compatibilidad de migraciones descubierto por el Source CI de esta historia.
+
+
+## Addendum de compilación Ads Creative Lab — 2026-11-08
+
+Después de corregir el cast UUID de la migración 0031, el build llegó al módulo Creative Lab y detectó la inferencia TypeScript de \`Object.freeze({})\` como \`Readonly<{}>\`. Se tipó explícitamente la configuración nativa como \`Readonly<Record<string, unknown>>\` y se agregó una prueba del snapshot vacío por defecto. Es una corrección de tipos/deuda de compilación adyacente, sin modificar los payloads ni la semántica de Meta.
