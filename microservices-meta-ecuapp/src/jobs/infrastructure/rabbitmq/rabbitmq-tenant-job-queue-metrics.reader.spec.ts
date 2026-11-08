@@ -7,13 +7,14 @@ import { RabbitMqTenantJobQueueMetricsReader } from "./rabbitmq-tenant-job-queue
 test("reads ready-message and consumer counts without consuming either queue", async () => {
   const calls: string[] = [];
   const channel = {
+    async close() {},
     async checkQueue(queue: string) {
       calls.push(queue);
       return queue === TENANT_JOB_RABBITMQ_TOPOLOGY.queue
         ? { queue, messageCount: 12, consumerCount: 3 }
         : { queue, messageCount: 2, consumerCount: 0 };
     },
-  } as unknown as Pick<Channel, "checkQueue">;
+  } as unknown as Pick<Channel, "checkQueue" | "close">;
   const reader = new RabbitMqTenantJobQueueMetricsReader(channel);
 
   assert.deepEqual(await reader.readSnapshot(), {
@@ -30,6 +31,7 @@ test("reads ready-message and consumer counts without consuming either queue", a
 
 test("rejects invalid broker counts instead of exporting negative or unsafe gauges", async () => {
   const channel = {
+    async close() {},
     async checkQueue(queue: string) {
       return {
         queue,
@@ -39,7 +41,7 @@ test("rejects invalid broker counts instead of exporting negative or unsafe gaug
         consumerCount: 0,
       };
     },
-  } as unknown as Pick<Channel, "checkQueue">;
+  } as unknown as Pick<Channel, "checkQueue" | "close">;
   const reader = new RabbitMqTenantJobQueueMetricsReader(channel);
 
   await assert.rejects(
@@ -49,8 +51,8 @@ test("rejects invalid broker counts instead of exporting negative or unsafe gaug
 });
 
 test("rejects invalid queue names", () => {
-  const channel = { async checkQueue() { return { queue: "", messageCount: 0, consumerCount: 0 }; } }
-    as unknown as Pick<Channel, "checkQueue">;
+  const channel = { async close() {}, async checkQueue() { return { queue: "", messageCount: 0, consumerCount: 0 }; } }
+    as unknown as Pick<Channel, "checkQueue" | "close">;
   assert.throws(
     () => new RabbitMqTenantJobQueueMetricsReader(channel, " ", "dlq"),
     /queue names are invalid/,
@@ -65,7 +67,7 @@ test("rejects invalid queue names", () => {
 test("bounds a stalled broker metrics RPC", async () => {
   const channel = {
     checkQueue: () => new Promise(() => undefined),
-  } as unknown as Pick<Channel, "checkQueue">;
+  } as unknown as Pick<Channel, "checkQueue" | "close">;
   const reader = new RabbitMqTenantJobQueueMetricsReader(
     channel,
     TENANT_JOB_RABBITMQ_TOPOLOGY.queue,
@@ -76,10 +78,38 @@ test("bounds a stalled broker metrics RPC", async () => {
   await assert.rejects(reader.readSnapshot(), /sample timed out/);
 });
 
+test("opens a channel circuit after timeout and does not queue further RPCs", async () => {
+  let checks = 0;
+  let closes = 0;
+  const channel = {
+    checkQueue() {
+      checks += 1;
+      return new Promise(() => undefined);
+    },
+    async close() { closes += 1; },
+  } as unknown as Pick<Channel, "checkQueue" | "close">;
+  const reader = new RabbitMqTenantJobQueueMetricsReader(
+    channel,
+    TENANT_JOB_RABBITMQ_TOPOLOGY.queue,
+    TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue,
+    100,
+  );
+
+  await assert.rejects(reader.readSnapshot(), /circuit opened/);
+  await Promise.resolve();
+  assert.equal(checks, 2);
+  assert.equal(closes, 1);
+
+  await assert.rejects(reader.readSnapshot(), /unavailable until the runtime session reconnects/);
+  assert.equal(checks, 2);
+  assert.equal(closes, 1);
+});
+
 test("rejects unsafe metrics RPC timeout configuration", () => {
   const channel = {
+    async close() {},
     async checkQueue(queue: string) { return { queue, messageCount: 0, consumerCount: 0 }; },
-  } as unknown as Pick<Channel, "checkQueue">;
+  } as unknown as Pick<Channel, "checkQueue" | "close">;
   assert.throws(
     () => new RabbitMqTenantJobQueueMetricsReader(channel, undefined, undefined, 99),
     /timeout is invalid/,
