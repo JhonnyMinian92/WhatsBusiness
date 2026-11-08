@@ -31,9 +31,9 @@ SET search_path=pg_catalog,platform AS $$
 $$;
 CREATE OR REPLACE FUNCTION platform.is_active_platform_user(p_user_id uuid)
 RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER
-SET search_path=pg_catalog,platform AS $
+SET search_path=pg_catalog,platform AS $function$
   SELECT EXISTS(SELECT 1 FROM platform.users WHERE id=p_user_id AND status='active')
-$;
+$function$;
 CREATE OR REPLACE FUNCTION platform.is_usage_ingestor(p_user_id uuid)
 RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER
 SET search_path=pg_catalog,platform AS $$
