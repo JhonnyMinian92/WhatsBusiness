@@ -7,7 +7,6 @@ export interface TenantJobReplaySource {
   readonly purpose: string;
   readonly correlationId: string;
   readonly jobType: string;
-  readonly payload: Readonly<Record<string, unknown>>;
   readonly requestSha256: string;
   readonly status: string;
   readonly attempts: number;
@@ -55,7 +54,6 @@ interface SourceRow {
   readonly purpose: string;
   readonly correlation_id: string;
   readonly job_type: string;
-  readonly payload: unknown;
   readonly request_sha256: string;
   readonly status: string;
   readonly attempts: number;
@@ -96,7 +94,7 @@ export class PostgresTenantJobReplayRepository {
     const result = await client.query<SourceRow>(
       [
         "SELECT id::text, tenant_id::text, actor_user_id::text, purpose, correlation_id::text,",
-        "job_type, payload, request_sha256, status, attempts, max_attempts, error_code, dead_letter_reason",
+        "job_type, request_sha256, status, attempts, max_attempts, error_code, dead_letter_reason",
         "FROM platform.tenant_job_records WHERE id = $1 AND tenant_id = $2",
         lock ? "FOR UPDATE" : "",
       ].filter(Boolean).join(" "),
@@ -104,9 +102,6 @@ export class PostgresTenantJobReplayRepository {
     );
     const row = result.rows[0];
     if (!row) return null;
-    if (!isPlainRecord(row.payload)) {
-      throw new Error("Tenant job replay source payload is not a JSON object.");
-    }
     return Object.freeze({
       id: row.id,
       tenantId: row.tenant_id,
@@ -114,7 +109,6 @@ export class PostgresTenantJobReplayRepository {
       purpose: row.purpose,
       correlationId: row.correlation_id,
       jobType: row.job_type,
-      payload: Object.freeze({ ...row.payload }),
       requestSha256: row.request_sha256.trim(),
       status: row.status,
       attempts: row.attempts,
@@ -206,42 +200,19 @@ export class PostgresTenantJobReplayRepository {
     }) : null;
   }
 
-  async createReplay(
+  async createApprovedReplay(
     client: PoolClient,
-    input: {
-      readonly source: TenantJobReplaySource;
-      readonly tenantId: string;
-      readonly actorUserId: string;
-      readonly correlationId: string;
-      readonly approvalId: string;
-      readonly reasonCode: string;
-    },
+    sourceJobId: string,
+    approvalId: string,
   ): Promise<string> {
-    const idempotencyKey = `replay:${input.source.id}:${input.approvalId}`;
-    const result = await client.query<{ id: string }>(
-      [
-        "INSERT INTO platform.tenant_job_records",
-        "(tenant_id, actor_user_id, purpose, correlation_id, job_type, idempotency_key, payload,",
-        "request_sha256, max_attempts, replay_of_job_id, replay_approval_id,",
-        "replay_requested_by_user_id, replay_reason_code)",
-        "VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8,$9,$10,$11,$12,$13)",
-        "RETURNING id::text",
-      ].join(" "),
-      [
-        input.tenantId, input.actorUserId, input.source.purpose, input.correlationId,
-        input.source.jobType, idempotencyKey, JSON.stringify(input.source.payload),
-        input.source.requestSha256, input.source.maxAttempts, input.source.id,
-        input.approvalId, input.actorUserId, input.reasonCode,
-      ],
+    const result = await client.query<{ replayed_job_id: string }>(
+      "SELECT platform.create_approved_tenant_job_replay($1, $2)::text AS replayed_job_id",
+      [sourceJobId, approvalId],
     );
-    const id = result.rows[0]?.id;
-    if (!id) throw new Error("PostgreSQL did not return the replay job identifier.");
-    return id;
+    const replayedJobId = result.rows[0]?.replayed_job_id;
+    if (!replayedJobId) {
+      throw new Error("The approved replay SQL boundary did not return a job identifier.");
+    }
+    return replayedJobId;
   }
-}
-
-function isPlainRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  if (value === null || typeof value !== "object" || Array.isArray(value)) return false;
-  const prototype = Object.getPrototypeOf(value);
-  return prototype === Object.prototype || prototype === null;
 }
