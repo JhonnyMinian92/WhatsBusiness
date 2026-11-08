@@ -578,3 +578,14 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - AC-006-01/02/04 parciales; AC-006-03 pendiente de gate compartido en sender para estado APPROVED y compatibilidad/capability.
 - Unit specs de dominio/servicio e integración PostgreSQL A/B añadidas a api:test; Source CI añade RUN_WHATSAPP_TEMPLATE_INTEGRATION_TESTS=true. Resultado CI de este commit aún pendiente.
 - TASK-014/015 continúan in_progress; no se ha utilizado WABA real ni se ha obtenido Product Owner acceptance. Ver docs/71.
+
+
+
+## Handoff — compatibilidad del catálogo de roles y feedback Source CI (2026-11-08)
+
+- Source CI run 42513396813, commit 7b30d272: frozen install, migraciones 0001–0007 (incluida idempotencia), build y typecheck pasaron; la suite API registró 181 PASS / 5 FAIL.
+- La nueva integración TASK-004/005 "PostgreSQL persists approved tenant role assignments atomically and protects the last owner" pasó. El fallo que afecta tres suites existentes fue que varios fixtures/consumidores legítimos insertan platform.roles sin description; 0007 introdujo un CHECK que requería description no vacía.
+- Se añadió migration 0008-role-description-defaults.sql para mantener el CHECK y generar de forma determinista description desde display_name (o role_key) para escritores legados. La prueba de asignación valida también esta compatibilidad.
+- Se corrigió el cierre doble del workerPool en tenant-job-record.integration.spec.ts (DatabaseService ya cierra su pool) y una ruta ESM relativa incorrecta en postgres-message-template.integration.spec.ts.
+- Estado: correcciones preparadas en código/documentación; Source CI posterior pendiente. No declarar US-002 verified hasta que la suite completa pase. TASK-004/005 permanecen in_progress por IdP/owner bootstrap/review/aceptación.
+- Dependencia operativa no resuelta: el primer tenant_owner debe ser creado por un flujo de provisioning confiable. No existe aún en esta capa un endpoint/flujo seguro de bootstrap inicial; no se permite autopromoción ni se inventa un actor de plataforma. El servicio implementa asignaciones posteriores.

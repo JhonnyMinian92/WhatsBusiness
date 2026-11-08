@@ -204,3 +204,13 @@ TASK-046 y TASK-064 nombran “frontend foundation” sin ID ni entregable acept
 - Tests de dominio y servicio; integración PostgreSQL para tenant A/B, stale version, idempotency, revision immutability, archive y audit.
 - api:test y Source CI incluyen el integration spec, activado con RUN_WHATSAPP_TEMPLATE_INTEGRATION_TESTS=true.
 - Estado: implemented slice / verification pending; TASK-014/015 in_progress. WAM-001..007 requieren contract freeze; no hay Meta reads/writes ni status sync sin TASK-008/010 runtime evidence.
+
+
+
+### Handoff adicional TASK-004 / TASK-005 — feedback de la primera suite PostgreSQL (2026-11-08)
+
+- Source CI 42513396813 pasó instalación frozen, migraciones 0001–0007 e idempotencia, build y typecheck; API suite 181 PASS/5 FAIL.
+- La integración nueva tenant-role-assignment.integration.spec.ts pasó: requester owner, aprobador distinto, step-up sintético, asignación de plantilla con permisos exactos, retry idempotente, revocación, protección de último owner y auditoría stale-denial/hash chain.
+- La restricción de description de 0007 mostró que tres suites existentes insertan roles con solo display_name. Se preservó la integridad con migration 0008-role-description-defaults.sql: trigger BEFORE INSERT/UPDATE completa description con display_name o role_key. La integración añade assertion de compatibilidad.
+- Se reparó un doble cierre de pool en tenant-job-record.integration.spec.ts (DatabaseService ya libera workerPool) y un import ESM relativo incorrecto en postgres-message-template.integration.spec.ts.
+- Nuevo Source CI pendiente: no elevar status a verified hasta SUCCESS. Bootstrap seguro del primer tenant_owner, ACR/AMR del IdP real, contract freeze, revisión independiente y aceptación PO continúan pendientes.

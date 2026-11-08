@@ -113,6 +113,16 @@ test("PostgreSQL persists approved tenant role assignments atomically and protec
     const targetMembership = membershipByUser.get(targetId);
     assert.ok(ownerMembership && approverMembership && targetMembership);
 
+    const legacyRole = await adminPool.query<{ description: string }>(
+      [
+        "INSERT INTO platform.roles (tenant_id, role_key, display_name)",
+        "VALUES ($1, 'legacy_role_fixture', 'Legacy role fixture')",
+        "RETURNING description",
+      ].join(" "),
+      [tenantId],
+    );
+    assert.equal(legacyRole.rows[0]?.description, "Legacy role fixture");
+
     const ownerRoleId = randomUUID();
     const reviewerRoleId = randomUUID();
     await adminPool.query(

@@ -774,3 +774,17 @@ Restricciones conservadas: no se añaden controllers ni rutas públicas; IAM-007
 | TASK-015 | in_progress | Metadata tipada status/quality, validación de variables/componentes/botones, preview local y revisiones append-only. | WAM-006/007 catalog-only; sync de status/calidad, flujo de aprobación, sender policy enforcement y CI. |
 
 AC-006-01 parcial, AC-006-02 parcial, AC-006-03 pendiente y AC-006-04 parcial. No declarar verified/accepted por contar solo código. La trazabilidad técnica y los paths están en docs/71.
+
+
+
+## Feedback Source CI — US-002 y compatibilidad de integración (2026-11-08)
+
+Source CI run 42513396813 sobre commit 7b30d272 aprobó instalación, migraciones 0001–0007/idempotencia, build y typecheck. La suite API obtuvo 181 PASS y 5 FAIL: tres fallos de suites ya existentes por inserciones de roles sin descripción (regresión introducida por el CHECK de 0007), un doble cierre de pool en la prueba de jobs y una importación ESM relativa errónea en la prueba de plantillas WhatsApp. La integración nueva de asignación de roles pasó.
+
+Correcciones añadidas para revalidar:
+- Migration 0008 mantiene la restricción de descripción, pero la rellena desde display_name/role_key con trigger antes de INSERT/UPDATE.
+- La integración US-002 comprueba el fallback de description para escritores legados.
+- Se elimina el segundo pool.end cuando DatabaseService ya administra el workerPool.
+- Se ajustan imports relativos de la prueba PostgreSQL de plantillas WhatsApp.
+
+Estado de TASK-004/005: implementación amplia con nueva compatibilidad y tests; CI completo pendiente. Se mantiene in_progress. Bootstrap de tenant_owner inicial y allowlist ACR/AMR del IdP real continúan como dependencias explícitas. No se publican rutas IAM catalog-only.

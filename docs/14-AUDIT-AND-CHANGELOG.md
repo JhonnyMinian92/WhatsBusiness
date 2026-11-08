@@ -506,3 +506,16 @@ El IdP real y su semántica ACR/AMR no se han verificado; la configuración perm
 | AUD-168 | WAM-001..007 continúan catalog-only; no se expusieron controllers ni mutaciones Meta. | Gate docs/49 respetado; aprobación y sender enforcement pendientes. |
 
 TASK-014 y TASK-015 continúan in_progress. AC-006-01/02/04 tienen implementación parcial; AC-006-03 está abierto hasta conectar el gate de plantillas aprobadas al sender. No hay uso de cuenta Meta real ni mutaciones externas. Véase docs/71.
+
+
+
+## 42. Source CI feedback y correcciones de compatibilidad (AUD-163..166; 2026-11-08)
+
+| ID | Cambio / control | Estado |
+|---|---|---|
+| AUD-163 | Migration 0008 añade trigger para completar role.description de forma determinista desde display_name/role_key cuando los escritores existentes omiten ese campo, sin quitar el CHECK de integridad incorporado en 0007. | Código añadido; CI pendiente. |
+| AUD-164 | La integración de asignación/verificación de roles comprueba que el fallback de descripción funciona junto con aprobación, consumo transaccional y protección del último tenant_owner. | Código añadido; CI pendiente. |
+| AUD-165 | La prueba PostgreSQL de jobs deja el cierre del workerPool bajo la responsabilidad de DatabaseService y evita llamar pool.end dos veces. | Test cleanup corregido; CI pendiente. |
+| AUD-166 | La prueba PostgreSQL de plantillas WhatsApp corrige imports ESM relativos al directorio src/platform. | Import corregido; CI pendiente. |
+
+En Source CI run 42513396813 la migración 0007, su idempotencia, build y typecheck pasaron; la suite fue 181 PASS / 5 FAIL. La prueba nueva de TenantRoleAssignment pasó. Los cuatro ajustes anteriores apuntan a los fallos observados; no se elevará el estado hasta nuevo SUCCESS. GO-PRODUCTION sigue NO-GO.

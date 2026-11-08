@@ -312,3 +312,11 @@ Se incorporó el bounded context interno de plantillas: validación de estructur
 El alcance es interno: no se añadieron WAM controllers porque WAM-001..007 siguen catalog-only, sin contract freeze por operación ni adapter Meta con conexión/capability runtime. No hay prueba con WABA real ni mutación externa.
 
 Estado propuesto: TASK-014/015 in_progress; AC-006-01/02/04 parciales; AC-006-03 pendiente de integrar y probar un gate de plantillas aprobadas en el sender. Source CI de este cambio pendiente. Aceptación final requiere CI verde, review independiente y evidencia del Product Owner; detalle en docs/71.
+
+
+
+## US-002 — hardening tras primera integración PostgreSQL (2026-11-08)
+
+La primera integración real confirmó que el flujo nuevo de asignación/revocación de roles es correcto (test PASS), pero detectó una regresión de compatibilidad: código existente inserta roles sin description. Se añadió migration 0008 con trigger derivado display_name/role_key sin retirar la restricción no vacía de 0007. También se repararon dos problemas de test harness en jobs y WhatsApp templates, observados en el mismo Source CI.
+
+CI run 42513396813: migraciones 0001–0007 e idempotencia, build y typecheck SUCCESS; tests 181/186. Validación posterior de 0008 y suite completa pendiente. No marcar verified hasta nuevo run exitoso. Continúan como gates: bootstrap seguro de tenant_owner, IdP real (ACR/AMR), contratos IAM, review independiente y Product Owner acceptance.

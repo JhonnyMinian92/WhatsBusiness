@@ -390,3 +390,15 @@ No se eleva US-002 a accepted: faltan CI del commit, IdP real, review independie
 | AC-006-04 — historial inmutable/aprobación | template_revisions, trigger inmutable, snapshots versionados, actor/timestamp e idempotencia/audit. | Postgres integration spec: inmutabilidad, versión y audit chain. | Historial parcial; falta approval workflow y evento real. |
 
 Código en apps/api/src/whatsapp/templates/**; migración 0027 en microservices-meta-ecuapp. Source CI todavía pendiente; TASK-014/015 no verified/accepted.
+
+
+
+## US-002 — ajuste de compatibilidad basado en Source CI (2026-11-08)
+
+| Criterio | Evidencia observada | Corrección | Estado |
+|---|---|---|---|
+| Persistencia de roles sin romper consumidores | TASK-004 integration PASS; CRM, approvals e identity.slice fallaron porque sus fixtures omiten description al insertar roles, violando el nuevo CHECK de 0007 | Migration 0008 crea description antes de CHECK desde display_name/role_key; nuevo assertion de integración | CI pendiente |
+| Durabilidad de asignación y auditoría | Test PostgreSQL de asignación/revocación, aprobación independiente, last-owner guard, stale denial audit y hash-chain PASS en Source CI 42513396813 | Sin cambio funcional pendiente por ese resultado; requerir reejecución tras 0008 | Parcialmente verificado |
+| Aislamiento de plataforma | Test tenant job cleanup lanzó pool.end doble; test WhatsApp templates ESM import path no resolvió | Se corrigen lifecycle de pool e imports | CI pendiente |
+
+Source CI 42513396813: 181 PASS / 5 FAIL; no aceptar US-002 ni cerrar TASK-004/005 hasta que run posterior a 0008 obtenga SUCCESS. Bootstrap del primer owner, IdP ACR/AMR real y rutas IAM bajo contract freeze permanecen abiertos.
