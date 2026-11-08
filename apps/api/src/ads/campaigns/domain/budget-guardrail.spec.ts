@@ -28,7 +28,7 @@ test("allows exactly +20% in a single operation and over the fixed rolling basel
 test("rejects an individual increase greater than 20%", () => {
   const result = evaluateAdsBudgetChange({
     current: money("100"),
-    requested: money("120.000001"),
+    requested: money("120.01"),
     window: windowFor("100"),
     now,
     killSwitchActive: false,
@@ -123,4 +123,17 @@ test("does not schedule a provider mutation for an unchanged budget", () => {
   assert.equal(result.allowed, true);
   assert.equal(result.direction, "unchanged");
   assert.equal(result.reason, "ADS_BUDGET_NO_CHANGE");
+});
+
+test("permits a budget decrease after the increase window expires", () => {
+  const result = evaluateAdsBudgetChange({
+    current: money("125"),
+    requested: money("110"),
+    window: windowFor("100", "2026-11-07T00:00:00.000Z"),
+    now,
+    killSwitchActive: false,
+  });
+  assert.equal(result.allowed, true);
+  assert.equal(result.direction, "decrease");
+  assert.equal(result.reason, null);
 });
