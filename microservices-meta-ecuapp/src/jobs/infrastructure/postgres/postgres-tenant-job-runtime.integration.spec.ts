@@ -348,6 +348,22 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
     insertedJobs.push(expiredJobId);
     const expiredClaim = await publishAndClaim(dispatcherPool, workerPool, expiredJobId, 5);
     assert.ok(expiredClaim.leaseToken);
+
+    // Simulate dispatcher process loss after the publication lease is acquired
+    // but before publisher confirm/mark-published can be persisted.
+    const abandonedPublicationJobId = await stageJob(
+      runtimePool, tenantId, actorUserId, correlationId,
+      "inbox.message.publisher-crash", { messageId: randomUUID() },
+    );
+    insertedJobs.push(abandonedPublicationJobId);
+    const abandonedPublication = await dispatcherPool.query<{ lease_token: string }>(
+      "SELECT lease_token FROM platform.claim_tenant_job_publications(10, 5) WHERE job_id = $1",
+      [abandonedPublicationJobId],
+    );
+    const abandonedDispatchToken = abandonedPublication.rows[0]?.lease_token;
+    assert.ok(abandonedDispatchToken);
+
+    // The worker execution and abandoned publisher leases expire together.
     await new Promise((resolve) => setTimeout(resolve, 5_200));
     const recovered = await dispatcherPool.query<{
       recovered_execution_leases: number;
@@ -357,6 +373,7 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
       "SELECT * FROM platform.recover_tenant_job_runtime(50, 30)",
     );
     assert.ok((recovered.rows[0]?.recovered_execution_leases ?? 0) >= 1);
+    assert.ok((recovered.rows[0]?.recovered_dispatch_leases ?? 0) >= 1);
     const expiredRecord = await adminPool.query<{ status: string; dispatch_status: string; error_code: string }>(
       "SELECT status, dispatch_status, error_code FROM platform.tenant_job_records WHERE id = $1",
       [expiredJobId],
@@ -365,6 +382,63 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
       status: "failed",
       dispatch_status: "pending",
       error_code: "WORKER_LEASE_EXPIRED",
+    });
+
+    // A late publisher with the old fencing token cannot mark the row published.
+    const staleDispatchMark = await dispatcherPool.query<{ marked: boolean }>(
+      "SELECT platform.mark_tenant_job_published($1, $2) AS marked",
+      [abandonedPublicationJobId, abandonedDispatchToken],
+    );
+    assert.equal(staleDispatchMark.rows[0]?.marked, false);
+    const replacementDispatch = await dispatcherPool.query<{ lease_token: string }>(
+      "SELECT lease_token FROM platform.claim_tenant_job_publications(10, 30) WHERE job_id = $1",
+      [abandonedPublicationJobId],
+    );
+    const replacementDispatchToken = replacementDispatch.rows[0]?.lease_token;
+    assert.ok(replacementDispatchToken);
+    assert.notEqual(replacementDispatchToken, abandonedDispatchToken);
+    const replacementDispatchMark = await dispatcherPool.query<{ marked: boolean }>(
+      "SELECT platform.mark_tenant_job_published($1, $2) AS marked",
+      [abandonedPublicationJobId, replacementDispatchToken],
+    );
+    assert.equal(replacementDispatchMark.rows[0]?.marked, true);
+
+    // The old worker cannot renew or complete after recovery has fenced its lease.
+    await new Promise((resolve) => setTimeout(resolve, 1_100));
+    const replacementExecution = await publishAndClaim(dispatcherPool, workerPool, expiredJobId);
+    assert.notEqual(replacementExecution.leaseToken, expiredClaim.leaseToken);
+    const staleExecutionRenewal = await workerPool.query<{ lease_expires_at: Date | null }>(
+      "SELECT platform.renew_tenant_job_execution_lease($1, $2, 30) AS lease_expires_at",
+      [expiredJobId, expiredClaim.leaseToken],
+    );
+    assert.equal(staleExecutionRenewal.rows[0]?.lease_expires_at, null);
+    await assert.rejects(
+      withTenantContext(workerPool, actorUserId, tenantId, async (client) => {
+        await client.query(
+          "SELECT platform.complete_tenant_job($1, $2, 'late-worker')",
+          [expiredJobId, expiredClaim.leaseToken],
+        );
+      }),
+      (error: unknown) => typeof error === "object" && error !== null && "code" in error
+        && (error as { code: string }).code === "40001",
+    );
+    await withTenantContext(workerPool, actorUserId, tenantId, async (client) => {
+      await client.query(
+        "SELECT platform.complete_tenant_job($1, $2, 'replacement-worker')",
+        [expiredJobId, replacementExecution.leaseToken],
+      );
+    });
+    const reclaimedRecord = await adminPool.query<{ status: string; inbox_count: string }>(
+      [
+        "SELECT job.status,",
+        "(SELECT count(*) FROM platform.tenant_job_inbox AS inbox WHERE inbox.job_id = job.id)::text AS inbox_count",
+        "FROM platform.tenant_job_records AS job WHERE job.id = $1",
+      ].join(" "),
+      [expiredJobId],
+    );
+    assert.deepEqual(reclaimedRecord.rows[0], {
+      status: "succeeded",
+      inbox_count: "1",
     });
 
     await assert.rejects(
