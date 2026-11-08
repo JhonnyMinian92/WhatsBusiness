@@ -171,10 +171,6 @@ export class TenantJobReplayService {
   ): Promise<TenantJobReplayResult> {
     this.assertReplayPermission(subject);
     const request = await this.loadRequest(subject, approvalId);
-    const policy = this.requireReplayPolicyForSnapshot(
-      request.sourceJobType,
-      request.replayPolicyVersion,
-    );
     if (request.replayJobId) {
       return Object.freeze({
         approvalId,
@@ -183,6 +179,10 @@ export class TenantJobReplayService {
         status: "queued" as const,
       });
     }
+    const policy = this.requireReplayPolicyForSnapshot(
+      request.sourceJobType,
+      request.replayPolicyVersion,
+    );
     const sourceSnapshot = this.snapshotSource(request);
     const binding = this.createBinding(
       sourceSnapshot,
