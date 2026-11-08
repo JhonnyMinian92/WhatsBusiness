@@ -12,6 +12,8 @@ export interface ConversionConsentVerificationRequest {
   readonly purpose: typeof CONVERSION_CONSENT_PURPOSE;
   readonly actionSource: ConversionActionSource;
   readonly occurredAt: Date;
+  /** Current server clock at dispatch; consent must still be active. */
+  readonly evaluatedAt: Date;
 }
 
 /**
