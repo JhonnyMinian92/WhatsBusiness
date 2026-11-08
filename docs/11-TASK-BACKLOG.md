@@ -252,7 +252,7 @@ La referencia maestra de rutas y operaciones es [docs/47-API-INVENTORY-AND-TASK-
 | TASK-035,042..043,053 | CRM, LEAD | Contacts, identity graph, merge/dedupe |
 | TASK-036,045..047 | INB + WA/FB/IG | Omnichannel conversations, assignment, handoff |
 | TASK-037,048..049 | AUTO | Workflow builder/runtime |
-| TASK-038,050..051 | AI, AGT | AI gateway and assistive bot |
+| TASK-038,050..051 | AI | AI Assistance separado; no es la estrategia de CRM Intelligence ni una dependencia de CRM |
 | TASK-039 | No product endpoint | Architecture spike evidence; see docs/45 |
 | TASK-040 | No product endpoint | Traceability reconciliation; see docs/19 and docs/47 |
 | TASK-041,060..061 | No product endpoint | SRE/FinOps, benchmark, restore/DR evidence |
@@ -331,3 +331,19 @@ Source CI run [#42428255833](https://github.com/JhonnyMinian92/WhatsBusiness/act
 - Isolation: faltaba el port `tenant-pseudonymizer.ts` y `TenantTelemetryContext` importaba la abstracción desde el adapter concreto.
 
 Se corrigieron ambos problemas en commits `dc9d7d7`, `e924737` y `489b8cd`. El run que descubrió los errores quedó en FAILURE; Source CI asociado al commit `489b8cd3d84b057d2bdc40c8fa740008b4ac4bbc` está pendiente de ejecución. No marcar TASK-003 como verified hasta que build, typecheck y tests completen SUCCESS.
+
+## EP-CRM-INT — CRM Intelligence basada en machine learning clásico
+
+Decisión del propietario (2026-11-07): la IA del CRM es ML y estadística de bajo consumo, no LLM ni agentes. La especificación está en [docs/62](62-CRM-MACHINE-LEARNING-STRATEGY.md). Estas tareas están propuestas; ninguna implica que modelos o runtime ya existan.
+
+| Tarea | Prioridad | Resultado | Dependencias | Criterios de aceptación |
+|---|---:|---|---|---|
+| TASK-081 | P0 | Contratos de outcomes, labels y features CRM | TASK-035, TASK-042..044, TASK-053 | definiciones versionadas, provenance, event-time, ventanas, purpose/retención y prevención de leakage |
+| TASK-082 | P0 | Pipeline reproducible de datasets y feature snapshots | TASK-081, TASK-027..030, TASK-060 | tenant-scoped, snapshots reproducibles, temporal splits, calidad de datos y tests de fuga |
+| TASK-083 | P0 | Baselines predictivos y benchmark tabular | TASK-081..082 | regresión lineal/logística y árboles/boosting (XGBoost cuando aplique) frente a baseline no-ML y métricas según coste del error |
+| TASK-084 | P1 | Model registry y artefactos versionados | TASK-082..083, TASK-062..063 | checksum, dataset/código/feature version, métricas, calibración, aprobación, expiración, promoción y rollback |
+| TASK-085 | P1 | Serving de inferencia CPU-first detrás de ports CRM | TASK-083..084, TASK-039, TASK-060 | contrato tipado, aislamiento tenant, reason codes, fallback sin ML y latencia/RAM/CPU medidas; sin LLM/agentes |
+| TASK-086 | P1 | MLOps de calidad, drift y rendimiento | TASK-084..085, TASK-029..030 | feature freshness, training-serving skew, drift, calibración y performance por cohortes, alertas y desactivación segura |
+| TASK-087 | P1 | Casos predictivos ampliados | TASK-081..086 | churn, forecast, propensión, LTV, clustering/ranking y dedupe asistido; sin merge ni acción externa automática |
+
+Estas tareas no desplazan el cierre del aislamiento runtime TASK-003 ni el CRM transaccional. No se entrenará con datos reales antes de completar los gates de privacidad/seguridad y las condiciones legales aplicables.
