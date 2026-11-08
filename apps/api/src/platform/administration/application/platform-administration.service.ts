@@ -16,6 +16,8 @@ import {
   type ProvisionTenantCommand,
   type PublishPlanVersionCommand,
   type RecordUsageCommand,
+  type RetirePlanVersionCommand,
+  type UsageSummaryQuery,
   type RevokeSupportGrantCommand,
   type TenantLifecycleCommand,
 } from "./platform-administration.port.js";
@@ -81,6 +83,14 @@ export class PlatformAdministrationService {
     return this.repository.publishPlanVersion(command);
   }
 
+  retirePlanVersion(command: RetirePlanVersionCommand) {
+    this.assertCorrelationId(command.correlationId);
+    if (!/^[a-z][a-z0-9_-]{1,63}$/.test(command.planKey) || !Number.isSafeInteger(command.planVersion) || command.planVersion < 1) {
+      throw new BadRequestException({ code: "PLAN_VERSION_INVALID", detail: "El identificador o versión del plan no son válidos." });
+    }
+    return this.repository.retirePlanVersion(command);
+  }
+
   assignTenantPlan(command: AssignTenantPlanCommand) {
     this.assertCorrelationId(command.correlationId);
     return this.repository.assignTenantPlan(command);
@@ -90,6 +100,16 @@ export class PlatformAdministrationService {
     this.assertCorrelationId(command.correlationId);
     this.validatePolicy(() => this.usagePolicy.validate(command));
     return this.repository.recordUsage(command);
+  }
+
+  getUsageSummary(query: UsageSummaryQuery) {
+    this.assertTenantIdentifier(query.tenantId);
+    const from = Date.parse(query.from);
+    const to = Date.parse(query.to);
+    if (!Number.isFinite(from) || !Number.isFinite(to) || to <= from) {
+      throw new BadRequestException({ code: "USAGE_PERIOD_INVALID", detail: "El intervalo debe tener fechas ISO válidas y un final posterior al inicio." });
+    }
+    return this.repository.getUsageSummary(query);
   }
 
   createSupportGrant(command: CreateSupportGrantCommand) {
@@ -119,6 +139,12 @@ export class PlatformAdministrationService {
     if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(command.tenantId)
       || !/^[A-Z][A-Z0-9_]{1,95}$/.test(command.reasonCode)) {
       throw new BadRequestException({ code: "TENANT_LIFECYCLE_COMMAND_INVALID", detail: "El tenant o código de motivo no es válido." });
+    }
+  }
+
+  private assertTenantIdentifier(value: string): void {
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)) {
+      throw new BadRequestException({ code: "TENANT_ID_INVALID", detail: "El identificador del tenant no es válido." });
     }
   }
 
