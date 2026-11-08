@@ -390,3 +390,14 @@ Source CI #42431530685 terminó SUCCESS para el commit `6059822896987fc618c479d5
 | AUD-127 | Migración 0021 revoca la membresía de `whatsbusiness_app` en `whatsbusiness_webhook_ingress_role` y retira INSERT/SELECT del outbox al grupo, para que NOINHERIT no se eluda mediante SET ROLE. Añade pruebas de membresía y ACL del grupo. | Implementado; Source CI siguiente pendiente. |
 
 La rama recibió después de #536 el commit automático `ff89b71`, que cambia solo el lockfile pnpm validado por el workflow. La tarea permanece en progreso porque la verificación automatizada del slice no cubre todavía todos los acceptance criteria operativos ni los handlers de negocio. No se declara producción/aceptación.
+
+
+## 33. Source CI #539 — hardening ingress, DLQ durable y test tenant-scoped (AUD-128..130; 2026-11-08)
+
+| ID | Evidencia / cambio | Estado |
+|---|---|---|
+| AUD-128 | Source CI #538 falló únicamente por ReferenceError de scope en la integración PostgreSQL: storedEvents se usaba después del bloque donde se declaraba. El commit c2bb65fc1a506ba54ab3f7662c9bbc759e2b0536 mantuvo el id de evento en el scope de la prueba y validó su presencia. | Corregido. |
+| AUD-129 | Source CI [#539](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42486976106), commit c2bb65fc1a506ba54ab3f7662c9bbc759e2b0536: instalación frozen, migraciones 0001–0021 e idempotencia, provisioning, build, typecheck, api:test y microservices-meta-ecuapp:test SUCCESS; cleanup de PostgreSQL/RabbitMQ SUCCESS. | Verificado por CI. |
+| AUD-130 | CodeQL [#77](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42486976151) SUCCESS. La migración 0021 revoca membresía del login API al grupo ingress y retira SELECT/INSERT del outbox al grupo. La integración prueba membership false, ACL, SET ROLE denegado, outbox tenant-bound, rechazo cross-tenant y lectura de DLQ tenant-scoped con evento terminal durable. | Verificado por CI; review de seguridad independiente pendiente. |
+
+TASK-003, TASK-027 y TASK-028 permanecen in_progress. El gate cubre el slice de código descrito, no handlers Meta/CRM de negocio, replay autorizado por CR-0016, retención, KMS/Secret Manager, WAF/rate limit, topología desplegada, observabilidad/SLO, carga/DR, revisión independiente ni aceptación del propietario. GO-PRODUCTION permanece NO-GO.

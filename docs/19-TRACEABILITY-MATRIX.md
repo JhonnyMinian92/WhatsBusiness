@@ -291,3 +291,17 @@ Source CI #527 terminó cancelled tras el timeout de 30 minutos dentro del targe
 | Source CI/CodeQL completo | TASK-003/027/028 | #536 / #74 | SUCCESS: instalación frozen, migrations/idempotence, build, typecheck y targets test; CodeQL success |
 | App login no puede asumir el rol ingress ni recuperar permisos amplios de outbox | TASK-027 | Migración 0021 y `postgres-meta-webhook.integration.spec.ts` | Implementado; CI siguiente pendiente |
 
+
+
+## Evidence map — Source CI #539: Webhook Gateway, Event Bus y rol ingress (2026-11-08)
+
+| Criterio/evidencia | Trazabilidad | Implementación / prueba | Estado |
+|---|---|---|---|
+| El ingress no puede consultar ni asumir el grupo de permisos amplio | TASK-027, US-014, TH-008 | Migración 0021; membership del login API revocada; pruebas pg_has_role=false y SET ROLE -> SQLSTATE 42501 | CI-verified, #539 |
+| El grupo ingress no puede leer ni insertar event_id del outbox | TASK-027, ADR-002/006 | REVOKE de SELECT(event_id)/INSERT(event_id,tenant_id); prueba has_column_privilege false | CI-verified, #539 |
+| Outbox solo se stagea bajo tenant context coincidente con inbox | TASK-027/028, REQ-0004 | platform.stage_meta_webhook_event_outbox; prueba cross-tenant retorna staged=false | CI-verified, #539 |
+| Inbox/outbox y worker conservan idempotencia y receipt; evento no soportado termina en DLQ persistente | TASK-027/028, US-014, TH-004/006 | Integración PostgreSQL 18.6 + RabbitMQ 4.4: 2 outbox publicados, 1 handler ejecutado, 1 dead-letter terminal y 1 receipt | CI-verified, #539 |
+| Lectura de dead letters limitada por tenant y metadata | TASK-027/028, TH-001/006/008 | platform.list_meta_webhook_dead_letters; metadata del tenant actual y rechazo SQLSTATE 42501 al cambiar contexto | CI-verified, #539 |
+| Source CI + CodeQL sobre el commit funcional | TASK-003/027/028 | Source CI #539 y CodeQL #77 sobre c2bb65fc1a506ba54ab3f7662c9bbc759e2b0536 | SUCCESS |
+
+**Límite de aceptación:** esta evidencia verifica el slice de transporte/inbox/outbox/worker/tenant boundary y el hardening del rol. No verifica handlers reales por producto, replay con doble aprobación y efectos externos idempotentes, CR-0016, operación del DLQ, conformance oficial Meta, retención, KMS/Secret Manager, WAF/rate limit, alert routing/SLO, deployment, carga/DR, review independiente ni aceptación. TASK-003/027/028 siguen in_progress.
