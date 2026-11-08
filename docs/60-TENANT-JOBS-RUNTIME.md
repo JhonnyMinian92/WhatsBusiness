@@ -182,7 +182,7 @@ La configuración usa `TENANT_JOB_METRICS_HOST=127.0.0.1` y `TENANT_JOB_METRICS_
 
 El nuevo test cubre GET/404/405, headers, bearer token, binding remoto sin token, renderer fallido, doble startup y cierre idempotente. Está agregado a `microservices-meta-ecuapp:test`. Source CI [#42434224485](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42434224485) terminó SUCCESS para commit `abbc86cfbd72e89ab5db82b0e3207159a66eba71`, incluyendo build, typecheck y esta suite.
 
-El endpoint sirve counters/histograms in-memory, gauges agregados PostgreSQL y conteos de mensajes listos/consumidores de RabbitMQ. El reader RabbitMQ usa la Management HTTP API con una identidad `monitoring` dedicada y permisos AMQP vacíos; no comparte conexión/canal con worker. Sus conteos son `messages_ready` y `consumers`, no incluyen mensajes unacknowledged ni son consumer lag. Todavía faltan medición autoritativa de unacked/lag, validación de alert routing/SLO, importación del dashboard y reglas en stack Prometheus/Grafana real y validación de scraping en la topología desplegada. TASK-003 sigue `in_progress`; GO-PRODUCTION permanece NO-GO.
+El endpoint sirve counters/histograms in-memory, gauges agregados PostgreSQL y conteos de mensajes listos/consumidores de RabbitMQ. El reader RabbitMQ usa la Management HTTP API con una identidad `monitoring` dedicada y permisos AMQP vacíos; no comparte conexión/canal con worker. Sus conteos son `messages_ready`, `messages_unacknowledged` y `consumers`; son métricas distintas y no representan por sí solas consumer lag ni edad del mensaje. Todavía faltan medición autoritativa de unacked/lag, validación de alert routing/SLO, importación del dashboard y reglas en stack Prometheus/Grafana real y validación de scraping en la topología desplegada. TASK-003 sigue `in_progress`; GO-PRODUCTION permanece NO-GO.
 
 ## 14. Gauges operativos agregados desde PostgreSQL
 
@@ -198,7 +198,7 @@ Quedan fuera de este slice los mensajes unacknowledged y el consumer lag autorit
 
 ## 15. Métricas RabbitMQ listas y consumidores
 
-`RabbitMqManagementTenantJobQueueMetricsReader` consulta la Management HTTP API en dos GET paralelos a `/api/queues/{vhost}/{queue}` para leer `messages_ready` y `consumers` de worker queue y DLQ. Requiere `RABBITMQ_MANAGEMENT_URL`, `RABBITMQ_MONITORING_USERNAME` y `RABBITMQ_MONITORING_PASSWORD`; la identidad debe tener tag `monitoring` y permisos AMQP vacíos (`configure/read/write` regex `^# 60 — Runtime durable de tenant jobs en microservices-meta-ecuapp
+`RabbitMqManagementTenantJobQueueMetricsReader` consulta la Management HTTP API en dos GET paralelos a `/api/queues/{vhost}/{queue}` para leer `messages_ready`, `messages_unacknowledged` y `consumers` de worker queue y DLQ. Requiere `RABBITMQ_MANAGEMENT_URL`, `RABBITMQ_MONITORING_USERNAME` y `RABBITMQ_MONITORING_PASSWORD`; la identidad debe tener tag `monitoring` y permisos AMQP vacíos (`configure/read/write` regex `^# 60 — Runtime durable de tenant jobs en microservices-meta-ecuapp
 
 **Fecha:** 2026-11-07  
 **Rama:** `environment/local`  
@@ -402,4 +402,4 @@ Quedan fuera de este slice los mensajes unacknowledged y el consumer lag autorit
 
 Se exponen cuatro gauges sin labels: `tenant_job_rabbitmq_worker_queue_ready_messages`, `tenant_job_rabbitmq_worker_queue_consumers`, `tenant_job_rabbitmq_dead_letter_queue_ready_messages` y `tenant_job_rabbitmq_dead_letter_queue_consumers`. Los mensajes unacknowledged quedan fuera de `messageCount`; consumer lag necesita una fuente autoritativa adicional y no se infiere de estos contadores.
 
-El reader usa Basic auth, `cache: no-store`, `redirect: error`, un timeout abortable de 1 500 ms y validación de contadores enteros no negativos. La observabilidad no comparte conexión AMQP del worker. Source CI #466 está pendiente para este diseño y la integración con usuario monitoring; CodeQL #6 terminó SUCCESS. Los conteos `messages_ready` no incluyen unacknowledged y ninguno de los campos representa consumer lag. TASK-003 sigue `in_progress`; GO-PRODUCTION sigue NO-GO.
+El reader usa Basic auth, `cache: no-store`, `redirect: error`, un timeout abortable de 1 500 ms y validación de contadores enteros no negativos. La observabilidad no comparte conexión AMQP del worker. Source CI #466 fue cancelado por pushes posteriores; Source CI #481 está ejecutando la variante con `messages_unacknowledged`. #480 detectó un contador ausente en respuesta 200 de DLQ; se añadió diagnóstico que solo muestra nombres de campos. CodeQL #6 terminó SUCCESS. `messages_ready` y `messages_unacknowledged` se exponen en gauges separados; ninguno de los campos representa consumer lag. TASK-003 sigue `in_progress`; GO-PRODUCTION sigue NO-GO.
