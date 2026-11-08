@@ -309,6 +309,12 @@ export class PlatformAdministrationRepository implements PlatformAdministrationP
     return this.database.transaction(async(client)=>{
       await client.query("SELECT set_config('app.user_id',$1,true)",[command.operatorUserId]);
       await this.setTenantContext(client,command.tenantId);
+      const activeGrant=await client.query<{allowed:boolean}>(
+        "SELECT platform.has_active_support_grant($1,$2,$3) AS allowed",
+        [command.tenantId,command.operatorUserId,command.scope]);
+      if(activeGrant.rows[0]?.allowed!==true) {
+        throw new ForbiddenException({code:"SUPPORT_GRANT_NOT_ACTIVE",detail:"El grant JIT no está vigente o el tenant no admite acceso."});
+      }
       const grant=await client.query<GrantRow>(
         "SELECT id::text,expires_at FROM platform.support_grants WHERE tenant_id=$1 AND operator_user_id=$2 AND revoked_at IS NULL AND valid_from<=now() AND expires_at>now() AND purpose=$3 AND $4=ANY(scopes) ORDER BY expires_at ASC LIMIT 1",
         [command.tenantId,command.operatorUserId,command.purpose,command.scope]);
