@@ -162,6 +162,16 @@ Cambios y regresiones cubiertas en la punta verificada:
 - Los cierres simultáneos de varios deliveries prefetched se agrupan en una misma promesa single-flight. Tests verifican dos fallos concurrentes y una única invocación de cierre.
 - RabbitMQ real: prueba gated de pérdida del canal con un mensaje persistente y comprobación de redelivery.
 - PostgreSQL real: recuperación de execution/dispatch leases expirados; fencing de tokens antiguos que impide renew/complete/mark publicados; completion e inbox transaccionales.
-- Prometheus: contadores/histogramas in-memory con allowlists y outcomes fijos, sin dimensiones de tenant/actor/job/payload. No existe todavía listener HTTP ni gauges operativos.
+- Prometheus: contadores/histogramas in-memory con allowlists y outcomes fijos, sin dimensiones de tenant/actor/job/payload. El listener HTTP `GET /metrics` está implementado con loopback por defecto y autenticación bearer para binding remoto; gauges operativos aún pendientes.
 
-**Limitaciones que siguen abiertas:** el runtime no registra handlers de negocio Meta/CRM; el registry de replay continúa vacío y fail-closed. No se ha demostrado todavía replay end-to-end con handler real ni idempotencia de efectos externos. El adapter Prometheus aún no tiene endpoint de scrape, gauges de cola/outbox/leases/DLQ/replays o alertas/SLO. Tampoco existe evidencia de topology/policies en un cluster RabbitMQ productivo, secret manager/rotación, pruebas de carga/DR, revisión independiente ni aceptación final del propietario. TASK-003 continúa `in_progress` y GO-PRODUCTION permanece NO-GO.
+**Limitaciones que siguen abiertas:** el runtime no registra handlers de negocio Meta/CRM; el registry de replay continúa vacío y fail-closed. No se ha demostrado todavía replay end-to-end con handler real ni idempotencia de efectos externos. El adapter Prometheus ya tiene endpoint de scrape; siguen pendientes gauges de cola/outbox/leases/DLQ/replays y alertas/SLO. Tampoco existe evidencia de topology/policies en un cluster RabbitMQ productivo, secret manager/rotación, pruebas de carga/DR, revisión independiente ni aceptación final del propietario. TASK-003 continúa `in_progress` y GO-PRODUCTION permanece NO-GO.
+
+## 13. Exposición HTTP de métricas Prometheus
+
+Se añadió `TenantJobMetricsHttpServer` en infraestructura y se conectó al ciclo de vida de `TenantJobRuntimeProcess`. El worker inicia el listener junto con el runtime y lo cierra durante shutdown. Solo responde a `GET /metrics`; rutas desconocidas devuelven 404, otros métodos 405, autenticación ausente/incorrecta 401 y fallos del renderer 500 genérico.
+
+La configuración usa `TENANT_JOB_METRICS_HOST=127.0.0.1` y `TENANT_JOB_METRICS_PORT=9464` por defecto. Un binding fuera de loopback exige `TENANT_JOB_METRICS_BEARER_TOKEN` con al menos 32 bytes; la comparación usa `timingSafeEqual`. Para contenedores, limitar el puerto a la red de monitorización privada y suministrar el token mediante Secret Manager. No se incorporan labels de tenant, actor, job ni payload.
+
+El nuevo test cubre GET/404/405, headers, bearer token, binding remoto sin token, renderer fallido, doble startup y cierre idempotente. Está agregado a `microservices-meta-ecuapp:test`; no se afirma PASS hasta que Source CI complete.
+
+El endpoint sirve los counters e histogramas existentes, que siguen siendo in-memory. Todavía faltan gauges de outbox/cola/consumer lag/leases/DLQ/replay, reglas de alertas, SLO cuantificados, dashboards y validación de scraping en la topología desplegada. TASK-003 sigue `in_progress`; GO-PRODUCTION permanece NO-GO.
