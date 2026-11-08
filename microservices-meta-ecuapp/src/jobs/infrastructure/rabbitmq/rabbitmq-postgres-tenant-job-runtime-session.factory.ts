@@ -28,7 +28,6 @@ import { RabbitMqJobTopology, TENANT_JOB_RABBITMQ_TOPOLOGY } from "./rabbitmq-to
 import {
   NOOP_TENANT_JOB_RUNTIME_METRICS,
   type TenantJobRuntimeMetrics,
-  type TenantJobBrokerMetricsReader,
 } from "../../application/tenant-job-runtime-metrics.js";
 
 export interface TenantJobRuntimeSessionLogger extends TenantJobRuntimeLogger, TenantJobConsumerErrorReporter {
