@@ -36,5 +36,8 @@
         "^build"
       ]
     }
-  }
+  },
+  "implicitDependencies": [
+    "microservices-meta-ecuapp"
+  ]
 }

@@ -1,10 +1,10 @@
 import { setTimeout as delay } from "node:timers/promises";
 import type { Pool } from "pg";
-import type { RabbitMqWorkerChannels } from "../../jobs/infrastructure/rabbitmq/rabbitmq-connection.factory.js";
+import type { RabbitMqWorkerChannels } from "../../../jobs/infrastructure/rabbitmq/rabbitmq-connection.factory.js";
 import { RabbitMqConnectionFactory } from "../../jobs/infrastructure/rabbitmq/rabbitmq-connection.factory.js";
-import type { MetaWebhookEventHandler, MetaWebhookPayloadProtector } from "../application/meta-webhook-ports.js";
-import { MetaWebhookWorkerProcess } from "../application/meta-webhook-worker.process.js";
-import type { MetaWebhookConsumerReporter } from "../infrastructure/rabbitmq/rabbitmq-meta-webhook-consumer.js";
+import type { MetaWebhookEventHandler, MetaWebhookPayloadProtector } from "../../application/meta-webhook-ports.js";
+import { MetaWebhookWorkerProcess } from "../../application/meta-webhook-worker.process.js";
+import type { MetaWebhookConsumerReporter } from "../rabbitmq/rabbitmq-meta-webhook-consumer.js";
 
 export interface MetaWebhookWorkerSupervisorOptions {
   readonly database: Pool;

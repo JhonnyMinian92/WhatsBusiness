@@ -113,7 +113,9 @@ export class PostgresMetaWebhookRepository implements MetaWebhookEventRepository
     return Object.freeze(result.rows.map((row) => Object.freeze({
       eventId: row.event_id, leaseToken: row.lease_token, attempt: row.attempts,
       tenantId: row.tenant_id, product: row.provider_product, payloadSha256: row.payload_sha256.trim(),
-      occurredAt: new Date(row.occurred_at), correlationId: row.correlation_id,
+      occurredAt: row.occurred_at instanceof Date
+        ? new Date(row.occurred_at.getTime())
+        : new Date(row.occurred_at), correlationId: row.correlation_id,
     })));
   }
 
@@ -140,7 +142,9 @@ export class PostgresMetaWebhookRepository implements MetaWebhookEventRepository
     if (!row) return null;
     return Object.freeze({
       eventId: row.event_id, appId: row.app_id, tenantId: row.tenant_id, idempotencyKey: row.idempotency_key,
-      product: row.provider_product, assetId: row.asset_id, eventType: row.event_type, occurredAt: new Date(row.occurred_at),
+      product: row.provider_product, assetId: row.asset_id, eventType: row.event_type, occurredAt: row.occurred_at instanceof Date
+        ? new Date(row.occurred_at.getTime())
+        : new Date(row.occurred_at),
       attempts: row.attempts, maxAttempts: row.max_attempts, leaseToken: row.lease_token,
       keyId: row.encryption_key_id, ciphertext: row.payload_ciphertext, nonce: row.payload_nonce,
       authenticationTag: row.payload_authentication_tag,
