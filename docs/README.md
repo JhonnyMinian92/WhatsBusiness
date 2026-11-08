@@ -221,3 +221,10 @@ El estado de validación, las propuestas de eventos pendientes y el GO/NO-GO arq
 ## 74 — Threads Adapter y Conformance
 
 [74 — Threads adapter, capabilities y conformance](74-THREADS-ADAPTER-AND-CONFORMANCE.md) registra US-017/TASK-033, el adapter interno, catálogo de scopes, versión independiente, pruebas y límites reales de integración.
+
+
+## 75 — US-028 Market Discovery e ICP
+
+[75 — Investigación de mercado, ICP y evidencia de disposición a pagar](75-US-028-MARKET-DISCOVERY-AND-ICP.md) documenta REEM/ENESEM, ICP candidato, hipótesis falsables, método TAM/SAM/SOM y el estado real de AC-028-01..06.
+
+Los instrumentos de campo están en research/us-028/: guía de entrevistas, reglas de anonimización, registros de participantes/codificación y diccionario/plantilla de métricas de piloto. No contienen entrevistas ni resultados reales. TASK-066 sigue in_progress hasta ejecutar trabajo de campo y pilotos autorizados.
