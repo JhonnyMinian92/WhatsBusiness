@@ -192,9 +192,15 @@ export class CreativeLabApplicationService {
     if (variant.version !== expectedVersion) {
       throw new ConflictException({ code: "CREATIVE_VARIANT_VERSION_CONFLICT" });
     }
-    const stage = target === "brand_review" ? "brand_review" : "policy_review";
-    await this.requireTrustedReviewEvidence(subject, variant, stage, now);
-    if (target === "preview_ready") this.assertDomainReadiness(variant, now);
+    // Entering the brand-review queue is not itself an approval. Evidence is
+    // required only when leaving a review stage for the next controlled stage.
+    if (target === "policy_review") {
+      await this.requireTrustedReviewEvidence(subject, variant, "brand_review", now);
+    }
+    if (target === "preview_ready") {
+      await this.requireTrustedReviewEvidence(subject, variant, "policy_review", now);
+      this.assertDomainReadiness(variant, now);
+    }
     const transitioned = transitionCreativeVariant(variant, target, null, now);
     return this.database.withTenantContextAtVersion(
       subject.actorId,
