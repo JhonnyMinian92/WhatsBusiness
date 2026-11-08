@@ -1,95 +1,72 @@
 # 63 — Exposición segura de métricas del runtime de tenant jobs
 
+**Rama:** `environment/local`  
+**Estado del código:** implementado y verificado por Source CI #568 en el commit `aeac5155a316592d31e557ab24e092134bf17f8f`. CodeQL #103 también terminó SUCCESS.  
+**Estado operacional:** pendiente despliegue, revisión de SLO/alertas, capacidad/DR y aceptación del propietario. TASK-003 continúa `in_progress`; GO-PRODUCTION permanece NO-GO.
+
 ## Objetivo
 
-Exponer métricas agregadas y de baja cardinalidad del runtime microservices-meta-ecuapp sin publicar tenant IDs, actores, job IDs ni payloads. PostgreSQL y RabbitMQ son fuentes independientes; sus snapshots parciales no borran métricas pertenecientes a otras fuentes.
+Exponer métricas útiles de jobs y RabbitMQ sin filtrar identificadores de tenant, actor, job ni payload, sin leer mensajes y sin ampliar los permisos del worker o de la API.
 
-## Arquitectura implementada en código
+## Arquitectura implementada
 
-- TenantJobRuntimeMetrics: contrato de métricas y snapshots parciales.
-- PrometheusTenantJobRuntimeMetrics: adapter Prometheus con counters, histograms y gauges en memoria.
-- PostgresTenantJobRuntimeMetricsReader: agregados desde platform.read_tenant_job_runtime_metrics(), función SQL SECURITY DEFINER.
-- RabbitMqManagementTenantJobQueueMetricsReader: consulta GET /api/queues/{vhost}/{name} para worker y DLQ.
-- CompositeTenantJobRuntimeMetricsReader: combina readers y rechaza ownership duplicado de un campo.
-- TenantJobMetricsHttpServer: expone exclusivamente GET /metrics.
-- TenantJobRuntimeProcess y RabbitMqPostgresTenantJobRuntimeSessionFactory: componen los readers durante el bootstrap.
-
-Los readers no consultan ni exportan cuerpos de mensajes, nombres de tenants, IDs de negocio o payloads.
+- `PrometheusTenantJobRuntimeMetrics` registra counters, histograms y gauges con nombres/labels allowlisted.
+- `TenantJobMetricsHttpServer` expone `GET /metrics`; por defecto escucha en loopback y exige bearer token fuerte si se configura fuera de loopback.
+- `PostgresTenantJobRuntimeMetricsReader` obtiene agregados por una función acotada y un pool de una sola conexión.
+- `RabbitMqPrometheusTenantJobQueueMetricsReader` consulta exclusivamente las métricas detalladas de las dos colas configuradas. No usa Management HTTP API, AMQP `checkQueue`, `get`, consumo ni permisos AMQP `read`.
 
 ## Métricas
 
 ### Runtime y PostgreSQL
 
-Counters: dispatch outcomes, execution outcomes, publish outcomes, recuperación de leases/publicaciones, renovaciones de lease y errores del supervisor.
-
-Histograms: duración de ejecución de handlers y publicación al broker, con buckets fijos.
-
-Gauges PostgreSQL: outbox pending/blocked, leases de dispatch y ejecución activos/vencidos, jobs en dead-letter, edad del dispatch pendiente más antiguo y jobs replayed. La función SQL retorna únicamente agregados globales.
+Incluye counters/histograms de ejecución y recuperación, más gauges agregados para dispatch pending/blocked, leases activos/expirados, jobs dead-letter, edad del pending más antiguo y replayed jobs. El reader PostgreSQL valida enteros seguros y valores temporales no negativos; los errores de consulta no bloquean recovery ni dispatch.
 
 ### RabbitMQ
 
-El reader consulta las colas worker y DLQ por separado con credenciales de monitorización dedicadas:
+El adaptador consulta `GET /metrics/detailed` de RabbitMQ Prometheus con dos familias exactas:
 
-- messages_ready: mensajes listos para entrega.
-- messages_unacknowledged: mensajes entregados que todavía esperan ACK/NACK.
-- consumers: consumidores registrados en la cola.
+- `queue_coarse_metrics`: `rabbitmq_detailed_queue_messages_ready` y `rabbitmq_detailed_queue_messages_unacked`.
+- `queue_consumer_count`: `rabbitmq_detailed_queue_consumers`.
 
-Gauges Prometheus:
-- tenant_job_rabbitmq_worker_queue_ready_messages
-- tenant_job_rabbitmq_worker_queue_unacknowledged_messages
-- tenant_job_rabbitmq_worker_queue_consumers
-- tenant_job_rabbitmq_dead_letter_queue_ready_messages
-- tenant_job_rabbitmq_dead_letter_queue_unacknowledged_messages
-- tenant_job_rabbitmq_dead_letter_queue_consumers
+La petición filtra por vhost y por una expresión regular anclada que incluye solo los nombres de worker queue y DLQ configurados. El parser acepta únicamente muestras de esas familias, requiere labels `vhost` y `queue`, rechaza duplicados y valida contadores enteros, seguros y no negativos.
 
-messages_unacknowledged no equivale a consumer lag ni a edad de mensaje. La suma ready + unacknowledged muestra mensajes presentes en cola, pero no mide por sí sola el retraso temporal del consumidor.
+Gauges Prometheus publicados por el runtime:
 
-## Seguridad y resiliencia de la consulta
+- `tenant_job_rabbitmq_worker_queue_ready_messages`
+- `tenant_job_rabbitmq_worker_queue_unacknowledged_messages`
+- `tenant_job_rabbitmq_worker_queue_consumers`
+- `tenant_job_rabbitmq_dead_letter_queue_ready_messages`
+- `tenant_job_rabbitmq_dead_letter_queue_unacknowledged_messages`
+- `tenant_job_rabbitmq_dead_letter_queue_consumers`
 
-- Solo método HTTP GET; no se consultan cuerpos ni contenidos de colas.
-- Basic authentication con usuario dedicado y tag monitoring; los permisos AMQP de recursos deben permanecer vacíos.
-- HTTPS obligatorio fuera de loopback; URL sin credenciales, query, fragment ni path personalizado.
-- Redirects prohibidos, cache deshabilitado y timeout abortable de 1 segundo por defecto (rango 100–10 000 ms).
-- Solo se aceptan contadores enteros, seguros y no negativos.
-- Las fuentes se leen con `Promise.allSettled`: una caída de Management API no bloquea el refresco de PostgreSQL, ni viceversa.
-- Cada fallo usa un código fijo por fuente, incrementa el contador de errores y se reporta sin detalles sensibles.
-- El snapshot de una fuente fallida se omite; el último valor válido permanece y nunca se reemplaza por cero inventado.
-- Si fallan ambas fuentes, el supervisor sigue operando y conserva los últimos gauges observados.
+`messages_unacknowledged` son deliveries pendientes de ACK/NACK; no equivalen a consumer lag ni a edad de mensaje. Para medir edad/lag hace falta una fuente temporal autoritativa distinta.
 
-La Management API debe permanecer en red privada. El usuario de monitorización no comparte credenciales AMQP del worker ni puede publicar, consumir o cambiar la topología.
+## Seguridad y resiliencia
 
-## Endpoint Prometheus
+- Configuración vigente: `RABBITMQ_PROMETHEUS_URL`; credenciales HTTP Basic opcionales `RABBITMQ_PROMETHEUS_USERNAME` y `RABBITMQ_PROMETHEUS_PASSWORD`, configuradas siempre como pareja.
+- El endpoint remoto exige HTTPS; HTTP solo se permite en loopback. URL sin credenciales embebidas, path personalizado, query ni fragment.
+- El plugin `rabbitmq_prometheus` debe estar habilitado y el puerto 15692 debe permanecer en red privada/firewall de monitorización.
+- HTTP GET únicamente; no se consultan cuerpos de mensajes ni payloads. Redirects rechazados, `cache: no-store`, timeout abortable y límite de respuesta de 256 KiB por defecto (máximo configurable 2 MiB).
+- El uso de Basic auth depende de la configuración del exporter; las credenciales deben provenir del Secret Manager del despliegue. No son credenciales AMQP y no se comparten con dispatcher/worker.
+- No se crea un usuario `monitoring` con permisos de recursos RabbitMQ para leer cada cola. Esto evita conceder el permiso AMQP `read`, que permitiría consumir mensajes.
+- Las estadísticas por cola se publican en intervalos del broker (5 s por defecto). El adaptador devuelve un error de snapshot incompleto si aún no existe alguna muestra. La integración CI reintenta exclusivamente ese estado por un máximo de 20 s; errores HTTP, de autenticación, parser, límite o valores inválidos siguen fallando inmediatamente.
+- `CompositeTenantJobRuntimeMetricsReader` mantiene el último gauge válido cuando falla una fuente y registra el fallo sin bloquear la otra.
 
-- GET /metrics.
-- Host por defecto: 127.0.0.1.
-- Puerto por defecto: 9464.
-- TENANT_JOB_METRICS_BEARER_TOKEN: obligatorio al escuchar fuera de loopback; mínimo 32 bytes UTF-8.
-- Listener remoto protegido por TLS/mTLS en proxy o service mesh y firewall privado.
+## Endpoint Prometheus del runtime
 
-Counters, histograms y gauges cacheados viven en memoria y se reinician al reiniciar el proceso. Prometheus proporciona retención duradera y alert routing.
+`GET /metrics` es el endpoint del proceso de jobs (por defecto `127.0.0.1:9464`). Un binding remoto requiere bearer token de al menos 32 bytes, TLS/mTLS en el proxy o service mesh y firewall privado. No confundirlo con el endpoint de origen RabbitMQ `/metrics/detailed` en el puerto Prometheus del broker.
 
 ## Artefactos operativos
 
-- microservices-meta-ecuapp/observability/prometheus/tenant-job-alerts.yml
-- microservices-meta-ecuapp/observability/grafana/tenant-job-runtime.dashboard.json
-- microservices-meta-ecuapp/observability/RUNBOOK.md
-- microservices-meta-ecuapp/observability/README.md
+- `microservices-meta-ecuapp/observability/prometheus/tenant-job-alerts.yml`
+- `microservices-meta-ecuapp/observability/grafana/tenant-job-runtime.dashboard.json`
+- `microservices-meta-ecuapp/observability/RUNBOOK.md`
+- `microservices-meta-ecuapp/observability/README.md`
 
-Los umbrales son guardrails iniciales, no SLO/SLA aprobados. Dashboards y reglas están versionados; aún no se afirma que estén instalados en infraestructura real.
+Los umbrales son guardrails iniciales, no SLO/SLA aprobados. Dashboards y reglas están versionados; aún no se afirma que estén instalados ni que el alert routing funcione en infraestructura real.
 
 ## Validación y estado
 
-La prueba live de RabbitMQ Management API crea un exchange y dos colas efímeras únicas por ejecución, publica mensajes confirmados, inspecciona ready/unacknowledged/consumers y verifica ACK/cancelación. Las colas temporales del fixture deben declararse `durable=false`, `exclusive=true`, `autoDelete=true`. RabbitMQ 4.4 rechaza colas clásicas transitorias no exclusivas (`transient_nonexcl_queues)); esto pertenece al harness de pruebas y no justifica debilitar las quorum queues durables del runtime.
+Source CI [#568](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42496866164) terminó SUCCESS en el commit `aeac5155a316592d31e557ab24e092134bf17f8f`: instalación frozen, migraciones 0001–0023 e idempotencia, provisioning de roles y quorum DLX, build, typecheck, pruebas API/PostgreSQL y suite del backend con RabbitMQ 4.4. La integración live creó colas efímeras, publicó con confirm, observó ready/unacknowledged/consumers, comprobó ACK/cancelación y esperó de forma acotada al primer conjunto completo de estadísticas. CodeQL [#103](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42496866189) terminó SUCCESS.
 
-Source CI #560 y #562 pasaron frozen install, migraciones 0001–0023 e idempotencia, provisioning, build, typecheck y pruebas API. El target `microservices-meta-ecuapp:test` falló en la integración live de métricas RabbitMQ; #562 terminó también con timeout del step tras el fallo temprano. El log del broker mostró el rechazo de colas temporales no exclusivas. El fixture se corrigió en el commit `92b46d68bc8070a086b95352d504797fe1bf0c3d`; Source CI #563 y CodeQL #98 estaban en ejecución al sincronizar esta documentación. No atribuir verificación al nuevo fixture hasta conocer el resultado del HEAD exacto.
-
-Pendientes de aceptación operacional:
-1. Source CI SUCCESS para el HEAD con build, typecheck, unitarias e integraciones PostgreSQL/RabbitMQ.
-2. Despliegue y verificación de dashboards, reglas y alert routing en Prometheus/Grafana.
-3. Scraping real con TLS/mTLS, firewall y credenciales de monitorización rotadas.
-4. Definición de SLO, RPO/RTO con pruebas de carga y restore.
-5. Revisión independiente y aceptación del propietario.
-
-Los gauges `messages_unacknowledged` no se presentan como consumer lag. Para consumer lag/age autoritativo se necesita instrumentación de edad del evento o timestamps de entrega/proceso y una definición operativa separada.
-
-TASK-003 permanece `in_progress` hasta que se adjunte evidencia CI y operacional suficiente. Este documento no habilita GO-PRODUCTION.
+Este resultado verifica el código y las pruebas del slice; no demuestra scraping/despliegue real, seguridad de red, alert routing, SLO, carga, restore ni aceptación. TASK-003 permanece `in_progress` y este documento no habilita GO-PRODUCTION.

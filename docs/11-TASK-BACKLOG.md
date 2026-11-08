@@ -404,7 +404,7 @@ Se añadió una regresión de integración a `microservices-meta-ecuapp/src/jobs
 ### Handoff incremental TASK-003 — métricas RabbitMQ unacknowledged (2026-11-08)
 
 - El contrato `TenantJobBrokerMetricsSnapshot` incorpora `workerQueueUnacknowledgedMessages` y `deadLetterQueueUnacknowledgedMessages`.
-- `RabbitMqManagementTenantJobQueueMetricsReader` valida y consume `messages_unacknowledged` de RabbitMQ Management API junto con `messages_ready` y `consumers`; mantiene HTTPS fuera de loopback, identidad monitoring separada, sin permisos AMQP de recursos, timeout abortable y respuestas sanitizadas.
+- `RabbitMqPrometheusTenantJobQueueMetricsReader` consume `rabbitmq_detailed_queue_messages_ready`, `rabbitmq_detailed_queue_messages_unacked` y `rabbitmq_detailed_queue_consumers` mediante `/metrics/detailed`, filtrando vhost y solo worker/DLQ; HTTPS fuera de loopback, Basic auth opcional, sin permisos AMQP `read`, timeout, límite de respuesta y parser estricto. Source CI #568 + CodeQL #103 SUCCESS en commit `aeac5155a316592d31e557ab24e092134bf17f8f`.
 - `PrometheusTenantJobRuntimeMetrics` expone gauges fijos de unacked para worker queue y DLQ, sin etiquetas tenant/actor/job. Se añadieron tests del reader, render Prometheus, validación de snapshots y supervisor.
 - Se actualizó alerta Prometheus para unacked sostenido, panel Grafana, README, runbook y docs/63. `messages_unacknowledged` no representa consumer lag ni edad de mensaje; no se afirma esa medición.
 - Código en commits `6a0cd876`, `770a50b2`, `296db341`, `6dff5fee`, `0990d761`, `753d30f8`, `4dbfa826`, `a5b1ae78`, `0cc8555b`, `37632ed9`, `ff2f873a`, `65eb2746`, `d3542c5f` y `0b9b3c7c` (rama `environment/local`).
@@ -553,3 +553,11 @@ Se añadió una regresión de integración a `microservices-meta-ecuapp/src/jobs
 - El log del broker mostró que RabbitMQ 4.4 no permite colas clásicas transitorias no exclusivas (`transient_nonexcl_queues`). El test usaba `durable=false, exclusive=false, autoDelete=true` para dos colas efímeras.
 - **Corrección implementada:** las colas temporales ahora son exclusivas y auto-delete, manteniendo el flujo de publish confirm, ready/unacked/consumers, ACK y cleanup. La topología quorum durable de producción y los permisos monitor-only no cambian.
 - Commit: `92b46d68bc8070a086b95352d504797fe1bf0c3d`. Source CI #563/CodeQL #98 deben confirmar el HEAD antes de marcar la integración verificada. TASK-003 continúa `in_progress`.
+
+### Handoff incremental — Prometheus Detailed Metrics CI-verified (2026-11-08)
+
+- Se retiró `RabbitMqManagementTenantJobQueueMetricsReader` y el provisioning de la identidad RabbitMQ `monitoring`; un permiso AMQP `read` no es aceptable para la consulta de métricas porque habilita el consumo.
+- Nuevo adaptador `RabbitMqPrometheusTenantJobQueueMetricsReader`: endpoint `/metrics/detailed`, familias allowlisted, filtro exacto por vhost/colas, parser estricto, timeout/response cap, redirects rechazados y Basic auth opcional.
+- La integración live usa publisher confirm y manual ACK para observar ready → unacknowledged/consumer → idle. Solo reintenta el estado identificado como estadísticas incompletas durante un máximo de 20 s; los demás errores siguen siendo fail-fast.
+- Source CI [#568](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42496866164) y CodeQL [#103](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42496866189) terminaron SUCCESS en `aeac5155a316592d31e557ab24e092134bf17f8f`. El slice de métricas queda verificado por CI.
+- TASK-003 permanece `in_progress`: despliegue real de Prometheus/Grafana, alert routing/SLO, carga/DR, handlers de negocio, Secret Manager/KMS y revisión/aceptación independiente siguen pendientes. TASK-027/028 tampoco se cierran. GO-PRODUCTION NO-GO.

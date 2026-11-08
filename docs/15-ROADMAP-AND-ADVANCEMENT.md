@@ -229,3 +229,11 @@ Estado actual:
 - El log de RabbitMQ reveló que el fixture temporal no exclusivo activaba `transient_nonexcl_queues`, una característica rechazada por RabbitMQ 4.4.
 - Commit `92b46d68bc8070a086b95352d504797fe1bf0c3d` modifica únicamente el fixture para usar colas efímeras exclusivas de la conexión. Se mantienen intactas las quorum queues durables del runtime.
 - Source CI #563 y CodeQL #98 deben confirmar el cambio. No declarar las métricas live verificadas ni cerrar TASK-003 sin SUCCESS del HEAD corregido y review operativo. TASK-003/027/028 permanecen `in_progress`; GO-PRODUCTION sigue NO-GO.
+
+## Actualización de ejecución — métricas RabbitMQ por Prometheus y CI verde (2026-11-08)
+
+- Se sustituyó Management API por RabbitMQ Prometheus Detailed Metrics para evitar ampliar privilegios AMQP del usuario de observabilidad. El reader consume únicamente las familias `queue_coarse_metrics` y `queue_consumer_count` para vhost y colas configuradas.
+- El bootstrap exige `RABBITMQ_PROMETHEUS_URL`; Basic auth es opcional pero debe configurarse en pareja. El endpoint remoto requiere HTTPS/red privada, el plugin Prometheus y filtrado de firewall.
+- Source CI #567 encontró una muestra todavía incompleta inmediatamente después de crear colas en el test live. El reader expone un estado incompleto tipado; la integración reintenta solo ese estado durante 20 s y no oculta errores HTTP/parser/auth.
+- Source CI [#568](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42496866164) SUCCESS y CodeQL [#103](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42496866189) SUCCESS en commit `aeac5155a316592d31e557ab24e092134bf17f8f`. Build, typecheck, API/PostgreSQL y backend/RabbitMQ integrations pasaron.
+- El slice de observabilidad RabbitMQ queda CI-verified. TASK-003 sigue `in_progress`: SLO, stack operativo y routing reales, pruebas carga/DR, handlers de negocio, secretos gestionados y aceptación independiente siguen pendientes. TASK-027/028 también siguen `in_progress`; GO-PRODUCTION NO-GO.
