@@ -59,18 +59,19 @@ implements AdsCampaignPreflightProvider, AdsCampaignExecutionEvidenceProvider {
     _action?: "publish" | "pause",
   ): Promise<AdsCampaignPreflight | AdsCampaignExecutionEvidence> {
     if (_action) {
-      return Object.freeze({
+      const evidence: AdsCampaignExecutionEvidence = {
         killSwitchActive: true,
         assetGrantStatus: "unknown",
         capabilityStatus: "unknown",
         capabilityValidUntil: null,
-      });
+      };
+      return Object.freeze(evidence);
     }
-    return Object.freeze({
+    const preflight: AdsCampaignPreflight = {
       objectiveCatalog: null,
-      evidence: Object.freeze({
+      evidence: {
         adAccount: {
-          status: "unknown" as const,
+          status: "unknown",
           currency: null,
           observedAt: null,
           validUntil: null,
@@ -84,7 +85,8 @@ implements AdsCampaignPreflightProvider, AdsCampaignExecutionEvidenceProvider {
         targetingStatus: "unknown",
         billingStatus: "unknown",
         creativeStatus: "unknown",
-      }),
-    });
+      },
+    };
+    return Object.freeze(preflight);
   }
 }
