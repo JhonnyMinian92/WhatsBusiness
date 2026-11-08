@@ -85,6 +85,35 @@ test("PostgreSQL webhook inbox persists idempotently, fences tenant processing a
     const ingressRepository = new PostgresMetaWebhookRepository(ingress);
     const first = await ingressRepository.persistBatch([input]);
     assert.deepEqual(first, { accepted: 1, duplicates: 0 });
+
+    const ingressClient = await ingress.connect();
+    try {
+      await ingressClient.query("BEGIN");
+      await ingressClient.query("SELECT set_config('app.tenant_id', $1, true)", [tenantId]);
+      const storedEvents = await ingressClient.query<{ id: string }>(
+        "SELECT id::text FROM platform.meta_webhook_inbox WHERE tenant_id = $1 AND idempotency_key = $2",
+        [tenantId, idempotencyKey],
+      );
+      assert.equal(storedEvents.rows.length, 1);
+      await ingressClient.query("SELECT set_config('app.tenant_id', $1, true)", [otherTenantId]);
+      const crossTenantStage = await ingressClient.query<{ staged: boolean }>(
+        "SELECT platform.stage_meta_webhook_event_outbox($1) AS staged",
+        [storedEvents.rows[0]!.id],
+      );
+      assert.equal(crossTenantStage.rows[0]?.staged, false, "The SQL outbox boundary must reject a different tenant context.");
+      await ingressClient.query("ROLLBACK");
+    } catch (error) {
+      await ingressClient.query("ROLLBACK").catch(() => undefined);
+      throw error;
+    } finally {
+      ingressClient.release();
+    }
+    await assert.rejects(
+      ingress.query("SELECT event_id FROM platform.meta_webhook_event_outbox LIMIT 1"),
+      (error: unknown) => (error as { code?: string }).code === "42501",
+      "The API ingress login must not inspect internal outbox rows.",
+    );
+
     const duplicate = await ingressRepository.persistBatch([input]);
     assert.deepEqual(duplicate, { accepted: 0, duplicates: 1 });
     await assert.rejects(
