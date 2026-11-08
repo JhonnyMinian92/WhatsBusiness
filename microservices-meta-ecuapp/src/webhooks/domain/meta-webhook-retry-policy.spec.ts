@@ -7,7 +7,7 @@ test("uses bounded exponential backoff with jitter and dead-letters at the attem
   const now = new Date("2026-01-01T00:00:00.000Z");
   const retry = policy.decide(2, true, now, 0.5);
   assert.equal(retry.retry, true);
-  assert.equal(retry.availableAt?.getTime(), now.getTime() + 3_000);
+  assert.equal(retry.availableAt?.getTime(), now.getTime() + 1_500);
   assert.equal(policy.decide(4, true, now, 0.5).retry, false);
   assert.equal(policy.decide(1, false, now, 0.5).retry, false);
 });

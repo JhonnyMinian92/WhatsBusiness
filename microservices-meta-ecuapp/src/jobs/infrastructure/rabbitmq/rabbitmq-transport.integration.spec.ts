@@ -28,25 +28,7 @@ function readQueueMetric(
   metric: string,
   queue: string,
 ): number {
-  const escapedQueue = queue.replace(/[.*+?^${}()|[\]\\]/g, "\\async function waitForMessage(
-  channel: Awaited<ReturnType<RabbitMqConnectionFactory["open"]>>["consumer"],
-  queue: string,
-  timeoutMs: number,
-): Promise<Buffer> {
-  const deadline = Date.now() + timeoutMs;
-  while (Date.now() < deadline) {
-    const message = await channel.get(queue, false);
-    if (message) {
-      const content = Buffer.from(message.content);
-      channel.ack(message, false);
-      return content;
-    }
-    await new Promise((resolve) => setTimeout(resolve, 100));
-  }
-  throw new Error("RabbitMQ integration test timed out waiting for a message.");
-}
-
-");
+  const escapedQueue = queue.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const pattern = new RegExp(
     "^" + metric + "\\{[^}]*\\bqueue=\\\"" + escapedQueue
       + "\\\"[^}]*\\}\\s+([0-9]+(?:\\.[0-9]+)?)$",

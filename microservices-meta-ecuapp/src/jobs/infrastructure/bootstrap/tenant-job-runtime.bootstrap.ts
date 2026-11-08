@@ -37,6 +37,10 @@ export class TenantJobRuntimeProcess {
     const dispatcherConnection = requiredEnvironment(environment, "DATABASE_JOB_DISPATCHER_URL");
     const workerConnection = requiredEnvironment(environment, "DATABASE_JOB_WORKER_URL");
     const rabbitMqUrl = requiredEnvironment(environment, "RABBITMQ_URL");
+    const managementUrl = requiredEnvironment(environment, "RABBITMQ_MANAGEMENT_URL");
+    const monitoringUsername = requiredEnvironment(environment, "RABBITMQ_MONITORING_USERNAME");
+    const monitoringPassword = requiredEnvironment(environment, "RABBITMQ_MONITORING_PASSWORD");
+    validateMonitoringIdentity(managementUrl, monitoringUsername, monitoringPassword, environment["NODE_ENV"] === "production");
     const production = environment["NODE_ENV"] === "production";
     const databaseSsl = environment["DB_SSL"] === "true";
 
@@ -198,4 +202,29 @@ function boundedNumber(
     throw new Error(key + " must be a number between " + minimum + " and " + maximum + ".");
   }
   return value;
+}
+
+function validateMonitoringIdentity(
+  endpoint: string,
+  username: string,
+  password: string,
+  production: boolean,
+): void {
+  let url: URL;
+  try {
+    url = new URL(endpoint);
+  } catch {
+    throw new Error("RABBITMQ_MANAGEMENT_URL must be an absolute HTTP(S) URL.");
+  }
+  const loopback = url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname === "[::1]";
+  if (!["http:", "https:"].includes(url.protocol) || url.username || url.password || url.search || url.hash
+    || (production && url.protocol !== "https:") || (url.protocol === "http:" && !loopback)) {
+    throw new Error("RABBITMQ_MANAGEMENT_URL must use HTTPS except for local loopback and must not include credentials.");
+  }
+  if (!/^[a-zA-Z0-9_.-]{3,128}$/.test(username)) {
+    throw new Error("RABBITMQ_MONITORING_USERNAME is invalid.");
+  }
+  if (password.length < 32 || password.length > 4_096) {
+    throw new Error("RABBITMQ_MONITORING_PASSWORD must contain between 32 and 4096 characters.");
+  }
 }
