@@ -673,3 +673,10 @@ La integración PostgreSQL se reordenó para no llamar a la operación batch `cl
 ### Corrección de estado Lead Ads — 2026-11-08
 
 La nota anterior que señalaba Source CI pendiente quedó supersedida: commit eab842c699e41a6a0099eab343111042ec6aa94d pasó Source CI #583 y CodeQL #118. El decoder procesa leadgen_id/created_time dentro de changes[].value. Aún no existe el bounded context CRM Leads ni la materialización del lead/lectura de field_data.
+
+
+### CRM-007 — señal cross-channel con evidencia de verificación (2026-11-08)
+
+- Se añade `SameVerifiedPhoneE164Strategy` (80 puntos) para mismo provider y E.164 exacto en canales/productos diferentes, exigiendo `verifiedAt` en ambos perfiles.
+- Números sin verificación no generan esa coincidencia. Se documenta el riesgo de números compartidos/reciclados y se mantiene `manual_review_required`; no se fusiona ni se vincula automáticamente.
+- Dos pruebas nuevas cubren coincidencia cross-channel verificada y rechazo de números sin verificación. Source CI pendiente del nuevo commit.

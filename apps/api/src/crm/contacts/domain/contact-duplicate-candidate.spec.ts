@@ -176,3 +176,50 @@ test("invalid threshold and repeated candidate inputs are rejected", () => {
     ContactDuplicateDetectionError,
   );
 });
+
+
+test("same verified E.164 phone across distinct channels is a review candidate", () => {
+  const left = contact();
+  const right = contact({ displayName: "Different profile" });
+  const leftPhone = identity(left, {
+    product: "whatsapp",
+    channel: "whatsapp",
+    identifierType: "phone_e164",
+    externalId: "+593991234567",
+    verifiedAt: "2026-11-08T12:00:00.000Z",
+  });
+  const rightPhone = identity(right, {
+    product: "facebook",
+    channel: "messenger",
+    identifierType: "phone_e164",
+    externalId: "+593991234567",
+    verifiedAt: "2026-11-08T12:01:00.000Z",
+  });
+  const result = detector.findCandidates(
+    profile(left, [leftPhone]),
+    [profile(right, [rightPhone])],
+  );
+
+  assert.equal(result.length, 1);
+  assert.equal(result[0]?.score, 80);
+  assert.equal(result[0]?.confidence, "medium");
+  assert.deepEqual(result[0]?.reasons, ["SAME_VERIFIED_PHONE_E164"]);
+  assert.equal(result[0]?.resolution, "manual_review_required");
+});
+
+test("unverified phone numbers never produce a cross-channel match", () => {
+  const left = contact();
+  const right = contact();
+  const leftPhone = identity(left, { identifierType: "phone_e164", verifiedAt: null });
+  const rightPhone = identity(right, {
+    product: "facebook",
+    channel: "messenger",
+    identifierType: "phone_e164",
+    verifiedAt: null,
+  });
+
+  assert.deepEqual(
+    detector.findCandidates(profile(left, [leftPhone]), [profile(right, [rightPhone])]),
+    [],
+  );
+});

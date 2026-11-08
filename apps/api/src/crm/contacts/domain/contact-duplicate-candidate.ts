@@ -51,6 +51,28 @@ export class SameNamespacedProviderIdentityStrategy implements ContactDuplicateS
 }
 
 /** Equal source references can identify repeated imports of the same business event. */
+/**
+ * Identical verified E.164 numbers across distinct channels are useful
+ * evidence for human review, but phone numbers can be shared or recycled.
+ * Only the provider and canonical phone are compared; product/channel are
+ * deliberately not, and this strategy never merges an identity.
+ */
+export class SameVerifiedPhoneE164Strategy implements ContactDuplicateSignalStrategy {
+  readonly reason = "SAME_VERIFIED_PHONE_E164" as const;
+
+  score(source: ContactDedupeProfile, candidate: ContactDedupeProfile): number {
+    const candidatePhones = new Set(
+      candidate.identities
+        .filter(isVerifiedPhoneIdentity)
+        .map(identity => verifiedPhoneKey(identity.provider, identity.externalId)),
+    );
+    return source.identities.some(identity =>
+      isVerifiedPhoneIdentity(identity)
+      && candidatePhones.has(verifiedPhoneKey(identity.provider, identity.externalId)),
+    ) ? 80 : 0;
+  }
+}
+
 export class SameSourceReferenceStrategy implements ContactDuplicateSignalStrategy {
   readonly reason = "SAME_SOURCE_REFERENCE" as const;
 
@@ -88,6 +110,7 @@ export class ContactDuplicateCandidateDetector {
     this.strategies = Object.freeze([
       ...(strategies ?? [
         new SameNamespacedProviderIdentityStrategy(),
+        new SameVerifiedPhoneE164Strategy(),
         new SameSourceReferenceStrategy(),
         new ExactNormalizedNameStrategy(),
       ]),
@@ -176,6 +199,17 @@ function identityKey(identity: ContactIdentityRecord): string {
     identity.provider, identity.product, identity.channel,
     identity.identifierType, identity.externalId,
   ]);
+}
+
+function isVerifiedPhoneIdentity(identity: ContactIdentityRecord): boolean {
+  return identity.identifierType === "phone_e164"
+    && typeof identity.verifiedAt === "string"
+    && identity.verifiedAt.trim().length > 0;
+}
+
+function verifiedPhoneKey(provider: string, externalId: string): string {
+  // E.164 has a single canonical representation; channel/product are allowed to differ.
+  return JSON.stringify([provider, externalId]);
 }
 
 function validateProfile(profile: ContactDedupeProfile): void {

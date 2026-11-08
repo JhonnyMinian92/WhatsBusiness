@@ -131,3 +131,8 @@ El componente recibe candidatos ya recuperados por un repositorio tenant-scoped.
 ## Evidencia CRM-007 — 2026-11-08
 
 ContactDuplicateCandidateDetector quedó CI-verified en commit 82eff584655212c16a4f59bce9542aeedf978bc4 (Source CI #585 y CodeQL #120 SUCCESS). Esto verifica únicamente el motor de dominio y sus pruebas. TASK-043/053 siguen in_progress por query adapter paginado tenant-scoped, contrato HTTP, auditoría/review, reversible merge/undo, Asset Registry associations y aceptación independiente.
+
+
+## Addendum CRM-007 — señal cross-channel de teléfono verificado
+
+La estrategia `SAME_VERIFIED_PHONE_E164` puntúa 80 solo cuando ambas identidades tienen `identifierType=phone_e164`, mismo provider/valor E.164 y `verifiedAt` presente. No requiere igual product/channel, pues busca una señal cross-channel. Los números no verificados no se comparan. La salida sigue siendo candidato para revisión humana, nunca merge.

@@ -14,6 +14,7 @@ Proponer posibles duplicados de contactos sin unir registros, revelar PII en res
 | Señal | Peso | Interpretación |
 |---|---:|---|
 | Identidad provider-scoped exacta (provider/product/channel/identifierType/externalId) | 100 | Colisión de identidad fuerte; exige revisión |
+| Mismo teléfono E.164 verificado por el mismo provider, aunque cambie product/channel | 80 | Señal media cross-channel; puede ser compartido o reciclado, nunca fusiona automáticamente |
 | Mismo sourceType y sourceReference | 75 | Probable reimportación de un mismo evento/fuente |
 | Nombre exacto normalizado | 35 | Señal débil; no basta para superar el umbral predeterminado |
 
@@ -50,3 +51,10 @@ Se corrige el fixture para que origen y candidato compartan la misma identidad c
 - Commit 82eff584655212c16a4f59bce9542aeedf978bc4: Source CI #585 SUCCESS y CodeQL #120 SUCCESS.
 - Source CI #584 había detectado un fixture incompleto para la estrategia de identidad; el fixture fue corregido antes de la validación satisfactoria, sin modificar el algoritmo.
 - El resultado valida el dominio y sus nueve pruebas específicas, no el endpoint, repositorio tenant-scoped, merge reversible, aceptación o despliegue.
+
+
+## Señal cross-channel verificada — 2026-11-08
+
+Se incorpora `SameVerifiedPhoneE164Strategy` con peso 80 (confianza media). Compara el teléfono E.164 canónico dentro del mismo provider, permitiendo distinto product/channel. Ambos ContactIdentity deben tener `identifierType=phone_e164` y `verifiedAt` no nulo. No compara valores sin evidencia de verificación. Los números compartidos o reciclados siguen siendo posibles, por lo que el resultado es exclusivamente `manual_review_required`; el detector no enlaza ni fusiona identidades.
+
+Dos pruebas nuevas garantizan match cross-channel cuando ambas identidades están verificadas y ausencia de match cuando ambas carecen de verificación. Los pesos continúan siendo reglas deterministas, no probabilidades calibradas.
