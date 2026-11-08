@@ -2,7 +2,7 @@ groups:
   - name: whatsbusiness.tenant-jobs
     rules:
       - alert: WhatsBusinessTenantJobMetricsTargetDown
-        expr: up{job="whatsbusiness-tenant-jobs"} == 0
+        expr: absent(up{job="whatsbusiness-tenant-jobs"}) or up{job="whatsbusiness-tenant-jobs"} == 0
         for: 2m
         labels:
           severity: critical
