@@ -6,7 +6,6 @@ import type {
   TenantJobRuntimeMetrics,
   TenantJobRuntimeRecoveryMetrics,
   TenantJobRuntimeMetricsSnapshot,
-  TenantJobBrokerMetricsSnapshot,
 } from "../../application/tenant-job-runtime-metrics.js";
 
 const HISTOGRAM_BUCKETS_SECONDS = Object.freeze([
@@ -52,19 +51,6 @@ const RUNTIME_GAUGES = [
   readonly key: keyof TenantJobRuntimeMetricsSnapshot;
 }>;
 
-const BROKER_GAUGES = [
-  { name: "tenant_job_rabbitmq_worker_queue_ready_messages", help: "Ready messages in the worker queue; excludes unacknowledged deliveries.", key: "workerQueueReadyMessages" },
-  { name: "tenant_job_rabbitmq_worker_queue_unacknowledged_messages", help: "Unacknowledged deliveries in the worker queue.", key: "workerQueueUnacknowledgedMessages" },
-  { name: "tenant_job_rabbitmq_worker_queue_consumers", help: "Consumers registered on the worker queue.", key: "workerQueueConsumers" },
-  { name: "tenant_job_rabbitmq_dead_letter_queue_ready_messages", help: "Ready messages in the dead-letter queue; excludes unacknowledged deliveries.", key: "deadLetterQueueReadyMessages" },
-  { name: "tenant_job_rabbitmq_dead_letter_queue_unacknowledged_messages", help: "Unacknowledged deliveries in the dead-letter queue.", key: "deadLetterQueueUnacknowledgedMessages" },
-  { name: "tenant_job_rabbitmq_dead_letter_queue_consumers", help: "Consumers registered on the dead-letter queue.", key: "deadLetterQueueConsumers" },
-] as const satisfies ReadonlyArray<{
-  readonly name: string;
-  readonly help: string;
-  readonly key: keyof TenantJobBrokerMetricsSnapshot;
-}>;
-
 interface HistogramState {
   count: number;
   sum: number;
@@ -76,7 +62,6 @@ export class PrometheusTenantJobRuntimeMetrics implements TenantJobRuntimeMetric
   private readonly executionHistograms = new Map<TenantJobExecutionMetricOutcome, HistogramState>();
   private readonly publishHistograms = new Map<TenantJobPublishMetricOutcome, HistogramState>();
   private readonly gauges = new Map<string, number>();
-  private readonly brokerGauges = new Map<string, number>();
 
   recordDispatch(outcome: TenantJobDispatchMetricOutcome): void {
     if (DISPATCH_OUTCOMES.has(outcome)) {
@@ -112,19 +97,6 @@ export class PrometheusTenantJobRuntimeMetrics implements TenantJobRuntimeMetric
     this.increment("tenant_job_runtime_errors_total", "worker");
   }
 
-  recordBrokerRuntimeSnapshot(snapshot: TenantJobBrokerMetricsSnapshot): void {
-    for (const gauge of BROKER_GAUGES) {
-      const value = snapshot[gauge.key];
-      if (!Number.isSafeInteger(value) || value < 0) {
-        throw new Error("Tenant job broker gauge value is invalid: " + gauge.key + ".");
-      }
-    }
-
-    for (const gauge of BROKER_GAUGES) {
-      this.brokerGauges.set(gauge.name, snapshot[gauge.key]);
-    }
-  }
-
   recordRuntimeSnapshot(snapshot: TenantJobRuntimeMetricsSnapshot): void {
     for (const gauge of RUNTIME_GAUGES) {
       const value = snapshot[gauge.key];
@@ -150,7 +122,6 @@ export class PrometheusTenantJobRuntimeMetrics implements TenantJobRuntimeMetric
     this.appendCounter(lines, "tenant_job_lease_renewal_total", "Execution lease heartbeat outcomes.");
     this.appendCounter(lines, "tenant_job_runtime_errors_total", "Runtime supervisor errors.");
     this.appendRuntimeGauges(lines);
-    this.appendBrokerGauges(lines);
 
     this.appendHistogram(lines, "tenant_job_execution_duration_seconds", "Tenant job handler duration.", this.executionHistograms);
     this.appendHistogram(lines, "tenant_job_publish_duration_seconds", "Tenant job broker publish duration.", this.publishHistograms);
@@ -162,15 +133,6 @@ export class PrometheusTenantJobRuntimeMetrics implements TenantJobRuntimeMetric
       lines.push("# HELP " + gauge.name + " " + gauge.help);
       lines.push("# TYPE " + gauge.name + " gauge");
       const value = this.gauges.get(gauge.name);
-      if (value !== undefined) lines.push(gauge.name + " " + value);
-    }
-  }
-
-  private appendBrokerGauges(lines: string[]): void {
-    for (const gauge of BROKER_GAUGES) {
-      lines.push("# HELP " + gauge.name + " " + gauge.help);
-      lines.push("# TYPE " + gauge.name + " gauge");
-      const value = this.brokerGauges.get(gauge.name);
       if (value !== undefined) lines.push(gauge.name + " " + value);
     }
   }
