@@ -188,12 +188,29 @@ jobs:
         run: pnpm typecheck
 
       - name: Run API unit and PostgreSQL integration tests
+        id: api_tests
+        continue-on-error: true
         timeout-minutes: 8
         run: pnpm exec nx run api:test
 
       - name: Run Meta backend unit and PostgreSQL/RabbitMQ integration tests
+        id: meta_backend_tests
         timeout-minutes: 8
         run: pnpm exec nx run microservices-meta-ecuapp:test
+
+      - name: Enforce independent test suite outcomes
+        if: always()
+        shell: bash
+        env:
+          API_TEST_OUTCOME: ${{ steps.api_tests.outcome }}
+          META_BACKEND_TEST_OUTCOME: ${{ steps.meta_backend_tests.outcome }}
+        run: |
+          if [[ "$API_TEST_OUTCOME" != "success" || "$META_BACKEND_TEST_OUTCOME" != "success" ]]; then
+            echo "::error::API and Meta backend suites are independent gates; both must pass."
+            echo "API test outcome: $API_TEST_OUTCOME"
+            echo "Meta backend test outcome: $META_BACKEND_TEST_OUTCOME"
+            exit 1
+          fi
 
       - name: Require lockfile synchronization in pull requests
         if: github.event_name == 'pull_request'
