@@ -1,4 +1,8 @@
 import { TenantJobFailureError } from "../domain/tenant-job-failure.js";
+import {
+  NOOP_TENANT_JOB_RUNTIME_METRICS,
+  type TenantJobRuntimeMetrics,
+} from "./tenant-job-runtime-metrics.js";
 import type { TenantJobRuntimeRepository } from "./tenant-job-ports.js";
 
 export type TenantJobSignalWork<T> = (signal: AbortSignal) => Promise<T>;
@@ -11,6 +15,7 @@ export class TenantJobExecutionLeaseHeartbeat {
     private readonly repository: Pick<TenantJobRuntimeRepository, "renewExecutionLease">,
     private readonly intervalForLease: (leaseSeconds: number) => number = (seconds) => Math.max(250, Math.floor(seconds * 1_000 / 3)),
     private readonly maximumExecutionMs = DEFAULT_MAX_EXECUTION_MS,
+    private readonly metrics: TenantJobRuntimeMetrics = NOOP_TENANT_JOB_RUNTIME_METRICS,
   ) {
     if (!Number.isSafeInteger(maximumExecutionMs)
       || maximumExecutionMs < 1
@@ -101,17 +106,22 @@ export class TenantJobExecutionLeaseHeartbeat {
       await wait(intervalMs, stopSignal);
       if (stopSignal.aborted || isStopped()) return;
 
+      let leaseWasLost = false;
       try {
         const expiry = await this.repository.renewExecutionLease(jobId, leaseToken, leaseSeconds);
         // PostgreSQL performs the authoritative expiry check using its own clock.
         // Do not compare the returned timestamp against the worker host clock.
         if (!expiry || !Number.isFinite(expiry.getTime())) {
+          leaseWasLost = true;
+          this.metrics.recordLeaseRenewal("lost");
           throw new TenantJobFailureError({
             code: "JOB_EXECUTION_LEASE_LOST",
             retryable: false,
           });
         }
+        this.metrics.recordLeaseRenewal("renewed");
       } catch (error) {
+        if (!leaseWasLost) this.metrics.recordLeaseRenewal("error");
         setFailure(error);
         cancellation.abort(error);
         return;
