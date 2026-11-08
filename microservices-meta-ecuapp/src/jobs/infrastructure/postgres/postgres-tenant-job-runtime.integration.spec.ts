@@ -353,7 +353,7 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
     // but before publisher confirm/mark-published can be persisted.
     const abandonedPublicationJobId = await stageJob(
       runtimePool, tenantId, actorUserId, correlationId,
-      "inbox.message.publisher-crash", { messageId: randomUUID() },
+      "inbox.message.publishercrash", { messageId: randomUUID() },
     );
     insertedJobs.push(abandonedPublicationJobId);
     const abandonedPublication = await dispatcherPool.query<{ lease_token: string }>(
