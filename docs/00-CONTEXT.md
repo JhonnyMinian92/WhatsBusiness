@@ -83,13 +83,13 @@ Consultar [29-OWNER-DECISIONS.md](29-OWNER-DECISIONS.md) como fuente canónica.
 - Greenfield: comenzar desde cero.
 - Cobertura: todo el catálogo Meta de META_SERVICES.md, sujeto a elegibilidad oficial por operación/cuenta.
 - Producto propio: backend, panel web, CRM e inbox omnicanal.
-- IA inicial: chatbots y sugerencias de respuesta; automatización básica extensible.
+- Inteligencia CRM: machine learning clásico y estadística aplicada (scoring, clasificación, regresión, forecast, segmentación y ranking); no LLM ni agentes de IA dentro del CRM.
 - Hosting objetivo: VPS/servidor propio.
 - Entrega: por fases, dominios y límites bien separados.
 - Stack: dirección técnica adoptada en ADR-011..020; architecture spike TASK-039 valida footprint, compatibilidad y operación antes del scaffold de producción.
 - Agentes: continuar trabajo independiente; resolver decisiones técnicas reversibles y documentarlas; escalar bloqueos de negocio, coste, datos, seguridad, cumplimiento y breaking changes.
 
-La interpretación de la aclaración de IA está registrada en PD-005. No añadir alcance de RAG, voz o agentes autónomos sin nueva decisión.
+La decisión de IA para CRM está documentada en PD-005 y [docs/62](62-CRM-MACHINE-LEARNING-STRATEGY.md). No introducir LLM, RAG, modelos generativos ni agentes de IA dentro de CRM Intelligence.
 
 
 ## 10. Baseline aplicada por delegación del propietario (2026-11-06)
@@ -104,7 +104,11 @@ La interpretación de la aclaración de IA está registrada en PD-005. No añadi
 - Cambios Meta recientes: versiones Graph/Marketing API por adapter; Embedded Signup v4 a evaluar; BSUID y WAAC/PMA en modelo de identidad/activos; Marketing Messages API como camino principal para marketing WhatsApp frente al sunset anunciado de Cloud API marketing (2027-10-13). Verificar disponibilidad y esquema reales por app/cuenta.
 
 
-## 11. Campaign Intelligence y nueva generación de IA publicitaria
+## 11. CRM Intelligence basada en ML clásico
+
+La inteligencia del CRM usa algoritmos estadísticos y machine learning supervisado/no supervisado, con inferencia CPU-first, versionado, calibración, explicabilidad y aislamiento por tenant. No incluye LLM ni agentes autónomos. Especificación: [docs/62](62-CRM-MACHINE-LEARNING-STRATEGY.md).
+
+## 12. Campaign Intelligence y nueva generación de IA publicitaria
 - Campaigns & Measurement crecen hasta Campaign Intelligence: Meta Insights + CAPI + CRM outcomes, Creative Lab, test cells, optimization recommendations, budget guardrails and audit.
 - Objetivo de negocio: optimizar leads calificados, ventas, revenue neto y contribution margin, no solo clicks o ROAS atribuido.
 - Andromeda/GEM son sistemas internos Meta; WhatsBusiness no puede controlarlos ni consultar score. Se aportan creatividades elegibles diversas y señales de conversión de calidad.
