@@ -186,11 +186,42 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
     assert.notEqual(tenantBSession.active_tenant_id, tenantASession.active_tenant_id,
       "Tenant A context must never survive checkout for tenant B.");
 
+    const metricsBefore = await dispatcherPool.query<{
+      pending_dispatch_jobs: string;
+    }>("SELECT pending_dispatch_jobs::text FROM platform.read_tenant_job_runtime_metrics()");
+    const pendingBefore = Number(metricsBefore.rows[0]?.pending_dispatch_jobs);
+    assert.ok(Number.isSafeInteger(pendingBefore) && pendingBefore >= 0);
+
+    await assert.rejects(
+      runtimePool.query("SELECT * FROM platform.read_tenant_job_runtime_metrics()"),
+      (error: unknown) => typeof error === "object" && error !== null && "code" in error
+        && (error as { code: string }).code === "42501",
+    );
+    await assert.rejects(
+      workerPool.query("SELECT * FROM platform.read_tenant_job_runtime_metrics()"),
+      (error: unknown) => typeof error === "object" && error !== null && "code" in error
+        && (error as { code: string }).code === "42501",
+    );
+    await assert.rejects(
+      dispatcherPool.query("SELECT * FROM platform.tenant_job_records"),
+      (error: unknown) => typeof error === "object" && error !== null && "code" in error
+        && (error as { code: string }).code === "42501",
+    );
+
     const completionJobId = await stageJob(
       runtimePool, tenantId, actorUserId, correlationId,
       "inbox.message.process", { messageId: "synthetic-message-1", version: 1 },
     );
     insertedJobs.push(completionJobId);
+
+    const metricsAfterStage = await dispatcherPool.query<{
+      pending_dispatch_jobs: string;
+      oldest_pending_dispatch_age_seconds: number;
+    }>(
+      "SELECT pending_dispatch_jobs::text, oldest_pending_dispatch_age_seconds FROM platform.read_tenant_job_runtime_metrics()",
+    );
+    assert.equal(Number(metricsAfterStage.rows[0]?.pending_dispatch_jobs), pendingBefore + 1);
+    assert.ok((metricsAfterStage.rows[0]?.oldest_pending_dispatch_age_seconds ?? -1) >= 0);
 
     await assert.rejects(
       runtimePool.query("SELECT * FROM platform.claim_tenant_job_publications(1, 30)"),
