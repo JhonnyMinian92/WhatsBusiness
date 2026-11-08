@@ -305,7 +305,7 @@ test("una escritura externa con resultado ambiguo queda outcome_unknown y nunca 
       requesterActorId: id("06"),
       approverActorIds: [id("07"), id("08")],
       requiredApprovals: 2,
-      expiresAt: "2026-11-08T18:00:00.000Z",
+      expiresAt: "2099-11-08T18:00:00.000Z",
     },
     humanConfirmation: {
       status: "confirmed",
@@ -313,8 +313,8 @@ test("una escritura externa con resultado ambiguo queda outcome_unknown y nunca 
       actorType: "human",
       tenantId,
       actionFingerprint: fingerprint,
-      confirmedAt: "2026-11-08T16:59:00.000Z",
-      validUntil: "2026-11-08T17:30:00.000Z",
+      confirmedAt: "2026-11-08T23:00:00.000Z",
+      validUntil: "2099-11-08T17:30:00.000Z",
     },
   });
   const setup = createGateway({

@@ -65,7 +65,10 @@ test("rechaza metadata ausente y versiones MCP no soportadas", async () => {
     params: {},
   }, caller);
   const wrongVersion = await server.handle(request("tools/list", 2, {
-    _meta: { "io.modelcontextprotocol/protocolVersion": "2025-03-26" },
+    _meta: {
+      "io.modelcontextprotocol/protocolVersion": "2025-03-26",
+      "io.modelcontextprotocol/clientCapabilities": {},
+    },
   }), caller);
   assert.equal(missing?.error?.code, -32602);
   assert.equal(wrongVersion?.error?.code, -32022);
