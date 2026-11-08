@@ -257,6 +257,10 @@ export class AgentToolGatewayService {
   ) {}
 
   listTools(caller: AgentToolCaller): readonly AgentToolDefinition[] {
+    if (
+      caller.subject.membershipStatus !== "active"
+      || !caller.subject.permissionKeys.includes("agent.tools.read")
+    ) return Object.freeze([]);
     return Object.freeze(
       this.handlers.list().flatMap((name) => {
         const definition = findAgentTool(name);

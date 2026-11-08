@@ -288,7 +288,7 @@ test("no ejecuta cuando el estado de rate limit no puede verificarse", async () 
 });
 
 test("una escritura externa con resultado ambiguo queda outcome_unknown y nunca se reintenta", async () => {
-  const approvedFacts = (): AgentToolInvocationFacts => ({
+  const approvedFacts = (fingerprint: string): AgentToolInvocationFacts => ({
     resource: { tenantId, resourceType: "ads_campaign", resourceId: campaignId },
     providerCapability: "eligible",
     killSwitch: "inactive",
@@ -300,8 +300,8 @@ test("una escritura externa con resultado ambiguo queda outcome_unknown y nunca 
       purpose: "ads.campaign.management",
       resourceType: "ads_campaign",
       resourceId: campaignId,
-      bindingFingerprint: "b".repeat(64),
-      requestFingerprint: "b".repeat(64),
+      bindingFingerprint: fingerprint,
+      requestFingerprint: fingerprint,
       requesterActorId: id("06"),
       approverActorIds: [id("07"), id("08")],
       requiredApprovals: 2,
@@ -312,14 +312,14 @@ test("una escritura externa con resultado ambiguo queda outcome_unknown y nunca 
       actorId,
       actorType: "human",
       tenantId,
-      actionFingerprint: "b".repeat(64),
+      actionFingerprint: fingerprint,
       confirmedAt: "2026-11-08T16:59:00.000Z",
       validUntil: "2026-11-08T17:30:00.000Z",
     },
   });
   const setup = createGateway({
     toolNames: ["ads.campaign.publication.stage"],
-    facts: () => approvedFacts(),
+    facts: (fingerprint) => approvedFacts(fingerprint),
     execute: async () => { throw new Error("META_PROVIDER_TIMEOUT"); },
   });
   const command = {

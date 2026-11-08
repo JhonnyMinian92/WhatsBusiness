@@ -229,6 +229,7 @@ test("la publicación exige aprobación vigente y vinculada al tenant, permiso, 
       ...approvedFacts,
       approval: {
         ...approvedFacts.approval,
+        requesterActorId: actorId,
         approverActorIds: [actorId, id("08")],
       },
     }),

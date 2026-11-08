@@ -28,13 +28,16 @@ const caller = {
 } as AgentToolCaller;
 
 function request(method: string, id = 1, params: unknown = {}) {
+  const requestParams = params && typeof params === "object" && !Array.isArray(params)
+    ? params as Record<string, unknown>
+    : {};
   return {
     jsonrpc: "2.0",
     id,
     method,
     params: {
-      ...params as object,
-      _meta: {
+      ...requestParams,
+      _meta: requestParams["_meta"] ?? {
         "io.modelcontextprotocol/protocolVersion": MCP_PROTOCOL_VERSION,
         "io.modelcontextprotocol/clientCapabilities": {},
         "io.modelcontextprotocol/clientInfo": { name: "test-client", version: "1.0.0" },
