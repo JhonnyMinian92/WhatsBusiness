@@ -72,8 +72,22 @@ Las rutas conservan UUID como ID interno. El cursor y ETag son opacos al consumi
 ## 7. Límites de implementación
 
 Este freeze solo habilita CRM-001..004 en el alcance anterior. CRM-005..017 siguen catalog-only hasta que se congelen sus contratos y dependencias. TASK-042 no se considera aceptada por el mero hecho de crear rutas; aún se requieren evidencia verde, revisión independiente y aceptación del Product Owner.
-## 8. Gate de activación del runtime (2026-11-08)
+## 8. Activación del runtime y verificación de CRM-001..004 (2026-11-08)
 
-La revisión automática de contratos impone que únicamente PLT-001..005 estén con x-implementation-allowed=true durante la foundation actual. CRM-001..004 mantienen el diseño y schemas completos (x-contract-ready=true), pero permanecen x-implementation-allowed=false y el CrmContactsModule no está importado por AppModule. El código de dominio/aplicación/repositorio y sus pruebas se compilan como fuente y no están expuestos por HTTP. Para activar rutas será necesaria la autorización específica del siguiente slice GO-CODE y que Contract CI acepte el cambio; no se fuerza ni se elude el allowlist.
+CRM-001..004 están habilitadas explícitamente en OpenAPI con `x-contract-ready=true`, `x-implementation-allowed=true` y gate `GO-CODE-CRM-CONTACTS+TASK-042`. La allowlist de `scripts/validate-contracts.mjs` permite exactamente nueve operaciones: PLT-001..005 y CRM-001..004; no abre las otras 287 rutas catalog-only.
 
-La migración `0023-crm-contact-organization-name-invariant.sql` también impone en PostgreSQL que organization no contenga firstName/lastName. El test usa el login runtime y un SAVEPOINT para demostrar SQLSTATE `23514` sin abortar el resto de la transacción. La verificación CI de este refuerzo está pendiente.
+`CrmContactsModule` se importa desde `apps/api/src/app.module.ts`. El controller requiere OIDC a nivel de clase y compone `TenantContextGuard`, propósito declarado y `AuthorizationGuard`/RBAC en cada operación mediante `RequireTenantPermission`. El caso de uso vuelve a comprobar permisos y `authzVersion` dentro de la transacción tenant-scoped. POST/PATCH conservan idempotencia; POST/GET/PATCH devuelven ETag y PATCH exige `If-Match`.
+
+Se añadió `apps/api/src/crm/contacts/http/contact.controller.spec.ts` con seis casos para guard OIDC, permisos y propósitos, filtros tenant-scoped, ETag, `If-Match`, contexto ausente y mismatch de tenant. Se mantiene la suite PostgreSQL real para RLS, aislamiento entre tenant A/B, idempotencia, optimistic concurrency, auditoría append-only e invariante de organization.
+
+**Evidencia CI:**
+- Source CI [#570](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42497391908) SUCCESS sobre el commit `de617cc18b004c0b67df0d5c8b9a10bbf50897a7`: frozen install, migraciones 0001–0023 e idempotencia, provisioning de roles, quorum DLX, Prometheus plugin, build, typecheck, API unit/PostgreSQL tests y backend unit/PostgreSQL/RabbitMQ integration.
+- Contract CI [#29](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42497491129) SUCCESS sobre el commit `559cd2255fade6b4fc338463bef417fd992192ac`: OpenAPI lint y validación de IDs, schemas AsyncAPI y fixtures.
+- CodeQL [#105](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42497391953) SUCCESS sobre el código CRM en `de617cc`.
+
+La corrección posterior de formato YAML en `559cd22` no altera la semántica del contrato: separa correctamente `x-required-gate` y `security`, y Contract CI #29 valida el documento corregido.
+
+## 9. Límites y aceptación pendiente
+
+La exposición HTTP de CRM-001..004 está implementada y verificada por CI; **TASK-042 sigue `in_progress`, no `accepted`**. Aún se necesita revisión independiente de seguridad/arquitectura y aceptación del Product Owner. Este freeze no habilita CRM-005..017 ni ContactIdentity, merge, custom fields, companies, leads, opportunities, activities, inbox ni event publishing. Los eventos `crm.contact.created/updated` no se emiten hasta cerrar el event bus operativo de TASK-028. La política de retención, exportación y eliminación legal continúa en TASK-059.
+

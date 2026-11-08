@@ -493,3 +493,10 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - RabbitMQ 4.4 rechazó la característica `transient_nonexcl_queues`. El fixture declaraba dos colas efímeras con `durable=false, exclusive=false, autoDelete=true`; la causa está en la configuración del test y no en la topología productiva.
 - Corrección implementada en `92b46d68bc8070a086b95352d504797fe1bf0c3d`: las colas de test son ahora exclusivas y auto-delete, con nombres únicos por ejecución. La topología quorum durable no se modifica.
 - Source CI #563 y CodeQL #98 se encontraban en ejecución. **No marcar el test ni TASK-003 como verified** hasta inspeccionar el resultado completo del HEAD corregido. TASK-003/027/028 permanecen `in_progress`; GO-PRODUCTION sigue NO-GO.
+
+## Handoff — CRM Contacts API activada y verificada por CI (2026-11-08)
+
+- Commit de código `de617cc18b004c0b67df0d5c8b9a10bbf50897a7`: `CrmContactsModule` registrado en `AppModule`; CRM-001..004 pasan a `x-implementation-allowed=true` con gate específico; allowlist del validador fijada a nueve operaciones.
+- Se añadieron seis tests del controller. La suite API/PostgreSQL también verifica el agregado, RLS, separación tenant A/B, replay idempotente, If-Match/versión, audit chain y restricción organization.
+- Contract metadata corregida en `559cd2255fade6b4fc338463bef417fd992192ac`; Contract CI [#29](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42497491129) SUCCESS. Source CI [#570](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42497391908) SUCCESS; CodeQL [#105](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42497391953) SUCCESS.
+- Quedan fuera CRM-005..017, identities/merge/custom fields/companies, event publishing hasta TASK-028 y política de retención/legal hasta TASK-059. TASK-042 no está aceptada: falta review independiente y aceptación del Product Owner.

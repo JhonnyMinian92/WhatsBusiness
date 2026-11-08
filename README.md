@@ -117,9 +117,10 @@ API local: http://localhost:3000. Angular dev server: http://localhost:4200.
 
 ## CRM Contacts — estado del primer slice (2026-11-08)
 
-- Existe código fuente en apps/api/src/crm/contacts: validación de dominio, repository PostgreSQL, caso de uso, controller y módulo.
-- La migración 0022-crm-contacts.sql crea crm.contacts y crm.contact_command_idempotency con RLS ENABLE/FORCE, provenance inmutable, optimistic version, idempotencia y grants mínimos.
-- CRM-001..004 tienen schemas/request/response/permission/cursor/ETag/idempotency congelados en contracts/openapi/platform-v1.yaml y rationale en docs/66-CRM-CONTACTS-API-CONTRACT-FREEZE.md.
-- Runtime gate: CRM-001..004 siguen x-implementation-allowed=false; CrmContactsModule no está registrado en AppModule. Contract CI solo permite activar PLT-001..005 durante la foundation vigente. El código CRM se compila y prueba, pero las rutas no están habilitadas en HTTP.
-- Contract CI #27 validó OpenAPI con CRM-001..004 deshabilitadas. Source CI #560/#562 pasó el target de API con las pruebas PostgreSQL habilitadas para el slice CRM, pero falló en el target independiente `microservices-meta-ecuapp:test` por la integración de métricas RabbitMQ; TASK-042 sigue `in_progress` y no está aceptada.
-- La migración `0023-crm-contact-organization-name-invariant.sql` añade un CHECK en PostgreSQL para impedir campos first/last name en contactos organization, también ante escrituras fuera del parser de dominio.
+- CRM-001..004 están implementadas y habilitadas en HTTP: listar, crear, consultar y actualizar contactos tenant-scoped.
+- `CrmContactsModule` está registrado en `AppModule`. El controller combina OIDC, tenant context, propósitos estables y RBAC; el caso de uso revalida el contexto/autorización dentro de la transacción.
+- El contrato usa ETag/If-Match, idempotencia por tenant/actor/operación, cursor estable, provenance inmutable, auditoría append-only y RLS ENABLE/FORCE. La migración 0023 añade el CHECK de organization sin first/last name.
+- Seis pruebas de controller cubren guardas/metadata/tenant mismatch/ETag/If-Match; la integración PostgreSQL cubre aislamiento A/B, RLS, idempotencia, concurrency y audit chain.
+- Source CI [#570](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42497391908), Contract CI [#29](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42497491129) y CodeQL [#105](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42497391953) terminaron SUCCESS.
+- El allowlist permite exactamente PLT-001..005 y CRM-001..004. Las 287 operaciones restantes siguen catalog-only. CRM-005..017 (identities, merge, custom fields y otros agregados) no están habilitados.
+- TASK-042 permanece `in_progress`, no `accepted`: falta revisión independiente y aceptación del Product Owner. La publicación de eventos CRM espera el cierre operativo de TASK-028; retención/exportación/eliminación legal sigue en TASK-059.

@@ -553,3 +553,10 @@ Se añadió una regresión de integración a `microservices-meta-ecuapp/src/jobs
 - El log del broker mostró que RabbitMQ 4.4 no permite colas clásicas transitorias no exclusivas (`transient_nonexcl_queues`). El test usaba `durable=false, exclusive=false, autoDelete=true` para dos colas efímeras.
 - **Corrección implementada:** las colas temporales ahora son exclusivas y auto-delete, manteniendo el flujo de publish confirm, ready/unacked/consumers, ACK y cleanup. La topología quorum durable de producción y los permisos monitor-only no cambian.
 - Commit: `92b46d68bc8070a086b95352d504797fe1bf0c3d`. Source CI #563/CodeQL #98 deben confirmar el HEAD antes de marcar la integración verificada. TASK-003 continúa `in_progress`.
+
+### Estado vigente — TASK-042 CRM Contacts API (2026-11-08; supersede los handoffs de gate cerrado previos)
+
+- CRM-001..004 se activaron en commit `de617cc18b004c0b67df0d5c8b9a10bbf50897a7`: `CrmContactsModule` quedó importado en `AppModule`; OpenAPI habilita solo esas cuatro operaciones y conserva las cinco PLT foundation. El validador mantiene allowlist exacta de nueve IDs; las otras 287 operaciones siguen bloqueadas.
+- Se añadió suite del controller con seis pruebas para guard OIDC, RBAC, propósito, tenant context, mismatch de tenant, ETag e If-Match. La suite PostgreSQL existente cubre RLS, tenant A/B, idempotencia, optimistic concurrency, audit chain e invariante de organization.
+- Source CI [#570](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42497391908) SUCCESS; Contract CI [#29](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42497491129) SUCCESS tras corregir cuatro claves YAML de gate; CodeQL [#105](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42497391953) SUCCESS.
+- Estado: endpoints HTTP CRM-001..004 habilitados y CI-verified. TASK-042 permanece `in_progress` hasta revisión independiente y aceptación del Product Owner. No activar CRM-005..017 ni declarar completado el bounded context.

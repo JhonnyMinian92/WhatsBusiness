@@ -432,3 +432,15 @@ La API documentada de amqplib establece que connection.close invalida operacione
 | AUD-138 | docs/63, docs/02, docs/11 y README del backend sincronizan el diagnóstico y el gate siguiente. | Documentado; no equivale a verificación. |
 
 La corrección conserva RabbitMQ 4.4 y no habilita la característica obsoleta, no relaja permisos del usuario `monitoring` y no modifica la topología quorum de jobs. Source CI #563 debe completar la suite backend; CodeQL #98 debe revisarse por separado. TASK-003 permanece `in_progress`; TASK-027/028 no cambian de estado y GO-PRODUCTION sigue NO-GO.
+
+## 38. Activación CRM Contacts API y verificación de contrato/código (AUD-144..148; 2026-11-08)
+
+| ID | Evidencia / cambio | Estado |
+|---|---|---|
+| AUD-144 | Se conectó `CrmContactsModule` a `AppModule` solo para el slice CRM-001..004. | Implementado en `de617cc18b004c0b67df0d5c8b9a10bbf50897a7`. |
+| AUD-145 | OpenAPI cambió `x-implementation-allowed` a true solo para CRM-001..004; validator permite exactamente CRM-001..004 + PLT-001..005. | Contract CI #29 SUCCESS en `559cd2255fade6b4fc338463bef417fd992192ac`. |
+| AUD-146 | Se añadieron seis pruebas del controller: OIDC, tenant guard/purpose/RBAC, filtros, tenant mismatch, ETag e If-Match. | Source CI #570 SUCCESS. |
+| AUD-147 | Source CI #570 verificó build, typecheck, migraciones 0001–0023/idempotencia, API/PostgreSQL tests y backend/PostgreSQL/RabbitMQ integrations. | SUCCESS. |
+| AUD-148 | CodeQL #105 verificó el código del slice CRM. | SUCCESS. |
+
+El contrato mantuvo deshabilitadas las 287 operaciones restantes; CRM-005..017 siguen catalog-only. TASK-042 continúa `in_progress` hasta revisión independiente y aceptación del Product Owner. No se habilitó producción ni se alteró GO-PRODUCTION NO-GO.

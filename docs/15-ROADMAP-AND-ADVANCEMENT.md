@@ -229,3 +229,10 @@ Estado actual:
 - El log de RabbitMQ reveló que el fixture temporal no exclusivo activaba `transient_nonexcl_queues`, una característica rechazada por RabbitMQ 4.4.
 - Commit `92b46d68bc8070a086b95352d504797fe1bf0c3d` modifica únicamente el fixture para usar colas efímeras exclusivas de la conexión. Se mantienen intactas las quorum queues durables del runtime.
 - Source CI #563 y CodeQL #98 deben confirmar el cambio. No declarar las métricas live verificadas ni cerrar TASK-003 sin SUCCESS del HEAD corregido y review operativo. TASK-003/027/028 permanecen `in_progress`; GO-PRODUCTION sigue NO-GO.
+
+## Actualización de avance — CRM Contacts HTTP slice (2026-11-08)
+
+- El primer slice transaccional CRM dejó de ser solo código interno: CRM-001..004 están habilitadas en OpenAPI y `CrmContactsModule` forma parte de `AppModule`.
+- El allowlist de contratos acepta exactamente nueve operaciones (PLT-001..005 + CRM-001..004); no se abre el catálogo restante.
+- Source CI #570, Contract CI #29 y CodeQL #105 terminaron SUCCESS en los HEAD indicados en `docs/66-CRM-CONTACTS-API-CONTRACT-FREEZE.md`.
+- TASK-042 permanece `in_progress` por review y aceptación, y CRM-005..017 siguen fuera de alcance. El siguiente trabajo CRM de producto depende del cierre de Contact API y del event bus (TASK-028).
