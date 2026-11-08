@@ -9,11 +9,25 @@ const Ajv2020Module = require("ajv/dist/2020.js");
 const Ajv2020 = Ajv2020Module.default ?? Ajv2020Module;
 const addFormatsModule = require("ajv-formats");
 const addFormats = addFormatsModule.default ?? addFormatsModule;
+const asyncApiParserModule = require("@asyncapi/parser");
+const AsyncApiParser = asyncApiParserModule.Parser ?? asyncApiParserModule.default?.Parser;
 
 const read = (path) => fs.readFileSync(path, "utf8");
 const parseYaml = (path) => YAML.parse(read(path), { uniqueKeys: true });
 const openapi = parseYaml("contracts/openapi/platform-v1.yaml");
 const asyncapi = parseYaml("contracts/asyncapi/platform-events-v1.yaml");
+const asyncApiParser = new AsyncApiParser();
+const asyncApiParseResult = await asyncApiParser.parse(
+  read("contracts/asyncapi/platform-events-v1.yaml"),
+);
+const asyncApiErrors = (asyncApiParseResult.diagnostics ?? []).filter(
+  (diagnostic) => diagnostic.severity === 0,
+);
+assert(
+  asyncApiParseResult.document && asyncApiErrors.length === 0,
+  "AsyncAPI parser rejected the document: " + asyncApiErrors.map((diagnostic) => diagnostic.message).join("; "),
+);
+console.log("AsyncAPI specification parsed successfully with @asyncapi/parser.");
 const envelope = JSON.parse(read("contracts/schemas/event-envelope.schema.json"));
 const domain = JSON.parse(read("contracts/schemas/domain-events-v1.schema.json"));
 
