@@ -76,7 +76,7 @@ test("invalid budget, unknown objective and mismatched account currency are reje
     now,
   );
   assert.equal(result.status, "invalid");
-  assert.ok(result.issues.some((issue) => issue.code === "ADS_CAMPAIGN_BUDGET_INVALID"));
+  assert.ok(result.issues.some((issue) => issue.code === "ADS_CAMPAIGN_BUDGET_MUST_BE_POSITIVE"));
   assert.ok(result.issues.some((issue) => issue.code === "ADS_CAMPAIGN_OBJECTIVE_NOT_SUPPORTED"));
   assert.ok(result.issues.some((issue) => issue.code === "ADS_CAMPAIGN_CURRENCY_MISMATCH"));
 });
