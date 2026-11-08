@@ -61,8 +61,7 @@ test("rejects invalid broker counts without closing a healthy metrics channel", 
 });
 
 test("rejects invalid queue names", () => {
-  const channel = { async close() {}, async checkQueue() { return { queue: "", messageCount: 0, consumerCount: 0 }; } }
-    as unknown as Pick<Channel, "checkQueue" | "close">;
+  const channel = { async close() {}, async checkQueue() { return { queue: "", messageCount: 0, consumerCount: 0 }; } } as unknown as Pick<Channel, "checkQueue" | "close">;
   assert.throws(
     () => new RabbitMqTenantJobQueueMetricsReader(channel, " ", "dlq"),
     /queue names are invalid/,
