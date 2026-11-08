@@ -146,6 +146,31 @@ test("a duplicate delivery with no database claim is ACKed after the consumer re
   assert.deepEqual(channel.rejected, []);
 });
 
+
+test("valid deliveries are redelivered when durable processing cannot be completed", async () => {
+  const channel = new FakeChannel();
+  const errors: string[] = [];
+  const adapter = new RabbitMqTenantJobConsumerAdapter(
+    channel as unknown as Channel,
+    { async handle() { throw new Error("database connection unavailable"); } } as never,
+    "jobs",
+    30,
+    4,
+    { report: (code) => errors.push(code) },
+    async () => { await channel.close(); },
+  );
+
+  await adapter.start();
+  channel.deliver(message(validBody));
+  await adapter.stop();
+
+  assert.deepEqual(channel.acknowledged, []);
+  assert.deepEqual(channel.rejected, []);
+  assert.equal(channel.closed, true, "an uncommitted valid delivery must be released by closing the connection");
+  assert.equal(channel.closeCount, 1);
+  assert.deepEqual(errors, ["TENANT_JOB_PROCESSING_INTERRUPTED"]);
+});
+
 test("a failed broker ACK never NACKs a business transaction that already resolved", async () => {
   const channel = new FakeChannel();
   channel.acknowledgementError = new Error("channel closed after business commit");
