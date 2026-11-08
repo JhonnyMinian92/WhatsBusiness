@@ -255,3 +255,6 @@ Commit 966edff: Source CI #42513964425 y CodeQL #42513964419 success; PostgreSQL
 - **Not delivered:** HTTP API, DB dedupe ledger, transactional outbox, broker handler, Meta adapter, dataset capability verification, provider match quality/attribution and dashboard.
 - **DoD remaining:** lead lifecycle/security/privacy readiness; official Meta contract and CR-0015; CAPI contract freeze; PostgreSQL uniqueness/RLS/idempotency, outbox and replay; provider contract/integration tests; independent review and Product Owner acceptance.
 - **Status:** in_progress; this slice is not verified until Source CI succeeds and not accepted.
+
+
+TASK-026 addendum: la validación y el port ahora toman `evaluatedAt` del servidor además de `occurredAt`; rechazan retiro/caducidad de consentimiento mientras el evento espera despacho, timestamps de validación inválidos y eventos futuros. El snapshot ligado a la página oficial de Meta reporta dedupe por `event_name + event_id` en 48 horas y `user_data` requerido; la referencia oficial directa devolvió 429 en la revisión, por lo que ventana/semántica se ratificarán al congelar CAPI-001..004. El slice no arma payload ni hace envío, pues aún no hay user_data permitido, adapter de consentimiento, Lead source ni contrato congelado.
