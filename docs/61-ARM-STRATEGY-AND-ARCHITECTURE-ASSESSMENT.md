@@ -21,16 +21,16 @@ CRM no significa únicamente una libreta de contactos o un pipeline de ventas. E
 
 Por tanto, reemplazar CRM por ARM y eliminar el dominio CRM sería una regresión: WhatsBusiness todavía necesita contactos, identidades de canal, empresas, leads, oportunidades, pipeline, actividades, procedencia, consentimiento y deduplicación.
 
-ARM, bajo la hipótesis Agent Relationship Management, resuelve otro problema: gobernar agentes autónomos y asistentes que trabajan sobre las relaciones y procesos de negocio. No reemplaza la fuente de verdad de clientes ni el ciclo comercial.
+ARM, bajo la hipótesis Agent Relationship Management, resuelve otro problema: gobernar la relación entre una empresa y agentes de IA externos, y entre agentes, incluyendo identidad verificable, capacidades, confianza, protocolos, actividad y escalamiento humano. No reemplaza la fuente de verdad de clientes ni el ciclo comercial. Si el alcance solo consiste en asistentes/agentes internos que ayudan a vendedores y operadores usando datos CRM, se trata de agentic CRM y AI orchestration; no justifica por sí solo un producto ARM separado.
 
 ## 3. Recomendación
 
-**No sustituir el CRM. Evolucionar WhatsBusiness hacia una plataforma de Relationship Management con capacidades de Agent Relationship Management, manteniendo CRM como bounded context de negocio.**
+**No sustituir el CRM. Primero evolucionar el CRM hacia una experiencia agentic CRM; crear un bounded context ARM separado solo si WhatsBusiness necesita recibir, identificar, verificar, autorizar y coordinar agentes externos que interactúan con los negocios o con otros agentes.**
 
 Propuesta de posicionamiento a validar:
-- Categoría funcional: **AI-native Relationship Management Platform**.
+- Categoría funcional inicial: **AI-native CRM / Relationship Platform**.
 - Capacidades visibles: CRM, Omnichannel Inbox, Marketing/Acquisition, Automation y AI Agents.
-- ARM: capacidad/plano de orquestación de agentes, no sustituto de Contacts/Leads/Opportunities.
+- ARM: posible plano de confianza/interoperabilidad para agentes externos, no sustituto de Contacts/Leads/Opportunities.
 - No usar ARM como único nombre público hasta validar comprensión con clientes, agencias y PYMES del ICP inicial.
 
 La ventaja competitiva debe expresarse como resultados verificables: responder y dar seguimiento con contexto, convertir conversaciones en oportunidades, coordinar humanos y agentes, y automatizar acciones con permisos y auditoría. No se debe vender autonomía ilimitada.
@@ -49,9 +49,14 @@ La ventaja competitiva debe expresarse como resultados verificables: responder y
 
 ## 5. Arquitectura recomendada
 
-Mantener el bounded context `CRM` existente y añadir, cuando los casos de uso y contratos estén congelados, un bounded context `Agent Management & Orchestration` (nombre interno provisional).
+Mantener el bounded context `CRM` existente. Distinguir dos escenarios antes de crear un módulo nuevo:
 
-Responsabilidades sugeridas:
+- **Agentes internos/first-party:** ampliar AI Assistance + Automation + Tool Gateway con capacidades de agentes, manteniendo CRM como fuente de verdad. Esto es agentic CRM; no crear un ARM independiente por naming.
+- **Agentes externos/third-party y agent-to-agent:** crear, cuando exista demanda y contratos reales, un bounded context `Agent Relationship Management` (ARM) para registro, verificación, trust, protocolo, delegación y handoff de agentes externos.
+
+El segundo escenario es el que justifica ARM como categoría/arquitectura separada.
+
+Responsabilidades sugeridas para ARM externo:
 1. **Agent Registry:** identidad estable, owner, tenant, purpose, estado, versión y configuración aprobada.
 2. **Agent Capability & Tool Registry:** tools permitidas por producto/versión, esquema, scopes, límites, riesgo y precondiciones.
 3. **Delegation & Authorization:** actor humano que delega, tenant, recurso, propósito, vigencia, límites y revocación. El agente nunca adquiere permisos por inferencia del prompt.
@@ -82,7 +87,19 @@ Dirección de dependencias:
 - Revalidar autorización inmediatamente antes del efecto externo.
 - Evaluación adversarial y pruebas de regresión antes de habilitar cada tool/capability.
 
-## 7. Impacto sobre el roadmap
+## 7. Criterio para decidir si ARM merece un bounded context propio
+
+Implementar ARM separado solo cuando se cumplan conjuntamente estos requisitos:
+1. Existan agentes externos reales que necesiten descubrir o invocar capacidades de tenants WhatsBusiness.
+2. Se necesite identidad de agente verificable y no baste la identidad del usuario humano o del proveedor.
+3. Haya delegación, permisos, reputación/confianza, límites y revocación específicos por agente.
+4. Se requiera interoperabilidad agent-to-agent o protocolos externos versionados.
+5. Los handoffs, compromisos y efectos entre agentes requieran un ledger/audit especializado.
+6. El discovery comercial valide que clientes/agencias usarán y pagarán por esta capacidad.
+
+Si estas condiciones no se cumplen, implementar agentes internos dentro de AI Assistance/Automation y mantener el CRM tradicional con IA integrada. Evitar un bounded context vacío o un nuevo producto solo por tendencia.
+
+## 8. Impacto sobre el roadmap
 
 No cambiar ni eliminar TASK-035, TASK-042..043 y TASK-053. El alcance CRM sigue vigente.
 
@@ -94,7 +111,7 @@ Reorganización recomendada:
 - Integrar CRM e Inbox con agentes por APIs/eventos versionados; no compartir tablas privadas ni duplicar contactos/conversaciones en stores de agente.
 - Probar primero agentes assistive y ejecución con aprobación; ampliar autonomía por riesgo y evidencia, no por configuración de marketing.
 
-## 8. Decisiones pendientes del propietario
+## 9. Decisiones pendientes del propietario
 
 1. Confirmar qué significa ARM en esta petición: Agent Relationship Management, Agentic Relationship Management, Account Relationship Management u otro.
 2. Confirmar si ARM debe ser el posicionamiento comercial principal, manteniendo CRM como módulo, o solo una capacidad interna.
@@ -102,7 +119,7 @@ Reorganización recomendada:
 
 Hasta resolver estas preguntas, el cambio de naming y cualquier breaking change quedan **propuestos**, no aceptados.
 
-## 9. Fuentes de investigación consultadas
+## 10. Fuentes de investigación consultadas
 
 - Microsoft Dynamics 365, definición y alcance de CRM: https://www.microsoft.com/en-us/dynamics-365/resources/what-is-crm
 - Australian Government Architecture, categorías operacionales, analíticas, colaborativas y estratégicas de CRM: https://architecture.digital.gov.au/capability/customer-relationship-management-business
@@ -111,6 +128,6 @@ Hasta resolver estas preguntas, el cambio de naming y cualquier breaking change 
 
 Las definiciones de ARM citadas describen usos de mercado concretos, no un estándar normativo ni una categoría universal consolidada. La fuente comercial emergente no se trata como prueba de adopción masiva.
 
-## 10. Criterio de cierre
+## 11. Criterio de cierre
 
 La evaluación queda lista para decisión de producto, pero no para declarar una migración implementada. El cierre requiere confirmar la expansión de ARM, aprobar el posicionamiento, actualizar docs/29 y los contratos/roadmap afectados, y después implementar mediante bounded contexts sin romper el CRM existente.
