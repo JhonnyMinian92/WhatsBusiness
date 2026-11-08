@@ -207,6 +207,6 @@ El estado de validación, las propuestas de eventos pendientes y el GO/NO-GO arq
 [72 — CAPI: eventos, consentimiento y medición](72-CAPI-EVENT-GATEWAY.md) registra el slice de dominio de US-013/TASK-026, sus tests y los gates que impiden todavía activar la integración externa.
 
 
-## 72 — US-012 Ads Campaign Lifecycle
+## 73 — US-012 Ads Campaign Lifecycle
 
-[72 — US-012: Campaign Lifecycle & Spend Guardrails](72-US-012-ADS-CAMPAIGN-IMPLEMENTATION.md) registra el núcleo de dominio de campañas, validación con evidencia Meta, límites exactos PD-024, kill switch fail-closed, pruebas y gates de integración aún abiertos.
+[72 — US-012: Campaign Lifecycle & Spend Guardrails](73-US-012-ADS-CAMPAIGN-IMPLEMENTATION.md) registra el núcleo de dominio de campañas, validación con evidencia Meta, límites exactos PD-024, kill switch fail-closed, pruebas y gates de integración aún abiertos.
