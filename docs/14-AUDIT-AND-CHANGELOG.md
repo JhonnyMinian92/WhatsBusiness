@@ -308,3 +308,11 @@ La migración 0007 fue reemplazada completa para corregir un fragmento SQL dupli
 | AUD-093 | Migración 0011 | Source CI #42430321770 detectó SQLSTATE `42702` por variable PL/pgSQL RECORD `job` y alias SQL `job`. Migración `0011-tenant-job-recovery-variable-ambiguity.sql` renombró a `execution_row`. |
 | AUD-094 | Source CI completo | Run #42430605576 SUCCESS para commit `be9d3dc14aa26b38c20013b98ff5238bac564a4e`: frozen install, migraciones/idempotencia, build, typecheck, unit y PostgreSQL/RabbitMQ integration. TASK-003 sigue in_progress. |
 | AUD-095 | Decisión CRM con ML | El propietario aclaró que IA en CRM significa ML clásico/estadístico CPU-first, no LLM ni agentes. PD-005, ADR-026, docs/00, 01, 29, 30, 38, 62 y TASK-081..087 registran el alcance; no implica modelos implementados. |
+
+## 26. Regresión de reutilización de conexión worker multi-tenant — TASK-003 (AUD-096; 2026-11-07)
+
+| ID | Cambio | Evidencia / resultado |
+|---|---|---|
+| AUD-096 | Pool reuse A→B | Commit `bcedfab0538f5ee82a06ffe2480f41e3378bab7e` añade a la integración PostgreSQL del runtime una secuencia tenant A → tenant B sobre el mismo pool worker, afirmando igualdad de `pg_backend_pid()` y aislamiento de `app.user_id`/ `app.tenant_id`. Código de prueba escrito; ejecución Source CI todavía no consultada. |
+
+No declarar la prueba pasada hasta que el workflow ejecute el test con `RUN_TENANT_JOB_RUNTIME_INTEGRATION_TESTS=true`. La prueba no sustituye validación con carga concurrente ni revisión de configuración de pool en deployment.
