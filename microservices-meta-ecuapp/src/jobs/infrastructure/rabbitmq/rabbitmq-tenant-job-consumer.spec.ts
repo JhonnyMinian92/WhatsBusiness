@@ -14,6 +14,7 @@ class FakeChannel extends EventEmitter {
   readonly acknowledged: ConsumeMessage[] = [];
   readonly rejected: Array<{ message: ConsumeMessage; requeue: boolean }> = [];
   cancelled = false;
+  acknowledgementError: Error | null = null;
 
   async prefetch(_count: number): Promise<void> {}
   async consume(
@@ -28,6 +29,7 @@ class FakeChannel extends EventEmitter {
     return {} as Replies.Empty;
   }
   ack(message: ConsumeMessage, _allUpTo?: boolean): void {
+    if (this.acknowledgementError) throw this.acknowledgementError;
     this.acknowledged.push(message);
   }
   nack(message: ConsumeMessage, _allUpTo?: boolean, requeue = true): void {
@@ -135,6 +137,36 @@ test("a duplicate delivery with no database claim is ACKed after the consumer re
 
   assert.deepEqual(channel.acknowledged, [delivery]);
   assert.deepEqual(channel.rejected, []);
+});
+
+test("a failed broker ACK never NACKs a business transaction that already resolved", async () => {
+  const channel = new FakeChannel();
+  channel.acknowledgementError = new Error("channel closed after business commit");
+  let completedTransactions = 0;
+  const errors: string[] = [];
+  const adapter = new RabbitMqTenantJobConsumerAdapter(
+    channel as unknown as Channel,
+    {
+      async handle() {
+        completedTransactions += 1;
+        return "processed";
+      },
+    } as never,
+    "jobs",
+    30,
+    4,
+    { report: (code) => errors.push(code) },
+  );
+
+  await adapter.start();
+  const delivery = message(validBody);
+  channel.deliver(delivery);
+  await adapter.stop();
+
+  assert.equal(completedTransactions, 1);
+  assert.deepEqual(channel.acknowledged, []);
+  assert.deepEqual(channel.rejected, []);
+  assert.deepEqual(errors, ["BROKER_ACK_FAILED"]);
 });
 
 test("stop cancels intake and waits for in-flight work before returning", async () => {
