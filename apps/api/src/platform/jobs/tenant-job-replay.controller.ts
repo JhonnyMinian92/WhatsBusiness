@@ -58,7 +58,7 @@ export class TenantJobReplayController {
   }
 
   @Get("replay-requests/:approvalId")
-  @RequireTenantPermission("approvals.decide", TENANT_JOB_REPLAY_PURPOSE)
+  @RequireTenantPermission("jobs.replay.request", TENANT_JOB_REPLAY_PURPOSE)
   getReplayRequest(
     @Param("approvalId") approvalId: string,
     @Req() request: TenantAuthenticatedRequest,
