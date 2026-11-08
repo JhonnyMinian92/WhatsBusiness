@@ -37,16 +37,17 @@ export class TenantJobRuntimeProcess {
     const dispatcherConnection = requiredEnvironment(environment, "DATABASE_JOB_DISPATCHER_URL");
     const workerConnection = requiredEnvironment(environment, "DATABASE_JOB_WORKER_URL");
     const rabbitMqUrl = requiredEnvironment(environment, "RABBITMQ_URL");
-    const managementUrl = requiredEnvironment(environment, "RABBITMQ_MANAGEMENT_URL");
-    const monitoringUsername = requiredEnvironment(environment, "RABBITMQ_MONITORING_USERNAME");
-    const monitoringPassword = requiredEnvironment(environment, "RABBITMQ_MONITORING_PASSWORD");
-    validateMonitoringIdentity(managementUrl, monitoringUsername, monitoringPassword, environment["NODE_ENV"] === "production");
     const production = environment["NODE_ENV"] === "production";
     const databaseSsl = environment["DB_SSL"] === "true";
 
     if (production && !databaseSsl) {
       throw new Error("DB_SSL=true is required for tenant job runtime in production.");
     }
+
+    const managementUrl = requiredEnvironment(environment, "RABBITMQ_MANAGEMENT_URL");
+    const monitoringUsername = requiredEnvironment(environment, "RABBITMQ_MONITORING_USERNAME");
+    const monitoringPassword = requiredEnvironment(environment, "RABBITMQ_MONITORING_PASSWORD");
+    validateMonitoringIdentity(managementUrl, monitoringUsername, monitoringPassword, production);
 
     const poolMaximum = boundedInteger(environment, "DATABASE_POOL_MAX", 10, 1, 50);
     const metrics = options.metrics ?? new PrometheusTenantJobRuntimeMetrics();

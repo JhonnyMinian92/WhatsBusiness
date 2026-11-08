@@ -68,8 +68,28 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
 
   try {
     await topology.initialize();
-    await channels.consumer.purgeQueue(TENANT_JOB_RABBITMQ_TOPOLOGY.queue);
-    await channels.consumer.purgeQueue(TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue);
+    const suffix = randomUUID().replaceAll("-", "");
+    const queue = "whatsbusiness.jobs.integration." + suffix + ".worker";
+    const deadLetterQueue = "whatsbusiness.jobs.integration." + suffix + ".dlq";
+    const deadLetterRoutingKey = "jobs.integration.dead." + suffix;
+    await channels.consumer.assertQueue(queue, {
+      durable: true,
+      exclusive: false,
+      autoDelete: false,
+      arguments: {
+        "x-queue-type": "quorum",
+        "x-dead-letter-exchange": TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterExchange,
+        "x-dead-letter-routing-key": deadLetterRoutingKey,
+        "x-dead-letter-strategy": "at-least-once",
+        "x-overflow": "reject-publish",
+      },
+    });
+    await channels.consumer.assertQueue(deadLetterQueue, {
+      durable: true, exclusive: false, autoDelete: false,
+      arguments: { "x-queue-type": "quorum" },
+    });
+    await channels.consumer.bindQueue(queue, TENANT_JOB_RABBITMQ_TOPOLOGY.exchange, "jobs.integration.#");
+    await channels.consumer.bindQueue(deadLetterQueue, TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterExchange, deadLetterRoutingKey);
 
     const publisher = new RabbitMqTenantJobPublisher(
       channels.publisher,
@@ -80,18 +100,18 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
     await publisher.publish(job, "jobs.integration.confirm");
     await waitForQueueMetric(
       "rabbitmq_detailed_queue_messages_ready",
-      TENANT_JOB_RABBITMQ_TOPOLOGY.queue,
+      queue,
       1,
     );
     await waitForQueueMetric(
       "rabbitmq_detailed_queue_messages_unacked",
-      TENANT_JOB_RABBITMQ_TOPOLOGY.queue,
+      queue,
       0,
     );
 
     const delivered = await waitForUnackedDelivery(
       channels.consumer,
-      TENANT_JOB_RABBITMQ_TOPOLOGY.queue,
+      queue,
       5_000,
     );
     assert.deepEqual(parseTenantJobMessage(delivered.content), job);
@@ -122,7 +142,7 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
 
     await waitForQueueMetric(
       "rabbitmq_detailed_queue_messages_ready",
-      TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue,
+      deadLetterQueue,
       1,
       10_000,
     );
@@ -139,8 +159,8 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
     );
     channels.consumer.ack(deadLetter, false);
   } finally {
-    await channels.consumer.purgeQueue(TENANT_JOB_RABBITMQ_TOPOLOGY.queue).catch(() => undefined);
-    await channels.consumer.purgeQueue(TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue).catch(() => undefined);
+    await channels.consumer.deleteQueue(queue).catch(() => undefined);
+    await channels.consumer.deleteQueue(deadLetterQueue).catch(() => undefined);
     await channels.close();
   }
 });
@@ -151,13 +171,17 @@ test("RabbitMQ redelivers an unacknowledged job after consumer channel loss", {
   const factory = new RabbitMqConnectionFactory();
   const original = await factory.open(brokerUrl!, "whatsbusiness-jobs-redelivery-before-crash");
   let recovery: Awaited<ReturnType<RabbitMqConnectionFactory["open"]>> | null = null;
-  const queue = TENANT_JOB_RABBITMQ_TOPOLOGY.queue;
+  const suffix = randomUUID().replaceAll("-", "");
+  const queue = "whatsbusiness.jobs.integration." + suffix + ".redelivery";
   const job = createTenantJobMessage(randomUUID());
 
   try {
     await new RabbitMqJobTopology(original.consumer, TENANT_JOB_RABBITMQ_TOPOLOGY).initialize();
-    await original.consumer.purgeQueue(queue);
-    await original.consumer.purgeQueue(TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue);
+    await original.consumer.assertQueue(queue, {
+      durable: true, exclusive: false, autoDelete: false,
+      arguments: { "x-queue-type": "quorum" },
+    });
+    await original.consumer.bindQueue(queue, TENANT_JOB_RABBITMQ_TOPOLOGY.exchange, "jobs.integration.#");
 
     const publisher = new RabbitMqTenantJobPublisher(
       original.publisher,
@@ -183,11 +207,9 @@ test("RabbitMQ redelivers an unacknowledged job after consumer channel loss", {
   } finally {
     const cleanupChannel = recovery?.consumer;
     if (cleanupChannel) {
-      await cleanupChannel.purgeQueue(queue).catch(() => undefined);
-      await cleanupChannel.purgeQueue(TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue).catch(() => undefined);
+      await cleanupChannel.deleteQueue(queue).catch(() => undefined);
     } else {
-      await original.consumer.purgeQueue(queue).catch(() => undefined);
-      await original.consumer.purgeQueue(TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue).catch(() => undefined);
+      await original.consumer.deleteQueue(queue).catch(() => undefined);
     }
     await Promise.allSettled([
       original.close(),
