@@ -51,8 +51,10 @@ messages_unacknowledged no equivale a consumer lag ni a edad de mensaje. La suma
 - HTTPS obligatorio fuera de loopback; URL sin credenciales, query, fragment ni path personalizado.
 - Redirects prohibidos, cache deshabilitado y timeout abortable de 1 segundo por defecto (rango 100–10 000 ms).
 - Solo se aceptan contadores enteros, seguros y no negativos.
-- Los errores se normalizan y no detienen el supervisor de dispatch/recuperación.
-- Si falla una fuente, el último valor válido permanece; no se reemplaza por cero. El error se contabiliza.
+- Las fuentes se leen con `Promise.allSettled`: una caída de Management API no bloquea el refresco de PostgreSQL, ni viceversa.
+- Cada fallo usa un código fijo por fuente, incrementa el contador de errores y se reporta sin detalles sensibles.
+- El snapshot de una fuente fallida se omite; el último valor válido permanece y nunca se reemplaza por cero inventado.
+- Si fallan ambas fuentes, el supervisor sigue operando y conserva los últimos gauges observados.
 
 La Management API debe permanecer en red privada. El usuario de monitorización no comparte credenciales AMQP del worker ni puede publicar, consumir o cambiar la topología.
 

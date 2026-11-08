@@ -136,16 +136,27 @@ export class RabbitMqPostgresTenantJobRuntimeSessionFactory implements TenantJob
       () => channels.close(),
     );
     const metricsReader = new CompositeTenantJobRuntimeMetricsReader([
-      new PostgresTenantJobRuntimeMetricsReader(options.metricsPool ?? options.dispatcherPool),
-      new RabbitMqManagementTenantJobQueueMetricsReader({
-        endpoint: options.managementMetrics.endpoint,
-        username: options.managementMetrics.username,
-        password: options.managementMetrics.password,
-        virtualHost: "/",
-        workerQueue: TENANT_JOB_RABBITMQ_TOPOLOGY.queue,
-        deadLetterQueue: TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue,
-      }),
-    ]);
+      {
+        source: "postgres",
+        reader: new PostgresTenantJobRuntimeMetricsReader(options.metricsPool ?? options.dispatcherPool),
+      },
+      {
+        source: "rabbitmq",
+        reader: new RabbitMqManagementTenantJobQueueMetricsReader({
+          endpoint: options.managementMetrics.endpoint,
+          username: options.managementMetrics.username,
+          password: options.managementMetrics.password,
+          virtualHost: "/",
+          workerQueue: TENANT_JOB_RABBITMQ_TOPOLOGY.queue,
+          deadLetterQueue: TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue,
+        }),
+      },
+    ], (source) => {
+      metrics.recordRuntimeError();
+      options.logger.failed(source === "postgres"
+        ? "TENANT_JOB_POSTGRES_METRICS_READ_FAILED"
+        : "TENANT_JOB_RABBITMQ_METRICS_READ_FAILED");
+    });
     const supervisor = new TenantJobRuntimeSupervisor(
       dispatcherRepository,
       dispatcher,
