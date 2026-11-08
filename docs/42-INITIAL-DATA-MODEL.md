@@ -128,4 +128,9 @@ La tabla reutiliza crm.contact_command_idempotency extendiendo su operación per
 
 ## Addendum — catálogo RBAC CRM Identity / migración 0025 (2026-11-08)
 
-La prueba identity.slice.spec.ts valida que las filas persistidas en platform.permissions coincidan con el catálogo TypeScript. La ampliación del permission catalog requiere, por tanto, una migración de vocabulario independiente: apps/api/migrations/0025-crm-contact-identity-permissions.sql registra crm.contacts.identities.read y crm.contacts.identities.link, ambas de riesgo sensitive. Esta migración no asigna permisos a ningún usuario ni rol; las concesiones siguen en el catálogo tenant-role y las políticas de tenant.
+La prueba identity.slice.spec.ts valida que las filas persistidas en platform.permissions coincidan con el catálogo TypeScript. La ampliación del permission catalog requiere, por tanto, una migración de vocabulario independiente: apps/api/migrations/0025-crm-contact-identity-permissions.sql registra crm.contacts.identities.read y crm.contacts.identities.link, ambas de riesgo sensitive. Esta migración no asigna permisos a ningún usuario ni rol. TENANT_ROLE_CATALOG solo declara plantillas; todavía no existe el caso de uso que materializa o asigna esos permisos en platform.role_permissions por tenant. La autorización sigue siendo fail-closed hasta cerrar TASK-004.
+
+
+## Addendum — TASK-004 / materialización de roles (2026-11-08)
+
+La matriz en TENANT_ROLE_CATALOG es declarativa y TenantRoleAssignmentPolicy evalúa si una asignación sería permitida, pero todavía no hay use case/controller que materialice las plantillas y permisos a platform.roles/platform.role_permissions por tenant. La migración 0025 de CRM Identity añade vocabulario a platform.permissions, no asignaciones efectivas. No debe afirmarse que tenant_admin u otros usuarios ya reciben automáticamente los permisos CRM nuevos. La API continúa fail-closed; se requiere cerrar TASK-004 con administración de roles auditada y aprobada.

@@ -107,3 +107,8 @@ El propietario solicitó continuar la ejecución de las tareas pendientes del pr
 ## 9. Persistencia del catálogo de permisos
 
 La migración apps/api/migrations/0025-crm-contact-identity-permissions.sql inserta las dos claves de identidad en platform.permissions con risk_class=sensitive. Es una migración de vocabulario, sin concesiones globales ni asignación automática a tenants. La autorización efectiva sigue dependiendo del rol/permisos del tenant y el contexto OIDC. El versionado global aplica primero las migraciones 0001..0024 y después 0025, sin duplicar versiones entre los directorios de API y microservicios.
+
+
+## 10. Dependencia operativa de TASK-004 (RBAC)
+
+TENANT_ROLE_CATALOG y TenantRoleAssignmentPolicy son plantillas y una política de evaluación; actualmente no existe un caso de uso/controller que materialice las plantillas por tenant en platform.roles/platform.role_permissions ni una operación HTTP para asignar/revocar esos permisos. Por tanto, las filas globales de platform.permissions y la matriz declarativa de roles no conceden por sí mismas acceso a tenant_admin/compliance_auditor en tenants existentes. CRM-005/006 se mantienen protegidos por RBAC fail-closed; la habilitación de usuarios reales requiere cerrar el flujo de provisión/administración de roles de TASK-004 con auditoría, aprobación, versionado y pruebas de no escalamiento. TASK-004 sigue in_progress.

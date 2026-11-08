@@ -612,3 +612,15 @@ Fuera de este cierre parcial: CRM-007 candidatos de duplicación, CRM-008..010 m
 
 La integración PostgreSQL se reordenó para no llamar a la operación batch `claim_tenant_job_publications` mientras el job de finalización principal seguía pendiente. Primero se completa el dispatch/claim de ese job con el helper existente; después se inserta y publica el fixture de métrica cuando es el único nuevo job elegible en la topología de prueba. Esto elimina el efecto colateral real de `LIMIT` + `FOR UPDATE SKIP LOCKED` al filtrar fuera de la función por `job_id`, y evita dejar leases de otros fixtures en estado `publishing`.
 **Estado:** el orden corregido se somete nuevamente a Source CI; no se afirma todavía verificación.
+
+
+## Cierre de validación — CRM Identity + backlog de ejecución (2026-11-08)
+
+- HEAD validado: 19e1c585648e510d67bc1d13eab9761775b56cf2.
+- Source CI #578: SUCCESS (build, typecheck, migraciones/replay, suites API/PostgreSQL y Meta/PostgreSQL/RabbitMQ).
+- CodeQL #113: SUCCESS. CodeQL #112 y #110 también quedaron SUCCESS en los commits previos de esta secuencia.
+- Contract CI #30: SUCCESS; valida el mismo OpenAPI/allowlist que permanece sin cambios desde el commit de CRM Identity.
+- Las métricas de backlog de ejecución añaden conteo de ejecuciones publicadas pendientes y edad en segundos, como gauges agregados sin labels tenant/user/job. Los dos defectos de Source CI #576/#577 quedaron corregidos: edad fraccionaria admitida y fixture de integración sin leases batch incidentales.
+- El test de integración conserva jobType sintético conforme al contrato de persistencia y lo publica explícitamente; la secuencia de completion usa publishAndClaim antes de crear el fixture métrico.
+- Dependencia de acceso: las plantillas TENANT_ROLE_CATALOG no se materializan automáticamente a platform.roles/platform.role_permissions. TASK-004 permanece abierto; nuevas rutas de identidad siguen protegidas fail-closed para memberships sin grants persistidos. La migration 0025 solo añade vocabulario en platform.permissions.
+- TASK-003, TASK-004, TASK-027/028, TASK-042, TASK-043 y TASK-053 permanecen in_progress o requieren revisión/aceptación. No declarar finalización del backend ni GO-PRODUCTION.

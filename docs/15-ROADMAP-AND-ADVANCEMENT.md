@@ -256,3 +256,13 @@ Estado actual:
 ### Corrección de Source CI #574 — 2026-11-08
 
 El primer commit CRM Identity superó build/typecheck, migraciones y Contract CI/CodeQL. Source CI detectó que las nuevas claves de permiso solo estaban declaradas en TypeScript y que dos asserts del nuevo test de controlador no correspondían a llamadas síncronas. Se añadió la migración API 0025 para sincronizar platform.permissions y se corrigió el test a assert.throws. El commit correctivo aún debe pasar Source CI y revalidación de contratos antes de aceptar el slice.
+
+
+### Evidencia de CI — HEAD 19e1c585648e510d67bc1d13eab9761775b56cf2
+
+- Source CI #578: SUCCESS; finalizó build/typecheck, migraciones y replay idempotente, pruebas API/PostgreSQL y backend Meta con PostgreSQL/RabbitMQ.
+- CodeQL #113: SUCCESS. CodeQL #112 y CodeQL #110 también SUCCESS en commits anteriores del mismo conjunto.
+- Contract CI #30: SUCCESS sobre el OpenAPI y allowlist 11 design-frozen + 285 catalog-only, sin cambios posteriores del contrato.
+- CRM Identity está validado como slice de código/contrato, no como CRM completo. TASK-043/053 siguen in_progress.
+- El catálogo tenant-role es declarativo; hasta completar TASK-004 no existen grants persistidos automáticos para las plantillas. Mantener fail-closed y no prometer acceso a los usuarios existentes.
+- Las métricas de antigüedad de ejecución quedan implementadas y validadas; el fixture de integración se corrigió para no reclamar accidentalmente leases por un query batch.
