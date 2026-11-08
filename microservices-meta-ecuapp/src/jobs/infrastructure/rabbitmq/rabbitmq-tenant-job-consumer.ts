@@ -18,7 +18,7 @@ export class RabbitMqTenantJobConsumerAdapter {
     private readonly leaseSeconds: number,
     private readonly prefetch: number,
     private readonly reporter: TenantJobConsumerErrorReporter,
-    private readonly closeConnection: () => Promise<void> = async () => this.channel.close(),
+    private readonly closeWorkerConnection: () => Promise<void> = async () => this.channel.close(),
   ) {
     if (!queue.trim()
       || !Number.isInteger(leaseSeconds) || leaseSeconds < 5 || leaseSeconds > 900
@@ -48,7 +48,7 @@ export class RabbitMqTenantJobConsumerAdapter {
       try {
         await this.channel.cancel(tag);
       } catch {
-        // The channel may already be closed by an ambiguous ACK failure.
+        // The channel may already be closed by an ambiguous processing/ACK failure.
       }
     }
     // Stop intake first, then let active transactions finish before closing
@@ -62,12 +62,25 @@ export class RabbitMqTenantJobConsumerAdapter {
   }
 
   private async process(message: ConsumeMessage): Promise<void> {
+    let job: ReturnType<typeof parseTenantJobMessage>;
     try {
-      const job = parseTenantJobMessage(message.content);
+      job = parseTenantJobMessage(message.content);
+    } catch (error) {
+      // A malformed locator cannot be reconciled with PostgreSQL's outbox.
+      // Reject it to the broker DLQ for controlled inspection.
+      this.report(classifyBrokerEnvelopeError(error));
+      this.rejectWithoutRequeue(message);
+      return;
+    }
+
+    try {
       await this.consumer.handle(job, this.leaseSeconds);
     } catch (error) {
-      this.report(classifyConsumerTransportError(error));
-      this.rejectWithoutRequeue(message);
+      // A valid locator whose durable processing failed must remain recoverable.
+      // The job/outbox and execution leases in PostgreSQL own retry state; NACK
+      // without requeue would incorrectly dead-letter a potentially valid job.
+      this.report(classifyConsumerProcessingError(error));
+      await this.closeConnection("BROKER_PROCESSING_CLOSE_FAILED");
       return;
     }
 
@@ -76,16 +89,20 @@ export class RabbitMqTenantJobConsumerAdapter {
     } catch {
       // The business transaction may already be committed. An ACK failure is
       // ambiguous: never NACK here, because that could dead-letter a completed
-      // job. Closing the channel lets RabbitMQ redeliver if it did not persist
-      // the ACK; PostgreSQL's terminal state/inbox makes that delivery safe.
+      // job. Closing the connection returns unacknowledged deliveries to the
+      // broker; PostgreSQL's terminal state/inbox makes redelivery safe.
       this.report("BROKER_ACK_FAILED");
-      try {
-        // Closing the entire session returns unacknowledged deliveries to the
-        // broker and makes the runtime supervisor reconnect with a fresh channel.
-        await this.closeConnection();
-      } catch {
-        this.report("BROKER_ACK_CLOSE_FAILED");
-      }
+      await this.closeConnection("BROKER_ACK_CLOSE_FAILED");
+    }
+  }
+
+  private async closeConnection(failureCode: string): Promise<void> {
+    try {
+      // Close all worker channels so RabbitMQ requeues any unacknowledged delivery.
+      // The runtime supervisor reconnects with bounded exponential backoff.
+      await this.closeWorkerConnection();
+    } catch {
+      this.report(failureCode);
     }
   }
 
@@ -106,10 +123,15 @@ export class RabbitMqTenantJobConsumerAdapter {
   }
 }
 
-function classifyConsumerTransportError(error: unknown): string {
+function classifyBrokerEnvelopeError(error: unknown): string {
   if (error instanceof TenantJobFailureError) return error.failure.code;
   if (error instanceof Error && /UTF-8|JSON|envelope|size|UUID/.test(error.message)) {
     return "INVALID_BROKER_ENVELOPE";
   }
   return "TENANT_JOB_CONSUMER_FAILED";
+}
+
+function classifyConsumerProcessingError(error: unknown): string {
+  if (error instanceof TenantJobFailureError) return error.failure.code;
+  return "TENANT_JOB_PROCESSING_INTERRUPTED";
 }
