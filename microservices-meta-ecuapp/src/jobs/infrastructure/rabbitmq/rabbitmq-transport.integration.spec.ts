@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { randomUUID } from "node:crypto";
 import test from "node:test";
 import { RabbitMqConnectionFactory } from "./rabbitmq-connection.factory.js";
 import { RabbitMqJobTopology, TENANT_JOB_RABBITMQ_TOPOLOGY } from "./rabbitmq-topology.js";
@@ -78,3 +79,68 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
     await channels.close();
   }
 });
+
+test("RabbitMQ redelivers an unacknowledged job after consumer channel loss", {
+  skip: !enabled || !brokerUrl,
+}, async () => {
+  const factory = new RabbitMqConnectionFactory();
+  const original = await factory.open(brokerUrl!, "whatsbusiness-jobs-redelivery-before-crash");
+  let recovery: Awaited<ReturnType<RabbitMqConnectionFactory["open"]>> | null = null;
+  const queue = TENANT_JOB_RABBITMQ_TOPOLOGY.queue;
+  const job = createTenantJobMessage(randomUUID());
+
+  try {
+    await new RabbitMqJobTopology(original.consumer, TENANT_JOB_RABBITMQ_TOPOLOGY).initialize();
+    await original.consumer.purgeQueue(queue);
+    await original.consumer.purgeQueue(TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue);
+
+    const publisher = new RabbitMqTenantJobPublisher(
+      original.publisher,
+      TENANT_JOB_RABBITMQ_TOPOLOGY.exchange,
+    );
+    await publisher.publish(job, "jobs.integration.redelivery");
+
+    const firstDelivery = await waitForUnackedDelivery(original.consumer, queue, 5_000);
+    assert.equal(firstDelivery.fields.redelivered, false);
+    assert.deepEqual(parseTenantJobMessage(firstDelivery.content), job);
+
+    // Simulate a worker process/channel crash after delivery but before ACK.
+    // RabbitMQ must return the unacked persistent message to the quorum queue.
+    await original.consumer.close();
+
+    recovery = await factory.open(brokerUrl!, "whatsbusiness-jobs-redelivery-after-crash");
+    await new RabbitMqJobTopology(recovery.consumer, TENANT_JOB_RABBITMQ_TOPOLOGY).initialize();
+    const redelivery = await waitForUnackedDelivery(recovery.consumer, queue, 5_000);
+
+    assert.equal(redelivery.fields.redelivered, true);
+    assert.deepEqual(parseTenantJobMessage(redelivery.content), job);
+    recovery.consumer.ack(redelivery, false);
+  } finally {
+    const cleanupChannel = recovery?.consumer;
+    if (cleanupChannel) {
+      await cleanupChannel.purgeQueue(queue).catch(() => undefined);
+      await cleanupChannel.purgeQueue(TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue).catch(() => undefined);
+    } else {
+      await original.consumer.purgeQueue(queue).catch(() => undefined);
+      await original.consumer.purgeQueue(TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue).catch(() => undefined);
+    }
+    await Promise.allSettled([
+      original.close(),
+      ...(recovery ? [recovery.close()] : []),
+    ]);
+  }
+});
+
+async function waitForUnackedDelivery(
+  channel: Awaited<ReturnType<RabbitMqConnectionFactory["open"]>>["consumer"],
+  queue: string,
+  timeoutMs: number,
+) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const message = await channel.get(queue, false);
+    if (message) return message;
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  throw new Error("RabbitMQ integration test timed out waiting for an unacknowledged message.");
+}
