@@ -322,3 +322,12 @@ Se revisaron `docs/38-CRM-DOMAIN-SPEC.md`, `docs/42-INITIAL-DATA-MODEL.md`, `doc
 Se añadió deadline configurable `TENANT_JOB_HANDLER_TIMEOUT_MS` al runtime `microservices-meta-ecuapp` (default 300.000 ms, límites 1.000–900.000 ms), inyección por composición en la factoría de sesión y carrera de cancelación en `TenantJobExecutionLeaseHeartbeat`. El worker aborta el handler y rechaza la transacción cuando se pierde el fencing lease o vence el deadline. Se agregaron pruebas para timeout cooperativo, handler no cooperativo y pérdida de lease. La cancelación es cooperativa: Node.js no puede matar una promesa arbitraria; los handlers deben respetar AbortSignal y no ejecutar efectos externos dentro de la transacción.
 
 **Estado:** código y pruebas registrados; Source CI run pendiente. TASK-003 continúa `in_progress`, no `verified` ni `accepted`.
+
+
+### Handoff incremental TASK-003 — compatibilidad amqplib 2 y Source CI (2026-11-07)
+
+Source CI run [#42428255833](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42428255833) detectó:
+- Adapter RabbitMQ: `heartbeat` se pasaba como opción de socket (debe ser parámetro tuning AMQP en URI) y el tipo usado para el modelo devuelto por `connect` era `Connection` en lugar de `ChannelModel`.
+- Isolation: faltaba el port `tenant-pseudonymizer.ts` y `TenantTelemetryContext` importaba la abstracción desde el adapter concreto.
+
+Se corrigieron ambos problemas en commits `dc9d7d7`, `e924737` y `489b8cd`. El run que descubrió los errores quedó en FAILURE; Source CI asociado al commit `489b8cd3d84b057d2bdc40c8fa740008b4ac4bbc` está pendiente de ejecución. No marcar TASK-003 como verified hasta que build, typecheck y tests completen SUCCESS.
