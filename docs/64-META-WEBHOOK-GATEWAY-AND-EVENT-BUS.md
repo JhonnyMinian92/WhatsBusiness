@@ -115,3 +115,12 @@ Las variables de ejemplo están en `microservices-meta-ecuapp/.env.example`. En 
 
 - Contract CI [#24](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42445689549) terminó SUCCESS. Redocly validó OpenAPI; el schema oficial AsyncAPI 2.6.0 y los fixtures del catálogo de 69 eventos pasaron.
 - Se mantienen tres warnings OpenAPI conocidos de rutas ambiguas en endpoints de Leads. No impidieron la validación, pero siguen siendo deuda contractual que debe resolverse antes de congelar esas rutas.
+
+
+## 9. Verificación del lifecycle CI y worker supervisor — 2026-11-08
+
+Source CI #527 terminó cancelled tras agotar el límite de 30 minutos mientras se ejecutaba microservices-meta-ecuapp:test. La instalación frozen, migraciones e idempotencia, creación de roles, build y typecheck finalizaron SUCCESS. api:test concluyó; las suites del paquete backend no llegaron a terminar.
+
+La inspección del test harness identificó una referencia fuera de ámbito en el teardown de rabbitmq-transport.integration.spec.ts: los nombres de colas creados dentro del try se reutilizaban desde finally. Si la limpieza lanzaba, la conexión AMQP podía quedar abierta. Se corrigió el ámbito de los nombres, se añadió la limpieza del exchange temporal y se garantiza el cierre de los canales/conexión. También se corrigió la ruta de test Nx que apuntaba a un archivo de supervisor inexistente y se añadió meta-webhook-worker.supervisor.spec.ts.
+
+**Límite de verificación:** estas correcciones permanecen implementadas; CI pendiente hasta que el nuevo Source CI complete unitarias e integraciones PostgreSQL/RabbitMQ con SUCCESS. TASK-027/028 siguen in_progress; no se habilita replay real ni se consideran probados handlers productivos. CR-0016, retención/privacidad, fixtures oficiales Meta, KMS/Secret Manager, rate limiting/WAF y aceptación operativa continúan pendientes.

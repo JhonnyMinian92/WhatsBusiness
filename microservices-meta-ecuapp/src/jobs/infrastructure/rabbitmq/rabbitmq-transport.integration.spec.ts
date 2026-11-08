@@ -65,12 +65,17 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
   const factory = new RabbitMqConnectionFactory();
   const channels = await factory.open(brokerUrl!, "whatsbusiness-jobs-integration");
   const topology = new RabbitMqJobTopology(channels.consumer, TENANT_JOB_RABBITMQ_TOPOLOGY);
+  let queueName: string | null = null;
+  let deadLetterQueueName: string | null = null;
+  let unroutedExchangeName: string | null = null;
 
   try {
     await topology.initialize();
     const suffix = randomUUID().replaceAll("-", "");
     const queue = "whatsbusiness.jobs.integration." + suffix + ".worker";
+    queueName = queue;
     const deadLetterQueue = "whatsbusiness.jobs.integration." + suffix + ".dlq";
+    deadLetterQueueName = deadLetterQueue;
     const deadLetterRoutingKey = "jobs.integration.dead." + suffix;
     await channels.consumer.assertQueue(queue, {
       durable: true,
@@ -128,6 +133,7 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
     );
 
     const unroutedExchange = "whatsbusiness.jobs.integration.unrouted";
+    unroutedExchangeName = unroutedExchange;
     await channels.consumer.assertExchange(unroutedExchange, "topic", { durable: true });
     const unroutedPublisher = new RabbitMqTenantJobPublisher(channels.publisher, unroutedExchange);
     await assert.rejects(
@@ -159,9 +165,12 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
     );
     channels.consumer.ack(deadLetter, false);
   } finally {
-    await channels.consumer.deleteQueue(queue).catch(() => undefined);
-    await channels.consumer.deleteQueue(deadLetterQueue).catch(() => undefined);
-    await channels.close();
+    // Keep teardown independent from setup/assertion success. A cleanup error
+    // must never skip closing the AMQP channels and leave the test process alive.
+    if (queueName) await channels.consumer.deleteQueue(queueName).catch(() => undefined);
+    if (deadLetterQueueName) await channels.consumer.deleteQueue(deadLetterQueueName).catch(() => undefined);
+    if (unroutedExchangeName) await channels.consumer.deleteExchange(unroutedExchangeName).catch(() => undefined);
+    await channels.close().catch(() => undefined);
   }
 });
 

@@ -260,3 +260,14 @@ Source CI run #112 [42387272987](https://github.com/JhonnyMinian92/WhatsBusiness
 | Análisis estático SAST CodeQL sobre JavaScript/TypeScript | TASK-003 / seguridad backend | .github/workflows/codeql-security.yml | Source code workflow [#42435984426](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42435984426) SUCCESS en commit `6db028bb7123dfd50bafe3d6f4f5e66bce06207d`; revisión de alertas Code Scanning aún requiere triage | workflow verified; findings triage pending |
 
 No se afirma runtime completo: adapters Valkey/object storage, DLQ operator workflow/replay con handlers reales, unacked/consumer lag autoritativo, instalación real del dashboard/alert routing, broker validation, Secret Manager/rotación HMAC y review independiente siguen pendientes. TASK-003 no está verified ni accepted.
+
+
+## Evidence map — estabilidad del test harness de TASK-003/027/028 (2026-11-08)
+
+| Resultado / criterio | Tarea | Código / contrato | Evidencia automatizada | Estado |
+|---|---|---|---|---|
+| Teardown RabbitMQ cierra colas, exchange y conexión incluso ante error de cleanup | TASK-003 / TASK-028 | rabbitmq-transport.integration.spec.ts | Identificadores de recursos con ámbito correcto; limpieza best-effort y cierre garantizado de canales | implementado; Source CI posterior pendiente |
+| Ruta de pruebas Meta worker corresponde a un archivo real | TASK-027 / TASK-028 | microservices-meta-ecuapp/project.json, meta-webhook-worker.supervisor.spec.ts | El árbol ya contiene la suite referenciada en Nx | implementado; Source CI posterior pendiente |
+| Supervisor se detiene ante fallo de broker y mantiene fail-closed | TASK-027 / TASK-028 | MetaWebhookWorkerSupervisor | pruebas de shutdown, cierre de DB pool, ausencia de handlers y bounds del reconnect | implementado; Source CI posterior pendiente |
+
+Source CI #527 terminó cancelled tras el timeout de 30 minutos dentro del target de tests; no se registra como PASS. Build, typecheck y migraciones/idempotencia sí fueron SUCCESS en ese run. La corrección de teardown y el test de supervisor requieren validación CI en el nuevo commit.

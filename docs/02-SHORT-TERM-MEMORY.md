@@ -436,3 +436,11 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - `RabbitMqManagementTenantJobQueueMetricsReader` consulta Management HTTP API con Basic auth y usuario `monitoring` separado; HTTPS fuera loopback, permisos AMQP vacíos, timeout 1 500 ms.
 - Cuatro gauges: ready messages/consumers de worker queue y DLQ; no incluyen unacked ni miden consumer lag.
 - Unit/integration tests registrados en Nx; Source CI #481 pendiente del diseño Management API con unacknowledged, CodeQL #6 SUCCESS. TASK-003 sigue `in_progress`; GO-PRODUCTION NO-GO.
+
+
+## Handoff — reparación de lifecycle de suites CI para TASK-003/027/028 (2026-11-08)
+
+- Source CI #527 (42445689547, commit da85d998a4d1534b0ae52e0bf3d143b5f9044a23) se agotó en 30 minutos durante microservices-meta-ecuapp:test; instalación, migraciones/idempotencia, provisioning, build y typecheck pasaron. api:test terminó; el test target backend no concluyó.
+- Se encontró el teardown defectuoso en rabbitmq-transport.integration.spec.ts: los nombres de colas definidos dentro del try se usaban en finally, pudiendo generar ReferenceError y omitir channels.close(). La limpieza ahora conserva los nombres fuera del bloque y siempre cierra la sesión AMQP.
+- El manifest Nx tenía una ruta a meta-webhook-worker.runtime.spec.ts inexistente. La ruta fue sustituida por la nueva suite meta-webhook-worker.supervisor.spec.ts, con cobertura de broker no disponible, cierre de pool, validación de handlers y política de reconexión.
+- No afirmar que el CI está verde hasta revisar el siguiente Source CI. TASK-003/027/028 siguen in_progress; no activar replay ni handlers externos sin evidencia de idempotencia de efectos de negocio y gates aprobados. GO-PRODUCTION sigue NO-GO.

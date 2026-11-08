@@ -459,4 +459,14 @@ Se añadió una regresión de integración a `microservices-meta-ecuapp/src/jobs
 
 - Contract CI #24: SUCCESS; OpenAPI válido y AsyncAPI 2.6.0 validado con schema oficial; el validador de dominio confirma 69 canales/eventos, 138 operaciones y fixtures válidos.
 - CodeQL #65: SUCCESS para el código con la integración y las migraciones recuperadas.
-- Source CI #527: sigue `in_progress` en el paso de verificación de idempotencia de migraciones. No se declara TASK-003 ni TASK-027/028 como cerrada hasta obtener SUCCESS en Source CI para el HEAD que incluye la prueba PostgreSQL/RabbitMQ.
+- Source CI #527 (`42445689547`, commit `da85d998a4d1534b0ae52e0bf3d143b5f9044a23`) terminó `cancelled` al agotar el límite de 30 minutos durante el test del paquete microservices-meta-ecuapp; instalación frozen, migraciones (incluida idempotencia), provisionamiento DB, build y typecheck terminaron SUCCESS. La suite de integración se está corrigiendo antes de repetir Source CI. No declarar TASK-003 ni TASK-027/028 como cerradas hasta SUCCESS de Source CI en el código corregido.
+
+
+## Handoff incremental — lifecycle de pruebas RabbitMQ y worker Meta (2026-11-08)
+
+- **Evidencia CI:** Source CI #527 fue cancelado tras 30 minutos dentro de microservices-meta-ecuapp:test. Los pasos anteriores de instalación frozen, migraciones 0001–0018 e idempotencia, roles mínimos, build y typecheck terminaron correctamente. api:test finalizó; el proceso que no concluyó fue la suite del backend microservices-meta-ecuapp.
+- **Defecto encontrado en inspección:** rabbitmq-transport.integration.spec.ts declaraba queue y deadLetterQueue dentro del bloque try y los referenciaba desde finally. En el teardown, esas referencias no están en ámbito; el error puede interrumpir la limpieza antes de cerrar los canales/conexión, dejando el proceso Node activo.
+- **Corrección aplicada en código:** identificadores de recursos en ámbito del test, limpieza condicional de las dos colas y del exchange temporal, y cierre de la sesión RabbitMQ aun cuando la limpieza de recursos falle.
+- **Defecto de suite adicional:** microservices-meta-ecuapp/project.json apuntaba a meta-webhook-worker.runtime.spec.ts, archivo inexistente en el árbol de environment/local. Se añadió meta-webhook-worker.supervisor.spec.ts con pruebas de backoff/shutdown ante broker no disponible, cierre del pool y rechazo de configuración sin handler.
+- **Estado de verificación:** estos cambios están preparados para validación por Source CI en el siguiente commit. No se presume que la reparación resuelva todos los fallos hasta inspeccionar logs y obtener SUCCESS.
+- TASK-003, TASK-027 y TASK-028 continúan in_progress; faltan handlers reales, replay de negocio aprobado y probado end-to-end, política de retención/privacidad, rate limiting/WAF, secretos/KMS y despliegue, validación operativa de observabilidad, carga/DR, revisión independiente y aceptación del propietario. GO-PRODUCTION continúa NO-GO.

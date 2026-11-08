@@ -357,3 +357,14 @@ Source CI #42431530685 terminó SUCCESS para el commit `6059822896987fc618c479d5
 
 **Límites y estado:** TASK-003 permanece `in_progress`. El registry de replay sigue vacío/fail-closed; faltan handlers reales y prueba e2e de side-effect idempotente, operación de DLQ/replay, unacked/consumer lag autoritativo, importación real de dashboards/alertas y routing/SLO, validación de broker desplegado, secrets/rotación, carga/DR y revisión/aceptación independiente. No hay autorización GO-PRODUCTION.
 | AUD-118 | RabbitMQ unacknowledged metrics contract | Se añadieron gauges `messages_unacknowledged` para worker queue y DLQ y panel/regla de alerta asociados. Source CI #480 detectó respuesta 200 con contador ausente en DLQ; `missingQueueCounterFields` ahora identifica únicamente los nombres faltantes. Source CI #481 pendiente. `messages_unacknowledged` no es consumer lag. |
+
+
+## 30. Corrección del cierre de recursos y cobertura del supervisor Meta — TASK-003/027/028 (AUD-119..121; 2026-11-08)
+
+| ID | Cambio | Evidencia / resultado |
+|---|---|---|
+| AUD-119 | Teardown RabbitMQ idempotente | En rabbitmq-transport.integration.spec.ts, los nombres de colas y exchange se conservan en el ámbito de la prueba. El teardown elimina recursos existentes de forma best-effort y cierra siempre los canales/conexión incluso si falla una eliminación. El código anterior podía lanzar ReferenceError desde finally y saltarse el cierre AMQP. |
+| AUD-120 | Suite Meta worker referenciada y real | microservices-meta-ecuapp/project.json ahora registra meta-webhook-worker.supervisor.spec.ts, añadido bajo webhooks/infrastructure/bootstrap; sustituye una ruta meta-webhook-worker.runtime.spec.ts que no existía en el árbol de la rama. |
+| AUD-121 | Pruebas de shutdown fail-safe | La suite nueva cubre fallo de conexión RabbitMQ, cancelación del ciclo de reconexión, cierre del pool PostgreSQL, fail-closed sin handlers y validación de límites de reconexión. Source CI posterior a la corrección pendiente; no se asigna estado CI-verified todavía. |
+
+**Estado:** Source CI #527 había agotado los 30 minutos dentro de microservices-meta-ecuapp:test, aunque instalación, migraciones/idempotencia, build y typecheck finalizaron SUCCESS. La causa potencial de socket retenido se encontró en el teardown de la prueba de transporte. La corrección se debe considerar implementada pero no verificada hasta que el siguiente Source CI termine SUCCESS. No cambiar TASK-003/027/028 a verified ni accepted.

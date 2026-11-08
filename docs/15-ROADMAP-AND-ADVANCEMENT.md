@@ -184,3 +184,9 @@ Estado actual:
 | TASK-005 | Core step-up/approval/audit implementado y CI-verified con PostgreSQL efímero | Source CI #112; docs/58 §10 | IdP real, outbox/consumer, contratos IAM, auditoría/review independiente y owner acceptance |
 
 **Interpretación:** tener un slice implementado y pasar CI no completa US-001/002. El producto sigue en construcción y GO-PRODUCTION permanece NO-GO. No se declara porcentaje global mientras no se reconcilien todos los AC de US/TASK con módulos, tests y evidencias independientes.
+
+## Actualización de ejecución — estabilización de Source CI (2026-11-08)
+
+- Source CI #527 finalizó cancelled después de 30 minutos dentro de microservices-meta-ecuapp:test. Instalación frozen, migraciones e idempotencia, roles DB, build y typecheck fueron SUCCESS; el paso pendiente fue completar las suites del backend.
+- Se corrigió el teardown de la prueba RabbitMQ para que los recursos temporales no queden fuera de ámbito y la conexión se cierre siempre. También se corrigió la ruta de una suite de supervisor Meta inexistente y se añadió la prueba real.
+- El siguiente gate obligatorio es Source CI completo (unitarias + PostgreSQL/RabbitMQ integration). TASK-003 y TASK-027/028 permanecen in_progress hasta tener evidencia del commit corregido, completar handlers/replay y cerrar los gates operativos/independientes. GO-PRODUCTION sigue NO-GO.
