@@ -47,20 +47,20 @@ export class TenantJobRuntimeSupervisor {
     if (this.running) throw new Error("Tenant job runtime supervisor is already running.");
     this.running = true;
     let nextMetricsSampleAt = 0;
+    let metricsSample: Promise<void> | null = null;
     try {
       while (!signal.aborted) {
         let delay = this.options.pollIntervalMs;
-        if (this.metricsReader && Date.now() >= nextMetricsSampleAt) {
-          try {
-            const snapshot = await this.metricsReader.readSnapshot();
-            this.metrics.recordRuntimeSnapshot(snapshot);
-          } catch {
-            // Metrics collection must never stop durable recovery or dispatch.
-            this.logger.failed("TENANT_JOB_METRICS_SNAPSHOT_FAILED");
-            this.metrics.recordRuntimeError();
-          } finally {
-            nextMetricsSampleAt = Date.now() + (this.options.metricsPollIntervalMs ?? 15_000);
-          }
+        if (this.metricsReader && !metricsSample && Date.now() >= nextMetricsSampleAt) {
+          nextMetricsSampleAt = Date.now() + (this.options.metricsPollIntervalMs ?? 15_000);
+          metricsSample = this.metricsReader.readSnapshot()
+            .then((snapshot) => this.metrics.recordRuntimeSnapshot(snapshot))
+            .catch(() => {
+              // Metrics collection must never stop durable recovery or dispatch.
+              try { this.logger.failed("TENANT_JOB_METRICS_SNAPSHOT_FAILED"); } catch {}
+              try { this.metrics.recordRuntimeError(); } catch {}
+            })
+            .finally(() => { metricsSample = null; });
         }
         try {
           const recovered = await this.repository.recover(
@@ -82,6 +82,7 @@ export class TenantJobRuntimeSupervisor {
         await wait(delay, signal);
       }
     } finally {
+      if (metricsSample) await metricsSample;
       this.running = false;
     }
   }
