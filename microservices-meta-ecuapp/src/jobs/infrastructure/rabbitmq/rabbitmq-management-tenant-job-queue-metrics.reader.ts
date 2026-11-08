@@ -143,8 +143,12 @@ export class RabbitMqManagementTenantJobQueueMetricsReader implements TenantJobB
       if (isAbortError(error)) throw error;
       throw new Error("RabbitMQ Management API metrics response is not valid JSON.");
     }
-    if (!isQueueStatistics(body)) {
-      throw new Error("RabbitMQ Management API metrics response is missing queue counters.");
+    const missingCounters = missingQueueCounterFields(body);
+    if (missingCounters.length > 0) {
+      throw new Error(
+        "RabbitMQ Management API metrics response is missing queue counters: "
+          + missingCounters.join(", ") + ".",
+      );
     }
 
     return Object.freeze({
@@ -184,12 +188,12 @@ function isLoopbackHost(host: string): boolean {
     || normalized === "[::1]";
 }
 
-function isQueueStatistics(value: unknown): value is RabbitMqQueueStatistics {
-  return typeof value === "object"
-    && value !== null
-    && "messages_ready" in value
-    && "messages_unacknowledged" in value
-    && "consumers" in value;
+function missingQueueCounterFields(value: unknown): string[] {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return ["object"];
+  }
+  return ["messages_ready", "messages_unacknowledged", "consumers"]
+    .filter((field) => !(field in value));
 }
 
 function safeCount(value: unknown, field: string): number {
