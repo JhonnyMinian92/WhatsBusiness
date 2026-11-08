@@ -31,6 +31,16 @@ groups:
           summary: "La DLQ contiene mensajes pendientes"
           description: "Inspeccionar causa, retención y runbook; no hacer purge ni replay masivo."
 
+      - alert: WhatsBusinessTenantJobUnacknowledgedDeliveries
+        expr: tenant_job_rabbitmq_worker_queue_unacknowledged_messages > 0
+        for: 5m
+        labels:
+          severity: warning
+          service: microservices-meta-ecuapp
+        annotations:
+          summary: "Hay deliveries sin ACK en el worker queue"
+          description: "Revisar handlers de larga duración, heartbeats, leases y saturación; no asumir que son jobs perdidos."
+
       - alert: WhatsBusinessTenantJobQueueWithoutConsumers
         expr: tenant_job_rabbitmq_worker_queue_ready_messages > 0 and tenant_job_rabbitmq_worker_queue_consumers == 0
         for: 2m
