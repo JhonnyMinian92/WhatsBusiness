@@ -2,6 +2,7 @@ import {
   compareAdsMoney,
   exceedsAdsMoneyBaselinePercent,
   isAdsMoneyEqual,
+  isAdsMoneyPositive,
   isAdsMoneyIncreaseWithinPercent,
   parseAdsMoney,
   type AdsMoney,
@@ -20,6 +21,7 @@ export interface AdsBudgetWindow {
 
 export type AdsBudgetGuardrailReason =
   | "ADS_BUDGET_KILL_SWITCH_ACTIVE"
+  | "ADS_BUDGET_AMOUNT_INVALID"
   | "ADS_BUDGET_CURRENCY_MISMATCH"
   | "ADS_BUDGET_WINDOW_INVALID"
   | "ADS_BUDGET_WINDOW_EXPIRED"
