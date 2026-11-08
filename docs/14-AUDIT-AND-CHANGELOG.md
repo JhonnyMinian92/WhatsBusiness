@@ -454,3 +454,12 @@ El contrato mantuvo deshabilitadas las 287 operaciones restantes; CRM-005..017 s
 | AUD-152 | CodeQL [#107](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42498026686) y test CRM de guards por método; OIDC class guard, TenantContextGuard + AuthorizationGuard list/create/get/update. | SUCCESS. |
 
 El cambio afecta solo el fixture de pruebas; la topología productiva conserva quorum queues durables. TASK-003/027/028 siguen `in_progress`; TASK-042 sigue pendiente de review/aceptación. GO-PRODUCTION no se habilita.
+
+## 40. Exportación de contratos públicos de métricas de jobs (AUD-153; 2026-11-08)
+
+| ID | Evidencia / cambio | Estado |
+|---|---|---|
+| AUD-153 | El barrel `microservices-meta-ecuapp/src/index.ts` no exportaba los ports de métricas, el reader compuesto, el exporter Prometheus ni el servidor HTTP, aunque sus implementaciones y pruebas existían. Se añadieron cuatro exportaciones sin alterar comportamiento interno. | Implementado; Source CI/CodeQL en ejecución al corte. |
+
+Commit: `f10743ce35d96f216c6e5c74ba3dd7286d07f262`. No se eleva TASK-003 a verified: continúan pendientes el resultado CI de este commit, revisión independiente, SLO/alert routing operativo, carga/DR y aceptación del propietario.
+
