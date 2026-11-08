@@ -95,6 +95,7 @@ test("PostgreSQL webhook inbox persists idempotently, fences tenant processing a
         "whatsbusiness-meta-webhook-ci-" + tenantId.slice(0, 8),
       );
       let handlerCalls = 0;
+      const diagnostics: string[] = [];
       workerProcess = await MetaWebhookWorkerProcess.create({
         database: worker,
         channels,
@@ -109,7 +110,7 @@ test("PostgreSQL webhook inbox persists idempotently, fences tenant processing a
           },
         }],
         consumerName: "meta-webhook-ci",
-        reporter: { report(code) { throw new Error("Unexpected worker diagnostic: " + code); } },
+        reporter: { report(code) { diagnostics.push(code); } },
         pollIntervalMs: 100,
         leaseSeconds: 30,
         prefetch: 2,
@@ -136,6 +137,7 @@ test("PostgreSQL webhook inbox persists idempotently, fences tenant processing a
       }
       assert.deepEqual(state, { status: "processed", receipts: "1", outbox_status: "published" });
       assert.equal(handlerCalls, 1, "The real RabbitMQ consumer must invoke the registered business handler once.");
+      assert.deepEqual(diagnostics, [], "A healthy end-to-end delivery must not emit worker failure diagnostics.");
     } finally {
       await workerProcess?.stop();
     }
