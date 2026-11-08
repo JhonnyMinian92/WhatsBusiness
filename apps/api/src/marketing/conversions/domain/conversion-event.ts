@@ -102,6 +102,7 @@ export function toUnixEventTime(occurredAt: Date): number {
 export function validateConversionEvent(
   input: ConversionEventCandidate,
   consent: ConversionConsentEvidence | null,
+  evaluatedAt: Date,
 ): ConversionEventValidationResult {
   const reasons: ConversionEventDenialReason[] = [];
 
@@ -111,8 +112,12 @@ export function validateConversionEvent(
   if (typeof input.eventName !== "string" || input.eventName.trim() !== input.eventName
       || !EVENT_NAME.test(input.eventName)) reasons.push("EVENT_NAME_INVALID");
   if (typeof input.eventId !== "string" || !VISIBLE_ASCII.test(input.eventId)) reasons.push("EVENT_ID_INVALID");
-  if (!(input.occurredAt instanceof Date) || !Number.isFinite(input.occurredAt.getTime())) {
-    reasons.push("EVENT_TIME_INVALID");
+  const validEventTime = input.occurredAt instanceof Date && Number.isFinite(input.occurredAt.getTime());
+  const validEvaluationTime = evaluatedAt instanceof Date && Number.isFinite(evaluatedAt.getTime());
+  if (!validEventTime) reasons.push("EVENT_TIME_INVALID");
+  if (!validEvaluationTime) reasons.push("VALIDATION_TIME_INVALID");
+  if (validEventTime && validEvaluationTime && input.occurredAt.getTime() > evaluatedAt.getTime()) {
+    reasons.push("EVENT_TIME_IN_FUTURE");
   }
 
   const actionSource = CONVERSION_ACTION_SOURCES.find(value => value === input.actionSource);
@@ -156,10 +161,16 @@ export function validateConversionEvent(
         || consent.purpose !== CONVERSION_CONSENT_PURPOSE) {
       reasons.push("CONSENT_SCOPE_MISMATCH");
     }
-    if (input.occurredAt instanceof Date && Number.isFinite(input.occurredAt.getTime())) {
-      if (consent.effectiveAt.getTime() > input.occurredAt.getTime()) reasons.push("CONSENT_NOT_EFFECTIVE");
-      if (consent.expiresAt && consent.expiresAt.getTime() <= input.occurredAt.getTime()) reasons.push("CONSENT_EXPIRED");
-      if (consent.revokedAt && consent.revokedAt.getTime() <= input.occurredAt.getTime()) reasons.push("CONSENT_REVOKED");
+    if (validEventTime && consent.effectiveAt.getTime() > input.occurredAt.getTime()) {
+      reasons.push("CONSENT_NOT_EFFECTIVE");
+    }
+    if (validEvaluationTime) {
+      if (consent.expiresAt && consent.expiresAt.getTime() <= evaluatedAt.getTime()) {
+        reasons.push("CONSENT_EXPIRED");
+      }
+      if (consent.revokedAt && consent.revokedAt.getTime() <= evaluatedAt.getTime()) {
+        reasons.push("CONSENT_REVOKED");
+      }
     }
   }
 
