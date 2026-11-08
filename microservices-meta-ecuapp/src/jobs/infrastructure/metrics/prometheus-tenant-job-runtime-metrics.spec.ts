@@ -120,21 +120,27 @@ test("renders RabbitMQ ready-message and consumer gauges without tenant labels",
   const metrics = new PrometheusTenantJobRuntimeMetrics();
   metrics.recordBrokerRuntimeSnapshot({
     workerQueueReadyMessages: 14,
+    workerQueueUnacknowledgedMessages: 5,
     workerQueueConsumers: 3,
     deadLetterQueueReadyMessages: 2,
+    deadLetterQueueUnacknowledgedMessages: 1,
     deadLetterQueueConsumers: 0,
   });
 
   const output = metrics.renderPrometheus();
   assert.match(output, /# TYPE tenant_job_rabbitmq_worker_queue_ready_messages gauge/);
   assert.match(output, /^tenant_job_rabbitmq_worker_queue_ready_messages 14$/m);
+  assert.match(output, /^tenant_job_rabbitmq_worker_queue_unacknowledged_messages 5$/m);
   assert.match(output, /^tenant_job_rabbitmq_worker_queue_consumers 3$/m);
   assert.match(output, /^tenant_job_rabbitmq_dead_letter_queue_ready_messages 2$/m);
+  assert.match(output, /^tenant_job_rabbitmq_dead_letter_queue_unacknowledged_messages 1$/m);
   assert.match(output, /^tenant_job_rabbitmq_dead_letter_queue_consumers 0$/m);
   for (const metric of [
     "tenant_job_rabbitmq_worker_queue_ready_messages",
+    "tenant_job_rabbitmq_worker_queue_unacknowledged_messages",
     "tenant_job_rabbitmq_worker_queue_consumers",
     "tenant_job_rabbitmq_dead_letter_queue_ready_messages",
+    "tenant_job_rabbitmq_dead_letter_queue_unacknowledged_messages",
     "tenant_job_rabbitmq_dead_letter_queue_consumers",
   ]) {
     assert.equal(output.includes(metric + "{"), false);
@@ -154,6 +160,7 @@ test("rejects invalid broker gauges without replacing the last valid snapshot", 
       workerQueueReadyMessages: -1,
       workerQueueConsumers: 1,
       deadLetterQueueReadyMessages: 0,
+      deadLetterQueueUnacknowledgedMessages: 0,
       deadLetterQueueConsumers: 0,
     }),
     /invalid/,
