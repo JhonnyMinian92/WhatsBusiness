@@ -17,11 +17,13 @@ export interface RabbitMqManagementQueueMetricsReaderOptions {
 
 interface RabbitMqQueueStatistics {
   readonly messages_ready: unknown;
+  readonly messages_unacknowledged: unknown;
   readonly consumers: unknown;
 }
 
 interface QueueMetrics {
   readonly readyMessages: number;
+  readonly unacknowledgedMessages: number;
   readonly consumers: number;
 }
 
@@ -85,8 +87,10 @@ export class RabbitMqManagementTenantJobQueueMetricsReader implements TenantJobB
       ]);
       return Object.freeze({
         workerQueueReadyMessages: worker.readyMessages,
+        workerQueueUnacknowledgedMessages: worker.unacknowledgedMessages,
         workerQueueConsumers: worker.consumers,
         deadLetterQueueReadyMessages: deadLetter.readyMessages,
+        deadLetterQueueUnacknowledgedMessages: deadLetter.unacknowledgedMessages,
         deadLetterQueueConsumers: deadLetter.consumers,
       });
     } catch (error) {
@@ -145,6 +149,7 @@ export class RabbitMqManagementTenantJobQueueMetricsReader implements TenantJobB
 
     return Object.freeze({
       readyMessages: safeCount(body.messages_ready, "messages_ready"),
+      unacknowledgedMessages: safeCount(body.messages_unacknowledged, "messages_unacknowledged"),
       consumers: safeCount(body.consumers, "consumers"),
     });
   }
