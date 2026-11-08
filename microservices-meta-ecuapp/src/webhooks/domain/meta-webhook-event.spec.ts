@@ -19,6 +19,99 @@ test("decodes WhatsApp message changes into independent idempotent events", () =
   assert.equal(events[0]?.providerEventId, "wamid.1");
   assert.notEqual(events[0]?.idempotencyKey, events[1]?.idempotencyKey);
 });
+test("preserves WhatsApp metadata and emits both message and status arrays from one change", () => {
+  const input = {
+    object: "whatsapp_business_account",
+    entry: [{
+      id: "waba-1",
+      time: 1_800_000_000,
+      changes: [{
+        field: "messages",
+        value: {
+          messaging_product: "whatsapp",
+          metadata: {
+            display_phone_number: "15550783881",
+            phone_number_id: "106540352242922",
+          },
+          contacts: [{
+            profile: { name: "Synthetic Contact" },
+            wa_id: "15551234567",
+            user_id: "US.123456789",
+          }],
+          messages: [{
+            id: "wamid.context-1",
+            from: "15551234567",
+            timestamp: "1800000000",
+            type: "text",
+            text: { body: "Synthetic payload" },
+          }],
+          statuses: [{
+            id: "wamid.context-2",
+            status: "delivered",
+            timestamp: "1800000001",
+            recipient_id: "15551234567",
+          }],
+        },
+      }],
+    }],
+  };
+
+  const events = decodeMetaWebhookPayload("whatsapp", input, new Date("2026-01-01T00:00:00.000Z"));
+  assert.equal(events.length, 2);
+  assert.equal(events[0]?.eventType, "messages.message");
+  assert.equal(events[1]?.eventType, "messages.status");
+
+  const context = events[0]?.payload["providerContext"] as Record<string, unknown>;
+  assert.equal(context["objectType"], "whatsapp_business_account");
+  assert.equal(context["entryId"], "waba-1");
+  assert.equal(context["entryTime"], new Date(1_800_000_000 * 1_000).toISOString());
+  assert.equal(context["field"], "messages");
+
+  const value = context["value"] as Record<string, unknown>;
+  assert.equal(value["messaging_product"], "whatsapp");
+  assert.deepEqual(value["metadata"], {
+    display_phone_number: "15550783881",
+    phone_number_id: "106540352242922",
+  });
+  assert.deepEqual(value["contacts"], [{
+    profile: { name: "Synthetic Contact" },
+    wa_id: "15551234567",
+    user_id: "US.123456789",
+  }]);
+  assert.equal("messages" in value, false);
+  assert.equal("statuses" in value, false);
+  assert.equal(events[0]?.payload["id"], "wamid.context-1");
+  assert.equal(events[1]?.payload["status"], "delivered");
+});
+
+test("provider context does not change a message's stable idempotency key", () => {
+  const createInput = (phoneNumberId: string) => ({
+    object: "whatsapp_business_account",
+    entry: [{
+      id: "waba-1",
+      time: 1_800_000_000,
+      changes: [{
+        field: "messages",
+        value: {
+          messaging_product: "whatsapp",
+          metadata: { phone_number_id: phoneNumberId },
+          contacts: [{ wa_id: "15551234567" }],
+          messages: [{
+            id: "wamid.stable-context",
+            from: "15551234567",
+            timestamp: "1800000000",
+            type: "text",
+          }],
+        },
+      }],
+    }],
+  });
+
+  const first = decodeMetaWebhookPayload("whatsapp", createInput("phone-1"))[0];
+  const redelivery = decodeMetaWebhookPayload("whatsapp", createInput("phone-2"))[0];
+  assert.equal(first?.idempotencyKey, redelivery?.idempotencyKey);
+});
+
 test("rejects product mismatch and unbounded entry arrays", () => {
   assert.throws(() => decodeMetaWebhookPayload("whatsapp", {
     object: "page", entry: [{ id: "1", changes: [] }],
