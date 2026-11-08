@@ -7,6 +7,7 @@ import {
   NOOP_TENANT_JOB_RUNTIME_METRICS,
   type TenantJobRuntimeMetrics,
   type TenantJobRuntimeMetricsReader,
+  type TenantJobBrokerMetricsReader,
 } from "./tenant-job-runtime-metrics.js";
 
 export interface TenantJobRuntimeLogger {
@@ -39,6 +40,7 @@ export class TenantJobRuntimeSupervisor {
     private readonly options: TenantJobRuntimeSupervisorOptions,
     private readonly metrics: TenantJobRuntimeMetrics = NOOP_TENANT_JOB_RUNTIME_METRICS,
     private readonly metricsReader?: TenantJobRuntimeMetricsReader,
+    private readonly brokerMetricsReader?: TenantJobBrokerMetricsReader,
   ) {
     validateOptions(options);
   }
@@ -47,7 +49,9 @@ export class TenantJobRuntimeSupervisor {
     if (this.running) throw new Error("Tenant job runtime supervisor is already running.");
     this.running = true;
     let nextMetricsSampleAt = 0;
+    let nextBrokerMetricsSampleAt = 0;
     let metricsSample: Promise<void> | null = null;
+    let brokerMetricsSample: Promise<void> | null = null;
     try {
       while (!signal.aborted) {
         let delay = this.options.pollIntervalMs;
@@ -61,6 +65,19 @@ export class TenantJobRuntimeSupervisor {
               try { this.metrics.recordRuntimeError(); } catch {}
             })
             .finally(() => { metricsSample = null; });
+        }
+        if (this.brokerMetricsReader
+          && !brokerMetricsSample
+          && Date.now() >= nextBrokerMetricsSampleAt) {
+          nextBrokerMetricsSampleAt = Date.now() + (this.options.metricsPollIntervalMs ?? 15_000);
+          brokerMetricsSample = this.brokerMetricsReader.readSnapshot()
+            .then((snapshot) => this.metrics.recordBrokerRuntimeSnapshot(snapshot))
+            .catch(() => {
+              // Broker observability failures never stop durable recovery or dispatch.
+              try { this.logger.failed("TENANT_JOB_BROKER_METRICS_SNAPSHOT_FAILED"); } catch {}
+              try { this.metrics.recordRuntimeError(); } catch {}
+            })
+            .finally(() => { brokerMetricsSample = null; });
         }
         try {
           const recovered = await this.repository.recover(
@@ -82,7 +99,10 @@ export class TenantJobRuntimeSupervisor {
         await wait(delay, signal);
       }
     } finally {
-      if (metricsSample) await metricsSample;
+      await Promise.allSettled([
+        ...(metricsSample ? [metricsSample] : []),
+        ...(brokerMetricsSample ? [brokerMetricsSample] : []),
+      ]);
       this.running = false;
     }
   }
