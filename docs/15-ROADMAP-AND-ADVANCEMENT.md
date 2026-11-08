@@ -388,3 +388,10 @@ Se añadió un slice de dominio: MetaCapabilityEvaluator ahora expresa tareas OR
 ## Actualización US-017 — Threads (2026-11-08)
 
 TASK-033 tiene un slice interno implementado: adapter por producto, scopes/capabilities a través del evaluador Meta, version policy propia, modelos normalizados y pruebas de conformidad registradas. La tarea permanece `in_progress`: CI del HEAD, credenciales/evidencia Meta runtime, prueba con perfil autorizado, handler real de webhooks, contract freeze TH-001..006, métricas, revisión independiente y aceptación PO aún no se acreditan. Ver docs/74.
+
+
+## Evidencia de verificación US-017 (2026-11-08)
+
+El slice Threads quedó verificado por Source CI: build SUCCESS; typecheck SUCCESS; API/PostgreSQL 287/287 sin fallos; Meta backend/PostgreSQL/RabbitMQ 112/112 sin fallos; control de suites independientes SUCCESS; CodeQL SUCCESS. Evidencias: [Source CI run 42528782609](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42528782609) y [CodeQL run 42528566180](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42528566180).
+
+El avance técnico de adapter y pruebas está verificado. El cierre integral de US-017 no se declara hasta integrar providers reales de credenciales/evidencias, autorizar y probar una cuenta Meta/Threads habilitada, congelar contratos HTTP y de webhook, completar handler idempotente/métricas runtime, y recibir revisión/aceptación formal. El estado permanece `in_progress`.

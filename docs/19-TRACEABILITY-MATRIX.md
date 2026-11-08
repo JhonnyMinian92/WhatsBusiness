@@ -504,3 +504,15 @@ Insights e Instagram Login Stories permanecen unknown/fail-closed. Instagram Log
 **Reglas de compatibilidad:** Threads tiene namespace de activo y catálogo de scopes independiente. Los endpoints TH-001..006 no se activan en OpenAPI. El version pin no hereda el Graph API de otros productos. El host de proveedor y la API version se validan por separado. El token de acceso se mantiene fuera de URL/logs.
 
 **No evidencia aún:** acceso/consentimiento real por perfil, credenciales de vault, validación del endpoint de insights por cuenta, Meta App Review/Live eligibility, webhooks Threads business handler, Source CI del HEAD, reviewer independiente y aceptación del Product Owner. TASK-033 y US-017 siguen `in_progress`.
+
+## Verificación Source CI — US-017 / TASK-033 (2026-11-08)
+
+- **Código Threads:** commit `46f57247d667abb7e9626c639514bfd8e74ebc30`.
+- **Pipeline final:** commit `1ba349cf013f4d34b5d3496e9a8adddee49a71ad`; run `42528782609`, `completed / success`.
+- **Build:** todas las aplicaciones `SUCCESS`.
+- **Typecheck:** todas las aplicaciones `SUCCESS`.
+- **API + PostgreSQL:** 287 tests, 287 passed, 0 failed.
+- **Meta backend + PostgreSQL/RabbitMQ:** 112 tests, 112 passed, 0 failed.
+- **Control de suites independientes:** `SUCCESS`; ambas baterías se ejecutaron y ambas pasaron.
+- **CodeQL:** run `42528566180` sobre el commit de código Threads `46f57247`, `completed / success`.
+- **Estado:** código y pruebas verificados por Source CI. TASK-033/US-017 sigue `in_progress` por gates operativos: provider persistente de credenciales/evidencia, autorización Meta real y App Review, freeze de contratos/handler webhook, métricas runtime, revisión independiente y aceptación PO. No se declara GO-PRODUCTION.

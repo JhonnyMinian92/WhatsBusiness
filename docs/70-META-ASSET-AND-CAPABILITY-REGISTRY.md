@@ -131,3 +131,13 @@ No hacer: no activar META-010..015, no declarar sincronización real, no usar to
 - Threads es una conexión/perfil distinto de Instagram aunque ambos pertenezcan a Meta. No se comparte ID externo ni capability por similitud de proveedor.
 - Se amplía la prueba de validación de snapshots para aceptar el tipo namespaced sin modificar los tipos previos.
 - El registro de activos no obtiene todavía inventario Threads de Meta ni persiste la conexión; debe alimentarse desde el credential/evidence provider y sincronizador (TASK-007..010). No se debe marcar el perfil como conectado por la existencia del tipo en el catálogo.
+
+
+## Evidencia Source CI — adaptador Threads (2026-11-08)
+
+- Build y typecheck de todas las aplicaciones: `SUCCESS`.
+- API + PostgreSQL: **287/287 tests passed, 0 failed**.
+- Meta backend + PostgreSQL/RabbitMQ: **112/112 tests passed, 0 failed**.
+- Las suites Threads y el bridge al evaluador Meta se ejecutaron; el gate que obliga a ejecutar ambas baterías quedó en `SUCCESS`.
+- Evidencia: Source CI run [42528782609](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42528782609), commit pipeline `1ba349cf013f4d34b5d3496e9a8adddee49a71ad`; CodeQL [42528566180](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42528566180) completado con `SUCCESS` sobre el commit de código `46f57247d667abb7e9626c639514bfd8e74ebc30`.
+- Esta evidencia valida build/typecheck/tests y seguridad estática; no convierte el perfil Threads en una conexión Meta real ni cambia el estado productivo.

@@ -644,3 +644,18 @@ No se añadieron rutas HTTP públicas porque TH-001..006 siguen catalog-only; el
 | AUD-192 | Corrección de policy Messenger para conservar el motivo específico HUMAN_AGENT_REQUIRES_HUMAN_OWNER cuando el ownership no es humano, además del rechazo general por ownership. | Implementado; regresión existente recuperada para que api:test no quede bloqueado por este cambio concurrente. |
 
 Estado de validación al registrar: Source CI #662 ejecuta build, typecheck y las suites completas; #653 había superado build/typecheck y detectado dos assertions, corregidas por los commits posteriores. CodeQL del HEAD pendiente.
+
+
+## 46. US-017 / TASK-033 — evidencia final de Source CI (2026-11-08)
+
+| Evidencia | Resultado |
+|---|---|
+| Source workspace validation, run 42528782609 | `completed / success` |
+| Build de todas las aplicaciones | SUCCESS |
+| Typecheck de todas las aplicaciones | SUCCESS |
+| API + PostgreSQL | 287 passed / 0 failed |
+| Meta backend + PostgreSQL/RabbitMQ | 112 passed / 0 failed |
+| Control de suites ejecutadas independientemente | SUCCESS |
+| CodeQL, run 42528566180 (commit Threads 46f57247) | SUCCESS |
+
+El run 42528782609 valida el commit pipeline `1ba349cf013f4d34b5d3496e9a8adddee49a71ad`; el código Threads está en `46f57247d667abb7e9626c639514bfd8e74ebc30`. Este registro demuestra CI verde para build, typecheck, API y backend; no es evidencia de OAuth/App Review/live API, deployment ni aceptación de producto. TASK-033/US-017 conserva `in_progress` para esos gates externos/runtime.

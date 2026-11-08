@@ -105,3 +105,21 @@ TH-001..006 permanecen en OpenAPI como catálogo hasta que sus request/response/
 7. Runtime deployment/health/metrics del adapter y reconciliación de resultados de publicación ambiguos.
 
 No se realizó OAuth, lectura o escritura live en una cuenta Meta, no se publicaron posts reales, no se ejecutó webhook Threads real, no se hizo deploy y no se declara producción habilitada.
+
+
+## 9. Evidencia de ejecución Source CI (2026-11-08)
+
+Ejecución final: [Source workspace validation #42528782609](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42528782609), estado `completed / success`, disparada por el commit de pipeline `1ba349cf013f4d34b5d3496e9a8adddee49a71ad`.
+
+- Build de todas las aplicaciones: SUCCESS.
+- Typecheck de todas las aplicaciones: SUCCESS.
+- API + PostgreSQL: **287 pruebas, 287 aprobadas, 0 fallidas**.
+- Meta backend + PostgreSQL/RabbitMQ: **112 pruebas, 112 aprobadas, 0 fallidas**.
+- Gate de suites independientes: SUCCESS.
+- CodeQL [#196 / run 42528566180](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42528566180): SUCCESS sobre el commit de código Threads `46f57247d667abb7e9626c639514bfd8e74ebc30`.
+
+La ejecución confirmó también las pruebas del namespace de identidades/activos Threads, el bridge de scopes y consentimiento, el adaptador de perfil/publicaciones/replies/insights, el flujo container→publish, la política de versión, el transporte y los errores de outcome ambiguo.
+
+La verificación anterior del primer commit detectó un fallo preexistente/paralelo en Ads y omitió la batería Meta; el pipeline fue modificado para ejecutar ambas suites de forma independiente y la rama incorporó la corrección Ads. Esta segunda ejecución completa terminó en verde. No se oculta ni se reinterpreta ese primer resultado.
+
+El estado de TASK-033/US-017 sigue `in_progress` únicamente para gates operativos/external-provider aún no demostrados: credential/evidence provider persistente, OAuth y permisos efectivos de app/cuenta real, freeze de TH-001..006 y WH-007, handler real de eventos idempotente, métricas/health runtime, revisión independiente y aceptación PO. No hay deploy, operación Meta live ni GO-PRODUCTION.

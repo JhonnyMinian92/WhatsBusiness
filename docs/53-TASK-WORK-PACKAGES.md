@@ -282,3 +282,15 @@ No hay endpoint Instagram permitido por el freeze actual. IG-001..IG-012 permane
 - **Rollback:** revert the adapter commit and typed Threads asset extension; no schema migration or remote side effect is introduced by deployment. Remove any runtime adapter registration first if a later deployment opts into it.
 - **Open DoD:** connect real vault token provider and evidence provider; app/use-case/consent validation with real authorised test profile; verify per-operation version and endpoint semantics against current Meta changelog; freeze TH-001..006 and WH-007; add real Threads webhook business handler (never no-op); wire runtime metrics/health; Source CI; independent review and PO acceptance.
 - **Status:** `in_progress`; implementation slice present, not verified or accepted.
+
+## Verificación Source CI — US-017 / TASK-033 (2026-11-08)
+
+- **Código Threads:** commit `46f57247d667abb7e9626c639514bfd8e74ebc30`.
+- **Pipeline final:** commit `1ba349cf013f4d34b5d3496e9a8adddee49a71ad`; run `42528782609`, `completed / success`.
+- **Build:** todas las aplicaciones `SUCCESS`.
+- **Typecheck:** todas las aplicaciones `SUCCESS`.
+- **API + PostgreSQL:** 287 tests, 287 passed, 0 failed.
+- **Meta backend + PostgreSQL/RabbitMQ:** 112 tests, 112 passed, 0 failed.
+- **Control de suites independientes:** `SUCCESS`; ambas baterías se ejecutaron y ambas pasaron.
+- **CodeQL:** run `42528566180` sobre el commit de código Threads `46f57247`, `completed / success`.
+- **Estado:** código y pruebas verificados por Source CI. TASK-033/US-017 sigue `in_progress` por gates operativos: provider persistente de credenciales/evidencia, autorización Meta real y App Review, freeze de contratos/handler webhook, métricas runtime, revisión independiente y aceptación PO. No se declara GO-PRODUCTION.

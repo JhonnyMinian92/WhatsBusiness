@@ -898,3 +898,15 @@ IG-001..IG-012 continúan catalog-only (x-implementation-allowed=false). No habi
 - **Pruebas registradas:** suites version policy, adapter, HTTP transport, capability bridge y meta asset. Source CI pendiente al corte; no confundir test registrado con ejecución exitosa.
 - **Evidencia externa:** la colección oficial de Threads confirma use case, autorización y scopes `threads_basic`, `threads_content_publish`, `threads_read_replies`, `threads_manage_insights`; API base `https://graph.threads.net`. La versión activa por operación no se presume; el runtime exige pin/allowlist y evidencia vigente.
 - **Límites:** sin OAuth/App Review/live account, no se han publicado posts, leído insights reales, desplegado el adapter ni congelado los contratos TH-001..006/WH-007. GO-PRODUCTION no cambia.
+
+## Verificación Source CI — US-017 / TASK-033 (2026-11-08)
+
+- **Código Threads:** commit `46f57247d667abb7e9626c639514bfd8e74ebc30`.
+- **Pipeline final:** commit `1ba349cf013f4d34b5d3496e9a8adddee49a71ad`; run `42528782609`, `completed / success`.
+- **Build:** todas las aplicaciones `SUCCESS`.
+- **Typecheck:** todas las aplicaciones `SUCCESS`.
+- **API + PostgreSQL:** 287 tests, 287 passed, 0 failed.
+- **Meta backend + PostgreSQL/RabbitMQ:** 112 tests, 112 passed, 0 failed.
+- **Control de suites independientes:** `SUCCESS`; ambas baterías se ejecutaron y ambas pasaron.
+- **CodeQL:** run `42528566180` sobre el commit de código Threads `46f57247`, `completed / success`.
+- **Estado:** código y pruebas verificados por Source CI. TASK-033/US-017 sigue `in_progress` por gates operativos: provider persistente de credenciales/evidencia, autorización Meta real y App Review, freeze de contratos/handler webhook, métricas runtime, revisión independiente y aceptación PO. No se declara GO-PRODUCTION.
