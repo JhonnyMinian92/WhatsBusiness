@@ -695,3 +695,15 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - instagram-messaging-policy.ts: Direct individual, destinatario inició, no grupos, media ownership solo IG Login, idempotency y clasificación de requests fuera de ventana de recuperación de 30 días sin convertirla en ventana de envío.
 - Se agregan tests al target api:test: 10 comments y 9 messaging. El slice US-010 suma 42 tests.
 - Source CI del padre 1ba349cf013f4d34b5d3496e9a8adddee49a71ad: build y typecheck all apps success; 287 API tests y 112 Meta backend tests success. Esto no valida aún el commit final con las nuevas policies. CodeQL para 4e012e4 success; ejecutar sobre cierre.
+
+
+## Handoff US-028 / TASK-066 — discovery de mercado (2026-11-08)
+
+- Se confirmó que la historia 28 es US-028 (validación ICP/problemas/WTP) y su paquete es TASK-066; TASK-028 es una tarea diferente de event bus/DLQ/replay.
+- Rama autorizada: environment/local.
+- Se documentó REEM 2024 definitivo y 2025 provisional; la concentración de servicios/comercio orienta el discovery, no define TAM. Se añadió ENESEM 2024 con advertencia de cobertura solo grandes/medianas y TIC Empresas 2015 como referencia histórica.
+- Nuevos artefactos: docs/75-US-028-MARKET-DISCOVERY-AND-ICP.md; docs/research/us-028/INTERVIEW-GUIDE.md; README; diccionario de métricas; plantillas CSV de participantes, codificación y piloto.
+- ICP candidato: PYME de comercio/servicios con consultas entrantes recurrentes, coordinación multiusuario y necesidad de trazabilidad/follow-up; agencias siguen como canal/segmento secundario. Esta hipótesis todavía no está validada.
+- No hay entrevistas, señales de compra ni pilotos reales. No se inventan datos de campo ni importes. TAM/SAM/SOM queda sin cuantificar hasta obtener filtros y denominadores.
+- TASK-066 pasa de proposed a in_progress. AC-028-01 documentado; AC-028-02/03 preparados; AC-028-04 diseñado; AC-028-05 metodológicamente preparado; AC-028-06 guardrail reforzado.
+- No se modificó código de producto ni contratos: el work package no define endpoint. GO-PRODUCTION sigue NO-GO. Datos reales/pilotos requieren aprobación y gates de privacidad/seguridad.
