@@ -4,17 +4,31 @@ import test from "node:test";
 import { RabbitMqConnectionFactory } from "./rabbitmq-connection.factory.js";
 import { RabbitMqJobTopology, TENANT_JOB_RABBITMQ_TOPOLOGY } from "./rabbitmq-topology.js";
 import { RabbitMqTenantJobPublisher } from "./rabbitmq-tenant-job-publisher.js";
-import { RabbitMqManagementTenantJobQueueMetricsReader } from "./rabbitmq-management-tenant-job-queue-metrics.reader.js";
 import { createTenantJobMessage, parseTenantJobMessage } from "../../domain/tenant-job-message.js";
 
 const brokerUrl = process.env["RABBITMQ_URL"];
 const enabled = process.env["RUN_RABBITMQ_INTEGRATION_TESTS"] === "true";
-const managementUrl = process.env["RABBITMQ_MANAGEMENT_URL"];
-const monitoringUsername = process.env["RABBITMQ_MONITORING_USERNAME"];
-const monitoringPassword = process.env["RABBITMQ_MONITORING_PASSWORD"];
+const prometheusUrl = process.env["RABBITMQ_PROMETHEUS_URL"];
 const TEST_JOB_ID = "d7d8d4cf-1d23-4dcb-80fb-1a7a2e0c4b15";
 
-async function waitForMessage(
+async function scrapeDetailedQueueMetrics(): Promise<string> {
+  if (!prometheusUrl) throw new Error("RABBITMQ_PROMETHEUS_URL is required for RabbitMQ metrics integration.");
+  const url = new URL("/metrics/detailed", prometheusUrl);
+  url.searchParams.append("family", "queue_coarse_metrics");
+  url.searchParams.append("family", "queue_consumer_count");
+  url.searchParams.set("vhost", "/");
+
+  const response = await fetch(url, { signal: AbortSignal.timeout(3_000) });
+  assert.equal(response.status, 200, "RabbitMQ Prometheus detailed endpoint must return HTTP 200.");
+  return response.text();
+}
+
+function readQueueMetric(
+  exposition: string,
+  metric: string,
+  queue: string,
+): number {
+  const escapedQueue = queue.replace(/[.*+?^${}()|[\]\\]/g, "\\async function waitForMessage(
   channel: Awaited<ReturnType<RabbitMqConnectionFactory["open"]>>["consumer"],
   queue: string,
   timeoutMs: number,
@@ -32,8 +46,39 @@ async function waitForMessage(
   throw new Error("RabbitMQ integration test timed out waiting for a message.");
 }
 
+");
+  const pattern = new RegExp(
+    "^" + metric + "\\{[^}]*\\bqueue=\\\"" + escapedQueue
+      + "\\\"[^}]*\\}\\s+([0-9]+(?:\\.[0-9]+)?)$",
+    "m",
+  );
+  const match = pattern.exec(exposition);
+  assert.ok(match, "RabbitMQ Prometheus metrics must include " + metric + " for " + queue + ".");
+  return Number(match[1]);
+}
+
+async function waitForQueueMetric(
+  metric: string,
+  queue: string,
+  expected: number,
+  timeoutMs = 5_000,
+): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  let lastValue: number | undefined;
+  while (Date.now() < deadline) {
+    const exposition = await scrapeDetailedQueueMetrics();
+    lastValue = readQueueMetric(exposition, metric, queue);
+    if (lastValue === expected) return;
+    await new Promise((resolve) => setTimeout(resolve, 150));
+  }
+  throw new Error(
+    "RabbitMQ metric " + metric + " for " + queue
+      + " did not reach " + expected + "; last observed value: " + String(lastValue) + ".",
+  );
+}
+
 test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once DLX", {
-  skip: !enabled || !brokerUrl || !managementUrl || !monitoringUsername || !monitoringPassword,
+  skip: !enabled || !brokerUrl || !prometheusUrl,
 }, async () => {
   const factory = new RabbitMqConnectionFactory();
   const channels = await factory.open(brokerUrl!, "whatsbusiness-jobs-integration");
@@ -44,15 +89,6 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
     await channels.consumer.purgeQueue(TENANT_JOB_RABBITMQ_TOPOLOGY.queue);
     await channels.consumer.purgeQueue(TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue);
 
-    const queueMetrics = new RabbitMqManagementTenantJobQueueMetricsReader({
-      managementUrl: managementUrl!,
-      username: monitoringUsername!,
-      password: monitoringPassword!,
-    });
-    const emptyMetrics = await queueMetrics.readSnapshot();
-    assert.equal(emptyMetrics.workerQueueReadyMessages, 0);
-    assert.equal(emptyMetrics.deadLetterQueueReadyMessages, 0);
-
     const publisher = new RabbitMqTenantJobPublisher(
       channels.publisher,
       TENANT_JOB_RABBITMQ_TOPOLOGY.exchange,
@@ -60,16 +96,34 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
     const job = createTenantJobMessage(TEST_JOB_ID);
 
     await publisher.publish(job, "jobs.integration.confirm");
-    const queuedMetrics = await queueMetrics.readSnapshot();
-    assert.equal(queuedMetrics.workerQueueReadyMessages, 1);
-    assert.equal(queuedMetrics.workerQueueConsumers, 0);
+    await waitForQueueMetric(
+      "rabbitmq_detailed_queue_messages_ready",
+      TENANT_JOB_RABBITMQ_TOPOLOGY.queue,
+      1,
+    );
+    await waitForQueueMetric(
+      "rabbitmq_detailed_queue_messages_unacked",
+      TENANT_JOB_RABBITMQ_TOPOLOGY.queue,
+      0,
+    );
 
-    const delivered = await waitForMessage(
+    const delivered = await waitForUnackedDelivery(
       channels.consumer,
       TENANT_JOB_RABBITMQ_TOPOLOGY.queue,
       5_000,
     );
-    assert.deepEqual(parseTenantJobMessage(delivered), job);
+    assert.deepEqual(parseTenantJobMessage(delivered.content), job);
+    await waitForQueueMetric(
+      "rabbitmq_detailed_queue_messages_unacked",
+      TENANT_JOB_RABBITMQ_TOPOLOGY.queue,
+      1,
+    );
+    channels.consumer.ack(delivered, false);
+    await waitForQueueMetric(
+      "rabbitmq_detailed_queue_messages_unacked",
+      TENANT_JOB_RABBITMQ_TOPOLOGY.queue,
+      0,
+    );
 
     const unroutedExchange = "whatsbusiness.jobs.integration.unrouted";
     await channels.consumer.assertExchange(unroutedExchange, "topic", { durable: true });
@@ -84,12 +138,24 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
     assert.ok(poison, "The persistent message should be ready in the quorum source queue.");
     channels.consumer.nack(poison, false, false);
 
-    const deadLetter = await waitForMessage(
-      channels.consumer,
+    await waitForQueueMetric(
+      "rabbitmq_detailed_queue_messages_ready",
       TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue,
+      1,
       10_000,
     );
-    assert.deepEqual(parseTenantJobMessage(deadLetter), job);
+    const deadLetter = await waitForUnackedDelivery(
+      channels.consumer,
+      TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue,
+      5_000,
+    );
+    assert.deepEqual(parseTenantJobMessage(deadLetter.content), job);
+    await waitForQueueMetric(
+      "rabbitmq_detailed_queue_messages_unacked",
+      TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue,
+      1,
+    );
+    channels.consumer.ack(deadLetter, false);
   } finally {
     await channels.consumer.purgeQueue(TENANT_JOB_RABBITMQ_TOPOLOGY.queue).catch(() => undefined);
     await channels.consumer.purgeQueue(TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue).catch(() => undefined);
