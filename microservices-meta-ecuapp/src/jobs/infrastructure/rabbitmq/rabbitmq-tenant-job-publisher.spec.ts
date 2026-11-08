@@ -56,3 +56,12 @@ test("fails when broker publisher confirmation is negative", async () => {
   const publisher = new RabbitMqTenantJobPublisher(channel as unknown as ConfirmChannel, "jobs");
   await assert.rejects(publisher.publish(job, "jobs.inbox.message.process"), /BROKER_CONFIRM_FAILED/);
 });
+
+test("accepts single-segment and hyphenated routing keys while rejecting unsafe keys", async () => {
+  const channel = new FakeConfirmChannel();
+  const publisher = new RabbitMqTenantJobPublisher(channel as unknown as ConfirmChannel, "jobs");
+  await publisher.publish(job, "jobs.dead");
+  await publisher.publish(job, "jobs.integration.dead-letter");
+  await assert.rejects(publisher.publish(job, "Jobs.invalid"), /INVALID_JOB_ROUTING_KEY/);
+  assert.equal(channel.published.length, 2);
+});
