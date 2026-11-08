@@ -541,3 +541,15 @@ En Source CI run 42513396813 la migración 0007, su idempotencia, build y typech
 | AUD-172 | CodeQL #42513964419 para el mismo commit. | SUCCESS |
 
 La evidencia anterior reemplaza los handoffs US-002 que indicaban CI pendiente. TASK-004/005 quedan implementadas y CI-verificadas, pero siguen in_progress hasta revisión independiente y aceptación del Product Owner. Bootstrap de primer tenant_owner, ACR/AMR del IdP real, contract freeze para rutas IAM y gates de operación/audit externos no se consideran completados. GO-PRODUCTION permanece NO-GO.
+
+
+## 44. US-014 — preservación de contexto y entrega completa de cambios (AUD-174..177; 2026-11-08)
+
+| ID | Cambio / control | Resultado al registrar |
+|---|---|---|
+| AUD-174 | El decoder agrega `providerContext` a cada evento individual derivado de `change.value`: `objectType`, `entryId`, `entryTime`, `field` y metadatos hermanos, excluyendo arrays ya separados. Esto preserva `metadata.phone_number_id`, `contacts` y `messaging_product`. | Implementado en `96506d956c4af70b061d02623fd42c0749f12fea`; CI pendiente |
+| AUD-175 | La extracción de `messages[]` y `statuses[]` utiliza ramas independientes para no descartar estados cuando ambos arrays aparecen en el mismo cambio. | Implementado; CI pendiente |
+| AUD-176 | La clave de idempotencia sigue calculándose desde el evento original antes de añadir metadata contextual; los cambios de metadata no generan otra clave del mismo mensaje. | Cubierto por regresión; CI pendiente |
+| AUD-177 | Se añadieron tests de contexto WhatsApp y estabilidad de dedupe a `meta-webhook-event.spec.ts`. | Implementado en `5b7374ef39113d4a264bd1c0ccf9d8cda8428948`; Source CI #42527271340 y CodeQL #42527271448 `in_progress` al corte |
+
+El ajuste no altera OpenAPI, AsyncAPI, migraciones, envelope broker ni la respuesta HTTP ACK. El contexto complementario queda dentro del payload individual cifrado en PostgreSQL. TASK-027/028 y US-014 permanecen `in_progress`; no declarar `verified`/`accepted` hasta CI verde del HEAD, handlers de negocio y evidencias/controles operativos restantes. GO-PRODUCTION continúa NO-GO.
