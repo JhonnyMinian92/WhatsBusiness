@@ -192,8 +192,13 @@ jobs:
       - name: Typecheck all applications
         run: pnpm typecheck
 
-      - name: Run unit and PostgreSQL/RabbitMQ integration tests
-        run: pnpm test
+      - name: Run API unit and PostgreSQL integration tests
+        timeout-minutes: 8
+        run: pnpm exec nx run api:test
+
+      - name: Run Meta backend unit and PostgreSQL/RabbitMQ integration tests
+        timeout-minutes: 8
+        run: pnpm exec nx run microservices-meta-ecuapp:test
 
       - name: Require lockfile synchronization in pull requests
         if: github.event_name == 'pull_request'
