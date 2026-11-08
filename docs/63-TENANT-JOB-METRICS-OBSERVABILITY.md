@@ -40,7 +40,7 @@ Se implementó un snapshot de gauges agregados en PostgreSQL mediante `platform.
 
 Gauges: outbox pending, dispatch blocked, dispatch leases active/expired, execution leases active/expired, dead-letter jobs, oldest pending dispatch age y jobs replayed. `PostgresTenantJobRuntimeMetricsReader` mapea el resultado a un snapshot tipado; el supervisor lo muestrea cada 15 s por defecto (`TENANT_JOB_METRICS_POLL_INTERVAL_MS`). El reader usa un pool PostgreSQL independiente de una sola conexión, autenticado con el rol dispatcher, con `connectionTimeoutMillis=1000`, `statement_timeout=750 ms` y `query_timeout=1000 ms`; no compite por los slots del pool de despacho. El muestreo es single-flight y asíncrono; su fallo se registra sin bloquear recovery ni dispatch. Los gauges se cachean en memoria entre scrapes; los contadores/histogramas también son in-memory y se reinician con el proceso.
 
-Aún no hay broker queue depth/consumer lag ni profundidad de la cola RabbitMQ DLQ, dashboards, reglas de alertas, SLO cuantificados o retención remota configurada. Los datos in-memory no sustituyen a un backend Prometheus duradero.
+Se añadieron gauges RabbitMQ para mensajes listos (`messageCount`) y consumidores (`consumerCount`) tanto en la worker queue como en la DLQ. `RabbitMqTenantJobQueueMetricsReader` consulta con `checkQueue` en un canal AMQP dedicado, paralelo al consumer y publisher; no consume ni modifica mensajes y corta el muestreo si el RPC supera 1 500 ms. Estas cuentas incluyen solo mensajes listos: no incluyen entregas unacknowledged y no equivalen a consumer lag. Aún faltan métricas de unacked/edad real del mensaje/lag, dashboards, reglas de alertas, SLO cuantificados o retención remota configurada. Los datos in-memory no sustituyen a un backend Prometheus duradero.
 
 ## Pruebas
 
@@ -48,11 +48,11 @@ Aún no hay broker queue depth/consumer lag ni profundidad de la cola RabbitMQ D
 
 ## Estado y criterios pendientes
 
-**Endpoint HTTP implementado y CI-verificado como componente aislado.** Source CI [#42434224485](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42434224485) terminó SUCCESS para commit `abbc86cfbd72e89ab5db82b0e3207159a66eba71`, incluyendo build, typecheck y `tenant-job-metrics-http.server.spec.ts`. Los gauges PostgreSQL, reader y migración `0015` están implementados en source, pero su verificación CI está pendiente. Esto no cierra TASK-003 ni permite marcarla accepted.
+**Endpoint HTTP implementado y CI-verificado**: Source CI [#42434224485](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42434224485) terminó SUCCESS para el endpoint. **Gauges PostgreSQL implementados y CI-verificados**: Source CI [#42435204662](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42435204662) terminó SUCCESS para commit `8b9fae108e8581ec03ee4933fa75a251f8d04621`, incluyendo migraciones/idempotencia, build, typecheck y unit/integration tests. Los gauges RabbitMQ están implementados en source, pero su CI está pendiente. Esto no cierra TASK-003 ni permite marcarla accepted.
 
 Para el cierre de observabilidad de TASK-003 aún se requiere:
 1. Ejecutar Source CI para la migración, reader, muestreo y nuevas pruebas de integración.
-2. Añadir métricas de broker (queue depth, consumer lag y DLQ depth), además de dashboards y alertas basados en SLO aprobados y evidencia de carga.
+2. Ejecutar Source CI para el reader/channel RabbitMQ y validar sus gauges sobre el broker integrado; añadir métricas de unacked/consumer lag solo con una fuente autoritativa. Después crear dashboards y alertas basados en SLO aprobados y evidencia de carga.
 3. Validar scraping desde la topología real de despliegue, TLS/mTLS, firewall y secret rotation.
 4. Incorporar revisión independiente de seguridad/operación y aceptación del propietario.
 
