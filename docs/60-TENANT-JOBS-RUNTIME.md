@@ -403,3 +403,12 @@ Quedan fuera de este slice los mensajes unacknowledged y el consumer lag autorit
 Se exponen cuatro gauges sin labels: `tenant_job_rabbitmq_worker_queue_ready_messages`, `tenant_job_rabbitmq_worker_queue_consumers`, `tenant_job_rabbitmq_dead_letter_queue_ready_messages` y `tenant_job_rabbitmq_dead_letter_queue_consumers`. Los mensajes unacknowledged quedan fuera de `messageCount`; consumer lag necesita una fuente autoritativa adicional y no se infiere de estos contadores.
 
 El reader usa Basic auth, `cache: no-store`, `redirect: error`, un timeout abortable de 1 500 ms y validación de contadores enteros no negativos. La observabilidad no comparte conexión AMQP del worker. Source CI #466 fue cancelado por pushes posteriores; Source CI #481 está ejecutando la variante con `messages_unacknowledged`. #480 detectó un contador ausente en respuesta 200 de DLQ; se añadió diagnóstico que solo muestra nombres de campos. CodeQL #6 terminó SUCCESS. `messages_ready` y `messages_unacknowledged` se exponen en gauges separados; ninguno de los campos representa consumer lag. TASK-003 sigue `in_progress`; GO-PRODUCTION sigue NO-GO.
+
+
+## 16. Source CI #539 — prueba de transporte y terminal dead-letter (2026-11-08)
+
+Source CI [#539](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42486976106) terminó SUCCESS en commit `c2bb65fc1a506ba54ab3f7662c9bbc759e2b0536`; CodeQL #77 SUCCESS. El target `microservices-meta-ecuapp:test` validó también la suite de transporte RabbitMQ después de retirar las aserciones que dependían de un scrape de Prometheus concurrente. Publisher confirms, routing, ACK y quorum DLX se comprueban mediante el protocolo AMQP con mensajes realmente entregados.
+
+El mismo Source CI ejecutó la integración Meta Webhook sobre PostgreSQL/RabbitMQ: el worker procesó un evento con handler registrado y persistió otro evento válido sin handler como dead-letter terminal; el inbox, receipts y outbox conservan sus límites tenant. El query SQL de dead letters devuelve metadata para el tenant actual y niega contexto ajeno.
+
+TASK-003 permanece `in_progress`: este CI no demuestra handlers de negocio de CRM/Meta, replay end-to-end externo, DLQ operator workflow, Secret Manager/KMS, broker deployment real, alert routing/SLO, carga, DR, ni aceptación independiente/propietario.
