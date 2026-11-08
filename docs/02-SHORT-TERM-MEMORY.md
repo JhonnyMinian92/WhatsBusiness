@@ -621,3 +621,13 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - TASK-004 y TASK-005: implementación y validación automatizada CI verificadas. No declarar accepted ni cerradas globalmente todavía: falta revisión independiente y aceptación del Product Owner.
 - Dependencias/alcance abierto: bootstrap confiable del primer tenant_owner; validar ACR/AMR y freshness con el IdP real (producción sigue fail-closed); endpoints IAM-007..020 continúan catalog-only hasta contract freeze; consumer/outbox de efectos de negocio y gates operativos de auditoría siguen pendientes según sus paquetes.
 - No se cambia GO-PRODUCTION: permanece NO-GO. La suite sintética PostgreSQL/step-up no equivale a una prueba con el IdP ni Meta app reales.
+
+
+## Handoff — US-014: contexto del webhook y eventos compuestos (2026-11-08)
+
+- Rama `environment/local`. Commits: `96506d956c4af70b061d02623fd42c0749f12fea` (decoder) y `5b7374ef39113d4a264bd1c0ccf9d8cda8428948` (tests).
+- Se corrigió la pérdida de `metadata`, `contacts`, `messaging_product` y otros campos hermanos cuando el decoder divide `messages[]`/`statuses[]`. Cada evento incluye `providerContext` cifrado con object type, entry, entry time, field y el resto de `change.value` sin duplicar arrays.
+- `messages[]` y `statuses[]` se procesan independientemente; ninguna rama excluye la otra. La clave de idempotencia se calcula antes de agregar el contexto complementario y permanece estable ante redeliveries con metadata distinta.
+- Regresiones nuevas: `preserves WhatsApp metadata and emits both message and status arrays from one change`; `provider context does not change a message's stable idempotency key`.
+- Source CI #42527271340 y CodeQL #42527271448 iniciados para HEAD `5b7374ef39113d4a264bd1c0ccf9d8cda8428948`; resultado pendiente al corte. No marcar el slice como CI-verified hasta inspeccionar sus conclusiones.
+- US-014/TASK-027/028 continúan `in_progress`. Sin handlers reales, sin replay habilitado; CR-0016, retención, KMS, WAF/rate limit, callbacks Meta reales, deploy/SLO/load/DR, review independiente y aceptación aún abiertos. GO-PRODUCTION NO-GO.
