@@ -72,6 +72,45 @@ export class IdentityService {
     };
   }
 
+
+  /**
+   * Resolves a service credential against its owning, currently active tenant member.
+   * The API-client guard has already validated key digest, expiry and active status;
+   * this method deliberately re-resolves membership and grants on every request.
+   */
+  async authorizeTenantAccessForActor(
+    actorUserId: string,
+    tenantId: string,
+    purpose: string,
+    correlationId: string,
+  ): Promise<TenantAccessContext> {
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(actorUserId)) {
+      throw new ForbiddenException({ code: "DEVELOPER_API_CLIENT_OWNER_INVALID" });
+    }
+    const resolved = await this.repository.tenantContext(actorUserId, tenantId);
+    if (!resolved) {
+      throw new NotFoundException({
+        code: "TENANT_CONTEXT_NOT_FOUND",
+        detail: "El tenant no existe o no es accesible para el propietario de la credencial.",
+      });
+    }
+    return {
+      actorId: actorUserId,
+      tenantId: resolved.tenantId,
+      membershipId: resolved.membershipId,
+      membershipStatus: resolved.membershipStatus,
+      authzVersion: resolved.authzVersion,
+      roleKeys: resolved.roleKeys,
+      permissionKeys: resolved.permissionKeys,
+      entitlementKeys: resolved.entitlementKeys,
+      locale: resolved.locale,
+      timezone: resolved.timezone,
+      currency: resolved.currency,
+      purpose,
+      correlationId,
+    };
+  }
+
   tenantContextResponse(context: TenantAccessContext): TenantContextRecord {
     return {
       tenantId: context.tenantId,
