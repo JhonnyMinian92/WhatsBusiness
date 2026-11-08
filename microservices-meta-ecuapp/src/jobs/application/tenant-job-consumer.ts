@@ -1,3 +1,4 @@
+import { performance } from "node:perf_hooks";
 import { classifyTenantJobFailure, TenantJobFailureError } from "../domain/tenant-job-failure.js";
 import { createTenantJobMessage, type TenantJobMessage } from "../domain/tenant-job-message.js";
 import { TenantJobRetryPolicy } from "../domain/tenant-job-retry-policy.js";
@@ -10,6 +11,10 @@ import type {
 } from "./tenant-job-ports.js";
 import { TenantJobHandlerRegistry } from "./tenant-job-handler.registry.js";
 import { TenantJobExecutionLeaseHeartbeat } from "./tenant-job-execution-lease-heartbeat.js";
+import {
+  NOOP_TENANT_JOB_RUNTIME_METRICS,
+  type TenantJobRuntimeMetrics,
+} from "./tenant-job-runtime-metrics.js";
 
 export type TenantJobConsumeOutcome =
   | "processed"
@@ -28,6 +33,7 @@ export class TenantJobConsumer {
     private readonly random: RandomSource,
     private readonly consumerName: string,
     private readonly heartbeat = new TenantJobExecutionLeaseHeartbeat(repository),
+    private readonly metrics: TenantJobRuntimeMetrics = NOOP_TENANT_JOB_RUNTIME_METRICS,
   ) {
     if (!/^[a-z][a-z0-9.-]{1,95}$/.test(consumerName)) {
       throw new Error("Tenant job consumer name is invalid.");
@@ -43,8 +49,12 @@ export class TenantJobConsumer {
       throw new Error("Tenant job execution lease bounds are invalid.");
     }
 
+    const executionStartedAt = performance.now();
     const claim = await this.repository.claimExecution(canonical.jobId, leaseSeconds);
-    if (!claim) return "not_claimed";
+    if (!claim) {
+      this.metrics.recordExecution("not_claimed", performance.now() - executionStartedAt);
+      return "not_claimed";
+    }
 
     try {
       const context = await this.contexts.resolve(claim.jobId);
@@ -77,6 +87,7 @@ export class TenantJobConsumer {
         );
         await this.repository.complete(client, claim.jobId, claim.leaseToken, this.consumerName);
       });
+      this.metrics.recordExecution("processed", performance.now() - executionStartedAt);
       return "processed";
     } catch (error) {
       const failure = classifyTenantJobFailure(error);
@@ -95,7 +106,9 @@ export class TenantJobConsumer {
         : failure.retryable
           ? new Date(now.getTime() + 1_000)
           : null;
-      return await this.repository.fail(claim.jobId, claim.leaseToken, failure, retryAt);
+      const outcome = await this.repository.fail(claim.jobId, claim.leaseToken, failure, retryAt);
+      this.metrics.recordExecution(outcome, performance.now() - executionStartedAt);
+      return outcome;
     }
   }
 }
