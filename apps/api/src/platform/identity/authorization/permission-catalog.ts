@@ -208,6 +208,31 @@ export const PERMISSION_CATALOG = {
     riskClass: "normal",
     requiresIndependentApproval: false,
   },
+  "ads.creatives.read": {
+    description: "Read tenant creative variants, previews and fatigue evidence",
+    riskClass: "normal",
+    requiresIndependentApproval: false,
+  },
+  "ads.creatives.create": {
+    description: "Create tenant creative asset and variant drafts",
+    riskClass: "normal",
+    requiresIndependentApproval: false,
+  },
+  "ads.creatives.review": {
+    description: "Request and synchronize human approval for a creative variant",
+    riskClass: "critical",
+    requiresIndependentApproval: true,
+  },
+  "ads.experiments.read": {
+    description: "Read tenant creative experiments and test cells",
+    riskClass: "normal",
+    requiresIndependentApproval: false,
+  },
+  "ads.experiments.manage": {
+    description: "Create isolated tenant creative experiment drafts",
+    riskClass: "sensitive",
+    requiresIndependentApproval: false,
+  },
   "ads.draft.create": {
     description: "Create a campaign or creative draft",
     riskClass: "normal",

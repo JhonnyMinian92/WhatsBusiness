@@ -576,3 +576,17 @@ Rutas concretas, contratos HTTP congelados y pruebas detalladas están en docs/7
 | AC-021-04 lease/presencia/no duplicados | TEST-INBOX-003, TEST-INBOX-006, TEST-INBOX-007 | Pass dentro del target independiente |
 
 Evidencia adicional: build/typecheck SUCCESS, CodeQL SUCCESS y suite Meta SUCCESS. La suite API general tiene cuatro fallos ajenos a Inbox (CRM guards y correlation ID en Platform Administration). Source run: [42531505463](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42531505463). CodeQL: [42531505359](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42531505359). TASK-047 permanece in_progress por API freeze+G0 y runtime/persistencia/UI no implementados.
+
+
+## 15. US-030 — Creative Lab, experimentos y fatiga (2026-11-08)
+
+| Criterio | Artefacto incorporado | Estado de implementación al corte | Evidencia/gate pendiente |
+|---|---|---|---|
+| AC-030-01 — creative lineage | creative-variant.ts, provenance humana/AI, rights, claims, version de brand kit, asset fingerprint y snapshots append-only. | Slice de dominio y persistencia; TASK-069 in_progress. | Provider server-side de derechos/consent, brand kit y claims, almacenamiento/scan; revisión independiente. |
+| AC-030-02 — test cells | creative-experiment.ts, presupuesto decimal, una celda control, variantes, variable/KPI, schedule y stop rules. | Drafts persistidos bajo RLS; TASK-070 in_progress. | TASK-067/072, evidencia de audiencia disjoint y provider de asignación; aprobación/ejecución con cuenta elegible. |
+| AC-030-03 — preview/features por placement | creative-provider.adapter.ts y native creative configuration segura. | Port y policy fail-closed; TASK-073 in_progress. | Adapter oficial, endpoint/version y capability evidence por cuenta/placement/feature; contract/account tests. |
+| AC-030-04 — near duplicate e hipótesis | creative-similarity.ts, fingerprint exacto, copy Jaccard y perceptual hash; experimento fuerza variable primaria. | Implementado a nivel de dominio dentro del slice. | Prueba con pipeline real de media perceptual; threshold y revisión de producto. |
+| AC-030-05 — Creative Fatigue / Creative Limited | creative-fatigue.ts; windows Meta Insights comparables, freshness, muestra, frecuencia, CTR, CPA y provider recommendation. | Evaluador y brief de nueva variante; TASK-079 in_progress. | TASK-072 ingestion, observations verificadas, policy administrable por tenant y Recommendations API. |
+| AC-030-06 — promoción/retirada protegida | Approval binding/snapshot y lifecycle de variante; recomendaciones generan solo drafts. | Parte de aplicación y workflow de aprobación incorporada. | Hardening de transición/reconciliación, review independiente y pruebas PostgreSQL de concurrencia/aprobación. |
+
+**Límite de verificación:** las suites de dominio y adapter están registradas en api:test; hasta obtener Source CI verde del commit exacto no se registra ningún PASS. Sin live account/official capability runtime, preview, recomendaciones e insights permanecen bloqueados/desconocidos. No se declara lift causal, ganador automático, publicación ni aumento de presupuesto.

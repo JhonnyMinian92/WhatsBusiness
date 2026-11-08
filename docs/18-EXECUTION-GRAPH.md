@@ -161,7 +161,7 @@ TASK-066 market/ICP validation → pricing/packaging decision and commercial lau
 - TASK-056/065 API and policy registry → TASK-076 policy/feature drift monitor → affected adapter tests/migration tasks.
 - TASK-026/068/070 → TASK-077 incrementality and attribution framework → TASK-078 dashboard/health reporting.
 
-TASK-067..080 remain proposed. No autonomous spend, publication, or live WhatsApp actions are authorized by this documentation change.
+TASK-069, TASK-070, TASK-073 and TASK-079 have a first in-progress Creative Lab slice recorded in docs/76; they are not verified. TASK-070 remains gated by TASK-067 and provider evidence. TASK-067, TASK-071, TASK-072, TASK-074..078 and TASK-080 remain proposed. No autonomous spend, publication, or live WhatsApp actions are authorized by this documentation change.
 
 
 TASK-004 permissions/approval + TASK-029 observability/audit + TASK-067 Campaign Intelligence + TASK-074 Meta Ads MCP + TASK-075 Business Agent handoff → TASK-080 Agent Tool Gateway/MCP server. TASK-080 is a shared control boundary and must be complete before any AI agent performs external write operations.
@@ -170,3 +170,8 @@ TASK-004 permissions/approval + TASK-029 observability/audit + TASK-067 Campaign
 ## 7. Estado observado — US-013 / TASK-026 (2026-11-08)
 
 TASK-026 cuenta con un slice de dominio en `apps/api/src/marketing/conversions` y suites integradas en `api:test`; permanece `in_progress`, porque las dependencias TASK-023/031 no están verificadas, el consentimiento TASK-032 carece de adapter y CAPI-001..004 siguen catalog-only. El DAG no cambia: el gateway persistente/outbox/adapter se implementará después de satisfacer esos gates. No existe external write ni integración de producción.
+
+
+## 9. Estado observado — US-030 / Creative Lab (2026-11-08)
+
+TASK-069/070/073/079 pasan de proposed a in_progress por el slice registrado en apps/api/src/ads/creative-lab y migration 0031. El grafo no cambia: TASK-069 → TASK-073 → TASK-079 → TASK-070; TASK-070 conserva TASK-067 como dependencia. Providers de rights/brand/claims, capability, audiencia, transport y performance evidence no se consideran disponibles por existir interfaces. No hay API pública nueva ni activación de Meta/gasto.

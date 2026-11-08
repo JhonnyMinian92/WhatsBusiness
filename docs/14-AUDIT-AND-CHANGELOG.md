@@ -742,3 +742,17 @@ El Source Validation del HEAD previo también reportó indisponibilidad del endp
 | AUD-216 | Suite Meta backend PostgreSQL/RabbitMQ y análisis CodeQL | Ambos SUCCESS en commit `035f095`. |
 
 El run Source Validation termina FAILURE únicamente por las cuatro aserciones existentes descritas en AUD-215 y por su gate obligatorio; las suites Inbox, build, typecheck, Meta y CodeQL sí terminaron SUCCESS. Véase [docs/75](75-US-021-INBOX-COLLABORATION-DOMAIN-SLICE.md#8-resultados-source-ci-y-codeql--2026-11-08). TASK-047/US-021 permanece `in_progress` por los gates contractuales y la infraestructura runtime que aún faltan.
+
+
+## 53. US-030 — Creative Lab / experimentos / detección de fatiga (2026-11-08)
+
+| ID | Cambio | Estado real |
+|---|---|---|
+| AUD-213 | Modelo versionado de CreativeVariant con human/AI provenance, prompt hash/model, asset metadata, license/consent, claims y brand kit version. | Código de dominio añadido; source review de evidencia rights/brand sigue pendiente. |
+| AUD-214 | Similitud de asset, copy y perceptual hash; detección near-duplicate antes de registrar una variante. | Política de dominio incorporada; thresholds requieren calibración con asset pipeline. |
+| AUD-215 | Experimento con control y variantes, presupuesto exacto, KPI, schedule y stop criteria; evidence provider de audiencias. | Persistencia/RLS de drafts añadida; ejecución de test está fail-closed mientras evidence/provider no esté disponible. |
+| AUD-216 | Provider adapter para preview por placement y whitelist de Advantage+ creative features. | Ports/policies implementados; providers por defecto unavailable, sin requests reales Meta. |
+| AUD-217 | Fatigue assessment basado en ventanas comparables, muestras mínimas y Recommendations nativas; refresh brief draft-only. | Dominio/aplicación incorporados; ingestion TASK-072/policies/Meta Recommendations siguen pendientes. |
+| AUD-218 | Migration 0031 con tablas tenant-scoped, FKs compuestas, RLS, snapshots y recommendations append-only. | SQL incorporado; replay/migración PostgreSQL y Source CI del HEAD pendiente. |
+
+Se añaden suites al target api:test. No se atribuye ejecución exitosa de pruebas, no se habilita API catalog-only y no se realiza gasto/publicación. TASK-069/070/073/079 siguen in_progress hasta Source CI, contract freeze, provider integrations, revisión independiente y aceptación.

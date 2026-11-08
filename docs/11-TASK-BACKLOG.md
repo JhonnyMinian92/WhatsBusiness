@@ -944,3 +944,30 @@ TASK-021 continúa in_progress: Insights sigue fail-closed/unknown, y las operac
 | TASK-052 — administración de tenants, planes, entitlements y soporte | **in_progress**; slice de dominio, aplicación, persistencia y tests incorporados. No verified/accepted. | Migration 0030; módulo \`apps/api/src/platform/administration\`; suites \`platform-administration.policy.spec.ts\` y \`platform-administration.integration.spec.ts\`; detalle docs/76. | Source CI del commit corregido debe pasar; TASK-041 y G0 / API contract freeze; dispatcher TASK-028; adapters reales de medición; integración PAR-007 por recurso; review independiente y Product Owner acceptance. |
 
 La tabla kickoff de TASK-034..041 se conserva como registro histórico. Esta fila es la actualización específica de TASK-052 y no cambia el estado de sus dependencias.
+
+
+## US-030 — Creative Lab y experimentos de anuncios (2026-11-08)
+
+**Estado:** in_progress; slice de dominio, aplicación y persistencia tenant-scoped incorporado. No está verified ni accepted.
+
+| Tarea | Slice incorporado | Pendiente para cierre |
+|---|---|---|
+| TASK-069 — Creative Lab / Experiments | apps/api/src/ads/creative-lab/domain/creative-variant.ts, similitud, derechos/procedencia, brand-kit references, claims y snapshots append-only. | Provider confiable de derechos/consentimiento, brand review y claims; gestión de asset storage/scan; revisión independiente. |
+| TASK-070 — Controlled experiments | creative-experiment.ts y repositorio de test cells con control/variantes, variable primaria, KPI, fechas, stop rules y presupuesto decimal exacto. | TASK-067 / medición y evidencia de audiencias no solapadas; adapter de asignación; contract tests y ejecución controlada con cuenta autorizada. |
+| TASK-073 — Advantage+ Creative / previews | Ports separados para capability evidence y transporte; preview por placement y creative feature keys avaladas. | Provider de capabilities por cuenta, adapter oficial versionado, evidencia de elegibilidad y contract/account tests. No se envían requests Meta con providers placeholder. |
+| TASK-079 — Creative Fatigue | Evaluador de ventanas comparables con muestras mínimas, freshness, frecuencia, CTR y CPA; distingue recomendación nativa creative_limited; refresh brief de una variable. | TASK-072 Insights ingestion, políticas por tenant/objetivo, provider de Performance Recommendations y flujo de revisión del nuevo creative. |
+
+### Seguridad y decisiones no negociables
+
+- Variantes y experimentos son tenant-scoped, usan idempotencia, snapshots append-only, optimismo de versión, FKs compuestas y RLS FORCE ROW LEVEL SECURITY.
+- El contenido creativo conserva provenance humana/AI, prompt/model/hash, source references, brand kit version, asset hash/MIME/size, rights/license, consent y claim evidence. Las referencias de asset son claves de almacenamiento, no URLs arbitrarias.
+- Las similitudes exactas, de texto normalizado y perceptuales solo son heurísticas de deduplicación; nunca se presentan como verificación legal o semántica.
+- Los test cells deben contener exactamente una celda control, al menos una variante, monedas homogéneas y suma de presupuestos exactamente igual al presupuesto total. La evidencia de audiencia la entrega un provider server-side, no el payload del cliente.
+- El preview y las funciones Advantage+ quedan detrás de evidencia fresca de operation, ad account, asset grant, API version, placement y feature key. unknown bloquea la llamada externa.
+- Fatigue solo se calcula con dos ventanas Meta Insights comparables y observadas; causalLiftEstablished=false. Sin muestra/frescura, el resultado es insufficient_data/stale_data, no una alerta de fatiga.
+- Aceptar una recomendación crea un brief en estado draft; no genera assets, no reemplaza automáticamente un ganador y no activa gasto.
+- No se añadieron controladores ni se activaron IDs ADS/META catalog-only. La app conserva providers unavailable por defecto y no ejecuta llamadas a Meta.
+
+**Migración:** apps/api/migrations/0031-ads-creative-lab.sql.  
+**Evidencia de pruebas incorporada al target api:test:** cinco suites unitarias de dominio y una suite del adapter. Resultado de Source CI, migraciones PostgreSQL/RLS y CodeQL debe anotarse con el commit exacto antes de marcar cualquier tarea verified.  
+**Bloqueos transversales:** TASK-024/025/056, TASK-067/072, API contract freeze, Meta credentials/capability runtime, derechos/brand review, integración oficial, review independiente y Product Owner acceptance. GO-PRODUCTION permanece NO-GO.

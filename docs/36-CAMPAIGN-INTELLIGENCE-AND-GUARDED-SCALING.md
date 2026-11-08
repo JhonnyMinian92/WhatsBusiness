@@ -197,3 +197,12 @@ Automatically stop further scaling/creative promotion and raise an incident/reco
 
 No budget can be increased outside the platform cap merely because an agent has permission to call the API. Human approval never overrides Meta policy, consent, asset scopes or account restrictions.
 
+
+
+## 11. US-030 — Creative Lab y experimentación controlada (2026-11-08)
+
+El primer slice interno conserva lineage/provenance de assets y variantes, fingerprint contra near-duplicates, test cells con presupuesto decimal y evidencia de audiencia, previews condicionadas por placement/capability, y una evaluación de fatiga que distingue recomendaciones del proveedor de heurísticas internas. La semántica de métricas se conserva: atribución declarada por Meta no equivale a incrementalidad y el evaluador devuelve causalLiftEstablished=false.
+
+El pipeline propuesto es: asset ingest/rights → brand review → policy/claims review → preview por placement → approval → experiment/control cells → lectura de Insights → fatigue assessment → refresh brief draft → aprobación independiente. Las variantes no se activan automáticamente ni sustituyen una ganadora. El spend cap sigue sujeto al guardrail TASK-025 y el command gateway de TASK-080.
+
+Al corte, TASK-069/070/073/079 están in_progress. Faltan TASK-067/072, providers confiables de derechos/brand/audiencias/capabilities, adaptación oficial Marketing API por versión, ingestión de Insights/Performance Recommendations, calibración de thresholds, contract freeze, revisión independiente y Source CI del commit exacto. No se habilitan endpoints públicos ni acciones externas.
