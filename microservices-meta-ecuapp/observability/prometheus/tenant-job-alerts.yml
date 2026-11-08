@@ -1,0 +1,82 @@
+groups:
+  - name: whatsbusiness.tenant-jobs
+    rules:
+      - alert: WhatsBusinessTenantJobMetricsTargetDown
+        expr: up{job="whatsbusiness-tenant-jobs"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: microservices-meta-ecuapp
+        annotations:
+          summary: "No se pueden recolectar métricas del runtime de tenant jobs"
+          description: "Verificar listener /metrics, red privada, TLS/mTLS, bearer token y disponibilidad del worker."
+
+      - alert: WhatsBusinessTenantJobDispatchBlocked
+        expr: tenant_job_dispatch_blocked > 0
+        for: 1m
+        labels:
+          severity: critical
+          service: microservices-meta-ecuapp
+        annotations:
+          summary: "Hay jobs bloqueados en el outbox"
+          description: "Investigar el error normalizado y aplicar reparación/replay únicamente mediante el flujo administrativo aprobado."
+
+      - alert: WhatsBusinessTenantJobDeadLetterBacklog
+        expr: tenant_job_rabbitmq_dead_letter_queue_ready_messages > 0
+        for: 5m
+        labels:
+          severity: warning
+          service: microservices-meta-ecuapp
+        annotations:
+          summary: "La DLQ contiene mensajes pendientes"
+          description: "Inspeccionar causa, retención y runbook; no hacer purge ni replay masivo."
+
+      - alert: WhatsBusinessTenantJobQueueWithoutConsumers
+        expr: tenant_job_rabbitmq_worker_queue_ready_messages > 0 and tenant_job_rabbitmq_worker_queue_consumers == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: microservices-meta-ecuapp
+        annotations:
+          summary: "Hay mensajes listos y ningún consumer registrado"
+          description: "Verificar estado del worker, conectividad AMQPS, handlers registrados y política de reconexión."
+
+      - alert: WhatsBusinessTenantJobDispatchBacklogAge
+        expr: tenant_job_oldest_pending_dispatch_age_seconds > 60
+        for: 5m
+        labels:
+          severity: warning
+          service: microservices-meta-ecuapp
+        annotations:
+          summary: "El outbox acumula jobs antiguos"
+          description: "Revisar dispatcher, publisher confirms, permisos DB y salud del broker. El umbral es operativo inicial, no un SLO."
+
+      - alert: WhatsBusinessTenantJobExpiredLeases
+        expr: tenant_job_dispatch_leases_expired > 0 or tenant_job_execution_leases_expired > 0
+        for: 2m
+        labels:
+          severity: warning
+          service: microservices-meta-ecuapp
+        annotations:
+          summary: "Hay leases vencidos pendientes de recuperación"
+          description: "Revisar ciclo de recovery, disponibilidad PostgreSQL y fencing; confirmar que las filas vuelvan a estado reclamable."
+
+      - alert: WhatsBusinessTenantJobRuntimeErrors
+        expr: increase(tenant_job_runtime_errors_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+          service: microservices-meta-ecuapp
+        annotations:
+          summary: "El supervisor del runtime registró errores"
+          description: "Consultar logs estructurados por código normalizado; los errores de scraping no deben detener recovery ni dispatch."
+
+      - alert: WhatsBusinessTenantJobLeaseRenewalLost
+        expr: increase(tenant_job_lease_renewal_total{outcome="lost"}[5m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+          service: microservices-meta-ecuapp
+        annotations:
+          summary: "Un worker perdió un execution lease"
+          description: "Comprobar latencia DB, pausas del proceso y fencing; el handler debe abortarse y no confirmar efectos externos."
