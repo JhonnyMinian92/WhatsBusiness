@@ -1,4 +1,9 @@
+import { performance } from "node:perf_hooks";
 import { classifyTenantJobFailure } from "../domain/tenant-job-failure.js";
+import {
+  NOOP_TENANT_JOB_RUNTIME_METRICS,
+  type TenantJobRuntimeMetrics,
+} from "./tenant-job-runtime-metrics.js";
 import { createTenantJobMessage } from "../domain/tenant-job-message.js";
 import { TenantJobRetryPolicy } from "../domain/tenant-job-retry-policy.js";
 import type {
@@ -23,6 +28,7 @@ export class TenantJobOutboxDispatcher {
     private readonly retryPolicy: TenantJobRetryPolicy,
     private readonly clock: Clock,
     private readonly random: RandomSource,
+    private readonly metrics: TenantJobRuntimeMetrics = NOOP_TENANT_JOB_RUNTIME_METRICS,
   ) {}
 
   async dispatchBatch(
@@ -61,12 +67,15 @@ export class TenantJobOutboxDispatcher {
     readonly dispatchAttempt: number;
     readonly leaseToken: string;
   }): Promise<"published" | "scheduledForRetry" | "blocked" | "lostLease"> {
+    const publishStartedAt = performance.now();
     try {
       await this.publisher.publish(
         createTenantJobMessage(claim.jobId),
         "jobs." + claim.jobType,
       );
+      this.metrics.recordPublish("success", performance.now() - publishStartedAt);
     } catch (error) {
+      this.metrics.recordPublish("error", performance.now() - publishStartedAt);
       const failure = classifyTenantJobFailure(error);
       const decision = this.retryPolicy.decide(
         claim.dispatchAttempt,
@@ -83,10 +92,13 @@ export class TenantJobOutboxDispatcher {
         failure.code,
         blocked,
       );
-      return released ? (blocked ? "blocked" : "scheduledForRetry") : "lostLease";
+      const outcome = released ? (blocked ? "blocked" : "scheduledForRetry") : "lostLease";
+      this.metrics.recordDispatch(outcome === "scheduledForRetry" ? "scheduled_for_retry" : outcome === "lostLease" ? "lost_lease" : outcome);
+      return outcome;
     }
 
     const marked = await this.repository.markPublished(claim.jobId, claim.leaseToken);
+    this.metrics.recordDispatch(marked ? "published" : "lost_lease");
     return marked ? "published" : "lostLease";
   }
 }
