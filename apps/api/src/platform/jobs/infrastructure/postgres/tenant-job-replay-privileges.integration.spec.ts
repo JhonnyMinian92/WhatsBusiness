@@ -14,7 +14,7 @@ test("API database role cannot read replay payload or forge replay lineage", {
       can_read_payload: boolean;
       can_insert_replay_lineage: boolean;
       can_execute_authorized_replay: boolean;
-      can_execute_unchecked_replay: boolean;
+      cannot_execute_unchecked_replay: boolean;
     }>(
       [
         "SELECT",
@@ -23,17 +23,15 @@ test("API database role cannot read replay payload or forge replay lineage", {
         "OR has_column_privilege(current_user, 'platform.tenant_job_records', 'replay_approval_id', 'INSERT')",
         "OR has_column_privilege(current_user, 'platform.tenant_job_records', 'replay_requested_by_user_id', 'INSERT')",
         "OR has_column_privilege(current_user, 'platform.tenant_job_records', 'replay_reason_code', 'INSERT') AS can_insert_replay_lineage,",
-        "has_function_privilege(current_user, 'platform.create_authorized_tenant_job_replay(uuid,uuid)', 'EXECUTE')",
-        "AS can_execute_authorized_replay",
-        "NOT has_function_privilege(current_user, 'platform.create_approved_tenant_job_replay(uuid,uuid)', 'EXECUTE')",
-        "AS can_execute_unchecked_replay",
+        "has_function_privilege(current_user, 'platform.create_authorized_tenant_job_replay(uuid,uuid)', 'EXECUTE') AS can_execute_authorized_replay,",
+        "NOT has_function_privilege(current_user, 'platform.create_approved_tenant_job_replay(uuid,uuid)', 'EXECUTE') AS cannot_execute_unchecked_replay",
       ].join(" "),
     );
     assert.deepEqual(result.rows[0], {
       can_read_payload: false,
       can_insert_replay_lineage: false,
       can_execute_authorized_replay: true,
-      can_execute_unchecked_replay: true,
+      cannot_execute_unchecked_replay: true,
     });
   } finally {
     await pool.end();
