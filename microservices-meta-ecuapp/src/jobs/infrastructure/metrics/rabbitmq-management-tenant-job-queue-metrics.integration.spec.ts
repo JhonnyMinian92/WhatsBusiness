@@ -42,8 +42,10 @@ test("reads live RabbitMQ Management API queue metrics with a monitoring-only id
     });
 
     await channels.consumer.assertExchange(exchange, "topic", { durable: false, autoDelete: true });
-    await channels.consumer.assertQueue(workerQueue, { durable: false, exclusive: false, autoDelete: true });
-    await channels.consumer.assertQueue(deadLetterQueue, { durable: false, exclusive: false, autoDelete: true });
+    // RabbitMQ 4.4 rejects transient non-exclusive classic queues. These per-run
+    // fixtures are connection-scoped, so exclusive auto-delete queues are correct.
+    await channels.consumer.assertQueue(workerQueue, { durable: false, exclusive: true, autoDelete: true });
+    await channels.consumer.assertQueue(deadLetterQueue, { durable: false, exclusive: true, autoDelete: true });
     await channels.consumer.bindQueue(workerQueue, exchange, "worker");
     await channels.consumer.bindQueue(deadLetterQueue, exchange, "dead");
 
