@@ -88,7 +88,7 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
     );
 
     await publisher.publish(job, "jobs.integration.dead-letter");
-    const poison = await channels.consumer.get(queue, false);
+    const poison = await waitForUnackedDelivery(channels.consumer, queue, 5_000);
     assert.ok(poison, "The persistent message should be ready in the quorum source queue.");
     channels.consumer.nack(poison, false, false);
 

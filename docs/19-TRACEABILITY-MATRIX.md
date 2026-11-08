@@ -280,3 +280,14 @@ Source CI #527 terminó cancelled tras el timeout de 30 minutos dentro del targe
 | Mensaje de integración se enruta solo a la cola temporal que se está midiendo | TASK-003 / TASK-028 | `rabbitmq-transport.integration.spec.ts` | Topología de prueba crea los exchanges sin inicializar la cola worker de producción ni su binding global `jobs.#` | implementado; Source CI posterior pendiente |
 | Ingress puede insertar inbox/outbox idempotente sin leer payload protegido | TASK-027 | Migración `0019-meta-webhook-ingress-conflict-key-select.sql` | SELECT de columnas de conflicto `app_id/provider_product/idempotency_key` y `event_id`; prueba existente mantiene denegado SELECT(payload_ciphertext) | implementado; PostgreSQL CI posterior pendiente |
 | Source CI posterior | TASK-003/027/028 | Source CI #528 / CodeQL #66 | 80/82 backend tests PASS; build/typecheck/migrations/idempotence previas SUCCESS; CodeQL SUCCESS | diagnóstico verificado; no CI verde del commit corregido |
+
+
+## Evidence map — Source CI #536 y aislamiento de roles (2026-11-08)
+
+| Resultado / criterio | Tarea | Código / contrato | Evidencia / estado |
+|---|---|---|---|
+| El worker recibe eventos con ACK manual y redelivery después de pérdida del canal | TASK-003 / TASK-028 | `rabbitmq-transport.integration.spec.ts` | Entrega básica, mandatory routing, ACK, quorum DLX, redelivery verificados en Source CI #536 |
+| Ingress escribe el inbox/outbox solo en contexto del tenant | TASK-027 | Migración 0020 y `stage_meta_webhook_event_outbox` | Función SECURITY DEFINER con tenant derivado del inbox y contexto transaccional; prueba cross-tenant en #536 |
+| Source CI/CodeQL completo | TASK-003/027/028 | #536 / #74 | SUCCESS: instalación frozen, migrations/idempotence, build, typecheck y targets test; CodeQL success |
+| App login no puede asumir el rol ingress ni recuperar permisos amplios de outbox | TASK-027 | Migración 0021 y `postgres-meta-webhook.integration.spec.ts` | Implementado; CI siguiente pendiente |
+

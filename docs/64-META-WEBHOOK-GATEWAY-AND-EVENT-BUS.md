@@ -135,3 +135,4 @@ La prueba de transporte RabbitMQ inicializaba la topología de producción y su 
 La prueba PostgreSQL encontró que el rol `whatsbusiness_app` tenía permisos INSERT por columna pero no SELECT sobre las columnas que intervienen en las claves de conflicto del INSERT idempotente. La migración 0019 añade únicamente esos permisos de lectura de metadata para inbox/outbox; no permite acceder al ciphertext ni a las columnas criptográficas.
 
 **Verificación pendiente:** la migración 0019, su idempotencia y ambas integraciones deben pasar en el siguiente Source CI. TASK-027/028 no están cerradas ni aceptadas.
+undefined

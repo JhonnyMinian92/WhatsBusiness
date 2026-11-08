@@ -379,3 +379,14 @@ Source CI #42431530685 terminó SUCCESS para el commit `6059822896987fc618c479d5
 | AUD-124 | Source CI [#528](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42485100001) en commit `a00c4b318021d12e84cc5fe98c23f4da6639b65a`: install frozen, migraciones 0001–0018/idempotencia, provisioning DB, build y typecheck SUCCESS; `api:test` SUCCESS; backend tests 80 PASS / 2 FAIL. CodeQL [#66](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42485100046) SUCCESS. | No se declara Source CI verde. |
 
 **Estado de las tareas:** el test harness deja de bloquearse y se han corregido las dos causas observadas; la migración 0019 y los nuevos tests esperan Source CI. TASK-003/027/028 continúan `in_progress`. Handler externo real, replay autorizado end-to-end, CR-0016, fixture/conformance oficial Meta, KMS/Secret Manager, rate limiting/WAF, retención, topology/observability deployment, load/DR, review independiente y aceptación permanecen pendientes.
+
+
+## 32. Source CI #536 verde y hardening de membresía del rol ingress — TASK-003/027/028 (AUD-125..127; 2026-11-08)
+
+| ID | Evidencia / cambio | Estado |
+|---|---|---|
+| AUD-125 | Source CI [#536](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42486399710), commit `cfe7019f4e6712055d50424ecf8f498ecf074c51`: SUCCESS en frozen install, migraciones 0001–0020/idempotencia, build, typecheck, API tests, backend tests y cleanup PostgreSQL/RabbitMQ. CodeQL [#74](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42486399698): SUCCESS. | CI verified para el HEAD evaluado. |
+| AUD-126 | La integración PostgreSQL prueba staging tenant-checked y verifica que la cuenta no puede leer outbox/ciphertext; RabbitMQ prueba entrega AMQP, ACK, mandatory routing, quorum DLX y redelivery sin acoplar estado de entrega a la métrica asíncrona. | Verificado en #536. |
+| AUD-127 | Migración 0021 revoca la membresía de `whatsbusiness_app` en `whatsbusiness_webhook_ingress_role` y retira INSERT/SELECT del outbox al grupo, para que NOINHERIT no se eluda mediante SET ROLE. Añade pruebas de membresía y ACL del grupo. | Implementado; Source CI siguiente pendiente. |
+
+La rama recibió después de #536 el commit automático `ff89b71`, que cambia solo el lockfile pnpm validado por el workflow. La tarea permanece en progreso porque la verificación automatizada del slice no cubre todavía todos los acceptance criteria operativos ni los handlers de negocio. No se declara producción/aceptación.

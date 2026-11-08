@@ -113,6 +113,31 @@ test("PostgreSQL webhook inbox persists idempotently, fences tenant processing a
       (error: unknown) => (error as { code?: string }).code === "42501",
       "The API ingress login must not inspect internal outbox rows.",
     );
+    await assert.rejects(
+      ingress.query(
+        "INSERT INTO platform.meta_webhook_event_outbox (event_id, tenant_id) VALUES ($1, $2)",
+        [storedEvents.rows[0]!.id, tenantId],
+      ),
+      (error: unknown) => (error as { code?: string }).code === "42501",
+      "The API ingress login must stage outbox rows only through its tenant-checked function.",
+    );
+    const roleMembership = await ingress.query<{ member: boolean }>(
+      "SELECT pg_has_role(current_user, 'whatsbusiness_webhook_ingress_role', 'MEMBER') AS member",
+    );
+    assert.equal(roleMembership.rows[0]?.member, false, "The API login must not be able to SET ROLE to the broader ingress role.");
+    const roleOutboxPrivileges = await ingress.query<{ canRead: boolean; canInsert: boolean }>(
+      [
+        "SELECT",
+        "has_column_privilege('whatsbusiness_webhook_ingress_role', 'platform.meta_webhook_event_outbox', 'event_id', 'SELECT') AS \"canRead\",",
+        "has_column_privilege('whatsbusiness_webhook_ingress_role', 'platform.meta_webhook_event_outbox', 'event_id', 'INSERT') AS \"canInsert\"",
+      ].join(" "),
+    );
+    assert.deepEqual(roleOutboxPrivileges.rows[0], { canRead: false, canInsert: false });
+    await assert.rejects(
+      ingress.query("SET ROLE whatsbusiness_webhook_ingress_role"),
+      (error: unknown) => (error as { code?: string }).code === "42501",
+      "The API login must not assume the shared ingress group role.",
+    );
 
     const duplicate = await ingressRepository.persistBatch([input]);
     assert.deepEqual(duplicate, { accepted: 0, duplicates: 1 });

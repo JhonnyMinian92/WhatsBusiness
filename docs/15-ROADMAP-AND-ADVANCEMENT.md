@@ -198,3 +198,11 @@ Estado actual:
 - La integración RabbitMQ ahora crea únicamente exchanges y usa la cola temporal para la prueba; la migración 0019 añade SELECT por columna sobre las claves únicas necesarias para ON CONFLICT, sin abrir ciphertext.
 - CodeQL #66 SUCCESS. El siguiente gate es Source CI para el commit que incluye estos dos ajustes y la migración 0019, incluida la repetición idempotente de migraciones.
 - TASK-003/027/028 siguen in_progress. El cierre funcional todavía exige handlers/replay reales, límites operativos y aceptación independiente; GO-PRODUCTION sigue NO-GO.
+
+
+## Actualización de ejecución — Source CI #536 y hardening pendiente (2026-11-08)
+
+- Source CI #536 SUCCESS: instalación congelada, migraciones 0001–0020 e idempotencia, build, typecheck, `api:test`, `microservices-meta-ecuapp:test` y limpieza de servicios efímeros.
+- CodeQL #74 SUCCESS. El commit posterior ff89b71 es la sincronización automática del lockfile, no un cambio de lógica.
+- Se comprobó que `NOINHERIT` no impide `SET ROLE` cuando la membresía mantiene SET habilitado. Se agregó migración 0021 para retirar la membresía redundante y los grants de outbox al grupo; las pruebas de ACL requieren Source CI posterior.
+- TASK-003/027/028 siguen in_progress; los siguientes cierres son hardening de permisos, handlers idempotentes de negocio, replay con aprobación, políticas de retención, KMS, WAF/rate limits, despliegue/observabilidad, carga/DR y revisión independiente. GO-PRODUCTION sigue NO-GO.

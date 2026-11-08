@@ -452,3 +452,12 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Fallo RabbitMQ: `RabbitMqJobTopology.initialize()` enlazaba la cola de producción con `jobs.#`, por lo que el routing key de integración podía entrar allí y no en el destino temporal. El test cambia a declarar únicamente exchanges y enlaza la cola temporal al mismo exchange.
 - Fallo PostgreSQL: `whatsbusiness_app` tenía INSERT por columnas pero carecía SELECT de las claves usadas por `ON CONFLICT`; migración 0019 concede SELECT de columnas de conflicto del inbox y outbox, sin ciphertext/nonce/tag. La integración ya verifica el rechazo de SELECT(payload_ciphertext).
 - Siguiente paso: Source CI debe aplicar 0019, verificar idempotencia y pasar las dos integraciones. TASK-003/027/028 siguen `in_progress`; no declarar verificado ni accepted.
+
+
+## Handoff — Source CI #536 SUCCESS y último hardening del login ingress (2026-11-08)
+
+- Source CI #536 (42486399710) sobre `cfe7019f4e6712055d50424ecf8f498ecf074c51`: SUCCESS. Frozen install, provisioning, migraciones 0001–0020 e idempotencia, build, typecheck, `api:test`, `microservices-meta-ecuapp:test` y cleanup PostgreSQL/RabbitMQ finalizaron bien.
+- CodeQL #74 (42486399698): SUCCESS. Commit automático ff89b71 cambia solo pnpm-lock.yaml.
+- Código ya usa la función tenant-checked `stage_meta_webhook_event_outbox(uuid)`; integración confirma que el evento no se puede stagear desde otro tenant y que app no lee el outbox ni payload cifrado.
+- Hardening pendiente CI: migración 0021 elimina la membresía app→ingress role (NOINHERIT no bloquea SET ROLE de memberships SET habilitadas) y revoca a ese grupo grants de lectura/escritura del outbox; test verifica ACL + SET ROLE denegado.
+- TASK-003/027/028 siguen in_progress; no declarar acceptance ni GO-PRODUCTION. Quedan pendientes handlers productivos idempotentes, replay autorizado con approval/audit, retención/CR-0016, KMS, WAF/rate limiting, despliegue real, observabilidad/SLO, load/DR y review/owner acceptance.
