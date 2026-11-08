@@ -811,3 +811,17 @@ La implementación de TASK-004 y TASK-005 fue publicada y verificada por CI en c
 | TASK-005 | implemented + CI verified | Step-up fail-closed, aprobación independiente hash-bound/quorum/consumo de un solo uso, escritura de rol y auditoría en transacción; denegaciones sensibles registradas con authzVersion vigente; integración PostgreSQL de asignar/revocar/rollback/último owner/audit stream PASS | IdP real y allowlists ACR/AMR verificadas; revisión independiente; aceptación del Product Owner; completar outbox/consumer de acciones de negocio y gates de auditoría externa según su alcance |
 
 **Estado de la historia US-002:** criterios técnicos del núcleo de identidad implementados y verificados por CI; estado global continúa in_progress, no accepted. No se publicaron endpoints IAM catalog-only. GO-PRODUCTION permanece NO-GO.
+
+
+## Handoff — US-014: conservar contexto de proveedor en eventos divididos (2026-11-08)
+
+**Alcance:** TASK-027 / TASK-028; corrección de integridad del decoder de eventos antes de conectar consumidores de negocio.
+
+- El decoder anterior separaba `change.value.messages[]` y `change.value.statuses[]` en eventos independientes, pero entregaba al handler solo el elemento de cada array. Se perdían metadatos hermanos de `value`, incluidos `metadata.phone_number_id`, `contacts` y `messaging_product`, necesarios para enrutar por número empresarial y correlacionar remitente.
+- `DecodedMetaWebhookEvent.payload` conserva ahora el payload individual en sus claves superiores y añade `providerContext` con tipo de objeto, ID de entry, hora de entry, campo y `value` no-evento. Las listas `messages` y `statuses` no se copian para evitar duplicación.
+- Las ramas para `messages` y `statuses` ahora son independientes; si ambas existen en el mismo `change.value`, se producen ambos conjuntos de eventos. La clave de idempotencia se calcula antes de añadir contexto y no cambia cuando varían metadatos de delivery.
+- Pruebas nuevas en `meta-webhook-event.spec.ts`: conservación de metadata/contactos y procesamiento simultáneo de ambas listas; invariancia de idempotencia del mismo message ID ante cambios de metadata.
+- Commits: `96506d956c4af70b061d02623fd42c0749f12fea` (dominio) y `5b7374ef39113d4a264bd1c0ccf9d8cda8428948` (regresiones). Source CI #42527271340 y CodeQL #42527271448 se lanzaron para este HEAD; estaban `in_progress` al registrar el cambio. No declarar pass hasta inspeccionar ambos resultados finales.
+- Sin migración, cambio de endpoint o modificación del envelope RabbitMQ: el contexto complementario sigue protegido en el payload cifrado del inbox. No se expone PII en el mensaje broker.
+
+**Estado de US-014:** avance de implementación; TASK-027/028 continúan `in_progress`, no `verified` ni `accepted`. Siguen pendientes handlers reales de cada bounded context, CR-0016 (retención y ventana/condiciones de replay), replay webhook con aprobaciones/audit cuando la política esté aprobada, KMS/Secret Manager y rotación, rate limit/WAF/TLS en perímetro, fixtures oficiales por producto/cuenta Meta elegible, wiring/despliegue operativo, SLO/alertas, carga/DR, review independiente y Product Owner acceptance.
