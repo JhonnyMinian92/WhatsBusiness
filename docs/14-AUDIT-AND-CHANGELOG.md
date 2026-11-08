@@ -723,3 +723,10 @@ El Source Validation del HEAD previo también reportó indisponibilidad del endp
 | AUD-209 | Seed DB de permisos \`developer.*\` ya utilizados por las plantillas de roles | Evita deriva entre RoleCatalog y PermissionCatalog al hacer provisioning; incluido en migration 0030 |
 | AUD-210 | Grant SQL \`UPDATE(status)\` restringido para retirar versiones de plan | Habilita la transición active → retired protegida por trigger; el contenido de la versión sigue inmutable |
 | AUD-211 | Integración PostgreSQL ampliada para publicar v2, cambiar suscripción, retirar v1 y rechazar una nueva asignación de v1 | Código de test incorporado; pendiente resultado CI del HEAD |
+
+
+## 52. Sincronización de permisos del rol tenant_owner (2026-11-08)
+
+| ID | Hallazgo | Corrección |
+|---|---|---|
+| AUD-212 | Comparación automatizada PermissionCatalog TypeScript vs. seeds históricos encontró cuatro claves WhatsApp Templates ausentes | Migration 0030 ahora inserta \`whatsapp.templates.read/create/update/delete\` junto a \`developer.*\` y \`billing.usage.read\`; provisioning ya no debe fallar por deriva del catálogo. Validación CI pendiente. |
