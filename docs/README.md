@@ -200,3 +200,8 @@ El estado de validación, las propuestas de eventos pendientes y el GO/NO-GO arq
 ## 71 — WhatsApp Template Lifecycle
 
 [71 — Administración del ciclo de vida de plantillas WhatsApp](71-WHATSAPP-TEMPLATE-LIFECYCLE.md) documenta US-006, TASK-014/015, implementación interna tenant-scoped, validación, preview, revisiones, RLS, idempotencia, pruebas y bloqueos reales.
+
+
+## 72 — CAPI Event Gateway
+
+[72 — CAPI: eventos, consentimiento y medición](72-CAPI-EVENT-GATEWAY.md) registra el slice de dominio de US-013/TASK-026, sus tests y los gates que impiden todavía activar la integración externa.
