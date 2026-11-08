@@ -255,13 +255,15 @@ export class PlatformAdministrationRepository implements PlatformAdministrationP
         "SELECT platform.has_platform_role($1,'support_jit') AS allowed",[command.operatorUserId]);
       if(operator.rows[0]?.allowed!==true) throw new ForbiddenException({code:"SUPPORT_OPERATOR_NOT_REGISTERED",detail:"El operador no está habilitado para soporte JIT."});
       const inserted=await client.query<{id:string}>(
-        "INSERT INTO platform.support_grants(tenant_id,operator_user_id,requested_by_user_id,approved_by_user_id,reason,purpose,scopes,valid_from,expires_at,correlation_id) VALUES($1,$2,$3,$4,$5,$6,$7::text[],$8,$9,$10) RETURNING id::text",
+        "INSERT INTO platform.support_grants(tenant_id,operator_user_id,requested_by_user_id,approved_by_user_id,approval_step_up_auth_time,approval_step_up_acr,approval_step_up_amr,reason,purpose,scopes,valid_from,expires_at,correlation_id) VALUES($1,$2,$3,$4,$5,$6,$7::text[],$8,$9,$10::text[],$11,$12,$13) RETURNING id::text",
         [command.tenantId,command.operatorUserId,command.requestedByUserId,command.approvedByUserId,
-          command.reason.trim(),command.purpose,[...command.scopes],command.validFrom,command.expiresAt,command.correlationId]);
+          command.stepUpAuthTime,command.stepUpAcr??null,[...command.stepUpAmr],command.reason.trim(),command.purpose,
+          [...command.scopes],command.validFrom,command.expiresAt,command.correlationId]);
       const grantId=inserted.rows[0]?.id;
       if(!grantId) throw new Error("Support grant insert returned no id.");
       const requestHash=this.hash({operatorUserId:command.operatorUserId,reason:command.reason,purpose:command.purpose,
-        scopes:command.scopes,validFrom:command.validFrom,expiresAt:command.expiresAt,approvedBy:command.approvedByUserId});
+        scopes:command.scopes,validFrom:command.validFrom,expiresAt:command.expiresAt,approvedBy:command.approvedByUserId,
+        stepUpAuthTime:command.stepUpAuthTime,stepUpAcr:command.stepUpAcr??null,stepUpAmr:command.stepUpAmr});
       await this.tenantAudit.append(client,{
         tenantId:command.tenantId,actorUserId:command.requestedByUserId,actionKey:"support.grant.requested",
         resourceType:"support_grant",resourceId:grantId,purpose:"platform.support.grant",
