@@ -306,7 +306,7 @@ CREATE POLICY creative_experiment_cells_insert ON ads.creative_experiment_cells
     AND EXISTS (
       SELECT 1 FROM ads.creative_experiments experiment
       WHERE experiment.tenant_id = tenant_id AND experiment.id = experiment_id
-        AND experiment.created_by = NULLIF(current_setting('app.user_id', true), '')
+        AND experiment.created_by = NULLIF(current_setting('app.user_id', true), '')::uuid
         AND experiment.status = 'draft'
     )
   );

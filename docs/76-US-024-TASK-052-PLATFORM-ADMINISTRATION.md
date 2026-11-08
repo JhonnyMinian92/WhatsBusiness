@@ -98,3 +98,8 @@ El chequeo estático completo del PermissionCatalog frente a todas las migracion
 ## Addendum RLS de workers y soporte — 2026-11-08
 
 La segunda ejecución PostgreSQL mostró que la política de INSERT del ledger invocaba la función de tenant medible, pero RLS impedía leer la fila tenant cuando el actor era \`usage_ingestor\` (sin membership). Se agregaron dos políticas SELECT estrictamente contextuales: usage ingestor y soporte JIT pueden ver la fila metadata de un único tenant, solo cuando coincide con \`app.tenant_id\`. Ninguna política convierte esos roles en miembros ni permite leer entidades/contactos/conversaciones. El test PostgreSQL debe volver a confirmar ingestion, resumen y grants JIT.
+
+
+## Addendum de compatibilidad de migraciones adyacentes — 2026-11-08
+
+La siguiente migración preexistente, \`0031-ads-creative-lab.sql\` (US-030), contenía una comparación UUID/text sin cast en la política de lectura de \`ads.creative_experiments\`. El pipeline aplicaba 0030 correctamente y luego fallaba al procesar 0031. Se corrigió la conversión explícita \`::uuid\` del contexto OIDC. Este ajuste no amplía el alcance funcional de US-024; se registra como defecto de compatibilidad de migraciones descubierto por el Source CI de esta historia.

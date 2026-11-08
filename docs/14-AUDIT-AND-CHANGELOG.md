@@ -766,3 +766,10 @@ Se añaden suites al target api:test. No se atribuye ejecución exitosa de prueb
 | AUD-214 | La validación de grant JIT debe inspeccionar lifecycle activo sin convertir soporte en miembro | SELECT contextual para \`support_jit\` solo sobre el tenant explícitamente enlazado. \`can_use_tenant()\` y RLS de recursos permanecen sin bypass. |
 
 La ejecución de CI anterior pasó build/typecheck y 355/356 API tests; el fallo restante fue precisamente el INSERT de \`usage_ledger\` bloqueado por esa visibilidad contextual. Se conserva no-verificado hasta que pase el test de integración completo en el nuevo HEAD.
+
+
+## 54. Compatibilidad de migraciones Ads/Creative Lab detectada durante US-024 (2026-11-08)
+
+| ID | Hallazgo | Corrección |
+|---|---|---|
+| AUD-215 | \`0031-ads-creative-lab.sql\` comparaba \`experiment.created_by uuid\` con \`current_setting() text\` sin conversión | Cast \`::uuid\` agregado a la política tenant-scoped. Corrección de migración adyacente US-030; sin cambio de alcance contractual. |
