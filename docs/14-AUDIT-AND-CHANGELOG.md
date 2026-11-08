@@ -794,3 +794,17 @@ La ejecución de CI anterior pasó build/typecheck y 355/356 API tests; el fallo
 | Seguridad de HEAD compartido | CodeQL \`42533056607\`, mismo HEAD | Aprobado | CodeQL pasó, pero no sustituye el build ni hace verde el Source workflow. |
 
 **Decisión:** TASK-069, TASK-070, TASK-073 y TASK-079 permanecen \`in_progress\`. Los tests de dominio pasan, pero faltan providers autoritativos de derechos/consentimiento/marca/claims, ingestión TASK-072, asignación server-side de audiencias disjuntas, adapter oficial Meta con capabilities por cuenta/versión/placement, contract tests, review independiente y Product Owner acceptance. No se habilitan endpoints públicos, publicación ni gasto.
+
+## 51. US-031 / TASK-074, TASK-075, TASK-080 — interoperabilidad de agentes (2026-11-08)
+
+| ID | Cambio / control | Resultado al registrar |
+|---|---|---|
+| AUD-217 | Catálogo de siete Ads tools y schema validator estricto con rechazo de propiedades extra/secretos | Código incorporado; ejecución CI pendiente. |
+| AUD-218 | Gateway tenant/purpose/scope, binding exacto de aprobación, quorum, self-approval, confirmación humana e idempotencia | Código incorporado; fuentes reales de approval/confirmation no cableadas; external writes fail-closed. |
+| AUD-219 | migration 0032: runtime policy disabled, kill switch, rate buckets, idempotencia terminal, audit append-only y RLS | SQL incorporado; ejecución PostgreSQL CI pendiente. |
+| AUD-220 | Inbox dedupe, echo suppression y supresión por owner para prevenir loops/doble reply | Policy + suite incorporadas; webhook consumer y persistencia durable pendientes. |
+| AUD-221 | Adaptador Meta Ads MCP read-only + servidor MCP stateless con discover/list/call | Código y suites incorporados; sin OAuth resource server ni transporte HTTP expuesto. |
+| AUD-222 | Wiring NestJS de Ads handler, gateway y MCP interno, sin habilitar rutas contract-gated | Código incorporado; build/typecheck/CI del SHA final pendiente. |
+| AUD-223 | Nuevas suites añadidas a `api:test` e `inbox-domain-test` | Registro de tests incorporado; no se informa PASS hasta tener CI del SHA exacto. |
+
+TASK-074/075/080 continúan `in_progress`, no `verified`/`accepted`. OAuth/capability Meta, Inbox consumer durable, API-CONTRACT-FREEZE+G0 y CI/review siguen pendientes. OpenWA/WhatsApp Web siguen excluidos; GO-PRODUCTION NO-GO. Ver [docs/77](77-US-031-AGENT-TOOL-INTEROPERABILITY.md).

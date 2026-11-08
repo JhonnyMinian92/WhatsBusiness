@@ -7,10 +7,11 @@ import { MetaWebhooksModule } from "./platform/webhooks/meta-webhooks.module.js"
 import { CrmContactsModule } from "./crm/crm-contacts.module.js";
 import { WhatsAppTemplatesModule } from "./whatsapp/whatsapp-templates.module.js";
 import { AdsCampaignsModule } from "./ads/campaigns/application/ads-campaigns.module.js";
+import { AgentToolsModule } from "./agents/agent-tools.module.js";
 import { CreativeLabModule } from "./ads/creative-lab/application/creative-lab.module.js";
 import { PlatformAdministrationModule } from "./platform/administration/platform-administration.module.js";
 
 @Module({
-  imports: [HealthModule, IdentityModule, IsolationModule, TenantJobsModule, MetaWebhooksModule, CrmContactsModule, WhatsAppTemplatesModule, AdsCampaignsModule, CreativeLabModule, PlatformAdministrationModule],
+  imports: [HealthModule, IdentityModule, IsolationModule, TenantJobsModule, MetaWebhooksModule, CrmContactsModule, WhatsAppTemplatesModule, AdsCampaignsModule, AgentToolsModule, CreativeLabModule, PlatformAdministrationModule],
 })
 export class AppModule {}

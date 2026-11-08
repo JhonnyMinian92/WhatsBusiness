@@ -335,3 +335,20 @@ Las policies son código de dominio y no habilitan endpoints congelados. Source 
 - Suite API general: 356 casos; 352 pass, 4 fail ajenos a Inbox: tres pruebas de CRM con expectativa de `OidcAuthGuard` distinta al guard declarado en el controller y una integración de Platform Administration sin correlation ID requerido.
 - Source CI: [42531505463](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42531505463); CodeQL: [42531505359](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42531505359).
 - **TASK-047/US-021 continúa in_progress** por contract freeze/G0, almacenamiento durable/RLS, CAS/outbox, workers, API habilitada, UI/E2E y aceptación/revisión independiente.
+
+## US-031 — TASK-074, TASK-075 y TASK-080: entrega de código parcial (2026-11-08)
+
+### Entregables incorporados
+
+- TASK-074: catálogo Ads de tools y gateway común; handler sobre `AdsCampaignApplicationService`; Meta Ads MCP read-only con evidencia account-scoped.
+- TASK-075: policy Inbox pura con dedupe namespaced, suppression de ecos y ownership; reutiliza las policies existentes de lease/handoff/reply-authority.
+- TASK-080: gateway NestJS interno, MCP stateless, PostgreSQL idempotency terminal/rate/audit, schemas estrictos, permissions y kill-switch.
+
+### Acceptance gates abiertos
+
+- AGT/INB permanecen catalog-only con `x-implementation-allowed=false`; sin controllers/rutas hasta API-CONTRACT-FREEZE+G0.
+- OAuth/resource-server, Meta identity/capability, approval/human confirmation facts, Inbox webhook consumer/outbox y elegibilidad Meta Business Agent por país/canal no están cableados.
+- Runtime policy nueva por tenant: `enabled=false` y `kill_switch_active=true`. El despliegue no activa herramientas.
+- Suites registradas en `apps/api/project.json`; exigir Source CI/CodeQL y revisión independiente para validar.
+
+**Estado:** TASK-074/075/080 `in_progress`, no verified/accepted. Detalle: [docs/77](77-US-031-AGENT-TOOL-INTEROPERABILITY.md).

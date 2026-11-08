@@ -150,3 +150,14 @@ La instrucción más reciente del propietario autoriza avanzar de inmediato con 
 El propietario aclaró que CRM con IA significa machine learning clásico y estadística aplicada, no LLM ni agentes de IA. Los modelos candidatos incluyen regresión, clasificación, XGBoost/gradient boosting, clustering, modelos temporales/supervivencia y redes neuronales ligeras solo cuando una evaluación cuantitativa justifique su coste. Los casos incluyen lead scoring, probabilidad de conversión, forecast, churn, propensión, segmentación, LTV, ranking de siguiente acción y deduplicación asistida. Las predicciones no conceden permisos ni producen acciones irreversibles automáticamente.
 
 La especificación canónica es [docs/62](62-CRM-MACHINE-LEARNING-STRATEGY.md). No crear LLM, RAG ni agentes dentro del bounded context CRM.
+
+## US-031 — estado de implementación (2026-11-08)
+
+- TASK-074/075/080 tienen un slice inicial de código en `feat/us-031-agent-tool-interoperability`; las tres siguen `in_progress`.
+- Se incorporó gateway interno de Ads tools con schema, validación, tenant/purpose/scope, approval ligado a fingerprint/recurso, rate limit, idempotencia y audit. El adapter Ads reutiliza Campaign Lifecycle; Meta Ads MCP queda read-only.
+- migration 0032 añade runtime policies (disabled + kill switch por defecto), idempotencia terminal, buckets de rate y audit append-only. MCP stateless está registrado internamente sin HTTP route.
+- Inbox incorpora policy de dedupe/echo suppression y reutiliza ownership lease/handoff/reply authority.
+- No están cableados OAuth/resource server, Meta account eligibility, approval/human confirmation facts ni Inbox webhook consumer/outbox durable. Capability y aprobación desconocidas bloquean external writes.
+- AGT/INB siguen catalog-only hasta API-CONTRACT-FREEZE+G0. No se realizaron operaciones reales en Meta; OpenWA/WhatsApp Web continúan excluidos.
+- Tests añadidos a `apps/api/project.json`; no declararlos PASS sin Source CI/PostgreSQL del SHA. GO-PRODUCTION NO-GO.
+- Detalle: [docs/77](77-US-031-AGENT-TOOL-INTEROPERABILITY.md).

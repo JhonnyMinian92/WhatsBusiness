@@ -971,3 +971,15 @@ La tabla kickoff de TASK-034..041 se conserva como registro histórico. Esta fil
 **Migración:** apps/api/migrations/0031-ads-creative-lab.sql.  
 **Evidencia de pruebas:** las seis suites agregadas registraron 26/26 pruebas Creative Lab aprobadas en Source run 42532889134 (commit 1dc4545); migration apply/idempotency, build y typecheck también pasaron, y CodeQL 42532889226 pasó. El workflow completo quedó bloqueado por el fallo preexistente de Platform Administration sobre RLS de platform.usage_ledger (reproducido antes de US-030 en run 42531885574). El HEAD compartido posterior e48b229 tiene además 63 errores TypeScript de Developer Platform y Source run 42533056750 no pasa build. Las tareas US-030 siguen in_progress.  
 **Bloqueos transversales:** TASK-024/025/056, TASK-067/072, API contract freeze, Meta credentials/capability runtime, derechos/brand review, integración oficial, review independiente y Product Owner acceptance. GO-PRODUCTION permanece NO-GO.
+
+## US-031 / TASK-074, TASK-075 y TASK-080 — avance de implementación (2026-11-08)
+
+| Tarea | Estado | Código incorporado | Pendiente / gate |
+|---|---|---|---|
+| TASK-074 | **in_progress** | Catálogo Ads de siete tools, gateway con policy/approval/idempotency/audit, handler que reutiliza `AdsCampaignApplicationService`, Meta Ads MCP adapter read-only. | OAuth/remote MCP real, capability por cuenta, human approval evidence, Source CI/PostgreSQL, API contract freeze y prueba autorizada. |
+| TASK-075 | **in_progress** | Política Inbox de dedupe namespaced, echo suppression y bloqueo por ownership; reuse de lease/handoff/reply authority. | Webhook consumer/persistencia/outbox, provider identity Meta BA, elegibilidad país/canal, handoff real y E2E. |
+| TASK-080 | **in_progress** | Gateway interno, schemas, servidor MCP stateless, migration 0032, rate buckets, idempotencia terminal, redacción y audit append-only. | OAuth resource server/HTTP transport, API-CONTRACT-FREEZE+G0, resolver real de capabilities/aprobaciones, rollout autorizado, CI/CodeQL y review independiente. |
+
+AC-031-01..04 quedan parciales; AC-031-05 (no OpenWA/WhatsApp Web) implementado en este boundary, sujeto a CI/review. Ninguna tarea está `verified` o `accepted`.
+
+**Seguridad:** políticas tenant nacen `enabled=false` + `kill_switch_active=true`. Capability Meta y approval/confirmation desconocidas bloquean external writes. AGT/INB siguen catalog-only; no se añadieron rutas ni contratos. No se hicieron operaciones reales Meta. Ver [docs/77](77-US-031-AGENT-TOOL-INTEROPERABILITY.md).

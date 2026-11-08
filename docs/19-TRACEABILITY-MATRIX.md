@@ -590,3 +590,15 @@ Evidencia adicional: build/typecheck SUCCESS, CodeQL SUCCESS y suite Meta SUCCES
 | AC-030-06 — promoción/retirada protegida | Approval binding/snapshot y lifecycle de variante; recomendaciones generan solo drafts. | Parte de aplicación y workflow de aprobación incorporada. | Hardening de transición/reconciliación, review independiente y pruebas PostgreSQL de concurrencia/aprobación. |
 
 **Evidencia:** 26/26 pruebas específicas de las seis suites Creative Lab pasaron en run 42532889134 (commit 1dc4545); build/typecheck y migration replay/idempotency también pasaron en ese commit, y CodeQL 42532889226 pasó. El agregador global sigue rojo por el test Platform Administration sobre RLS de platform.usage_ledger, reproducido en el baseline previo a US-030 (run 42531885574). El HEAD compartido posterior e48b229 falla build por 63 errores TypeScript en Developer Platform (run 42533056750); no corresponden a esta historia. Sin live account/official capability runtime, preview, recomendaciones e insights permanecen bloqueados/desconocidos. No se declara lift causal, ganador automático, publicación ni aumento de presupuesto.
+
+## 8. US-031 — interoperabilidad de agentes y herramientas Meta
+
+| Criterio | Implementación | Suites registradas | Estado / gate |
+|---|---|---|---|
+| AC-031-01 actor/provider/purpose/tenant/recurso/scope/approval | `agents/application/agent-tool-gateway.service.ts`, `postgres-agent-tool-infrastructure.ts`, migration 0032 | gateway + PostgreSQL infrastructure | Parcial; consumer Inbox y CI/PostgreSQL real pendientes. |
+| AC-031-02 Ads/MCP drafts, preview, insights, publication approval | catálogo, `AdsCampaignAgentToolHandler`, Meta MCP read-only adapter | validator + adapter Meta | Parcial; OAuth, capability por cuenta, approvals/confirmation source y remote transport. |
+| AC-031-03 Meta BA ownership/handoff/loop prevention | `agent-message-coordination.policy.ts` + policies existentes de lease/handoff/reply-authority | coordinación Inbox | Parcial; consumer/outbox/dedupe durable/provider identity/eligibility country-channel. |
+| AC-031-04 MCP least privilege/schema/rate/audit/human confirmation | MCP stateless interno, domain policy, PostgreSQL ports | policy, gateway, MCP, PostgreSQL | Parcial; OAuth HTTP resource server, approval source, contract freeze/G0. |
+| AC-031-05 sin OpenWA/WhatsApp Web bypass | allowlist/policy rechaza ambos proveedores | policy + gateway | Implementado en boundary; CI/security review pendiente. |
+
+TASK-074/075/080: `in_progress`. Código/tests no sustituyen el API-CONTRACT-FREEZE+G0, evidencia real del proveedor ni Source CI. Ver [docs/77](77-US-031-AGENT-TOOL-INTEROPERABILITY.md).

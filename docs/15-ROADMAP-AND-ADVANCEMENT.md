@@ -441,3 +441,12 @@ Se añadió un slice puro bajo `apps/api/src/inbox/domain`:
 - La suite API general tiene 4 fallos ajenos a Inbox (tres expectations de guards CRM y un fixture de Platform Administration sin correlation ID); el workflow completo mantiene FAILURE por ese gate, no por Inbox.
 - No cerrar la historia: operaciones INB-006..014/018 siguen contract-only hasta API-CONTRACT-FREEZE+G0. Persistencia/RLS, CAS/outbox, workers de presencia/expiry, controllers, integración TASK-045, UI/E2E, revisión independiente y Product Owner acceptance siguen pendientes.
 - Evidencia, run IDs y causas: [docs/75-US-021-INBOX-COLLABORATION-DOMAIN-SLICE.md](75-US-021-INBOX-COLLABORATION-DOMAIN-SLICE.md).
+
+## US-031 / TASK-074, TASK-075, TASK-080 — avance incremental (2026-11-08)
+
+- **Estado:** las tres tareas siguen `in_progress`; US-031 no está aceptada.
+- **Código:** catálogo Ads de siete tools; gateway con validación, scope/purpose/tenant, approvals, idempotencia, rate limits y audit; Ads adapter sobre Campaign Lifecycle; Meta Ads MCP limitado a lectura; MCP stateless interno; coordinación Inbox para echo/dedupe/ownership.
+- **Fail-closed:** runtime policy tenant `enabled=false` y kill switch activo. Capability Meta y approval/human confirmation desconocidas deniegan escrituras externas. Resultado externo incierto es terminal `outcome_unknown`. OpenWA/WhatsApp Web excluidos.
+- **No entregado:** OAuth/resource server, remote MCP HTTP transport, controllers AGT/INB, API-CONTRACT-FREEZE+G0, capability por cuenta/país/canal, webhook consumer/outbox durable, approval/confirmation evidence provider y operación de rollout.
+- **Validación:** suites registradas en `apps/api/project.json`; no hay PASS CI/PostgreSQL reportado para el SHA de entrega. Requiere Source CI/CodeQL y revisión independiente.
+- **Detalle:** [docs/77 — US-031 Agent Tool Interoperability](77-US-031-AGENT-TOOL-INTEROPERABILITY.md). GO-PRODUCTION sigue NO-GO.

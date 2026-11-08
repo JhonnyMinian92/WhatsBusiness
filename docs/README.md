@@ -233,3 +233,7 @@ Los instrumentos de campo están en research/us-028/: guía de entrevistas, regl
 ## 76 — US-024 / TASK-052: Platform Administration
 
 [76 — Administración SaaS de tenants, planes, consumo y soporte JIT](76-US-024-TASK-052-PLATFORM-ADMINISTRATION.md) documenta AC-024-01..04, módulo, migración, pruebas, decisiones de seguridad, resultado CI observado y gates abiertos.
+
+## 77 — US-031 / Agent Tool Interoperability
+
+[77 — Interoperabilidad de agentes, Meta Ads MCP y Meta Business Agent](77-US-031-AGENT-TOOL-INTEROPERABILITY.md) documenta TASK-074/075/080, gateway interno, schemas, autorización/approval, idempotencia, rate limit, audit, coordinación Inbox, suites registradas y gates reales pendientes.
