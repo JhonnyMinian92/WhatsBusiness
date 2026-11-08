@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { DatabaseModule } from "../platform/database/database.module.js";
 import { IdentityModule } from "../platform/identity/identity.module.js";
+import { DeveloperPlatformModule } from "../platform/developer/developer-platform.module.js";
 import { ContactController } from "./contacts/http/contact.controller.js";
 import { ContactIdentityController } from "./contacts/http/contact-identity.controller.js";
 import { ContactDuplicateCandidateController } from "./contacts/http/contact-duplicate-candidate.controller.js";
@@ -13,7 +14,7 @@ import { PostgresContactIdentityRepository } from "./contacts/infrastructure/pos
 import { PostgresContactDuplicateCandidateRepository } from "./contacts/infrastructure/postgres-contact-duplicate-candidate.repository.js";
 
 @Module({
-  imports: [DatabaseModule, IdentityModule],
+  imports: [DatabaseModule, IdentityModule, DeveloperPlatformModule],
   controllers: [ContactController, ContactIdentityController, ContactDuplicateCandidateController],
   providers: [
     ContactService,
