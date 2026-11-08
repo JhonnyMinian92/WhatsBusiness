@@ -347,6 +347,47 @@ export class ApprovalWorkflowService {
     );
   }
 
+  async getApprovalSummary(
+    subject: TenantAccessContext,
+    approvalId: string,
+  ): Promise<ApprovalRequestSummary> {
+    this.assertApprovalId(approvalId);
+    if (
+      !subject.permissionKeys.includes("approvals.read")
+      && !subject.permissionKeys.includes("approvals.create")
+      && !subject.permissionKeys.includes("approvals.decide")
+    ) {
+      throw new ForbiddenException({
+        code: "APPROVAL_READ_NOT_AUTHORIZED",
+        detail: "El actor no puede consultar esta solicitud de aprobación.",
+      });
+    }
+
+    return this.database.withTenantContextAtVersion(
+      subject.actorId,
+      subject.tenantId,
+      subject.authzVersion,
+      async (client) => {
+        const selected = await client.query<ApprovalRequestRow>(
+          [
+            "SELECT id::text, tenant_id::text, requester_user_id::text, action_key, purpose, resource_type, resource_id, request_hash, required_approvals, status, expires_at, created_at",
+            "FROM platform.approval_requests WHERE id = $1 AND tenant_id = $2",
+          ].join(" "),
+          [approvalId, subject.tenantId],
+        );
+        const request = selected.rows[0];
+        if (!request) {
+          throw new NotFoundException({
+            code: "APPROVAL_NOT_FOUND",
+            detail: "La solicitud no existe o no es visible para este actor.",
+          });
+        }
+        const counts = await this.approvalCounts(client, request.id, subject.tenantId);
+        return this.toSummary(request, counts.approved_count);
+      },
+    );
+  }
+
   async getApprovalEvidence(
     subject: TenantAccessContext,
     approvalId: string,
