@@ -1,51 +1,10 @@
 import type { PoolClient } from "pg";
-
-export interface TenantJobReplaySource {
-  readonly id: string;
-  readonly tenantId: string;
-  readonly actorUserId: string;
-  readonly purpose: string;
-  readonly correlationId: string;
-  readonly jobType: string;
-  readonly requestSha256: string;
-  readonly status: string;
-  readonly attempts: number;
-  readonly maxAttempts: number;
-  readonly errorCode: string | null;
-  readonly deadLetterReason: string | null;
-}
-
-export interface CreateTenantJobReplayRequest {
-  readonly tenantId: string;
-  readonly approvalId: string;
-  readonly source: TenantJobReplaySource;
-  readonly requesterUserId: string;
-  readonly idempotencyKey: string;
-  readonly reasonCode: string;
-  readonly replayPolicyVersion: string;
-}
-
-export interface TenantJobReplayRequestRecord {
-  readonly tenantId: string;
-  readonly approvalId: string;
-  readonly sourceJobId: string;
-  readonly requesterUserId: string;
-  readonly idempotencyKey: string;
-  readonly reasonCode: string;
-  readonly sourceJobType: string;
-  readonly sourceRequestSha256: string;
-  readonly sourceDeadLetterReason: string;
-  readonly sourceErrorCode: string | null;
-  readonly sourceAttempts: number;
-  readonly sourceMaxAttempts: number;
-  readonly replayPolicyVersion: string;
-  readonly replayJobId: string | null;
-  readonly approvalStatus: "pending" | "approved" | "rejected" | "expired" | "cancelled" | "consumed";
-  readonly requiredApprovals: number;
-  readonly approvedCount: number;
-  readonly expiresAt: string;
-  readonly createdAt: string;
-}
+import type {
+  CreateTenantJobReplayRequest,
+  TenantJobReplayRepository,
+  TenantJobReplayRequestRecord,
+  TenantJobReplaySource,
+} from "../../application/tenant-job-replay.repository.js";
 
 interface SourceRow {
   readonly id: string;
@@ -84,7 +43,7 @@ interface ReplayRequestRow {
   readonly created_at: Date | string;
 }
 
-export class PostgresTenantJobReplayRepository {
+export class PostgresTenantJobReplayRepository implements TenantJobReplayRepository {
   async findSource(
     client: PoolClient,
     tenantId: string,
