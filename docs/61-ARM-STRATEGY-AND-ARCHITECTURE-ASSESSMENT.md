@@ -131,3 +131,7 @@ Las definiciones de ARM citadas describen usos de mercado concretos, no un está
 ## 11. Criterio de cierre
 
 La evaluación queda lista para decisión de producto, pero no para declarar una migración implementada. El cierre requiere confirmar la expansión de ARM, aprobar el posicionamiento, actualizar docs/29 y los contratos/roadmap afectados, y después implementar mediante bounded contexts sin romper el CRM existente.
+
+## 12. Vigencia y supersession (2026-11-07)
+
+La recomendación provisional de adoptar agentic CRM y añadir Agent Management & Orchestration quedó supersedida por la aclaración expresa del propietario. CRM seguirá como núcleo y su inteligencia será machine learning clásico/estadístico; no LLM ni agentes de IA. ARM y Agent Management quedan fuera del alcance actual. Este documento se conserva como investigación histórica del término ARM y no dispara tareas de implementación. Ver PD-005 y docs/62.
