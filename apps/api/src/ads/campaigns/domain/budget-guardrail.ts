@@ -55,6 +55,9 @@ export function evaluateAdsBudgetChange(
 ): AdsBudgetGuardrailDecision {
   const current = parseAdsMoney(input.current);
   const requested = parseAdsMoney(input.requested);
+  if (!isAdsMoneyPositive(requested)) {
+    return decision(false, "unchanged", "ADS_BUDGET_AMOUNT_INVALID");
+  }
   if (current.currency !== requested.currency) {
     return decision(false, "unchanged", "ADS_BUDGET_CURRENCY_MISMATCH");
   }
