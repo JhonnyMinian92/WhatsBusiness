@@ -66,13 +66,18 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
   const channels = await factory.open(brokerUrl!, "whatsbusiness-jobs-integration");
   let queueName: string | null = null;
   let deadLetterQueueName: string | null = null;
+  let integrationExchangeName: string | null = null;
   let unroutedExchangeName: string | null = null;
 
   try {
-    // Avoid declaring the production worker queue here: its broad jobs.#
-    // binding would also receive the message and make the temporary queue
-    // assertion non-deterministic.
-    await channels.consumer.assertExchange(TENANT_JOB_RABBITMQ_TOPOLOGY.exchange, "topic", {
+    // Use an isolated exchange: the redelivery integration test and the
+    // production topology may be initialized concurrently by Node's test
+    // runner. Sharing the production exchange lets its jobs.# binding consume
+    // a copy before this temporary queue can assert its own ready count.
+    const suffix = randomUUID().replaceAll("-", "");
+    const integrationExchange = "whatsbusiness.jobs.integration." + suffix;
+    integrationExchangeName = integrationExchange;
+    await channels.consumer.assertExchange(integrationExchange, "topic", {
       durable: true,
       autoDelete: false,
     });
@@ -80,7 +85,6 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
       durable: true,
       autoDelete: false,
     });
-    const suffix = randomUUID().replaceAll("-", "");
     const queue = "whatsbusiness.jobs.integration." + suffix + ".worker";
     queueName = queue;
     const deadLetterQueue = "whatsbusiness.jobs.integration." + suffix + ".dlq";
@@ -102,12 +106,12 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
       durable: true, exclusive: false, autoDelete: false,
       arguments: { "x-queue-type": "quorum" },
     });
-    await channels.consumer.bindQueue(queue, TENANT_JOB_RABBITMQ_TOPOLOGY.exchange, "jobs.integration.#");
+    await channels.consumer.bindQueue(queue, integrationExchange, "jobs.integration.#");
     await channels.consumer.bindQueue(deadLetterQueue, TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterExchange, deadLetterRoutingKey);
 
     const publisher = new RabbitMqTenantJobPublisher(
       channels.publisher,
-      TENANT_JOB_RABBITMQ_TOPOLOGY.exchange,
+      integrationExchange,
     );
     const job = createTenantJobMessage(TEST_JOB_ID);
 
@@ -141,7 +145,7 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
       0,
     );
 
-    const unroutedExchange = "whatsbusiness.jobs.integration.unrouted";
+    const unroutedExchange = integrationExchange + ".unrouted";
     unroutedExchangeName = unroutedExchange;
     await channels.consumer.assertExchange(unroutedExchange, "topic", { durable: true });
     const unroutedPublisher = new RabbitMqTenantJobPublisher(channels.publisher, unroutedExchange);
@@ -179,6 +183,7 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
     if (queueName) await channels.consumer.deleteQueue(queueName).catch(() => undefined);
     if (deadLetterQueueName) await channels.consumer.deleteQueue(deadLetterQueueName).catch(() => undefined);
     if (unroutedExchangeName) await channels.consumer.deleteExchange(unroutedExchangeName).catch(() => undefined);
+    if (integrationExchangeName) await channels.consumer.deleteExchange(integrationExchangeName).catch(() => undefined);
     await channels.close().catch(() => undefined);
   }
 });
