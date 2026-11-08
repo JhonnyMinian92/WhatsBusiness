@@ -308,6 +308,27 @@ export class PostgresAdsCampaignRepository implements AdsCampaignRepository {
     return mapCommand(row);
   }
 
+  async findPauseCommand(
+    client: PoolClient,
+    tenantId: string,
+    idempotencyKey: string,
+    requestHash: string,
+  ): Promise<AdsCampaignCommandRecord | null> {
+    const result = await client.query<CommandRow & { request_hash: string }>(
+      "SELECT id::text, campaign_id::text, command_type, status, created_at, request_hash FROM ads.campaign_commands WHERE tenant_id = $1 AND idempotency_key = $2",
+      [tenantId, idempotencyKey],
+    );
+    const row = result.rows[0];
+    if (!row) return null;
+    if (row.command_type !== "pause" || row.request_hash !== requestHash) {
+      throw new ConflictException({
+        code: "ADS_CAMPAIGN_COMMAND_IDEMPOTENCY_CONFLICT",
+        detail: "La clave ya se utilizó para una acción Ads diferente.",
+      });
+    }
+    return mapCommand(row);
+  }
+
   async stagePublication(
     client: PoolClient,
     input: {
