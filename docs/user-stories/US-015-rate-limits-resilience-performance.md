@@ -14,7 +14,7 @@ Como plataforma multi-tenant que consume productos oficiales de Meta, necesito a
 | Respeto de Retry-After y cooldown de uso; backoff exponencial con full jitter. | Implementado |
 | Reconciliación obligatoria para escrituras ambiguas; no reenviar resultados desconocidos. | Implementado |
 | Bulkheads por tenant y producto, con cola acotada; Redis para varias réplicas. | Implementado |
-| Circuit breaker independiente por producto y recuperación half-open. | Implementado en proceso |
+| Circuit breaker independiente por producto y recuperación half-open. | Implementado por proceso |
 | Caché de metadatos por tenant/activo, TTL, coalescencia e invalidación; Redis disponible. | Implementado |
 | Paginación por cursor y checkpoints recuperables en PostgreSQL con RLS. | Implementado |
 | Batch loader acotado para evitar N+1 sin asumir soporte batch en todos los edges. | Implementado |
@@ -33,7 +33,7 @@ Como plataforma multi-tenant que consume productos oficiales de Meta, necesito a
 - Ninguna escritura no idempotente se repite sin reconciliación. Un resultado desconocido se considera ambiguo y no se vuelve a enviar.
 - Los checkpoints son al menos una vez: el handler consumidor debe ser idempotente.
 - El lease de bulkhead Redis (120 s por defecto) debe superar el timeout HTTP máximo.
-- El breaker y el batch loader son locales al proceso; el código documenta este límite.
+- El breaker es local al proceso; Redis comparte rate limits, caché y bulkheads. El batch loader coalesce lecturas dentro del proceso.
 
 ## Validación local
 Node.js 22+ y npm:
@@ -43,7 +43,7 @@ npm run clean
 npm run typecheck
 npm test
 ```
-Suite local antes de preparar esta rama: **32 pruebas, 32 aprobadas, 0 fallidas**.
+En la copia de desarrollo con el conjunto extendido de pruebas: **32 pruebas, 32 aprobadas, 0 fallidas**. Esta PR añade una suite de 8 pruebas contractuales; el repositorio no tenía workflow de CI configurado y no se reportan resultados de CI para la rama.
 
 ## Pendientes de integración real
 1. Provisionar Redis y conectarlo desde el composition root de API/workers.
