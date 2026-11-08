@@ -444,3 +444,11 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Se encontró el teardown defectuoso en rabbitmq-transport.integration.spec.ts: los nombres de colas definidos dentro del try se usaban en finally, pudiendo generar ReferenceError y omitir channels.close(). La limpieza ahora conserva los nombres fuera del bloque y siempre cierra la sesión AMQP.
 - El manifest Nx tenía una ruta a meta-webhook-worker.runtime.spec.ts inexistente. La ruta fue sustituida por la nueva suite meta-webhook-worker.supervisor.spec.ts, con cobertura de broker no disponible, cierre de pool, validación de handlers y política de reconexión.
 - No afirmar que el CI está verde hasta revisar el siguiente Source CI. TASK-003/027/028 siguen in_progress; no activar replay ni handlers externos sin evidencia de idempotencia de efectos de negocio y gates aprobados. GO-PRODUCTION sigue NO-GO.
+
+
+## Handoff — RabbitMQ routing fixture y PostgreSQL ingress grants (2026-11-08)
+
+- Source CI #528 en commit `a00c4b318021d12e84cc5fe98c23f4da6639b65a`: la suite ya finaliza en ~10 s (sin timeout), 80/82 tests del backend pasaron; `api:test`, frozen install, migraciones/idempotencia 0001–0018, build y typecheck SUCCESS. CodeQL #66 SUCCESS.
+- Fallo RabbitMQ: `RabbitMqJobTopology.initialize()` enlazaba la cola de producción con `jobs.#`, por lo que el routing key de integración podía entrar allí y no en el destino temporal. El test cambia a declarar únicamente exchanges y enlaza la cola temporal al mismo exchange.
+- Fallo PostgreSQL: `whatsbusiness_app` tenía INSERT por columnas pero carecía SELECT de las claves usadas por `ON CONFLICT`; migración 0019 concede SELECT de columnas de conflicto del inbox y outbox, sin ciphertext/nonce/tag. La integración ya verifica el rechazo de SELECT(payload_ciphertext).
+- Siguiente paso: Source CI debe aplicar 0019, verificar idempotencia y pasar las dos integraciones. TASK-003/027/028 siguen `in_progress`; no declarar verificado ni accepted.

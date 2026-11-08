@@ -368,3 +368,14 @@ Source CI #42431530685 terminó SUCCESS para el commit `6059822896987fc618c479d5
 | AUD-121 | Pruebas de shutdown fail-safe | La suite nueva cubre fallo de conexión RabbitMQ, cancelación del ciclo de reconexión, cierre del pool PostgreSQL, fail-closed sin handlers y validación de límites de reconexión. Source CI posterior a la corrección pendiente; no se asigna estado CI-verified todavía. |
 
 **Estado:** Source CI #527 había agotado los 30 minutos dentro de microservices-meta-ecuapp:test, aunque instalación, migraciones/idempotencia, build y typecheck finalizaron SUCCESS. La causa potencial de socket retenido se encontró en el teardown de la prueba de transporte. La corrección se debe considerar implementada pero no verificada hasta que el siguiente Source CI termine SUCCESS. No cambiar TASK-003/027/028 a verified ni accepted.
+
+
+## 31. Diagnóstico y corrección de los fallos restantes de Source CI #528 — TASK-003/027/028 (AUD-122..124; 2026-11-08)
+
+| ID | Cambio / evidencia | Estado |
+|---|---|---|
+| AUD-122 | Source CI #528 confirmó que el lifecycle corregido termina normalmente: `microservices-meta-ecuapp:test` concluyó en ~10 s, el cleanup cerró contenedores y 80/82 pruebas pasaron. Falló una integración RabbitMQ porque el fixture inicializaba también la cola de producción y su binding `jobs.#`; el routing key de test se publicaba tanto a la cola de producción como a la temporal, por lo que el contador de esta última permanecía en 0. El test ahora crea solo los exchanges y deja como destino el binding temporal. | Corrección implementada; CI posterior pendiente. |
+| AUD-123 | La integración PostgreSQL falló en `persistBatch` por falta de SELECT de columnas de clave única en `ON CONFLICT`. Migración 0019 otorga SELECT de `app_id`, `provider_product`, `idempotency_key` en inbox y `event_id` en outbox; no abre lectura de payload cifrado ni columnas criptográficas. | Migración añadida; aplicación/idempotencia y test real pendientes. |
+| AUD-124 | Source CI [#528](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42485100001) en commit `a00c4b318021d12e84cc5fe98c23f4da6639b65a`: install frozen, migraciones 0001–0018/idempotencia, provisioning DB, build y typecheck SUCCESS; `api:test` SUCCESS; backend tests 80 PASS / 2 FAIL. CodeQL [#66](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42485100046) SUCCESS. | No se declara Source CI verde. |
+
+**Estado de las tareas:** el test harness deja de bloquearse y se han corregido las dos causas observadas; la migración 0019 y los nuevos tests esperan Source CI. TASK-003/027/028 continúan `in_progress`. Handler externo real, replay autorizado end-to-end, CR-0016, fixture/conformance oficial Meta, KMS/Secret Manager, rate limiting/WAF, retención, topology/observability deployment, load/DR, review independiente y aceptación permanecen pendientes.

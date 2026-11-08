@@ -190,3 +190,11 @@ Estado actual:
 - Source CI #527 finalizó cancelled después de 30 minutos dentro de microservices-meta-ecuapp:test. Instalación frozen, migraciones e idempotencia, roles DB, build y typecheck fueron SUCCESS; el paso pendiente fue completar las suites del backend.
 - Se corrigió el teardown de la prueba RabbitMQ para que los recursos temporales no queden fuera de ámbito y la conexión se cierre siempre. También se corrigió la ruta de una suite de supervisor Meta inexistente y se añadió la prueba real.
 - El siguiente gate obligatorio es Source CI completo (unitarias + PostgreSQL/RabbitMQ integration). TASK-003 y TASK-027/028 permanecen in_progress hasta tener evidencia del commit corregido, completar handlers/replay y cerrar los gates operativos/independientes. GO-PRODUCTION sigue NO-GO.
+
+
+## Actualización de ejecución — Source CI #528 y siguiente gate (2026-11-08)
+
+- Source CI #528 completó el target de pruebas en ~10 s; no repitió el timeout anterior. Resultado: 80/82 tests del backend pasaron; fallaron el fixture RabbitMQ por inicializar el binding de producción junto al temporal y los permisos de columnas clave de inbox/outbox para INSERT idempotente.
+- La integración RabbitMQ ahora crea únicamente exchanges y usa la cola temporal para la prueba; la migración 0019 añade SELECT por columna sobre las claves únicas necesarias para ON CONFLICT, sin abrir ciphertext.
+- CodeQL #66 SUCCESS. El siguiente gate es Source CI para el commit que incluye estos dos ajustes y la migración 0019, incluida la repetición idempotente de migraciones.
+- TASK-003/027/028 siguen in_progress. El cierre funcional todavía exige handlers/replay reales, límites operativos y aceptación independiente; GO-PRODUCTION sigue NO-GO.

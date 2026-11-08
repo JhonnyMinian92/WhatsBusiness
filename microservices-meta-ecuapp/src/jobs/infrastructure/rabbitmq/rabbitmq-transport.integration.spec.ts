@@ -64,13 +64,22 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
 }, async () => {
   const factory = new RabbitMqConnectionFactory();
   const channels = await factory.open(brokerUrl!, "whatsbusiness-jobs-integration");
-  const topology = new RabbitMqJobTopology(channels.consumer, TENANT_JOB_RABBITMQ_TOPOLOGY);
   let queueName: string | null = null;
   let deadLetterQueueName: string | null = null;
   let unroutedExchangeName: string | null = null;
 
   try {
-    await topology.initialize();
+    // Avoid declaring the production worker queue here: its broad jobs.#
+    // binding would also receive the message and make the temporary queue
+    // assertion non-deterministic.
+    await channels.consumer.assertExchange(TENANT_JOB_RABBITMQ_TOPOLOGY.exchange, "topic", {
+      durable: true,
+      autoDelete: false,
+    });
+    await channels.consumer.assertExchange(TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterExchange, "direct", {
+      durable: true,
+      autoDelete: false,
+    });
     const suffix = randomUUID().replaceAll("-", "");
     const queue = "whatsbusiness.jobs.integration." + suffix + ".worker";
     queueName = queue;

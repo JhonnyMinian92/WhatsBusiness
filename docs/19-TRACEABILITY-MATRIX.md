@@ -271,3 +271,12 @@ No se afirma runtime completo: adapters Valkey/object storage, DLQ operator work
 | Supervisor se detiene ante fallo de broker y mantiene fail-closed | TASK-027 / TASK-028 | MetaWebhookWorkerSupervisor | pruebas de shutdown, cierre de DB pool, ausencia de handlers y bounds del reconnect | implementado; Source CI posterior pendiente |
 
 Source CI #527 terminó cancelled tras el timeout de 30 minutos dentro del target de tests; no se registra como PASS. Build, typecheck y migraciones/idempotencia sí fueron SUCCESS en ese run. La corrección de teardown y el test de supervisor requieren validación CI en el nuevo commit.
+
+
+## Evidence map — integraciones de TASK-027/028 y grants mínimos (2026-11-08)
+
+| Resultado / criterio | Tarea | Código / contrato | Evidencia automatizada | Estado |
+|---|---|---|---|---|
+| Mensaje de integración se enruta solo a la cola temporal que se está midiendo | TASK-003 / TASK-028 | `rabbitmq-transport.integration.spec.ts` | Topología de prueba crea los exchanges sin inicializar la cola worker de producción ni su binding global `jobs.#` | implementado; Source CI posterior pendiente |
+| Ingress puede insertar inbox/outbox idempotente sin leer payload protegido | TASK-027 | Migración `0019-meta-webhook-ingress-conflict-key-select.sql` | SELECT de columnas de conflicto `app_id/provider_product/idempotency_key` y `event_id`; prueba existente mantiene denegado SELECT(payload_ciphertext) | implementado; PostgreSQL CI posterior pendiente |
+| Source CI posterior | TASK-003/027/028 | Source CI #528 / CodeQL #66 | 80/82 backend tests PASS; build/typecheck/migrations/idempotence previas SUCCESS; CodeQL SUCCESS | diagnóstico verificado; no CI verde del commit corregido |

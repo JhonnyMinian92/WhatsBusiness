@@ -124,3 +124,14 @@ Source CI #527 terminó cancelled tras agotar el límite de 30 minutos mientras 
 La inspección del test harness identificó una referencia fuera de ámbito en el teardown de rabbitmq-transport.integration.spec.ts: los nombres de colas creados dentro del try se reutilizaban desde finally. Si la limpieza lanzaba, la conexión AMQP podía quedar abierta. Se corrigió el ámbito de los nombres, se añadió la limpieza del exchange temporal y se garantiza el cierre de los canales/conexión. También se corrigió la ruta de test Nx que apuntaba a un archivo de supervisor inexistente y se añadió meta-webhook-worker.supervisor.spec.ts.
 
 **Límite de verificación:** estas correcciones permanecen implementadas; CI pendiente hasta que el nuevo Source CI complete unitarias e integraciones PostgreSQL/RabbitMQ con SUCCESS. TASK-027/028 siguen in_progress; no se habilita replay real ni se consideran probados handlers productivos. CR-0016, retención/privacidad, fixtures oficiales Meta, KMS/Secret Manager, rate limiting/WAF y aceptación operativa continúan pendientes.
+
+
+## 10. Source CI #528 — ajuste del fixture de broker y del rol ingress (2026-11-08)
+
+Source CI #528 (commit `a00c4b318021d12e84cc5fe98c23f4da6639b65a`) confirmó que el test harness ya no se queda bloqueado: el target backend terminó en aproximadamente 10 segundos, con 80 de 82 tests aprobados. Instalación frozen, migraciones/idempotencia 0001–0018, roles DB, build, typecheck y `api:test` fueron SUCCESS; CodeQL #66 también SUCCESS.
+
+La prueba de transporte RabbitMQ inicializaba la topología de producción y su binding `jobs.#`, de modo que el mensaje podía ser recibido por la cola permanente en vez de la cola temporal cuya métrica se observaba. El fixture ahora declara los exchanges sin inicializar la cola de producción.
+
+La prueba PostgreSQL encontró que el rol `whatsbusiness_app` tenía permisos INSERT por columna pero no SELECT sobre las columnas que intervienen en las claves de conflicto del INSERT idempotente. La migración 0019 añade únicamente esos permisos de lectura de metadata para inbox/outbox; no permite acceder al ciphertext ni a las columnas criptográficas.
+
+**Verificación pendiente:** la migración 0019, su idempotencia y ambas integraciones deben pasar en el siguiente Source CI. TASK-027/028 no están cerradas ni aceptadas.
