@@ -641,3 +641,13 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - US-013/TASK-026: `in_progress`; AC-013-01/02/03 parciales. No existe persistencia/dedupe DB, outbox/worker CAPI, Meta adapter, endpoints ni observaciones reales del proveedor.
 - Bloqueadores: TASK-023 (Lead lifecycle), TASK-031 (security review), TASK-032 (consent adapter), CAPI-001..004 catalog-only, CR-0015 attribution window y capability/credenciales Meta.
 - Documento: docs/72. GO-PRODUCTION permanece NO-GO; no hubo envío Meta ni uso de datos personales reales.
+
+
+## Handoff final — US-014 / composition root de worker Meta (2026-11-08)
+
+- Se añadió `MetaWebhookWorkerRuntime` en `microservices-meta-ecuapp/src/webhooks/infrastructure/bootstrap/`, exportado por `src/index.ts`. Crea un pool dedicado con `DATABASE_WEBHOOK_WORKER_URL` y compone `MetaWebhookWorkerSupervisor` con handlers/reporting inyectados.
+- El arranque valida registry no vacío/único y `META_WEBHOOK_CONSUMER_NAME`; carga y valida el keyring AES-GCM antes del pool; requiere `DB_SSL=true` y AMQPS en producción. Los límites de reconnect, polling, lease, prefetch y batch quedan configurables; se actualizaron `.env.example` y README.
+- Shutdown con `AbortSignal`, drenado por supervisor y cierre de pool single-flight. Factories inyectables facilitan testear lifecycle sin abrir PostgreSQL/RabbitMQ.
+- Tests nuevos registrados en Nx: registry vacío/duplicado, consumer inválido, TLS/AMQPS, eager keyring, cancelación y cleanup del pool. TEST IDs: TEST-WEBHOOK-017..022.
+- Commits del runtime: `b2fae18c07b1ede450a7ee8248df1ceceb3c0fd2`, `65e173921ff83461a22bce86198305b21816b252`, `7daebb92507e51a3f2e6316bee592fa2e4edb583`, `7d6e33c10ceb19a4f4f68af3fb932c8783f1ed5b`, `12cabafa446e1b1408e42a219e0f5638838dbba2`, `d6d1e015d01b9810f7b92a047f5a5ed51ab097bf`. `docs/64`, `docs/11`, `docs/19`, `docs/14`, `.env.example` y README reflejan el estado.
+- El host de Inbox/CRM aún debe suministrar handlers reales y entrypoint. Replay sigue bloqueado por CR-0016, side-effect idempotency y approval/step-up/audit. Sin KMS/Secret Manager, health/liveness ni deployment verification, los handlers de negocio y CI verde final, US-014/TASK-027/028 siguen `in_progress`. GO-PRODUCTION NO-GO.
