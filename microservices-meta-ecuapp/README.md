@@ -100,3 +100,22 @@ La especificación OpenAPI WH-001..WH-007 y AsyncAPI todavía necesitan freeze/r
 ## Compatibilidad del fixture live con RabbitMQ 4.4
 
 La integración de Management API usa colas temporales únicas, exclusivas de la conexión y auto-delete (`durable=false, exclusive=true, autoDelete=true`). RabbitMQ 4.4 rechaza colas clásicas transitorias no exclusivas; no se habilita la característica obsoleta ni se cambia la topología quorum durable del runtime. La ejecución Source CI #563 sobre el commit `92b46d68bc8070a086b95352d504797fe1bf0c3d` es el gate pendiente de este ajuste.
+
+
+
+## Meta webhook worker runtime
+
+El composition root del worker dedicado es `MetaWebhookWorkerRuntime`, exportado por el paquete. El host del bounded context debe inyectar handlers reales y un reporter; no existe un registro de handlers por defecto y el runtime valida la unicidad/tipo de cada registro antes de crear infraestructura.
+
+Uso desde el proceso host:
+
+```ts
+const runtime = await MetaWebhookWorkerRuntime.create({ handlers, reporter });
+await runtime.run(shutdownSignal);
+```
+
+El runtime crea y posee un pool PostgreSQL independiente mediante `DATABASE_WEBHOOK_WORKER_URL`, valida el keyring AES-GCM antes de abrir el pool, inicia el supervisor de RabbitMQ y drena las deliveries antes de cerrar la sesión al abortar el signal. Una configuración inválida cierra el pool si ya fue creado. En producción se exige `DB_SSL=true` y una URL `amqps://`; el identificador de consumer debe cumplir el contrato del processor.
+
+Parámetros configurables: `DATABASE_POOL_MAX`, `META_WEBHOOK_CONNECTION_NAME`, `META_WEBHOOK_CONSUMER_NAME`, `META_WEBHOOK_WORKER_POLL_INTERVAL_MS`, `META_WEBHOOK_WORKER_LEASE_SECONDS`, `META_WEBHOOK_WORKER_PREFETCH`, `META_WEBHOOK_WORKER_BATCH_SIZE` y `META_WEBHOOK_RECONNECT_*`. Los valores de ejemplo están en `.env.example`.
+
+El runtime no crea handlers de CRM/Inbox ni registra no-ops. La aplicación host todavía debe ensamblar los adapters/casos de uso concretos de cada bounded context y empaquetar su entrypoint. La lectura de secrets por entorno sigue siendo un adapter de desarrollo; KMS/Secret Manager, health/liveness, instalación del servicio y validación operacional se mantienen pendientes.
