@@ -66,17 +66,27 @@ export function decodeMetaWebhookPayload(
         const payload = change["value"];
         const messages = payload["messages"];
         const statuses = payload["statuses"];
+        const providerContext = createProviderContext(
+          value["object"] as string,
+          assetId,
+          entryTime,
+          field,
+          payload,
+        );
+        let emitted = false;
         if (Array.isArray(messages)) {
+          emitted = true;
           for (const item of messages) {
-            append(createEvent(product, assetId, field + ".message", item, entryTime, now));
+            append(createEvent(product, assetId, field + ".message", item, entryTime, now, providerContext));
           }
-        } else if (Array.isArray(statuses)) {
-          for (const item of statuses) {
-            append(createEvent(product, assetId, field + ".status", item, entryTime, now));
-          }
-        } else {
-          append(createEvent(product, assetId, field, change, entryTime, now));
         }
+        if (Array.isArray(statuses)) {
+          emitted = true;
+          for (const item of statuses) {
+            append(createEvent(product, assetId, field + ".status", item, entryTime, now, providerContext));
+          }
+        }
+        if (!emitted) append(createEvent(product, assetId, field, change, entryTime, now));
       }
     } else if (Array.isArray(messaging)) {
       if (messaging.length > 2_000) throw new Error("META_WEBHOOK_MESSAGING_LIMIT");
@@ -110,6 +120,7 @@ function createEvent(
   rawPayload: unknown,
   entryTime: string,
   now: Date,
+  providerContext?: Readonly<Record<string, unknown>>,
 ): DecodedMetaWebhookEvent {
   if (!isRecord(rawPayload)) throw new Error("META_WEBHOOK_EVENT_INVALID");
   const providerEventId = extractProviderEventId(rawPayload);
@@ -124,11 +135,35 @@ function createEvent(
     eventType,
     providerEventId,
     occurredAt,
-    payload: Object.freeze({ ...rawPayload }),
+    payload: Object.freeze({
+      ...rawPayload,
+      ...(providerContext ? { providerContext } : {}),
+    }),
     idempotencyKey,
   });
 }
 
+
+function createProviderContext(
+  objectType: string,
+  entryId: string,
+  entryTime: string,
+  field: string,
+  value: Readonly<Record<string, unknown>>,
+): Readonly<Record<string, unknown>> {
+  // Keep sibling metadata (phone_number_id, contacts, messaging_product, etc.)
+  // with each split event, but do not duplicate the messages/statuses arrays.
+  const eventValue = Object.fromEntries(
+    Object.entries(value).filter(([key]) => key !== "messages" && key !== "statuses"),
+  );
+  return Object.freeze({
+    objectType,
+    entryId,
+    entryTime,
+    field,
+    value: Object.freeze(eventValue),
+  });
+}
 
 function idempotencyBasis(
   eventType: string,
