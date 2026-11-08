@@ -185,6 +185,10 @@ function isLoopbackHost(host: string): boolean {
     || normalized === "[::1]";
 }
 
+function safeEnum<T extends string>(value: unknown, allowed: readonly T[]): T | "unknown" {
+  return typeof value === "string" && allowed.includes(value as T) ? value as T : "unknown";
+}
+
 function parseQueueStatistics(value: unknown): Record<string, unknown> {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
     throw new Error("RabbitMQ Management API metrics response is missing queue counters: object.");
@@ -208,12 +212,15 @@ function parseQueueStatistics(value: unknown): Record<string, unknown> {
       "error",
       "reason",
     ].filter((field) => Object.prototype.hasOwnProperty.call(statistics, field));
+    const queueType = safeEnum(statistics["type"], ["classic", "quorum", "stream"]);
+    const queueState = safeEnum(statistics["state"], ["running", "down", "crashed", "starting"]);
     throw new Error(
       "RabbitMQ Management API metrics response is missing queue counters: "
         + missingFields.join(", ")
         + "; response fields: "
         + (knownFields.length > 0 ? knownFields.join(", ") : "none")
-        + ".",
+        + "; queue type/state: "
+        + queueType + "/" + queueState + ".",
     );
   }
   return statistics;
