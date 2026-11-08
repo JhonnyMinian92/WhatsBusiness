@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
@@ -15,17 +16,16 @@ class InMemoryObjectStorage implements ObjectStorage {
 
 const tenantA = "11111111-1111-4111-8111-111111111111";
 const tenantB = "22222222-2222-4222-8222-222222222222";
+const body = new Uint8Array([137, 80, 78, 71]);
 const metadata: ObjectStorageMetadata = {
   contentType: "image/png",
-  checksumSha256: "0".repeat(64),
+  checksumSha256: createHash("sha256").update(body).digest("hex"),
 };
 
 test("object storage prefixes every object with its tenant namespace", async () => {
   const provider = new InMemoryObjectStorage();
   const storage = new TenantScopedObjectStorage(provider);
-  const body = new Uint8Array([137, 80, 78, 71]);
-  const validMetadata = { ...metadata, checksumSha256: "0".repeat(64) };
-  await storage.put(tenantA, "media", "inbox/attachment.png", body, validMetadata);
+  await storage.put(tenantA, "media", "inbox/attachment.png", body, metadata);
   assert.deepEqual(await storage.get(tenantA, "media", "inbox/attachment.png"), body);
   assert.equal(await storage.get(tenantB, "media", "inbox/attachment.png"), null);
   assert.deepEqual([...provider.values.keys()], [
@@ -33,10 +33,14 @@ test("object storage prefixes every object with its tenant namespace", async () 
   ]);
 });
 
-test("object storage rejects missing integrity metadata and traversal keys", async () => {
+test("object storage rejects missing integrity metadata, checksum mismatch and traversal keys", async () => {
   const storage = new TenantScopedObjectStorage(new InMemoryObjectStorage());
-  assert.throws(() => storage.put(tenantA, "media", "../outside", new Uint8Array([1]), metadata));
-  assert.throws(() => storage.put(tenantA, "media", "file", new Uint8Array([1]), {
+  await assert.rejects(storage.put(tenantA, "media", "../outside", body, metadata));
+  await assert.rejects(storage.put(tenantA, "media", "file", body, {
+    contentType: "image/png",
+    checksumSha256: "0".repeat(64),
+  }));
+  await assert.rejects(storage.put(tenantA, "media", "file", body, {
     contentType: "image/png",
     checksumSha256: "invalid",
   }));

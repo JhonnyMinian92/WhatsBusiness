@@ -1,0 +1,18 @@
+{
+  "name": "whatsbusiness-meta-platform",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "clean": "node --input-type=module -e \"import { rmSync } from 'node:fs'; rmSync('.build', { recursive: true, force: true })\"",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc",
+    "test": "npm run build && node --test $(find .build/apps/api/src -name '*.spec.js' -print)"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}
