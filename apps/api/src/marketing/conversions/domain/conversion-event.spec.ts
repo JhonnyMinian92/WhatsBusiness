@@ -8,6 +8,7 @@ import {
 
 const tenantId = "11111111-1111-4111-8111-111111111111";
 const occurredAt = new Date("2026-11-08T15:00:00.000Z");
+const evaluatedAt = new Date("2026-11-08T16:00:00.000Z");
 const consent: ConversionConsentEvidence = {
   status: "granted", tenantId, subjectRef: "lead-123",
   purpose: CONVERSION_CONSENT_PURPOSE, evidenceId: "consent-evidence-123",
@@ -21,8 +22,8 @@ const validEvent: ConversionEventCandidate = {
   clientUserAgent: "SyntheticBrowser/1.0",
 };
 
-test("allows only matching, effective, granted consent evidence", () => {
-  const result = validateConversionEvent(validEvent, consent);
+test("allows only matching, effective and currently granted consent evidence", () => {
+  const result = validateConversionEvent(validEvent, consent, evaluatedAt);
   assert.equal(result.allowed, true);
   if (!result.allowed) return;
   assert.equal(result.event.actionSource, "website");
@@ -33,7 +34,7 @@ test("allows only matching, effective, granted consent evidence", () => {
 });
 
 test("requires a stable event id supplied by the originating action", () => {
-  const result = validateConversionEvent({ ...validEvent, eventId: "" }, consent);
+  const result = validateConversionEvent({ ...validEvent, eventId: "" }, consent, evaluatedAt);
   assert.equal(result.allowed, false);
   if (!result.allowed) assert.ok(result.reasons.includes("EVENT_ID_INVALID"));
 });
@@ -49,20 +50,20 @@ test("matches browser and server copies by exact dataset, event name and event i
 });
 
 test("rejects unknown action sources", () => {
-  const result = validateConversionEvent({ ...validEvent, actionSource: "crm_magic" }, consent);
+  const result = validateConversionEvent({ ...validEvent, actionSource: "crm_magic" }, consent, evaluatedAt);
   assert.equal(result.allowed, false);
   if (!result.allowed) assert.ok(result.reasons.includes("ACTION_SOURCE_INVALID"));
 });
 
 test("requires HTTPS URL and user-agent for website events", () => {
-  const missing = validateConversionEvent({ ...validEvent, eventSourceUrl: undefined, clientUserAgent: undefined }, consent);
+  const missing = validateConversionEvent({ ...validEvent, eventSourceUrl: undefined, clientUserAgent: undefined }, consent, evaluatedAt);
   assert.equal(missing.allowed, false);
   if (!missing.allowed) {
     assert.ok(missing.reasons.includes("EVENT_SOURCE_URL_REQUIRED"));
     assert.ok(missing.reasons.includes("CLIENT_USER_AGENT_REQUIRED"));
   }
   for (const eventSourceUrl of ["http://shop.example.com/checkout", "https://user:secret@shop.example.com/checkout", "not a url"]) {
-    const result = validateConversionEvent({ ...validEvent, eventSourceUrl }, consent);
+    const result = validateConversionEvent({ ...validEvent, eventSourceUrl }, consent, evaluatedAt);
     assert.equal(result.allowed, false);
     if (!result.allowed) assert.ok(result.reasons.includes("EVENT_SOURCE_URL_INVALID"));
   }
@@ -70,7 +71,7 @@ test("requires HTTPS URL and user-agent for website events", () => {
 
 test("fails closed when consent is absent, denied or unknown", () => {
   for (const evidence of [null, { ...consent, status: "denied" as const }, { ...consent, status: "unknown" as const }]) {
-    const result = validateConversionEvent(validEvent, evidence);
+    const result = validateConversionEvent(validEvent, evidence, evaluatedAt);
     assert.equal(result.allowed, false);
     if (!result.allowed) assert.ok(result.reasons.includes(evidence === null ? "CONSENT_EVIDENCE_INVALID" : "CONSENT_NOT_GRANTED"));
   }
@@ -82,22 +83,46 @@ test("rejects evidence scoped to another tenant, subject or purpose", () => {
     { ...consent, subjectRef: "another-subject" },
     { ...consent, purpose: "crm.contact_management" },
   ]) {
-    const result = validateConversionEvent(validEvent, evidence);
+    const result = validateConversionEvent(validEvent, evidence, evaluatedAt);
     assert.equal(result.allowed, false);
     if (!result.allowed) assert.ok(result.reasons.includes("CONSENT_SCOPE_MISMATCH"));
   }
 });
 
-test("evaluates consent at event time including future-effective, expired and revoked evidence", () => {
-  const cases = [
-    [validateConversionEvent(validEvent, { ...consent, effectiveAt: new Date("2026-11-09T00:00:00Z") }), "CONSENT_NOT_EFFECTIVE"],
-    [validateConversionEvent(validEvent, { ...consent, expiresAt: new Date("2026-11-08T14:59:59Z") }), "CONSENT_EXPIRED"],
-    [validateConversionEvent(validEvent, { ...consent, revokedAt: new Date("2026-11-08T14:59:59Z") }), "CONSENT_REVOKED"],
-  ] as const;
-  for (const [result, code] of cases) {
-    assert.equal(result.allowed, false);
-    if (!result.allowed) assert.ok(result.reasons.includes(code));
-  }
+test("rejects future-effective consent for a conversion that occurred before consent", () => {
+  const result = validateConversionEvent(
+    validEvent, { ...consent, effectiveAt: new Date("2026-11-09T00:00:00Z") }, evaluatedAt,
+  );
+  assert.equal(result.allowed, false);
+  if (!result.allowed) assert.ok(result.reasons.includes("CONSENT_NOT_EFFECTIVE"));
+});
+
+test("rejects consent that expired after the event but before server dispatch", () => {
+  const result = validateConversionEvent(
+    validEvent, { ...consent, expiresAt: new Date("2026-11-08T15:30:00Z") }, evaluatedAt,
+  );
+  assert.equal(result.allowed, false);
+  if (!result.allowed) assert.ok(result.reasons.includes("CONSENT_EXPIRED"));
+});
+
+test("rejects consent revoked after the event but before server dispatch", () => {
+  const result = validateConversionEvent(
+    validEvent, { ...consent, revokedAt: new Date("2026-11-08T15:30:00Z") }, evaluatedAt,
+  );
+  assert.equal(result.allowed, false);
+  if (!result.allowed) assert.ok(result.reasons.includes("CONSENT_REVOKED"));
+});
+
+test("rejects future event times and invalid evaluation clocks", () => {
+  const futureEvent = validateConversionEvent(
+    { ...validEvent, occurredAt: new Date("2026-11-08T17:00:00Z") }, consent, evaluatedAt,
+  );
+  assert.equal(futureEvent.allowed, false);
+  if (!futureEvent.allowed) assert.ok(futureEvent.reasons.includes("EVENT_TIME_IN_FUTURE"));
+
+  const invalidClock = validateConversionEvent(validEvent, consent, new Date(Number.NaN));
+  assert.equal(invalidClock.allowed, false);
+  if (!invalidClock.allowed) assert.ok(invalidClock.reasons.includes("VALIDATION_TIME_INVALID"));
 });
 
 test("converts event time to Unix seconds", () => {
