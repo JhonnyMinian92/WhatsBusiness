@@ -100,6 +100,12 @@ export function parseCreativeExperimentDefinition(value: unknown, now = new Date
   const allocationMode = enumeration(input["allocationMode"], MODES, "allocationMode");
   const cells = parseCells(input["cells"]);
   const audienceEvidence = parseAudienceEvidence(input["audienceEvidence"]);
+  const expectedPartitions = cells.map((cell) => cell.audiencePartitionReference).sort();
+  const evidencePartitions = [...audienceEvidence.audienceReferences].sort();
+  if (expectedPartitions.length !== evidencePartitions.length
+    || expectedPartitions.some((reference, index) => reference !== evidencePartitions[index])) {
+    throw new CreativeExperimentValidationError("CREATIVE_EXPERIMENT_AUDIENCE_PARTITION_MISMATCH");
+  }
   if (cells.filter((cell) => cell.assignment === "control").length !== 1) {
     throw new CreativeExperimentValidationError("CREATIVE_EXPERIMENT_REQUIRES_ONE_CONTROL_CELL");
   }
@@ -158,8 +164,11 @@ export function evaluateCreativeExperimentReadiness(
     || Date.parse(evidence.validUntil) <= now.getTime()) {
     reasons.push("CREATIVE_EXPERIMENT_AUDIENCE_EVIDENCE_STALE_OR_INVALID");
   }
-  if (evidence.audienceReferences.length !== definition.cells.length) {
-    reasons.push("CREATIVE_EXPERIMENT_AUDIENCE_EVIDENCE_INCOMPLETE");
+  const expectedPartitions = definition.cells.map((cell) => cell.audiencePartitionReference).sort();
+  const evidencePartitions = [...evidence.audienceReferences].sort();
+  if (expectedPartitions.length !== evidencePartitions.length
+    || expectedPartitions.some((reference, index) => reference !== evidencePartitions[index])) {
+    reasons.push("CREATIVE_EXPERIMENT_AUDIENCE_PARTITION_MISMATCH");
   }
   if (definition.allocationMode === "meta_experiment" && !evidence.providerExperimentReference) {
     reasons.push("CREATIVE_EXPERIMENT_META_REFERENCE_MISSING");

@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import type { TenantAccessContext } from "../../../platform/identity/tenant-access-context.js";
 import type { CreativePlacement, CreativeVariantRecord } from "../domain/creative-variant.js";
 
@@ -100,7 +100,9 @@ export class CreativeCapabilityEvidenceError extends Error {
 @Injectable()
 export class MetaCreativeProviderAdapter implements CreativeProviderAdapter {
   constructor(
+    @Inject(CREATIVE_CAPABILITY_EVIDENCE_PROVIDER)
     private readonly evidence: CreativeCapabilityEvidenceProvider,
+    @Inject(META_CREATIVE_TRANSPORT)
     private readonly transport: MetaCreativeTransport,
   ) {}
 

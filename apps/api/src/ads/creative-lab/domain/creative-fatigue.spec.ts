@@ -82,7 +82,6 @@ function record(): CreativeVariantRecord {
     claims: [],
     similarityProfile: { normalizedText: "respond faster", assetSha256: "a".repeat(64), perceptualHash64: null },
     tags: [],
-    id: VARIANT_ID,
     status: "approved",
     version: 3,
     createdBy: "f3a8e450-a37a-4b51-b937-f3fe5bf43e47",

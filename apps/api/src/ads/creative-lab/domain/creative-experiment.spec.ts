@@ -122,3 +122,17 @@ test("test cell cannot be approved or run without an exact approval", () => {
     "approved",
   );
 });
+
+
+test("audience evidence must refer to the exact partitions declared by the test cells", () => {
+  assert.throws(() => parseCreativeExperimentDefinition(experimentInput({
+    audienceEvidence: {
+      status: "disjoint",
+      source: "verified-audience-split-evidence",
+      observedAt: "2026-11-08T16:00:00.000Z",
+      validUntil: "2026-11-09T16:00:00.000Z",
+      audienceReferences: ["another-control-partition", "another-variant-partition"],
+      providerExperimentReference: null,
+    },
+  }), NOW), /CREATIVE_EXPERIMENT_AUDIENCE_PARTITION_MISMATCH/);
+});

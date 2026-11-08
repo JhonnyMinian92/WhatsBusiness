@@ -26,6 +26,7 @@ interface CreativeVariantRow {
   updated_by: string;
   approval_request_id: string | null;
   approval_target: "approved" | "retired" | null;
+  approval_previous_status: CreativeVariantRecord["approvalPreviousStatus"];
   created_at: Date | string;
   updated_at: Date | string;
 }
@@ -83,6 +84,7 @@ const VARIANT_COLUMNS = [
   "updated_by::text AS updated_by",
   "approval_request_id::text AS approval_request_id",
   "approval_target",
+  "approval_previous_status",
   "created_at",
   "updated_at",
 ].join(", ");
@@ -96,7 +98,7 @@ export class PostgresCreativeLabRepository implements CreativeLabRepository {
     idempotencyKey: string,
     requestHash: string,
     draft: CreativeVariantDraft,
-  ): Promise<CreativeVariantRecord> {
+  ): Promise<{ readonly variant: CreativeVariantRecord; readonly replayed: boolean }> {
     const inserted = await client.query<CreativeVariantRow>(
       [
         "INSERT INTO ads.creative_variants",
@@ -118,7 +120,7 @@ export class PostgresCreativeLabRepository implements CreativeLabRepository {
         requestHash,
       ],
     );
-    if (inserted.rows[0]) return mapVariant(inserted.rows[0]);
+    if (inserted.rows[0]) return Object.freeze({ variant: mapVariant(inserted.rows[0]), replayed: false });
 
     const existing = await client.query<CreativeVariantRow & { request_hash: string }>(
       "SELECT " + VARIANT_COLUMNS + ", request_hash FROM ads.creative_variants WHERE tenant_id = $1 AND created_by = $2 AND idempotency_key = $3 FOR UPDATE",
@@ -128,7 +130,7 @@ export class PostgresCreativeLabRepository implements CreativeLabRepository {
     if (!row || row.request_hash !== requestHash) {
       throw new ConflictException({ code: "CREATIVE_VARIANT_IDEMPOTENCY_CONFLICT" });
     }
-    return mapVariant(row);
+    return Object.freeze({ variant: mapVariant(row), replayed: true });
   }
 
   async findVariant(client: PoolClient, tenantId: string, variantId: string): Promise<CreativeVariantRecord | null> {
@@ -192,9 +194,10 @@ export class PostgresCreativeLabRepository implements CreativeLabRepository {
       [
         "UPDATE ads.creative_variants",
         "SET status = 'approval_pending', approval_request_id = $5, approval_target = $6,",
-        "version = version + 1, updated_by = $3",
+        "approval_previous_status = status, version = version + 1, updated_by = $3",
         "WHERE tenant_id = $1 AND id = $2 AND version = $4",
-        "AND status IN ('preview_ready', 'experiment_ready', 'paused', 'fatigued')",
+        "AND (($6 = 'approved' AND status IN ('preview_ready', 'experiment_ready'))",
+        "OR ($6 = 'retired' AND status IN ('approved', 'active', 'paused', 'fatigued')))",
         "RETURNING", VARIANT_COLUMNS,
       ].join(" "),
       [input.tenantId, input.variantId, input.actorId, input.expectedVersion, input.approvalId, input.target],
@@ -207,22 +210,21 @@ export class PostgresCreativeLabRepository implements CreativeLabRepository {
     client: PoolClient,
     input: CreativeVariantApprovalInput & { readonly expectedApprovalStatus: "approved" | "rejected" | "expired" },
   ): Promise<CreativeVariantRecord> {
-    const target = input.expectedApprovalStatus === "approved"
-      ? input.target
-      : input.target === "approved" ? "preview_ready" : "retired";
+    const target = input.expectedApprovalStatus === "approved" ? input.target : null;
     const result = await client.query<CreativeVariantRow>(
       [
-        "UPDATE ads.creative_variants SET status = $6,",
-        "approval_request_id = CASE WHEN $6 IN ('approved', 'retired') THEN approval_request_id ELSE NULL END,",
-        "approval_target = CASE WHEN $6 IN ('approved', 'retired') THEN approval_target ELSE NULL END,",
-        "version = version + 1, updated_by = $3",
+        "UPDATE ads.creative_variants SET",
+        "status = CASE WHEN $9 = 'approved' THEN $6 ELSE approval_previous_status END,",
+        "approval_request_id = CASE WHEN $9 = 'approved' THEN approval_request_id ELSE NULL END,",
+        "approval_target = CASE WHEN $9 = 'approved' THEN approval_target ELSE NULL END,",
+        "approval_previous_status = NULL, version = version + 1, updated_by = $3",
         "WHERE tenant_id = $1 AND id = $2 AND version = $4 AND approval_request_id = $5",
-        "AND status = 'approval_pending' AND approval_target = $7",
+        "AND status = 'approval_pending' AND approval_target = $7 AND approval_previous_status IS NOT NULL",
         "RETURNING", VARIANT_COLUMNS,
       ].join(" "),
       [
         input.tenantId, input.variantId, input.actorId, input.expectedVersion,
-        input.approvalId, target, input.target,
+        input.approvalId, target, input.target, null, input.expectedApprovalStatus,
       ],
     );
     if (result.rows[0]) return mapVariant(result.rows[0]);
@@ -246,7 +248,7 @@ export class PostgresCreativeLabRepository implements CreativeLabRepository {
     const result = await client.query<CreativeVariantRow>(
       [
         "UPDATE ads.creative_variants SET status = $6, approval_request_id = $7, approval_target = $8,",
-        "version = version + 1, updated_by = $3",
+        "approval_previous_status = NULL, version = version + 1, updated_by = $3",
         "WHERE tenant_id = $1 AND id = $2 AND version = $4",
         "RETURNING", VARIANT_COLUMNS,
       ].join(" "),
@@ -329,11 +331,17 @@ export class PostgresCreativeLabRepository implements CreativeLabRepository {
   async findFatiguePolicy(
     client: PoolClient,
     tenantId: string,
-    objective: string,
+    variantId: string,
   ): Promise<CreativeFatiguePolicy | null> {
     const result = await client.query<{ policy: unknown }>(
-      "SELECT policy FROM ads.creative_fatigue_policies WHERE tenant_id = $1 AND objective = $2 AND enabled = true",
-      [tenantId, objective],
+      [
+        "SELECT policy_set.policy FROM ads.creative_fatigue_policies policy_set",
+        "JOIN ads.creative_variants variant ON variant.tenant_id = policy_set.tenant_id",
+        "AND variant.id = $2",
+        "JOIN ads.campaigns campaign ON campaign.tenant_id = variant.tenant_id AND campaign.id = variant.campaign_id",
+        "WHERE policy_set.tenant_id = $1 AND policy_set.objective = campaign.objective AND policy_set.enabled = true",
+      ].join(" "),
+      [tenantId, variantId],
     );
     if (!result.rows[0]) return null;
     const value = asObject(result.rows[0].policy, "CREATIVE_FATIGUE_POLICY_CORRUPT");
@@ -403,6 +411,7 @@ function mapVariant(row: CreativeVariantRow): CreativeVariantRecord {
     updatedBy: row.updated_by,
     approvalRequestId: row.approval_request_id,
     approvalTarget: row.approval_target,
+    approvalPreviousStatus: row.approval_previous_status ?? null,
     createdAt: toIso(row.created_at),
     updatedAt: toIso(row.updated_at),
   });
@@ -475,6 +484,7 @@ function variantSnapshot(variant: CreativeVariantRecord): Readonly<Record<string
     updatedBy,
     approvalRequestId,
     approvalTarget,
+    approvalPreviousStatus: approvalPreviousStatus ?? null,
     createdAt,
     updatedAt,
   });

@@ -100,6 +100,11 @@ export interface CreativeVariantDraft {
   readonly claims: readonly CreativeClaimEvidence[];
   readonly similarityProfile: CreativeSimilarityProfile;
   readonly tags: readonly string[];
+  readonly metaCreativeConfiguration?: {
+    readonly assetFeedSpec: Readonly<Record<string, unknown>>;
+    readonly degreesOfFreedomSpec: Readonly<Record<string, unknown>>;
+    readonly creativeFeaturesSpec: Readonly<Record<string, unknown>>;
+  };
 }
 
 export interface CreativeVariantRecord extends CreativeVariantDraft {
@@ -111,6 +116,7 @@ export interface CreativeVariantRecord extends CreativeVariantDraft {
   readonly updatedBy: string;
   readonly approvalRequestId: string | null;
   readonly approvalTarget: "approved" | "retired" | null;
+  readonly approvalPreviousStatus?: CreativeLifecycle | null;
   readonly createdAt: string;
   readonly updatedAt: string;
 }
@@ -255,12 +261,16 @@ export function transitionCreativeVariant(
       throw new CreativeVariantValidationError("CREATIVE_VARIANT_REVIEW_GATES_FAILED", blockers[0]);
     }
   }
-  if (target === "retired" && variant.status !== "draft" && variant.status !== "brand_review"
-    && variant.status !== "policy_review" && variant.status !== "preview_ready"
-    && variant.status !== "experiment_ready" && variant.status !== "approval_pending"
-    && (approval === null || approval.status !== "approved" || !approval.snapshotHashMatches
-      || approval.approvalId !== variant.approvalRequestId || variant.approvalTarget !== "retired")) {
-    throw new CreativeVariantValidationError("CREATIVE_VARIANT_RETIREMENT_APPROVAL_REQUIRED");
+  if (target === "retired") {
+    const canRetireWithoutApproval = variant.status === "draft" || variant.status === "brand_review"
+      || variant.status === "policy_review" || variant.status === "preview_ready"
+      || variant.status === "experiment_ready";
+    if (!canRetireWithoutApproval && (
+      approval === null || approval.status !== "approved" || !approval.snapshotHashMatches
+      || approval.approvalId !== variant.approvalRequestId || variant.approvalTarget !== "retired"
+    )) {
+      throw new CreativeVariantValidationError("CREATIVE_VARIANT_RETIREMENT_APPROVAL_REQUIRED");
+    }
   }
   if (target === "active") {
     throw new CreativeVariantValidationError("CREATIVE_VARIANT_ACTIVATION_REQUIRES_EXECUTION_GATEWAY");
@@ -270,6 +280,7 @@ export function transitionCreativeVariant(
     status: target,
     approvalRequestId: target === "approved" || target === "retired" ? variant.approvalRequestId : null,
     approvalTarget: target === "approved" || target === "retired" ? variant.approvalTarget : null,
+    approvalPreviousStatus: null,
     version: variant.version + 1,
     updatedAt: now.toISOString(),
   });
@@ -499,6 +510,8 @@ export function creativeVariantSnapshot(variant: CreativeVariantRecord): Readonl
     status: variant.status,
     version: variant.version,
     approvalTarget: variant.approvalTarget,
+    approvalPreviousStatus: variant.approvalPreviousStatus ?? null,
+    metaCreativeConfiguration: variant.metaCreativeConfiguration ?? null,
   };
   return Object.freeze({
     ...snapshot,

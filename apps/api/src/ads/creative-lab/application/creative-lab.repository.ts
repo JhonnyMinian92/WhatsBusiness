@@ -52,7 +52,7 @@ export interface CreativeLabRepository {
     idempotencyKey: string,
     requestHash: string,
     draft: CreativeVariantDraft,
-  ): Promise<CreativeVariantRecord>;
+  ): Promise<{ readonly variant: CreativeVariantRecord; readonly replayed: boolean }>;
   findVariant(client: PoolClient, tenantId: string, variantId: string): Promise<CreativeVariantRecord | null>;
   findSimilarityCandidates(
     client: PoolClient,
@@ -92,7 +92,7 @@ export interface CreativeLabRepository {
   findFatiguePolicy(
     client: PoolClient,
     tenantId: string,
-    objective: string,
+    variantId: string,
   ): Promise<CreativeFatiguePolicy | null>;
   createFatigueRecommendation(
     client: PoolClient,

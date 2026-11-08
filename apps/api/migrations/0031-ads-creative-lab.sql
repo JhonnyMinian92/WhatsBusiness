@@ -27,6 +27,9 @@ CREATE TABLE ads.creative_variants (
   version integer NOT NULL DEFAULT 1 CHECK (version > 0),
   approval_request_id uuid,
   approval_target text CHECK (approval_target IS NULL OR approval_target IN ('approved', 'retired')),
+  approval_previous_status text CHECK (approval_previous_status IS NULL OR approval_previous_status IN (
+    'preview_ready', 'experiment_ready', 'approved', 'paused', 'active', 'fatigued'
+  )),
   idempotency_key varchar(255) NOT NULL CHECK (idempotency_key ~ '^[!-~]{16,255}$'),
   request_hash char(64) NOT NULL CHECK (request_hash ~ '^[0-9a-f]{64}$'),
   created_by uuid NOT NULL REFERENCES platform.users(id) ON DELETE RESTRICT,
@@ -41,8 +44,10 @@ CREATE TABLE ads.creative_variants (
     FOREIGN KEY (approval_request_id, tenant_id)
     REFERENCES platform.approval_requests (id, tenant_id) ON DELETE RESTRICT,
   CONSTRAINT creative_variant_approval_pair CHECK (
-    (approval_request_id IS NULL AND approval_target IS NULL)
-    OR (approval_request_id IS NOT NULL AND approval_target IS NOT NULL)
+    (approval_request_id IS NULL AND approval_target IS NULL AND approval_previous_status IS NULL)
+    OR (approval_request_id IS NOT NULL AND approval_target IS NOT NULL
+      AND ((status = 'approval_pending' AND approval_previous_status IS NOT NULL)
+        OR (status <> 'approval_pending' AND approval_previous_status IS NULL)))
   ),
   CONSTRAINT creative_variant_idempotency_unique UNIQUE (tenant_id, created_by, idempotency_key)
 );
@@ -102,7 +107,8 @@ BEGIN
 
   IF TG_OP = 'INSERT' THEN
     IF NEW.created_by <> context_actor OR NEW.status <> 'draft' OR NEW.version <> 1
-       OR NEW.approval_request_id IS NOT NULL OR NEW.approval_target IS NOT NULL THEN
+       OR NEW.approval_request_id IS NOT NULL OR NEW.approval_target IS NOT NULL
+       OR NEW.approval_previous_status IS NOT NULL THEN
       RAISE EXCEPTION 'Creative variants must be created as immutable drafts'
         USING ERRCODE = '23514';
     END IF;
@@ -134,7 +140,10 @@ BEGIN
     OR (OLD.status = 'policy_review' AND NEW.status IN ('preview_ready', 'draft', 'retired'))
     OR (OLD.status = 'preview_ready' AND NEW.status IN ('experiment_ready', 'approval_pending', 'draft', 'retired'))
     OR (OLD.status = 'experiment_ready' AND NEW.status IN ('approval_pending', 'draft', 'retired'))
-    OR (OLD.status = 'approval_pending' AND NEW.status IN ('approved', 'retired', 'preview_ready', 'experiment_ready', 'paused', 'fatigued'))
+    OR (OLD.status = 'approval_pending' AND (
+      NEW.status IN ('approved', 'retired')
+      OR NEW.status = OLD.approval_previous_status
+    ))
     OR (OLD.status = 'approved' AND NEW.status IN ('paused', 'approval_pending', 'retired'))
     OR (OLD.status = 'paused' AND NEW.status IN ('approval_pending', 'retired'))
     OR (OLD.status = 'active' AND NEW.status IN ('paused', 'fatigued', 'approval_pending', 'retired'))
@@ -144,15 +153,20 @@ BEGIN
       USING ERRCODE = '23514';
   END IF;
 
-  IF NEW.status = 'approved' AND (
-    OLD.status <> 'approval_pending' OR OLD.approval_target <> 'approved'
-    OR NEW.approval_request_id IS DISTINCT FROM OLD.approval_request_id
+  IF NEW.status = 'approved' AND NOT (
+    OLD.status = 'approval_pending' AND (
+      (OLD.approval_target = 'approved'
+        AND NEW.approval_request_id IS NOT DISTINCT FROM OLD.approval_request_id)
+      OR (OLD.approval_target = 'retired'
+        AND OLD.approval_previous_status = 'approved'
+        AND NEW.approval_request_id IS NULL)
+    )
   ) THEN
     RAISE EXCEPTION 'Creative approval must be bound to the staged approval request'
       USING ERRCODE = '23514';
   END IF;
   IF NEW.status = 'retired' AND OLD.status NOT IN ('draft', 'brand_review', 'policy_review',
-      'preview_ready', 'experiment_ready', 'approval_pending') AND (
+      'preview_ready', 'experiment_ready') AND (
     OLD.status <> 'approval_pending' OR OLD.approval_target <> 'retired'
     OR NEW.approval_request_id IS DISTINCT FROM OLD.approval_request_id
   ) THEN
@@ -166,7 +180,12 @@ BEGIN
 
   IF OLD.approval_request_id IS NOT NULL
      AND NEW.approval_request_id IS DISTINCT FROM OLD.approval_request_id
-     AND NOT (OLD.status = 'approval_pending' AND NEW.status NOT IN ('approval_pending')) THEN
+     AND NOT (
+       (OLD.status = 'approval_pending' AND NEW.status <> 'approval_pending')
+       OR (NEW.status = 'approval_pending'
+         AND OLD.status IN ('approved', 'active', 'paused', 'fatigued')
+         AND NEW.approval_target = 'retired')
+     ) THEN
     RAISE EXCEPTION 'Creative approval binding is immutable while pending'
       USING ERRCODE = '23514';
   END IF;
@@ -305,8 +324,9 @@ CREATE POLICY creative_experiment_cells_insert ON ads.creative_experiment_cells
     AND platform.has_permission(tenant_id, 'ads.experiments.manage')
     AND EXISTS (
       SELECT 1 FROM ads.creative_experiments experiment
-      WHERE experiment.tenant_id = tenant_id AND experiment.id = experiment_id
-        AND experiment.created_by = NULLIF(current_setting('app.user_id', true), '')::uuid
+      WHERE experiment.tenant_id = creative_experiment_cells.tenant_id
+        AND experiment.id = creative_experiment_cells.experiment_id
+        AND experiment.created_by = NULLIF(current_setting('app.user_id', true), '')
         AND experiment.status = 'draft'
     )
   );
@@ -432,7 +452,7 @@ CREATE TRIGGER creative_recommendations_append_only
 
 GRANT USAGE ON SCHEMA ads TO whatsbusiness_app;
 GRANT SELECT, INSERT ON ads.creative_variants TO whatsbusiness_app;
-GRANT UPDATE (status, version, approval_request_id, approval_target, updated_by)
+GRANT UPDATE (status, version, approval_request_id, approval_target, approval_previous_status, updated_by)
   ON ads.creative_variants TO whatsbusiness_app;
 GRANT SELECT, INSERT ON ads.creative_variant_snapshots TO whatsbusiness_app;
 GRANT SELECT, INSERT ON ads.creative_experiments TO whatsbusiness_app;

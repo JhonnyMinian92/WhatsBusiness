@@ -16,6 +16,10 @@ import {
 } from "./creative-experiment-evidence.provider.js";
 import { CREATIVE_LAB_REPOSITORY } from "./creative-lab.repository.js";
 import { PostgresCreativeLabRepository } from "../infrastructure/postgres-creative-lab.repository.js";
+import {
+  CREATIVE_REVIEW_EVIDENCE_PROVIDER,
+  UnavailableCreativeReviewEvidenceProvider,
+} from "./creative-review-evidence.provider.js";
 
 @Module({
   imports: [DatabaseModule, IdentityModule],
@@ -27,6 +31,7 @@ import { PostgresCreativeLabRepository } from "../infrastructure/postgres-creati
     MetaCreativeProviderAdapter,
     { provide: CREATIVE_PROVIDER_ADAPTER, useExisting: MetaCreativeProviderAdapter },
     { provide: CREATIVE_EXPERIMENT_EVIDENCE_PROVIDER, useClass: UnavailableCreativeExperimentEvidenceProvider },
+    { provide: CREATIVE_REVIEW_EVIDENCE_PROVIDER, useClass: UnavailableCreativeReviewEvidenceProvider },
     CreativeLabApplicationService,
   ],
   exports: [CreativeLabApplicationService],

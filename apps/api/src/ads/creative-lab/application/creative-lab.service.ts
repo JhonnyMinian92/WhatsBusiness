@@ -6,7 +6,6 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import type { PoolClient } from "pg";
 import type { TenantAccessContext } from "../../../platform/identity/tenant-access-context.js";
 import type { PermissionKey } from "../../../platform/identity/authorization/permission-catalog.js";
 import { DatabaseService } from "../../../platform/database/database.module.js";
@@ -25,6 +24,7 @@ import {
   type CreativeVariantDraft,
   type CreativeVariantRecord,
 } from "../domain/creative-variant.js";
+import { attachMetaCreativeConfiguration } from "../domain/creative-native-configuration.js";
 import { findNearDuplicateCreativeCandidates } from "../domain/creative-similarity.js";
 import {
   evaluateCreativeExperimentReadiness,
@@ -36,7 +36,6 @@ import {
   assessCreativeFatigue,
   createCreativeRefreshBrief,
   type CreativeFatigueAssessment,
-  type CreativeFatiguePolicy,
   type CreativePerformanceObservation,
 } from "../domain/creative-fatigue.js";
 import {
@@ -49,6 +48,11 @@ import {
   CREATIVE_EXPERIMENT_EVIDENCE_PROVIDER,
   type CreativeExperimentEvidenceProvider,
 } from "./creative-experiment-evidence.provider.js";
+import {
+  CREATIVE_REVIEW_EVIDENCE_PROVIDER,
+  type CreativeReviewEvidence,
+  type CreativeReviewEvidenceProvider,
+} from "./creative-review-evidence.provider.js";
 import {
   CREATIVE_PROVIDER_ADAPTER,
   type CreativePreviewDecision,
@@ -85,6 +89,8 @@ export class CreativeLabApplicationService {
     private readonly approvals: ApprovalWorkflowService,
     @Inject(CREATIVE_EXPERIMENT_EVIDENCE_PROVIDER)
     private readonly experimentEvidence: CreativeExperimentEvidenceProvider,
+    @Inject(CREATIVE_REVIEW_EVIDENCE_PROVIDER)
+    private readonly reviewEvidence: CreativeReviewEvidenceProvider,
     @Inject(CREATIVE_PROVIDER_ADAPTER)
     private readonly provider: CreativeProviderAdapter,
   ) {}
@@ -96,7 +102,8 @@ export class CreativeLabApplicationService {
   ): Promise<CreativeVariantCreateResult> {
     requirePermission(subject, "ads.creatives.create");
     assertIdempotencyKey(idempotencyKey);
-    const draft = parseCreativeVariantDraft(input);
+    const parsedDraft = parseCreativeVariantDraft(input);
+    const draft = attachMetaCreativeConfiguration(parsedDraft, input);
     const requestHash = hash({ operation: "create_creative_variant", draft });
 
     return this.database.withTenantContextAtVersion(
@@ -104,22 +111,7 @@ export class CreativeLabApplicationService {
       subject.tenantId,
       subject.authzVersion,
       async (client) => {
-        const candidates = await this.repository.findSimilarityCandidates(
-          client,
-          subject.tenantId,
-          draft.campaignId,
-          100,
-        );
-        const duplicates = findNearDuplicateCreativeCandidates(draft.similarityProfile, candidates);
-        if (duplicates.length > 0) {
-          throw new ConflictException({
-            code: "CREATIVE_NEAR_DUPLICATE_REQUIRES_DIFFERENTIATION",
-            detail: "La variante se parece demasiado a una creatividad existente. Modifica una hipótesis o variable y vuelve a evaluar.",
-            candidates: duplicates,
-          });
-        }
-
-        const variant = await this.repository.createVariant(
+        const creation = await this.repository.createVariant(
           client,
           subject.tenantId,
           subject.actorId,
@@ -127,6 +119,30 @@ export class CreativeLabApplicationService {
           requestHash,
           draft,
         );
+        const variant = creation.variant;
+        if (creation.replayed) {
+          return Object.freeze({
+            variant,
+            duplicateCandidates: Object.freeze([]),
+            replayed: true,
+          });
+        }
+
+        const candidates = await this.repository.findSimilarityCandidates(
+          client,
+          subject.tenantId,
+          draft.campaignId,
+          100,
+        );
+        const duplicates = findNearDuplicateCreativeCandidates(draft.similarityProfile, candidates)
+          .filter((candidate) => candidate.variantId !== variant.id);
+        if (duplicates.length > 0) {
+          throw new ConflictException({
+            code: "CREATIVE_NEAR_DUPLICATE_REQUIRES_DIFFERENTIATION",
+            detail: "La variante se parece demasiado a una creatividad existente. Modifica una hipótesis o variable y vuelve a evaluar.",
+            candidates: duplicates,
+          });
+        }
         await this.repository.appendVariantSnapshot(client, {
           tenantId: subject.tenantId,
           actorId: subject.actorId,
@@ -140,7 +156,7 @@ export class CreativeLabApplicationService {
           outcome: "allowed",
           requestHash,
         }));
-        return Object.freeze({ variant, duplicateCandidates: Object.freeze([]), replayed: variant.createdBy !== subject.actorId });
+        return Object.freeze({ variant, duplicateCandidates: Object.freeze([]), replayed: false });
       },
     );
   }
@@ -160,6 +176,59 @@ export class CreativeLabApplicationService {
     );
   }
 
+  async advanceVariantReview(
+    subject: TenantAccessContext,
+    variantId: string,
+    target: "brand_review" | "policy_review" | "preview_ready",
+    expectedVersion: number,
+    now = new Date(),
+  ): Promise<CreativeVariantRecord> {
+    requirePermission(subject, "ads.creatives.review");
+    assertUuid(variantId);
+    if (!Number.isSafeInteger(expectedVersion) || expectedVersion < 1) {
+      throw new ConflictException({ code: "CREATIVE_VARIANT_VERSION_INVALID" });
+    }
+    const variant = await this.getVariantForReview(subject, variantId);
+    if (variant.version !== expectedVersion) {
+      throw new ConflictException({ code: "CREATIVE_VARIANT_VERSION_CONFLICT" });
+    }
+    const stage = target === "brand_review" ? "brand_review" : "policy_review";
+    await this.requireTrustedReviewEvidence(subject, variant, stage, now);
+    if (target === "preview_ready") this.assertDomainReadiness(variant, now);
+    const transitioned = transitionCreativeVariant(variant, target, null, now);
+    return this.database.withTenantContextAtVersion(
+      subject.actorId,
+      subject.tenantId,
+      subject.authzVersion,
+      async (client) => {
+        const updated = await this.repository.setVariantStatus(client, {
+          tenantId: subject.tenantId,
+          actorId: subject.actorId,
+          variantId,
+          expectedVersion: variant.version,
+          status: transitioned.status,
+          approvalId: null,
+          approvalTarget: null,
+        });
+        if (!updated) throw new ConflictException({ code: "CREATIVE_VARIANT_VERSION_CONFLICT" });
+        await this.repository.appendVariantSnapshot(client, {
+          tenantId: subject.tenantId,
+          actorId: subject.actorId,
+          variant: updated,
+          reason: target,
+        });
+        await this.audit.append(client, auditEvent(subject, {
+          actionKey: "ads.creatives.review",
+          resourceType: "ads_creative_variant",
+          resourceId: variantId,
+          outcome: "allowed",
+          reasonCode: target,
+        }));
+        return updated;
+      },
+    );
+  }
+
   async preview(
     subject: TenantAccessContext,
     variantId: string,
@@ -168,7 +237,12 @@ export class CreativeLabApplicationService {
   ): Promise<CreativePreviewDecision> {
     requirePermission(subject, "ads.creatives.read");
     const variant = await this.getVariant(subject, variantId);
-    if (variant.status === "retired") throw new ConflictException({ code: "CREATIVE_VARIANT_RETIRED" });
+    if (variant.status !== "preview_ready" && variant.status !== "experiment_ready"
+      && variant.status !== "approved" && variant.status !== "active") {
+      throw new ConflictException({ code: "CREATIVE_VARIANT_NOT_PREVIEW_READY" });
+    }
+    this.assertDomainReadiness(variant, now);
+    await this.requireTrustedReviewEvidence(subject, variant, "policy_review", now);
     return this.provider.preview(subject, variant, placement, now);
   }
 
@@ -225,6 +299,8 @@ export class CreativeLabApplicationService {
               variantId: variant.id,
             });
           }
+          this.assertDomainReadiness(variant, now);
+          await this.requireTrustedReviewEvidence(subject, variant, "policy_review", now);
           const blockers = creativeVariantReadiness(variant);
           if (blockers.length > 0) {
             throw new ConflictException({
@@ -275,7 +351,7 @@ export class CreativeLabApplicationService {
       subject.tenantId,
       subject.authzVersion,
       async (client) => {
-        const policy = await this.repository.findFatiguePolicy(client, subject.tenantId, variant.campaignId ?? "UNSPECIFIED");
+        const policy = await this.repository.findFatiguePolicy(client, subject.tenantId, variant.id);
         if (!policy) {
           return Object.freeze({
             assessment: null,
@@ -348,6 +424,16 @@ export class CreativeLabApplicationService {
     if (variant.status === "approval_pending") {
       throw new ConflictException({ code: "CREATIVE_VARIANT_APPROVAL_ALREADY_PENDING" });
     }
+    if (target === "approved") {
+      if (variant.status !== "preview_ready" && variant.status !== "experiment_ready") {
+        throw new ConflictException({ code: "CREATIVE_VARIANT_NOT_READY_FOR_APPROVAL" });
+      }
+      this.assertDomainReadiness(variant);
+      await this.requireTrustedReviewEvidence(subject, variant, "policy_review");
+    } else if (variant.status !== "approved" && variant.status !== "active"
+      && variant.status !== "paused" && variant.status !== "fatigued") {
+      throw new ConflictException({ code: "CREATIVE_VARIANT_NOT_ELIGIBLE_FOR_APPROVED_RETIREMENT" });
+    }
     const snapshot = creativeVariantSnapshot(variant);
     const binding = approvalBinding(subject, variant.id, snapshot, target);
     const approval = await this.approvals.requestApproval({
@@ -402,14 +488,20 @@ export class CreativeLabApplicationService {
 
     const target: CreativeLifecycle = summary.status === "approved"
       ? variant.approvalTarget
-      : "preview_ready";
-    transitionCreativeVariant(
-      variant,
-      target,
-      summary.status === "approved"
-        ? { approvalId: summary.approvalId, status: "approved", snapshotHashMatches: true }
-        : null,
-    );
+      : variant.approvalPreviousStatus ?? "preview_ready";
+    if (summary.status === "approved") {
+      if (target === "approved") {
+        this.assertDomainReadiness(variant);
+        await this.requireTrustedReviewEvidence(subject, variant, "policy_review");
+      }
+      transitionCreativeVariant(
+        variant,
+        target,
+        { approvalId: summary.approvalId, status: "approved", snapshotHashMatches: true },
+      );
+    } else if (!variant.approvalPreviousStatus) {
+      throw new ConflictException({ code: "CREATIVE_VARIANT_APPROVAL_ORIGIN_MISSING" });
+    }
     return this.database.withTenantContextAtVersion(
       subject.actorId,
       subject.tenantId,
@@ -445,6 +537,40 @@ export class CreativeLabApplicationService {
         return updated;
       },
     );
+  }
+
+  private assertDomainReadiness(variant: CreativeVariantRecord, now = new Date()): void {
+    const blockers = creativeVariantReadiness(variant, now);
+    if (blockers.length > 0) {
+      throw new ConflictException({
+        code: "CREATIVE_VARIANT_REVIEW_GATES_FAILED",
+        reasons: blockers,
+      });
+    }
+  }
+
+  private async requireTrustedReviewEvidence(
+    subject: TenantAccessContext,
+    variant: CreativeVariantRecord,
+    stage: "brand_review" | "policy_review",
+    now = new Date(),
+  ): Promise<void> {
+    const evidence = await this.reviewEvidence.inspect(subject, variant, stage, now);
+    const reasons = [...evidence.reasons];
+    if (!validReviewEvidenceWindow(evidence, now)) reasons.push("CREATIVE_REVIEW_EVIDENCE_STALE_OR_INVALID");
+    if (evidence.sourceReferences.length === 0) reasons.push("CREATIVE_REVIEW_EVIDENCE_SOURCE_MISSING");
+    if (evidence.rights !== "approved") reasons.push("CREATIVE_RIGHTS_NOT_VERIFIED");
+    if (evidence.brand !== "approved") reasons.push("CREATIVE_BRAND_REVIEW_NOT_APPROVED");
+    if (stage === "policy_review" && evidence.claims !== "approved") {
+      reasons.push("CREATIVE_CLAIMS_POLICY_REVIEW_NOT_APPROVED");
+    }
+    if (reasons.length > 0) {
+      throw new ConflictException({
+        code: "CREATIVE_TRUSTED_REVIEW_EVIDENCE_REQUIRED",
+        stage,
+        reasons: [...new Set(reasons)],
+      });
+    }
   }
 
   private async getVariantForReview(subject: TenantAccessContext, variantId: string): Promise<CreativeVariantRecord> {
@@ -554,6 +680,14 @@ function asRecord(value: unknown, code: string): Record<string, unknown> {
 
 function hash(value: unknown): string {
   return createHash("sha256").update(JSON.stringify(value), "utf8").digest("hex");
+}
+
+function validReviewEvidenceWindow(evidence: CreativeReviewEvidence, now: Date): boolean {
+  return Number.isFinite(now.getTime())
+    && Number.isFinite(Date.parse(evidence.observedAt))
+    && Number.isFinite(Date.parse(evidence.validUntil))
+    && Date.parse(evidence.observedAt) <= now.getTime()
+    && Date.parse(evidence.validUntil) > now.getTime();
 }
 
 function notFound(): NotFoundException {

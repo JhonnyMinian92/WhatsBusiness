@@ -153,3 +153,26 @@ test("promotion without the exact approval binding is rejected", () => {
     /CREATIVE_VARIANT_APPROVAL_REQUIRED/,
   );
 });
+
+
+test("retiring an approved creative requires the exact retirement approval", () => {
+  const ready = variantRecord(parseCreativeVariantDraft(validInput(), NOW));
+  const pending = Object.freeze({
+    ...ready,
+    status: "approval_pending" as const,
+    approvalRequestId: "22f13d94-8fb0-4a0d-82d0-000000000030",
+    approvalTarget: "retired" as const,
+    approvalPreviousStatus: "approved" as const,
+  });
+  assert.throws(
+    () => transitionCreativeVariant(pending, "retired", null, NOW),
+    /CREATIVE_VARIANT_RETIREMENT_APPROVAL_REQUIRED/,
+  );
+  const retired = transitionCreativeVariant(
+    pending,
+    "retired",
+    { approvalId: pending.approvalRequestId!, status: "approved", snapshotHashMatches: true },
+    NOW,
+  );
+  assert.equal(retired.status, "retired");
+});
