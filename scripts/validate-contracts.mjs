@@ -10,7 +10,7 @@ const Ajv2020 = Ajv2020Module.default ?? Ajv2020Module;
 const addFormatsModule = require("ajv-formats");
 const addFormats = addFormatsModule.default ?? addFormatsModule;
 const asyncApiParserModule = require("@asyncapi/parser");
-const AsyncApiParser = asyncApiParserModule.Parser ?? asyncApiParserModule.default?.Parser;
+const AsyncApiParser = asyncApiParserModule.Parser ?? asyncApiParserModule.default?.Parser ?? asyncApiParserModule.default;
 
 const read = (path) => fs.readFileSync(path, "utf8");
 const parseYaml = (path) => YAML.parse(read(path), { uniqueKeys: true });
