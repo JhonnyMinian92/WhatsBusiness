@@ -227,3 +227,22 @@ TASK-046 y TASK-064 nombran “frontend foundation” sin ID ni entregable acept
 ### US-006 — estado validado en Source CI
 
 Commit 966edff: Source CI #42513964425 y CodeQL #42513964419 success; PostgreSQL migration/replay, build/typecheck, API 191/191 y Meta backend 87/87 pass, 0 fail/skip. Núcleo local verificado, no aceptación completa: TASK-014/015 continúan in_progress por los gates WAM y la integración real pendiente.
+
+
+
+### Verificación final TASK-004 / TASK-005 (2026-11-08)
+
+**Commit verificado:** 966edfffe668f495dfbc2ac07072fb93b616c7c9 en environment/local.
+
+**Evidencia CI:**
+- Source workspace validation #42513964425: SUCCESS.
+- Migraciones versionadas 0001–0008 e idempotencia: SUCCESS.
+- Build all applications y typecheck all applications: SUCCESS.
+- API unit + PostgreSQL integration: 191/191 PASS, 0 FAIL.
+- Meta backend unit + PostgreSQL/RabbitMQ integration: 87/87 PASS, 0 FAIL.
+- Test específico PostgreSQL de asignación aprobada y protección del último owner: PASS.
+- CodeQL #42513964419: SUCCESS.
+
+**Entregables técnicos verificados:** política y catálogo RBAC/ABAC; persistencia tenant-role con RLS/grants mínimos y validación de plantillas; solicitud y revocación mediante aprobación independiente ligada a snapshot; consumo único/transaccional; protección de último owner; audit append-only para acciones y denegaciones; integración y suites registradas en CI.
+
+**No equivale a aceptación formal:** reviewer independiente y Product Owner acceptance pendientes. Dependencias restantes: bootstrap confiable del primer tenant_owner; ACR/AMR/freshness verificados con el IdP real; IAM-007..020 siguen catalog-only hasta contract freeze; outbox/consumer de acciones de negocio y garantías externas/operativas de auditoría pendientes según sus tareas. GO-PRODUCTION permanece NO-GO.

@@ -526,3 +526,18 @@ En Source CI run 42513396813 la migración 0007, su idempotencia, build y typech
 
 
 | AUD-173 | Commit 966edfffe668f495dfbc2ac07072fb93b616c7c9: Source CI #42513964425 success; CodeQL #42513964419 success; migrations/replay, build y typecheck success; API 191/191 y Meta backend 87/87 sin fallos ni skips. | Verificado en el run del commit exacto. TASK-014/015 siguen in_progress por dependencias Meta/contracts/sender. |
+
+
+
+## 43. Verificación técnica US-002 (AUD-167..172; 2026-11-08)
+
+| ID | Evidencia/cambio | Resultado |
+|---|---|---|
+| AUD-167 | Commit 966edfffe668f495dfbc2ac07072fb93b616c7c9 en environment/local; migración 0008-role-description-defaults aplicada y validada idempotente. | SUCCESS |
+| AUD-168 | Build de todas las aplicaciones y typecheck del workspace. | SUCCESS |
+| AUD-169 | Source CI #42513964425: pruebas API/PostgreSQL. | 191/191 PASS; 0 FAIL |
+| AUD-170 | Source CI #42513964425: pruebas del backend Meta. | 87/87 PASS; 0 FAIL |
+| AUD-171 | Test PostgreSQL de asignación/revocación hash-bound, approval independiente, último owner y audit chain. | PASS |
+| AUD-172 | CodeQL #42513964419 para el mismo commit. | SUCCESS |
+
+La evidencia anterior reemplaza los handoffs US-002 que indicaban CI pendiente. TASK-004/005 quedan implementadas y CI-verificadas, pero siguen in_progress hasta revisión independiente y aceptación del Product Owner. Bootstrap de primer tenant_owner, ACR/AMR del IdP real, contract freeze para rutas IAM y gates de operación/audit externos no se consideran completados. GO-PRODUCTION permanece NO-GO.

@@ -289,8 +289,8 @@ La matriz de docs/47 define la relación por US y por API ID. Esta tabla es un �
 |---|---|---|
 | TASK-001 | in_progress | Primera migración de Organization/Tenant y policies RLS; lifecycle, provisioning y mutaciones pendientes. |
 | TASK-002 | in_progress | Guard OIDC, principal issuer+subject, contexto transaction-local y APIs PLT-003..005 read-only; worker context, revocación y grants pendientes. |
-| TASK-004 | in_progress | Esquema roles/permissions y lectura de role/permission keys; RBAC/ABAC final, mutations, approvals y pruebas de escalamiento pendientes. |
-| TASK-005 | proposed | Step-up, doble control y auditoría de acciones privilegiadas no implementados. |
+| TASK-004 | in_progress | Núcleo RBAC/ABAC y asignación persistente implementados y CI-verificados; aceptación formal pendiente. |
+| TASK-005 | in_progress | Step-up, approval hash-bound, consumo transaccional y auditoría append-only implementados y CI-verificados; gates externos/aceptación pendientes. |
 
 Source CI #42376234089 y Contract CI #42376234088 pasaron en el commit 0e0927bdcae658d4e4b1ccae28a5c5f89cf4b183; PostgreSQL migration/RLS, build, typecheck, OIDC tests y contract validation quedaron verdes. El lockfile se confirmó en d81593601101d97623684ea02f04539fd29f3e2f. TASK-001/002/004 continúan in_progress hasta revisión independiente; no hay acceptance de producto.
 
@@ -798,3 +798,16 @@ La integración US-006 configura roles de lectura de auditoría por tenant para 
 ### US-006 — validación automatizada completada (2026-11-08)
 
 Commit 966edfffe668f495dfbc2ac07072fb93b616c7c9: Source CI #42513964425 SUCCESS y CodeQL #42513964419 SUCCESS; migración 0027 + idempotent replay, build/typecheck, API 191/191 y Meta backend 87/87 sin fallos ni skipped. Esto verifica el slice local, no la integración Meta, el sender o la aceptación completa. TASK-014/015 permanecen in_progress; ver docs/71.
+
+
+
+## Estado consolidado US-002 — 2026-11-08
+
+La implementación de TASK-004 y TASK-005 fue publicada y verificada por CI en commit 966edfffe668f495dfbc2ac07072fb93b616c7c9.
+
+| TASK | Estado técnico | Evidencia | Pendiente para aceptación |
+|---|---|---|---|
+| TASK-004 | implemented + CI verified | Asignación/revocación persistente tenant-scoped; RLS/grants least-privilege; materialización de plantillas y comprobación exacta de permisos; protección contra escalamiento/self-assignment/last-owner; Source CI #42513964425 SUCCESS (migraciones/idempotencia, build, typecheck, 191/191 pruebas API y 87/87 pruebas Meta); CodeQL #42513964419 SUCCESS | bootstrap confiable del primer tenant_owner; revisión independiente; aceptación del Product Owner; contract freeze antes de las APIs IAM catalog-only |
+| TASK-005 | implemented + CI verified | Step-up fail-closed, aprobación independiente hash-bound/quorum/consumo de un solo uso, escritura de rol y auditoría en transacción; denegaciones sensibles registradas con authzVersion vigente; integración PostgreSQL de asignar/revocar/rollback/último owner/audit stream PASS | IdP real y allowlists ACR/AMR verificadas; revisión independiente; aceptación del Product Owner; completar outbox/consumer de acciones de negocio y gates de auditoría externa según su alcance |
+
+**Estado de la historia US-002:** criterios técnicos del núcleo de identidad implementados y verificados por CI; estado global continúa in_progress, no accepted. No se publicaron endpoints IAM catalog-only. GO-PRODUCTION permanece NO-GO.

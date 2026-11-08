@@ -336,3 +336,15 @@ Evidencia en commit 966edfffe668f495dfbc2ac07072fb93b616c7c9:
 - Migración 0027 y replay, build y typecheck: success.
 
 Esto cierra la verificación automatizada del slice. No cierra la aceptación del producto: WAM operations, capability runtime, Meta status sync, approval workflow y sender integration aún están pendientes.
+
+
+
+## US-002 — estado técnico consolidado (2026-11-08)
+
+TASK-004 (RBAC/ABAC y asignación persistente) y TASK-005 (step-up, approvals y audit) están implementadas y verificadas por CI:
+- Commit: 966edfffe668f495dfbc2ac07072fb93b616c7c9.
+- Source workspace validation #42513964425: SUCCESS; migraciones 0001..0008 e idempotencia, build, typecheck y API/PostgreSQL 191/191 PASS; backend Meta 87/87 PASS.
+- CodeQL #42513964419: SUCCESS.
+- La integración específica de asignaciones PostgreSQL cubre requester owner, aprobador independiente, step-up sintético, snapshot exacto, permisos persistidos, idempotencia, revocación, protección del último propietario, rollback y audit hash-chain.
+- Estado global US-002: implemented + verified técnicamente, aún in_progress para aceptación formal. Falta reviewer independiente y Product Owner acceptance.
+- Gaps: bootstrap de primer tenant_owner mediante provisioning confiable; ACR/AMR/freshness reales del IdP; contract freeze de APIs IAM catalog-only; outbox/consumer de efectos de negocio y revisión de auditoría externa/operativa según alcance. No alterar GO-PRODUCTION (NO-GO).

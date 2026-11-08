@@ -608,3 +608,16 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - La integración PostgreSQL de templates, los roles audit.read por tenant, RLS y revisiones append-only se verificaron en CI.
 - El template-send-policy fail-closed está probado, pero todavía no hay sender real en apps/api/src ni wiring; no se afirma enforcement E2E.
 - TASK-014/015 y US-006 continúan en progreso/no aceptados por los gates WAM-001..007, TASK-008/TASK-010 runtime, aprobación/sincronización Meta y falta de WABA real.
+
+
+
+## Handoff final — US-002 verificada técnicamente por CI (2026-11-08)
+
+- Rama: environment/local. Commit verificado: 966edfffe668f495dfbc2ac07072fb93b616c7c9.
+- Source workspace validation #42513964425: SUCCESS. CodeQL #42513964419: SUCCESS.
+- Source CI ejecutó migraciones versionadas, incluida 0008-role-description-defaults.sql, y comprobó idempotencia; build de las aplicaciones y typecheck: SUCCESS.
+- Pruebas API/PostgreSQL: 191/191 PASS, 0 FAIL. Suite microservices-meta-ecuapp: 87/87 PASS, 0 FAIL. La prueba nueva "PostgreSQL persists approved tenant role assignments atomically and protects the last owner" pasó.
+- Se corrigió compatibilidad con roles legados: el trigger de migration 0008 completa description desde display_name o role_key manteniendo roles_description_nonempty.
+- TASK-004 y TASK-005: implementación y validación automatizada CI verificadas. No declarar accepted ni cerradas globalmente todavía: falta revisión independiente y aceptación del Product Owner.
+- Dependencias/alcance abierto: bootstrap confiable del primer tenant_owner; validar ACR/AMR y freshness con el IdP real (producción sigue fail-closed); endpoints IAM-007..020 continúan catalog-only hasta contract freeze; consumer/outbox de efectos de negocio y gates operativos de auditoría siguen pendientes según sus paquetes.
+- No se cambia GO-PRODUCTION: permanece NO-GO. La suite sintética PostgreSQL/step-up no equivale a una prueba con el IdP ni Meta app reales.

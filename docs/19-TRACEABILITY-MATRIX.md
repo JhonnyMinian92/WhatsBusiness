@@ -412,3 +412,17 @@ La policy de dominio template-send-policy exige plantilla activa, Meta ID, statu
 ### US-006 — evidencia automatizada final
 
 Commit 966edff; Source CI #42513964425 y CodeQL #42513964419 success. 191/191 API tests y 87/87 Meta backend tests success; migration/replay, build y typecheck success. AC-006-03 conserva estado pendiente de integración end-to-end del sender; la story sigue sin acceptance.
+
+
+
+## US-002 — evidencia de verificación consolidada (2026-11-08)
+
+| Historia / TASK | Implementación | Evidencia reproducible | Estado |
+|---|---|---|---|
+| US-002 / TASK-004 — RBAC/ABAC y administración de roles | Catalogs, evaluator, guard, tenant role policy/repository/service, migration 0007/0008, RLS y grants acotados, materialización exacta de permission sets, assign/revoke aprobado, anti-escalation y last-owner guard | Commit 966edfffe668f495dfbc2ac07072fb93b616c7c9; Source CI #42513964425; integración "PostgreSQL persists approved tenant role assignments atomically and protects the last owner"; API tests 191/191 | Implemented + verified |
+| US-002 / TASK-005 — step-up, approval y auditoría | OIDC signed evidence fail-closed; independent approval/quorum; hash-bound one-time consume; transaction role edge + audit; denial audit against current tenant membership | Same Source CI; PostgreSQL integration; CodeQL #42513964419 | Implemented + verified |
+| US-002 — contract/production gates | IAM-007..020 routes remain catalog-only; no public IAM controller added | docs/49 contract gate remains unchanged | Blocked by contract freeze |
+| US-002 — external identity bootstrap | No safe initial tenant_owner bootstrap was found in this layer; assignment use case handles subsequent owner-approved changes only | Explicitly documented dependency; no self-promotion path | Pending provisioning design and owner review |
+| US-002 — production assurance | Real IdP ACR/AMR/freshness and independent review/PO acceptance not exercised by synthetic CI | CI green is not production IdP evidence | Pending |
+
+Source CI #42513964425: migrations/idempotency, build, typecheck, API/PostgreSQL 191/191 and Meta 87/87 all SUCCESS; CodeQL #42513964419 SUCCESS. US-002 is technically verified, not yet formally accepted. GO-PRODUCTION remains NO-GO.
