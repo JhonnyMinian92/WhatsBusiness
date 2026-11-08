@@ -41,8 +41,8 @@ test("reads live RabbitMQ Prometheus detailed metrics for worker and dead-letter
     });
 
     await channels.consumer.assertExchange(exchange, "topic", { durable: false, autoDelete: true });
-    await channels.consumer.assertQueue(workerQueue, { durable: false, exclusive: true, autoDelete: true });
-    await channels.consumer.assertQueue(deadLetterQueue, { durable: false, exclusive: true, autoDelete: true });
+    await channels.consumer.assertQueue(workerQueue, { durable: false, exclusive: true, autoDelete: false });
+    await channels.consumer.assertQueue(deadLetterQueue, { durable: false, exclusive: true, autoDelete: false });
     await channels.consumer.bindQueue(workerQueue, exchange, "worker");
     await channels.consumer.bindQueue(deadLetterQueue, exchange, "dead");
 
