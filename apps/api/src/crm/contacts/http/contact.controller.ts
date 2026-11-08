@@ -2,7 +2,7 @@ import {
   BadRequestException, Body, Controller, Get, Headers, Param, Patch, Post, Query, Req, Res, UseGuards,
 } from "@nestjs/common";
 import type { Response } from "express";
-import { OidcAuthGuard } from "../../../platform/identity/oidc-auth.guard.js";
+import { OidcOrApiClientGuard } from "../../../platform/developer/application/oidc-or-api-client.guard.js";
 import {
   requireTenantAccessContext, type TenantAuthenticatedRequest,
 } from "../../../platform/identity/tenant-context.guard.js";
@@ -10,7 +10,7 @@ import { RequireTenantPermission } from "../../../platform/identity/authorizatio
 import { ContactService } from "../application/contact.service.js";
 
 @Controller("v1/tenants/:tenantId/contacts")
-@UseGuards(OidcAuthGuard)
+@UseGuards(OidcOrApiClientGuard)
 export class ContactController {
   constructor(private readonly contacts: ContactService) {}
 
