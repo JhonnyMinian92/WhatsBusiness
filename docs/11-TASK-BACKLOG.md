@@ -850,3 +850,10 @@ La implementación de TASK-004 y TASK-005 fue publicada y verificada por CI en c
 - Commits: `b2fae18c07b1ede450a7ee8248df1ceceb3c0fd2` runtime; `65e173921ff83461a22bce86198305b21816b252` eager keyring validation; `7daebb92507e51a3f2e6316bee592fa2e4edb583` registry/consumer validation; `7d6e33c10ceb19a4f4f68af3fb932c8783f1ed5b` regressions; `12cabafa446e1b1408e42a219e0f5638838dbba2` public export; `d6d1e015d01b9810f7b92a047f5a5ed51ab097bf` Nx test registration.
 
 **Estado global:** TASK-027/028/US-014 siguen `in_progress`; CI del último commit de código debe inspeccionarse antes de elevar este slice a `CI verified`. No se ha creado entrypoint de deployment con handlers de CRM/Inbox porque esos consumers de dominio siguen pendientes. Replay no se habilita hasta CR-0016, handlers idempotentes y flujo de aprobación con step-up/audit; KMS/Secret Manager, WAF/rate limit/TLS, health/liveness, topología/alertas, carga/DR, callbacks reales, revisión independiente y aceptación del Product Owner permanecen abiertos.
+
+
+## Estado de implementación — US-012 (2026-11-08)
+
+- **TASK-024:** `in_progress`. Núcleo de validación fail-closed, catálogo de objetivos versionado y máquina de estados local añadidos en `apps/api/src/ads/campaigns/domain`. Persistencia, API, integración de approvals/outbox, objetivo/catalogue oficial y capability runtime continúan pendientes.
+- **TASK-025:** `in_progress`. Guardrail PD-024 con aritmética decimal exacta, baseline inmutable rolling 24h, control de bypass por aumentos fragmentados y policy de kill switch añadidos en el dominio. Falta integración transaccional, worker/adapter, pause real, reconciliation, insights y spend ledger.
+- Evidencia y bloqueos: `docs/72-US-012-ADS-CAMPAIGN-IMPLEMENTATION.md`. No cambiar a `verified`/`accepted` por código aislado o CI parcial.
