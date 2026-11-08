@@ -142,6 +142,11 @@ export const PERMISSION_CATALOG = {
     riskClass: "normal",
     requiresIndependentApproval: false,
   },
+  "jobs.replay.request": {
+    description: "Request an independently approved replay of an exhausted tenant job",
+    riskClass: "critical",
+    requiresIndependentApproval: true,
+  },
   "automation.read": {
     description: "Read tenant automation definitions",
     riskClass: "normal",
