@@ -48,12 +48,14 @@ test("support grants enforce separated duties, exact scopes and short expiry", (
   const grant = {
     requestedByUserId: "requester", approvedByUserId: "approver", operatorUserId: "operator",
     reason: "Investigar un incidente reportado por el cliente.", purpose: "support.tenant.incident",
-    scopes: ["crm.contacts.read"], validFrom: "2026-11-08T17:00:00-05:00", expiresAt: "2026-11-08T17:30:00-05:00",
+    scopes: ["crm.contacts.read"], validFrom: new Date(Date.now() - 1000).toISOString(), expiresAt: new Date(Date.now() + 30 * 60_000).toISOString(),
+    stepUpAuthTime: new Date().toISOString(), stepUpAcr: "urn:whatsbusiness:loa:2", stepUpAmr: ["pwd", "otp"],
   };
   policy.validate(grant, 60);
   rejectsCode(() => policy.validate({ ...grant, approvedByUserId: "requester" }, 60), "SUPPORT_SEPARATION_OF_DUTIES_REQUIRED");
-  rejectsCode(() => policy.validate({ ...grant, expiresAt: "2026-11-08T18:30:00-05:00" }, 60), "SUPPORT_WINDOW_TOO_LONG");
+  rejectsCode(() => policy.validate({ ...grant, expiresAt: new Date(Date.now() + 90 * 60_000).toISOString() }, 60), "SUPPORT_WINDOW_TOO_LONG");
   rejectsCode(() => policy.validate({ ...grant, scopes: ["crm.contacts.read", "crm.contacts.read"] }, 60), "SUPPORT_SCOPES_INVALID");
+  rejectsCode(() => policy.validate({ ...grant, stepUpAuthTime: new Date(Date.now() - 10 * 60_000).toISOString() }, 60), "SUPPORT_STEP_UP_REQUIRED");
 });
 
 test("usage entries separate Meta, infrastructure and AI and retain decimal precision", () => {
