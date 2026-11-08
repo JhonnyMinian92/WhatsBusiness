@@ -175,10 +175,10 @@ test("metrics collection errors do not prevent recovery or dispatch", async () =
   assert.deepEqual(calls, [
     "sample",
     "recover",
-    "failed:TENANT_JOB_METRICS_SNAPSHOT_FAILED",
-    "metrics-error",
     "recovered",
     "dispatch",
+    "failed:TENANT_JOB_METRICS_SNAPSHOT_FAILED",
+    "metrics-error",
   ]);
 });
 
