@@ -97,10 +97,6 @@ Existe una API tenant-scoped de solo lectura GET /v1/tenants/:tenantId/webhooks/
 
 La especificación OpenAPI WH-001..WH-007 y AsyncAPI todavía necesitan freeze/revisión contractual del producto; WH-008 queda fuera. Deben probarse fixtures reales de cada producto/versión soportada. También faltan adapter de secretos gestionados, instalación real de roles/grants, rate limit/WAF en el borde, dashboards/alertas específicos (TASK-029), pruebas E2E con PostgreSQL/RabbitMQ, pruebas de carga/recuperación y aceptación operativa.
 
-## Métricas RabbitMQ con Prometheus Detailed Metrics
+## Compatibilidad del fixture live con RabbitMQ 4.4
 
-El runtime consulta `GET /metrics/detailed` del plugin `rabbitmq_prometheus` para las familias `queue_coarse_metrics` y `queue_consumer_count`, filtradas por vhost y por worker queue/DLQ. Configuración vigente: `RABBITMQ_PROMETHEUS_URL`; credenciales HTTP Basic opcionales `RABBITMQ_PROMETHEUS_USERNAME` y `RABBITMQ_PROMETHEUS_PASSWORD`, siempre en pareja. El endpoint remoto requiere HTTPS y red privada; no se usa Management API ni un usuario con permisos AMQP de lectura.
-
-La integración live crea colas efímeras exclusivas y auto-delete (`durable=false, exclusive=true, autoDelete=true`), publica con confirm y verifica ready, unacknowledged, consumers y ACK. Debido al intervalo de publicación de estadísticas del broker, el test reintenta únicamente snapshots incompletos durante un máximo de 20 segundos. Source CI [#568](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42496866164) y CodeQL [#103](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42496866189) terminaron SUCCESS en `aeac5155a316592d31e557ab24e092134bf17f8f`.
-
-La verificación CI no equivale a despliegue Prometheus/Grafana, TLS/mTLS/firewall real, alert routing, SLO, carga/DR ni aceptación. TASK-003 permanece `in_progress` y GO-PRODUCTION NO-GO.
+La integración de Management API usa colas temporales únicas, exclusivas de la conexión y auto-delete (`durable=false, exclusive=true, autoDelete=true`). RabbitMQ 4.4 rechaza colas clásicas transitorias no exclusivas; no se habilita la característica obsoleta ni se cambia la topología quorum durable del runtime. La ejecución Source CI #563 sobre el commit `92b46d68bc8070a086b95352d504797fe1bf0c3d` es el gate pendiente de este ajuste.

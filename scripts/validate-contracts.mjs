@@ -58,8 +58,11 @@ const implementationAllowedIds = operations
   .map((operation) => operation.apiId)
   .sort();
 assert(
-  JSON.stringify(implementationAllowedIds) === JSON.stringify(["PLT-001", "PLT-002", "PLT-003", "PLT-004", "PLT-005"]),
-  `Only PLT-001..005 may be enabled for foundation; found: ${implementationAllowedIds.join(", ")}`,
+  JSON.stringify(implementationAllowedIds) === JSON.stringify([
+    "CRM-001", "CRM-002", "CRM-003", "CRM-004",
+    "PLT-001", "PLT-002", "PLT-003", "PLT-004", "PLT-005",
+  ]),
+  `Only PLT-001..005 and CRM-001..004 may be enabled in the approved CRM Contacts slice; found: ${implementationAllowedIds.join(", ")}`,
 );
 
 const channels = asyncapi.channels ?? {};

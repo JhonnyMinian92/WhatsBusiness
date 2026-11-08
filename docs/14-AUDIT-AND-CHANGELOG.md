@@ -432,15 +432,3 @@ La API documentada de amqplib establece que connection.close invalida operacione
 | AUD-138 | docs/63, docs/02, docs/11 y README del backend sincronizan el diagnóstico y el gate siguiente. | Documentado; no equivale a verificación. |
 
 La corrección conserva RabbitMQ 4.4 y no habilita la característica obsoleta, no relaja permisos del usuario `monitoring` y no modifica la topología quorum de jobs. Source CI #563 debe completar la suite backend; CodeQL #98 debe revisarse por separado. TASK-003 permanece `in_progress`; TASK-027/028 no cambian de estado y GO-PRODUCTION sigue NO-GO.
-
-## 37. RabbitMQ Prometheus Detailed Metrics y verificación integral Source CI #568 (AUD-139..143; 2026-11-08)
-
-| ID | Evidencia / cambio | Estado |
-|---|---|---|
-| AUD-139 | El reader Management API requería leer estadísticas por cola que no estaban disponibles para la identidad de observabilidad con permisos AMQP vacíos. No se concede `read` para resolverlo, pues permitiría consumir. | Causa de autorización/alcance corregida por cambio de fuente. |
-| AUD-140 | Nuevo reader `RabbitMqPrometheusTenantJobQueueMetricsReader` consulta solo `queue_coarse_metrics` y `queue_consumer_count` por `/metrics/detailed`, vhost y dos nombres de cola. Parser estricto, timeout, tamaño máximo, redirects denegados, Basic auth opcional. | Implementado. |
-| AUD-141 | Bootstrap, factory, tests, Nx, `.env.example` y Source CI migran a `RABBITMQ_PROMETHEUS_URL`; se retira usuario monitoring y mapping/credentials Management API del workflow. | Implementado. |
-| AUD-142 | Source CI #567 reveló que el primer scrape podía no contener aún todas las muestras de la cola recién creada. El test reintenta únicamente el error tipado `RABBITMQ_PROMETHEUS_METRICS_INCOMPLETE` durante un máximo de 20 s. | Implementado; #568 pasa. |
-| AUD-143 | Source CI [#568](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42496866164) y CodeQL [#103](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42496866189) SUCCESS en commit `aeac5155a316592d31e557ab24e092134bf17f8f`; migrations 0001–0023/idempotencia, build, typecheck, API/PostgreSQL y backend/RabbitMQ integration. | Verificado por CI; no equivale a despliegue ni aceptación. |
-
-Se mantiene intacta la topología quorum durable, el worker no lee cuerpos de métricas, no se habilita permiso AMQP `read`, y no se habilita GO-PRODUCTION. TASK-003/027/028 siguen `in_progress` hasta completar los restantes gates operativos y de producto.

@@ -5,8 +5,8 @@ info:
   description: >
     Canonical route registry for first-party product APIs and webhook ingress.
     It contains 288 active first-party REST operations plus 8 webhook ingress routes; LEAD-010 is a retired alias superseded by SALES-014.
-    Only PLT-001..005 are design-frozen; 292 remaining operations are catalog-only
-    and cannot be implemented until their complete business schemas are approved.
+    Only PLT-001..005 and CRM-001..004 are design-frozen and implementation-allowed (9 operations);
+    the remaining 287 operations are catalog-only until their business schemas are approved.
   x-first-party-rest-operations: 288
   x-webhook-ingress-operations: 8
   x-total-http-operations: 296
@@ -6674,9 +6674,8 @@ paths:
       x-common-error-profile: 'problem-details-v1'
       x-contract-error-catalog: [400, 401, 403, 404, 409, 422, 429, 500, 503]
       x-contract-ready: true
-      x-implementation-allowed: false
-      x-required-gate: 'API-CONTRACT-FREEZE+G0+TASK-042'
-      security:
+      x-implementation-allowed: true
+      xx-required-gate: 'GO-CODE-CRM-CONTACTS+TASK-042'      security:
         - bearerAuth: []
       parameters:
         - name: tenantId
@@ -6733,9 +6732,8 @@ paths:
       x-common-error-profile: 'problem-details-v1'
       x-contract-error-catalog: [400, 401, 403, 404, 409, 422, 429, 500, 503]
       x-contract-ready: true
-      x-implementation-allowed: false
-      x-required-gate: 'API-CONTRACT-FREEZE+G0+TASK-042'
-      security:
+      x-implementation-allowed: true
+      xx-required-gate: 'GO-CODE-CRM-CONTACTS+TASK-042'      security:
         - bearerAuth: []
       parameters:
         - name: tenantId
@@ -6786,9 +6784,8 @@ paths:
       x-common-error-profile: 'problem-details-v1'
       x-contract-error-catalog: [400, 401, 403, 404, 409, 422, 429, 500, 503]
       x-contract-ready: true
-      x-implementation-allowed: false
-      x-required-gate: 'API-CONTRACT-FREEZE+G0+TASK-042'
-      security:
+      x-implementation-allowed: true
+      xx-required-gate: 'GO-CODE-CRM-CONTACTS+TASK-042'      security:
         - bearerAuth: []
       parameters:
         - name: tenantId
@@ -6831,9 +6828,8 @@ paths:
       x-common-error-profile: 'problem-details-v1'
       x-contract-error-catalog: [400, 401, 403, 404, 409, 422, 429, 500, 503]
       x-contract-ready: true
-      x-implementation-allowed: false
-      x-required-gate: 'API-CONTRACT-FREEZE+G0+TASK-042'
-      security:
+      x-implementation-allowed: true
+      xx-required-gate: 'GO-CODE-CRM-CONTACTS+TASK-042'      security:
         - bearerAuth: []
       parameters:
         - name: tenantId
