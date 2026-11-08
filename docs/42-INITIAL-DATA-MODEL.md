@@ -107,3 +107,9 @@ Punto inicial, sujeto a EXPLAIN y medición: (tenant_id, created_at DESC, id) pa
 ## 10. Antes de DDL de producción
 
 TASK-039 debe validar RLS/pooling; TASK-040 debe mapear requisitos; security review valida trust boundaries. Nombres finales de tablas pueden ajustarse mediante ADR técnico manteniendo invariantes y contratos. No inventar retención exacta, shard thresholds ni capacidad.
+
+## 11. DDL materializado — CRM Contacts (2026-11-08)
+
+El modelo lógico de la sección 5 ya tiene un primer agregado persistente real: migración microservices-meta-ecuapp/migrations/0022-crm-contacts.sql crea crm.contacts y crm.contact_command_idempotency. Incluye FK a platform.tenants/users, UNIQUE(tenant_id,id), índices de tenant + fecha, RLS ENABLE/FORCE para tenant context, tabla de idempotencia por tenant/actor/operación/clave, snapshot de respuesta inmutable y triggers que validan actor/tenant, provenance/contactType inmutables y versionado optimista. El rol whatsbusiness_app no obtiene DELETE, y UPDATE está limitado a columnas de contacto modificables y snapshot de idempotencia.
+
+El agregado Contact no incorpora todavía ContactIdentity, leads, companies, pipeline, opportunities, activities ni custom fields. El endpoint runtime está deshabilitado por el contract allowlist vigente; ver docs/66. No inferir que el modelo CRM completo está implementado.
