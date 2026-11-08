@@ -31,8 +31,9 @@
 | ADR-016 | OIDC + Keycloak self-hosted inicial | Accepted as direction |
 | ADR-017 | Docker; Compose en dev/piloto, topología HA tras spike | Accepted as direction |
 | ADR-018 | OpenTelemetry + Prometheus + Grafana | Accepted as direction |
-| ADR-019 | AI Gateway independiente y aprobación humana | Accepted as direction |
+| ADR-019 | AI Assistance desacoplada del CRM; no es dependencia de CRM Intelligence | Scope separado; no autoriza LLM en CRM |
 | ADR-020 | Nx + pnpm monorepo con boundaries | Accepted as direction |
+| ADR-026 | CRM Intelligence con ML clásico, inferencia CPU-first y gobierno de modelos | Accepted as direction |
 
 ## Superficies seleccionadas
 - WhatsApp Cloud API + Business Management API + Embedded Signup + Flows + Marketing Messages API.
@@ -142,3 +143,10 @@ Los ADR-011..020 están formalizados en docs/33-ARCHITECTURE-DECISION-RECORDS.md
 ## Kickoff GO-CODE — 2026-11-07
 
 La instrucción más reciente del propietario autoriza avanzar de inmediato con el código fuente y el primer vertical slice en `environment/local`. Esta autorización levanta el bloqueo histórico de scaffold para el trabajo de desarrollo, pero no cambia los controles de seguridad ni significa que el producto o TASK-039 estén aceptados. `GO-CODE` y `GO-PRODUCTION` son gates independientes; el segundo permanece cerrado según docs/57.
+
+
+## Decisión de producto — CRM Intelligence (2026-11-07)
+
+El propietario aclaró que CRM con IA significa machine learning clásico y estadística aplicada, no LLM ni agentes de IA. Los modelos candidatos incluyen regresión, clasificación, XGBoost/gradient boosting, clustering, modelos temporales/supervivencia y redes neuronales ligeras solo cuando una evaluación cuantitativa justifique su coste. Los casos incluyen lead scoring, probabilidad de conversión, forecast, churn, propensión, segmentación, LTV, ranking de siguiente acción y deduplicación asistida. Las predicciones no conceden permisos ni producen acciones irreversibles automáticamente.
+
+La especificación canónica es [docs/62](62-CRM-MACHINE-LEARNING-STRATEGY.md). No crear LLM, RAG ni agentes dentro del bounded context CRM.
