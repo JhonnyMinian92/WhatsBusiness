@@ -58,3 +58,59 @@ test("ignores unknown runtime outcomes and invalid duration samples", () => {
   assert.equal(output.includes("tenant_job_execution_duration_seconds_count{outcome="), false);
   assert.equal(output.includes("tenant_job_publish_duration_seconds_count{outcome="), false);
 });
+
+
+test("renders only fixed aggregate runtime gauges without tenant dimensions", () => {
+  const metrics = new PrometheusTenantJobRuntimeMetrics();
+  metrics.recordRuntimeSnapshot({
+    pendingDispatchJobs: 7,
+    blockedDispatchJobs: 2,
+    activeDispatchLeases: 1,
+    expiredDispatchLeases: 3,
+    activeExecutionLeases: 4,
+    expiredExecutionLeases: 5,
+    deadLetterJobs: 6,
+    oldestPendingDispatchAgeSeconds: 95.5,
+    replayedJobs: 8,
+  });
+
+  const output = metrics.renderPrometheus();
+
+  assert.match(output, /# TYPE tenant_job_dispatch_pending gauge/);
+  assert.match(output, /^tenant_job_dispatch_pending 7$/m);
+  assert.match(output, /^tenant_job_dispatch_blocked 2$/m);
+  assert.match(output, /^tenant_job_dispatch_leases_active 1$/m);
+  assert.match(output, /^tenant_job_dispatch_leases_expired 3$/m);
+  assert.match(output, /^tenant_job_execution_leases_active 4$/m);
+  assert.match(output, /^tenant_job_execution_leases_expired 5$/m);
+  assert.match(output, /^tenant_job_dead_letter_jobs 6$/m);
+  assert.match(output, /^tenant_job_oldest_pending_dispatch_age_seconds 95\.5$/m);
+  assert.match(output, /^tenant_job_replayed_jobs 8$/m);
+  assert.equal(/tenant_job_.*\{.*tenant/i.test(output), false);
+});
+
+test("rejects invalid aggregate gauges without replacing the last valid snapshot", () => {
+  const metrics = new PrometheusTenantJobRuntimeMetrics();
+  const valid = {
+    pendingDispatchJobs: 1,
+    blockedDispatchJobs: 0,
+    activeDispatchLeases: 0,
+    expiredDispatchLeases: 0,
+    activeExecutionLeases: 0,
+    expiredExecutionLeases: 0,
+    deadLetterJobs: 0,
+    oldestPendingDispatchAgeSeconds: 0,
+    replayedJobs: 0,
+  };
+  metrics.recordRuntimeSnapshot(valid);
+
+  assert.throws(
+    () => metrics.recordRuntimeSnapshot({ ...valid, pendingDispatchJobs: Number.MAX_SAFE_INTEGER + 1 }),
+    /safe integer/,
+  );
+  assert.throws(
+    () => metrics.recordRuntimeSnapshot({ ...valid, oldestPendingDispatchAgeSeconds: -1 }),
+    /invalid/,
+  );
+  assert.match(metrics.renderPrometheus(), /^tenant_job_dispatch_pending 1$/m);
+});
