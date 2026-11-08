@@ -165,7 +165,7 @@ export class PostgresTenantJobReplayRepository implements TenantJobReplayReposit
     approvalId: string,
   ): Promise<string> {
     const result = await client.query<{ replayed_job_id: string }>(
-      "SELECT platform.create_approved_tenant_job_replay($1, $2)::text AS replayed_job_id",
+      "SELECT platform.create_authorized_tenant_job_replay($1, $2)::text AS replayed_job_id",
       [sourceJobId, approvalId],
     );
     const replayedJobId = result.rows[0]?.replayed_job_id;

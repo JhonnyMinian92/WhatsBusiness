@@ -13,7 +13,8 @@ test("API database role cannot read replay payload or forge replay lineage", {
     const result = await pool.query<{
       can_read_payload: boolean;
       can_insert_replay_lineage: boolean;
-      can_execute_approved_replay: boolean;
+      can_execute_authorized_replay: boolean;
+      can_execute_unchecked_replay: boolean;
     }>(
       [
         "SELECT",
@@ -22,16 +23,56 @@ test("API database role cannot read replay payload or forge replay lineage", {
         "OR has_column_privilege(current_user, 'platform.tenant_job_records', 'replay_approval_id', 'INSERT')",
         "OR has_column_privilege(current_user, 'platform.tenant_job_records', 'replay_requested_by_user_id', 'INSERT')",
         "OR has_column_privilege(current_user, 'platform.tenant_job_records', 'replay_reason_code', 'INSERT') AS can_insert_replay_lineage,",
-        "has_function_privilege(current_user, 'platform.create_approved_tenant_job_replay(uuid,uuid)', 'EXECUTE')",
-        "AS can_execute_approved_replay",
+        "has_function_privilege(current_user, 'platform.create_authorized_tenant_job_replay(uuid,uuid)', 'EXECUTE')",
+        "AS can_execute_authorized_replay",
+        "NOT has_function_privilege(current_user, 'platform.create_approved_tenant_job_replay(uuid,uuid)', 'EXECUTE')",
+        "AS can_execute_unchecked_replay",
       ].join(" "),
     );
     assert.deepEqual(result.rows[0], {
       can_read_payload: false,
       can_insert_replay_lineage: false,
-      can_execute_approved_replay: true,
+      can_execute_authorized_replay: true,
+      can_execute_unchecked_replay: true,
     });
   } finally {
     await pool.end();
+  }
+});
+
+test("API database role cannot execute the approved replay boundary without current tenant permission", {
+  skip: !enabled || !databaseUrl,
+}, async () => {
+  const pool = new Pool({ connectionString: databaseUrl, max: 1 });
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    await client.query(
+      "SELECT set_config('app.tenant_id', $1, true), set_config('app.user_id', $2, true)",
+      [
+        "00000000-0000-4000-8000-000000000001",
+        "00000000-0000-4000-8000-000000000002",
+      ],
+    );
+    await assert.rejects(
+      client.query(
+        "SELECT platform.create_authorized_tenant_job_replay($1, $2)",
+        [
+          "00000000-0000-4000-8000-000000000003",
+          "00000000-0000-4000-8000-000000000004",
+        ],
+      ),
+      (error: unknown) => {
+        assert.equal((error as { code?: string }).code, "42501");
+        return true;
+      },
+    );
+  } finally {
+    try {
+      await client.query("ROLLBACK");
+    } finally {
+      client.release();
+      await pool.end();
+    }
   }
 });

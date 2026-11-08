@@ -118,6 +118,7 @@ export class TenantJobReplayService {
     subject: TenantAccessContext,
     approvalId: string,
   ): Promise<TenantJobReplayRequestView> {
+    this.assertReplayPermission(subject);
     const request = await this.database.withTenantContextAtVersion(
       subject.actorId,
       subject.tenantId,

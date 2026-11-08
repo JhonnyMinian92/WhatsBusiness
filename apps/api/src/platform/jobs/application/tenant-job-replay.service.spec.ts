@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { UnprocessableEntityException } from "@nestjs/common";
+import { ForbiddenException, UnprocessableEntityException } from "@nestjs/common";
 import type { ApprovalWorkflowService } from "../../identity/approvals/approval-workflow.service.js";
 import type { AppendOnlyAuditRepository } from "../../identity/audit/append-only-audit.repository.js";
 import type { DatabaseService } from "../../database/database.module.js";
@@ -84,4 +84,49 @@ test("replay request fails closed before approval when no handler policy proves 
     },
   );
   assert.equal(approvalCalls, 0);
+});
+
+test("replay request read fails closed before database access without replay permission", async () => {
+  const subject: TenantAccessContext = {
+    actorId: "a3dd9a54-fda2-4bb1-884d-6e60df1caa35",
+    tenantId: "a3dd9a54-fda2-4bb1-884d-6e60df1caa34",
+    membershipId: "a3dd9a54-fda2-4bb1-884d-6e60df1caa37",
+    membershipStatus: "active",
+    authzVersion: 1,
+    roleKeys: ["tenant.member"],
+    permissionKeys: [],
+    entitlementKeys: [],
+    locale: "es-EC",
+    timezone: "America/Guayaquil",
+    currency: "USD",
+    purpose: "platform.tenant.jobs.replay.request",
+    correlationId: "a3dd9a54-fda2-4bb1-884d-6e60df1caa36",
+  };
+  let databaseCalls = 0;
+  const database = {
+    withTenantContextAtVersion: async () => {
+      databaseCalls += 1;
+      throw new Error("Unauthorized replay reads must not reach tenant data.");
+    },
+  };
+  const service = new TenantJobReplayService(
+    database as unknown as DatabaseService,
+    {} as ApprovalWorkflowService,
+    {} as AppendOnlyAuditRepository,
+    {} as TenantJobReplayRepository,
+    new TenantJobReplayPolicyRegistry(),
+  );
+
+  await assert.rejects(
+    service.getReplayRequest(subject, "a3dd9a54-fda2-4bb1-884d-6e60df1caa38"),
+    (error: unknown) => {
+      assert.ok(error instanceof ForbiddenException);
+      assert.equal(
+        (error.getResponse() as { code?: string }).code,
+        "JOB_REPLAY_NOT_AUTHORIZED",
+      );
+      return true;
+    },
+  );
+  assert.equal(databaseCalls, 0);
 });
