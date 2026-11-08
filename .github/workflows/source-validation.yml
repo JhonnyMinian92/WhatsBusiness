@@ -55,6 +55,7 @@ jobs:
         ports:
           - 5672:5672
           - 15672:15672
+          - 15692:15692
         options: >-
           --health-cmd "rabbitmq-diagnostics -q ping"
           --health-interval 5s
@@ -79,9 +80,7 @@ jobs:
       DATABASE_JOB_WORKER_URL: postgresql://whatsbusiness_job_worker:ci-worker-password@127.0.0.1:5432/whatsbusiness_ci
       MIGRATION_DATABASE_URL: postgresql://postgres:ci-postgres-password@127.0.0.1:5432/whatsbusiness_ci
       RABBITMQ_URL: amqp://whatsbusiness:ci-rabbit-password@127.0.0.1:5672/%2F
-      RABBITMQ_MANAGEMENT_URL: http://127.0.0.1:15672
-      RABBITMQ_MONITORING_USERNAME: whatsbusiness_metrics
-      RABBITMQ_MONITORING_PASSWORD: ci-rabbit-monitoring-password-32-bytes
+      RABBITMQ_PROMETHEUS_URL: http://127.0.0.1:15692
       NODE_ENV: test
       RUN_APPROVAL_INTEGRATION_TESTS: "true"
       RUN_TENANT_JOB_RUNTIME_INTEGRATION_TESTS: "true"
@@ -151,11 +150,18 @@ jobs:
       - name: Configure durable quorum dead-letter policy
         run: docker exec "${{ job.services.rabbitmq.id }}" rabbitmqctl set_policy --apply-to quorum_queues --priority 50 whatsbusiness-jobs-quorum-dlx '^whatsbusiness\.jobs\.worker\.v1$' '{"dead-letter-exchange":"whatsbusiness.jobs.dlx","dead-letter-routing-key":"jobs.dead","dead-letter-strategy":"at-least-once","overflow":"reject-publish","delivery-limit":5,"max-length-bytes":268435456}'
 
-      - name: Provision dedicated read-only RabbitMQ monitoring identity
+      - name: Enable RabbitMQ Prometheus plugin
+        shell: bash
         run: |
-          docker exec "${{ job.services.rabbitmq.id }}" rabbitmqctl add_user "$RABBITMQ_MONITORING_USERNAME" "$RABBITMQ_MONITORING_PASSWORD"
-          docker exec "${{ job.services.rabbitmq.id }}" rabbitmqctl set_user_tags "$RABBITMQ_MONITORING_USERNAME" monitoring
-          docker exec "${{ job.services.rabbitmq.id }}" rabbitmqctl set_permissions --vhost "/" "$RABBITMQ_MONITORING_USERNAME" "^$" "^$" "^$"
+          docker exec "${{ job.services.rabbitmq.id }}" rabbitmq-plugins enable rabbitmq_prometheus
+          for attempt in {1..30}; do
+            if curl --fail --silent "$RABBITMQ_PROMETHEUS_URL/metrics" >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "::error::RabbitMQ Prometheus endpoint did not become ready."
+          exit 1
 
       - name: Build all applications
         run: pnpm build
