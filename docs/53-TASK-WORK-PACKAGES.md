@@ -177,3 +177,20 @@ TASK-046 y TASK-064 nombran “frontend foundation” sin ID ni entregable acept
 - Audit: tenant SHA-256 hash chain, sequence lock/head consistency, sensitive allow and denied events, trigger-protected audit/approval decision immutability.
 - Validation: Source CI #112 [42387272987](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42387272987) — SUCCESS, commit `b38b78ab52dbb96262dc8078518fdf4f55fc5a2c`; integration test was enabled with `RUN_APPROVAL_INTEGRATION_TESTS=true` against ephemeral PostgreSQL.
 - Limits: step-up allowlist intentionally blank until real IdP values verified; IAM-018..020 remain catalog-only; no business outbox/consumer, no external chain anchoring, no production actions or data; owner policy thresholds/reviewer acceptance remain open.
+
+### Handoff TASK-004 — persistencia tenant-role (2026-11-08; CI pendiente)
+
+- Migration apps/api/migrations/0007-tenant-role-assignment.sql completa el vocabulary mismatch del catálogo SQL (webhooks.dead_letters.read y jobs.replay.request), añade descripción versionada para role templates y policies/grants tenant-owner para materializar plantillas y gestionar membership-role edges.
+- authorization/tenant-role-assignment.repository.ts implementa target inspection tenant-scoped, materialización idempotente con validación exacta de metadata y permisos, asignación insert-on-conflict y revocación con protección del último propietario activo.
+- authorization/tenant-role-assignment.service.ts implementa request/apply de assign y revoke. Exige owner, propósito estable, no autoasignación (assign), no privilege escalation, aprobación ligada a snapshot SHA-256 con operation/tenant/membership/user/status/role/version/permissions; no expone endpoints.
+- Los cambios escriben membership_roles bajo RLS y authzVersion. El consumo de aprobación, edge y audit event se ejecutan mediante callback en ApprovalWorkflowService.consumeAndStage; el rollback de callback impide consumir aprobación si falla la operación.
+- IdentityModule registra y exporta el caso de uso interno. Las rutas IAM-007..020 siguen catalog-only.
+- Policy tests e integración PostgreSQL añadidos; source-validation.yml activa la variable de integración y api/project.json registra el spec.
+- Estado: código implementado; Source CI pendiente. TASK-004 sigue in_progress hasta CI, revisión independiente y aceptación del propietario.
+
+### Handoff TASK-005 — denegaciones y ciclo de aprobación reforzados (2026-11-08; CI pendiente)
+
+- AuthorizationDecisionAuditService usa withTenantContextAtVersion para grants sensibles y withTenantContext para denegaciones, permitiendo registrar un rechazo cuando cambió la versión RBAC pero el actor/tenant siguen activos; no se usa el contexto stale para autorizar.
+- El flujo de asignación/revocación requiere approval roles.assign con step-up OIDC reciente, firmado y configurado por allowlist; el valor ACR/AMR de prueba es sintético y no se habilita en producción.
+- La integración PostgreSQL prueba aprobador distinto, consumo único, persistencia de rol, revocación y protección del último owner, además de auditoría append-only.
+- Persisten gates: IdP y allowlist real, consumer/outbox de acciones de negocio, anclaje externo del hash-chain, revisión independiente y Product Owner acceptance. TASK-005 continúa in_progress y GO-PRODUCTION permanece NO-GO.

@@ -364,3 +364,17 @@ No se ejecutó Meta API real, no hay conexión/token disponible y no se validó 
 - El Source CI #42512536601 del commit 9e5dfa1 pasó build y typecheck; api:test terminó 166/167. Las 23 pruebas nuevas de US-004 pasaron. La única falla fue tenant-job-record.integration.spec.ts (SQLSTATE 42501: permiso sobre platform.tenant_job_records), ajena al módulo Meta.
 - El cambio de aislamiento fue corregido por el commit 2bfef634fb07603fb9ea1eb8df0127c4ece2ea49; el commit cd9ce49d082d6cf66f4a3c0f4e3818433f373950 añade una comprobación de idempotencia/INSERT. Source CI #42512743982 y CodeQL #42512744032 del HEAD cd9ce49 estaban in_progress al corte. No usar la ejecución fallida anterior como evidencia de defecto en US-004 ni declarar el HEAD actual completamente verde.
 - El último CI completamente verde para el código de US-004 sigue siendo Source CI #42512364598 y CodeQL #42512364506 sobre 2f97c8a; allí pasaron build, typecheck, API/PostgreSQL y Meta backend/PostgreSQL/RabbitMQ.
+
+
+## US-002 — evidencia incremental de asignación persistente (2026-11-08; CI pendiente)
+
+| Historia / criterio | Implementación | Prueba añadida | Estado al corte |
+|---|---|---|---|
+| AC-002-01 — actor, tenant, acción y propósito | TenantRoleAssignmentPolicy y TenantRoleAssignmentService verifican tenant_owner, roles.assign, mismo tenant y propósito; DatabaseService.withTenantContextAtVersion serializa con authzVersion; RLS limita lectura/escritura | Policy tests; integración PostgreSQL asigna plantilla con actor owner y target tenant-local | Implementado; CI pendiente. La evaluación de asset/consent/capability continúa dependiendo de hechos aportados por cada caso de negocio, no se declara completado el enforcement universal de todos los recursos |
+| AC-002-02 — gasto, exportación y credenciales requieren step-up/aprobación | PermissionDefinition.requiresIndependentApproval; DefaultApprovalPolicyResolver; OidcStepUpEvidenceVerifier con auth_time/acr/amr firmados y allowlist | Approval integration previo; nuevo test ejecuta step-up sintético para cambios de rol | Core implementado/CI previo; IdP real/ACR-AMR pendiente y fail-closed |
+| AC-002-03 — denegaciones sensibles auditables | AuthorizationGuard registra denegación; AuthorizationDecisionAuditService usa contexto tenant vigente incluso si snapshot authzVersion es stale; AppendOnlyAuditRepository agrega hash-chain | Authorization guard spec; nuevo test PostgreSQL verifica evento denied y validez del stream | Implementado; CI de nuevo test pendiente |
+| Assignment persistence (TASK-004) | Migration 0007; TenantRoleAssignmentRepository materializa, comprueba exactitud, inserta y revoca membership_roles; TenantRoleAssignmentService aplica aprobación | Nuevo integration spec cubre assign/revoke, plantilla exacta, retry y last-owner protection | Implementado; CI pendiente |
+| Approval consumption (TASK-005) | Snapshot hash-bound + aprobación independiente; consume + membership-role edge + audit en transacción PostgreSQL única | Nuevo integration spec comprueba step-up, estado y rollback del último owner | Implementado; CI pendiente |
+| Public IAM routes | No se añaden; IAM-007..020 siguen bloqueadas en docs/49 hasta contract freeze | Contract CI no se amplía | No habilitado por diseño |
+
+No se eleva US-002 a accepted: faltan CI del commit, IdP real, review independiente y aceptación del Product Owner. GO-PRODUCTION continúa NO-GO.

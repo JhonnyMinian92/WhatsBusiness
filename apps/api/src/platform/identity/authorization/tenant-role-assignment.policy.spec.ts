@@ -156,3 +156,38 @@ test("role assignment rejects an unsupported membership state at runtime", () =>
   assert.equal(decision.allowed, false);
   assert.equal(decision.reason, "TARGET_MEMBERSHIP_NOT_ASSIGNABLE");
 });
+
+
+test("tenant owner can request an assignment before an independent approval exists", () => {
+  const decision = policy.evaluateRequest(request());
+  assert.deepEqual(decision, { allowed: true, roleKey: "agent" });
+});
+
+test("tenant owner can request revocation but execution still requires approval evidence", () => {
+  const candidate = request({ targetUserId: actorId });
+  const requestDecision = policy.evaluateRequest({ ...candidate, operation: "revoke" });
+  assert.deepEqual(requestDecision, { allowed: true, roleKey: "agent" });
+  const executionDecision = policy.evaluate({ ...candidate, operation: "revoke" });
+  assert.equal(executionDecision.allowed, false);
+  assert.equal(executionDecision.reason, "APPROVAL_NOT_GRANTED");
+});
+
+test("owner may revoke their own role only after an independent approval", () => {
+  const decision = policy.evaluate({
+    ...request({
+      targetUserId: actorId,
+      roleKey: "tenant_owner",
+      approval: { status: "approved", approverId: randomUUID() },
+    }),
+    operation: "revoke",
+  });
+  assert.deepEqual(decision, { allowed: true, roleKey: "tenant_owner" });
+});
+
+test("assignment request still rejects privilege escalation before approval creation", () => {
+  const decision = policy.evaluateRequest(request({
+    actor: ownerContext({ permissionKeys: ["tenant.read", "roles.assign"] }),
+  }));
+  assert.equal(decision.allowed, false);
+  assert.equal(decision.reason, "ROLE_PRIVILEGES_EXCEED_ACTOR");
+});

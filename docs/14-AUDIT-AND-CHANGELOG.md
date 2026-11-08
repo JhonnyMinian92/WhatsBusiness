@@ -478,3 +478,17 @@ Límites: no hay Meta API adapter, conexión ni token runtime para esta historia
 - El Source CI #42512536601 del commit 9e5dfa1 pasó build y typecheck; api:test terminó 166/167. Las 23 pruebas nuevas de US-004 pasaron. La única falla fue tenant-job-record.integration.spec.ts (SQLSTATE 42501: permiso sobre platform.tenant_job_records), ajena al módulo Meta.
 - El cambio de aislamiento fue corregido por el commit 2bfef634fb07603fb9ea1eb8df0127c4ece2ea49; el commit cd9ce49d082d6cf66f4a3c0f4e3818433f373950 añade una comprobación de idempotencia/INSERT. Source CI #42512743982 y CodeQL #42512744032 del HEAD cd9ce49 estaban in_progress al corte. No usar la ejecución fallida anterior como evidencia de defecto en US-004 ni declarar el HEAD actual completamente verde.
 - El último CI completamente verde para el código de US-004 sigue siendo Source CI #42512364598 y CodeQL #42512364506 sobre 2f97c8a; allí pasaron build, typecheck, API/PostgreSQL y Meta backend/PostgreSQL/RabbitMQ.
+
+
+## 41. US-002 — persistencia tenant-role y auditoría de decisiones (AUD-157..162; 2026-11-08)
+
+| ID | Cambio / control | Resultado al corte |
+|---|---|---|
+| AUD-157 | Migración 0007 sincroniza webhooks.dead_letters.read y jobs.replay.request, añade metadata versionada de role y políticas/grants RLS tenant-owner para materializar plantillas y gestionar membership-role edges. | Código añadido; migraciones PostgreSQL/CI pendientes. |
+| AUD-158 | TenantRoleAssignmentRepository implementa inspección tenant-scoped, materialización de plantilla con validación exacta de permisos, asignación idempotente y revocación con protección del último owner. | Código añadido; integración pendiente. |
+| AUD-159 | TenantRoleAssignmentService conecta preflight policy, action snapshot hash-bound, approval workflow y escritura del edge en la misma transacción del consumo de aprobación. | Código añadido; integración pendiente. |
+| AUD-160 | IdentityModule registra/exporta el caso de uso interno; no se publicaron rutas IAM mientras el contract freeze no autoriza esas APIs. | Cableado NestJS añadido; build pendiente. |
+| AUD-161 | AuthorizationDecisionAuditService persiste denegaciones con tenant/membership vigentes incluso ante authzVersion obsoleto; los grants sensibles continúan version-gated. | Código y prueba PostgreSQL añadidos; CI pendiente. |
+| AUD-162 | Tests de policy y de integración PostgreSQL cubren solicitud, step-up sintético, aprobación independiente, asignación/revocación, catálogo exacto, último owner, retry y ledger hash-chain. | Suite añadida y conectada a Source CI; resultado pendiente. |
+
+El IdP real y su semántica ACR/AMR no se han verificado; la configuración permanece fail-closed. IAM-007..020 siguen catalog-only. No hay aceptación independiente ni del propietario. GO-PRODUCTION permanece NO-GO.

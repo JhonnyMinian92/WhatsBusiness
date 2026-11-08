@@ -750,3 +750,17 @@ Gate actual: no habilitar META-010..015 ni cambiar x-implementation-allowed. La 
 - El Source CI #42512536601 del commit 9e5dfa1 pasó build y typecheck; api:test terminó 166/167. Las 23 pruebas nuevas de US-004 pasaron. La única falla fue tenant-job-record.integration.spec.ts (SQLSTATE 42501: permiso sobre platform.tenant_job_records), ajena al módulo Meta.
 - El cambio de aislamiento fue corregido por el commit 2bfef634fb07603fb9ea1eb8df0127c4ece2ea49; el commit cd9ce49d082d6cf66f4a3c0f4e3818433f373950 añade una comprobación de idempotencia/INSERT. Source CI #42512743982 y CodeQL #42512744032 del HEAD cd9ce49 estaban in_progress al corte. No usar la ejecución fallida anterior como evidencia de defecto en US-004 ni declarar el HEAD actual completamente verde.
 - El último CI completamente verde para el código de US-004 sigue siendo Source CI #42512364598 y CodeQL #42512364506 sobre 2f97c8a; allí pasaron build, typecheck, API/PostgreSQL y Meta backend/PostgreSQL/RabbitMQ.
+
+
+## Actualización US-002 — persistencia del ciclo de roles (2026-11-08; Source CI pendiente)
+
+La inspección encontró que las plantillas RBAC/ABAC eran declarativas y la policy anti-escalation no persistía asignaciones. Se añadió el caso de uso interno de roles tenant, sin habilitar operaciones IAM catalog-only.
+
+| Tarea | Cambio de este bloque | Validación / estado |
+|---|---|---|
+| TASK-004 | Migración 0007 añade permisos DB faltantes, versión/descripción de role, RLS/grants least-privilege; repository materializa/verifica plantillas y persiste/revoca membership-role edges; service exige owner + approval independiente y protege último owner | Implementado en código; Source CI PostgreSQL/build/typecheck pendiente |
+| TASK-005 | Asignación/revocación consume aprobación exacta en la misma transacción y registra en ledger; denegaciones sensibles con authzVersion obsoleto se auditan si la membresía sigue activa | Implementado en código; Source CI pendiente; IdP real y allowlist ACR/AMR siguen sin validar |
+
+Cobertura añadida: tenant-role-assignment.policy.spec.ts amplía request/revoke y anti-escalation; tenant-role-assignment.integration.spec.ts prueba PostgreSQL para assign/revoke, plantilla exacta, aprobación step-up, retry seguro, protección del último owner, rollback y auditoría por denegación.
+
+Restricciones conservadas: no se añaden controllers ni rutas públicas; IAM-007..020 siguen catalog-only según docs/49. No se inventan valores ACR/AMR. No se habilita acceso a credenciales, spend ni export sin aprobación. TASK-004/005 continúan in_progress hasta CI, review independiente y Product Owner acceptance. GO-PRODUCTION NO-GO.

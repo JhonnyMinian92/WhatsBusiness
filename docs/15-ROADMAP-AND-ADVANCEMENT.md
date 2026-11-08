@@ -292,3 +292,14 @@ Se añadió el primer núcleo de Meta Control Plane:
 - El Source CI #42512536601 del commit 9e5dfa1 pasó build y typecheck; api:test terminó 166/167. Las 23 pruebas nuevas de US-004 pasaron. La única falla fue tenant-job-record.integration.spec.ts (SQLSTATE 42501: permiso sobre platform.tenant_job_records), ajena al módulo Meta.
 - El cambio de aislamiento fue corregido por el commit 2bfef634fb07603fb9ea1eb8df0127c4ece2ea49; el commit cd9ce49d082d6cf66f4a3c0f4e3818433f373950 añade una comprobación de idempotencia/INSERT. Source CI #42512743982 y CodeQL #42512744032 del HEAD cd9ce49 estaban in_progress al corte. No usar la ejecución fallida anterior como evidencia de defecto en US-004 ni declarar el HEAD actual completamente verde.
 - El último CI completamente verde para el código de US-004 sigue siendo Source CI #42512364598 y CodeQL #42512364506 sobre 2f97c8a; allí pasaron build, typecheck, API/PostgreSQL y Meta backend/PostgreSQL/RabbitMQ.
+
+
+## US-002 — nuevo bloque de persistencia de roles (2026-11-08)
+
+- TASK-004 pasa de catálogo/policy declarativa a un slice de aplicación persistente: TenantRoleAssignmentRepository y TenantRoleAssignmentService soportan materialización exacta de role templates, asignación y revocación tenant-scoped.
+- Migration 0007 sincroniza las dos permissions DB faltantes y habilita operaciones SQL estrictamente bajo RLS y grants limitados a tenant_owner; no concede UPDATE/DELETE de definiciones ni acceso cross-tenant.
+- Los cambios exigen roles.assign y una aprobación independiente; el snapshot incluye target membership/user, estado, role/version y permisos. Aprobación consumida, edge persistido y auditoría de acción se consolidan en consumeAndStage. El último owner activo no puede revocarse.
+- TASK-005 añade robustez a denegaciones auditables cuando el contexto de autorización está obsoleto, sin permitir un grant con versión stale.
+- Source CI con migraciones, build, typecheck, policy tests e integración PostgreSQL está pendiente al corte de este documento. No declarar verified hasta obtener resultado SUCCESS.
+- Step-up real permanece bloqueado por ausencia de IdP verificado y allowlist ACR/AMR. IAM-007..020 siguen catalog-only: no se crearon rutas ni se alteró Contract CI. Review independiente y Product Owner acceptance permanecen pendientes.
+- GO-PRODUCTION NO-GO; no calcular porcentaje global a partir de esta historia aislada.

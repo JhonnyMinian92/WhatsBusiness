@@ -1,25 +1,15 @@
 import type { TenantAccessContext } from "../tenant-access-context.js";
-import type { ApprovalEvidence, AuthorizationPolicyEvaluator, AuthorizationDenyReason } from "./tenant-authorization-policy.js";
+import type { ApprovalEvidence } from "./tenant-authorization-policy.js";
+import type { PermissionKey } from "./permission-catalog.js";
 import { findTenantRole } from "./tenant-role-catalog.js";
+import type { AuthorizationPolicyEvaluator } from "./tenant-authorization-policy.js";
 
-export type RoleAssignmentDenyReason =
-  | AuthorizationDenyReason
-  | "TARGET_MEMBERSHIP_INVALID"
-  | "TARGET_MEMBERSHIP_NOT_ASSIGNABLE"
-  | "TARGET_TENANT_MISMATCH"
-  | "SELF_ASSIGNMENT_FORBIDDEN"
-  | "ROLE_TEMPLATE_NOT_FOUND"
-  | "TENANT_OWNER_ROLE_REQUIRED"
-  | "ROLE_PRIVILEGES_EXCEED_ACTOR";
+export type RoleAssignmentOperation = "assign" | "revoke";
 
-/**
- * Authoritative membership facts loaded by a tenant-scoped repository adapter.
- * This object must never be copied directly from an HTTP request body.
- */
 export interface RoleAssignmentTarget {
+  readonly membershipId: string;
   readonly userId: string;
   readonly tenantId: string;
-  readonly membershipId: string;
   readonly membershipStatus: "invited" | "active" | "suspended" | "revoked";
 }
 
@@ -27,31 +17,63 @@ export interface RoleAssignmentEvaluation {
   readonly actor: TenantAccessContext;
   readonly target: RoleAssignmentTarget;
   readonly roleKey: string;
+  readonly operation?: RoleAssignmentOperation;
   readonly approval?: ApprovalEvidence;
-  readonly now?: Date;
+  readonly now?: number;
 }
 
 export interface RoleAssignmentDecision {
   readonly allowed: boolean;
   readonly roleKey: string;
-  readonly reason?: RoleAssignmentDenyReason;
+  readonly reason?: string;
 }
 
+type RoleAssignmentDenyReason =
+  | "TARGET_MEMBERSHIP_INVALID"
+  | "TARGET_MEMBERSHIP_NOT_ASSIGNABLE"
+  | "TARGET_TENANT_MISMATCH"
+  | "SELF_ASSIGNMENT_FORBIDDEN"
+  | "TENANT_OWNER_ROLE_REQUIRED"
+  | "ROLE_TEMPLATE_NOT_FOUND"
+  | "ROLE_PRIVILEGES_EXCEED_ACTOR"
+  | "PERMISSION_NOT_GRANTED"
+  | "ROLE_OPERATION_INVALID";
+
 /**
- * Guards the role-assignment use case against self-escalation and horizontal
- * privilege expansion. It decides policy only; persistence, idempotency and
- * immutable audit are handled by the later command boundary.
+ * Domain policy for tenant role changes.
+ *
+ * Request evaluation verifies whether an owner may ask for a change; execution
+ * evaluation additionally requires the immutable, independently approved
+ * action evidence. Revoke is intentionally less restrictive than assign with
+ * respect to privilege containment, but is still owner-only and approved.
  */
 export class TenantRoleAssignmentPolicy {
   constructor(private readonly authorization: AuthorizationPolicyEvaluator) {}
 
+  evaluateRequest(
+    input: Omit<RoleAssignmentEvaluation, "approval" | "now">,
+  ): RoleAssignmentDecision {
+    return this.evaluateInternal(input, false);
+  }
+
   evaluate(input: RoleAssignmentEvaluation): RoleAssignmentDecision {
+    return this.evaluateInternal(input, true);
+  }
+
+  private evaluateInternal(
+    input: RoleAssignmentEvaluation,
+    requireApproval: boolean,
+  ): RoleAssignmentDecision {
+    const operation = input.operation ?? "assign";
     const deny = (reason: RoleAssignmentDenyReason): RoleAssignmentDecision => ({
       allowed: false,
       roleKey: input.roleKey,
       reason,
     });
 
+    if (operation !== "assign" && operation !== "revoke") {
+      return deny("ROLE_OPERATION_INVALID");
+    }
     if (
       !isUuid(input.target.membershipId)
       || !isUuid(input.target.userId)
@@ -59,13 +81,17 @@ export class TenantRoleAssignmentPolicy {
     ) {
       return deny("TARGET_MEMBERSHIP_INVALID");
     }
-    if (input.target.membershipStatus !== "invited" && input.target.membershipStatus !== "active") {
+    if (
+      operation === "assign"
+      && input.target.membershipStatus !== "invited"
+      && input.target.membershipStatus !== "active"
+    ) {
       return deny("TARGET_MEMBERSHIP_NOT_ASSIGNABLE");
     }
     if (input.actor.tenantId !== input.target.tenantId) {
       return deny("TARGET_TENANT_MISMATCH");
     }
-    if (input.actor.actorId === input.target.userId) {
+    if (operation === "assign" && input.actor.actorId === input.target.userId) {
       return deny("SELF_ASSIGNMENT_FORBIDDEN");
     }
     if (!input.actor.roleKeys.includes("tenant_owner")) {
@@ -76,8 +102,31 @@ export class TenantRoleAssignmentPolicy {
     if (!role) {
       return deny("ROLE_TEMPLATE_NOT_FOUND");
     }
-    if (!role.permissions.every((permission) => input.actor.permissionKeys.includes(permission))) {
+    if (
+      operation === "assign"
+      && !role.permissions.every((permission) => input.actor.permissionKeys.includes(permission))
+    ) {
       return deny("ROLE_PRIVILEGES_EXCEED_ACTOR");
+    }
+    if (!input.actor.permissionKeys.includes("roles.assign" satisfies PermissionKey)) {
+      return deny("PERMISSION_NOT_GRANTED");
+    }
+
+    if (!requireApproval) {
+      // roles.assign itself is approval-gated. During request creation we
+      // validate current tenant context with a normal permission, while
+      // explicitly requiring the privileged action permission above.
+      const requestContext = this.authorization.evaluate({
+        subject: input.actor,
+        permission: "tenant.read",
+        purpose: "tenant.roles.assign",
+        resource: { tenantId: input.target.tenantId },
+        now: input.now,
+      });
+      if (!requestContext.allowed) {
+        return deny(requestContext.reason ?? "PERMISSION_NOT_GRANTED");
+      }
+      return { allowed: true, roleKey: role.roleKey };
     }
 
     const decision = this.authorization.evaluate({
@@ -95,7 +144,6 @@ export class TenantRoleAssignmentPolicy {
     return { allowed: true, roleKey: role.roleKey };
   }
 }
-
 
 function isUuid(value: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);

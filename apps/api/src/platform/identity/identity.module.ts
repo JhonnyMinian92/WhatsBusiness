@@ -11,6 +11,9 @@ import {
   AuthorizationService,
 } from "./authorization/authorization.service.js";
 import { TenantAuthorizationPolicyEvaluator } from "./authorization/tenant-authorization-policy.js";
+import { TenantRoleAssignmentPolicy } from "./authorization/tenant-role-assignment.policy.js";
+import { TenantRoleAssignmentRepository } from "./authorization/tenant-role-assignment.repository.js";
+import { TenantRoleAssignmentService } from "./authorization/tenant-role-assignment.service.js";
 import { AppendOnlyAuditRepository } from "./audit/append-only-audit.repository.js";
 import { AuthorizationDecisionAuditService } from "./audit/authorization-decision-audit.service.js";
 import { ApprovalWorkflowService } from "./approvals/approval-workflow.service.js";
@@ -39,6 +42,14 @@ import {
       useExisting: TenantAuthorizationPolicyEvaluator,
     },
     AuthorizationService,
+    TenantRoleAssignmentRepository,
+    {
+      provide: TenantRoleAssignmentPolicy,
+      useFactory: (evaluator: TenantAuthorizationPolicyEvaluator) =>
+        new TenantRoleAssignmentPolicy(evaluator),
+      inject: [AUTHORIZATION_POLICY_EVALUATOR],
+    },
+    TenantRoleAssignmentService,
     AppendOnlyAuditRepository,
     AuthorizationDecisionAuditService,
     ApprovalWorkflowService,
@@ -54,6 +65,7 @@ import {
   exports: [
     ApprovalWorkflowService,
     AppendOnlyAuditRepository,
+    TenantRoleAssignmentService,
     OidcAuthGuard,
     TenantContextGuard,
     AuthorizationGuard,
