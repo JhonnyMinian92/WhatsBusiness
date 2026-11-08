@@ -29,16 +29,17 @@ test("reads ready-message and consumer counts without consuming either queue", a
   ].sort());
 });
 
-test("rejects invalid broker counts instead of exporting negative or unsafe gauges", async () => {
+test("rejects invalid broker counts without closing a healthy metrics channel", async () => {
+  let workerReads = 0;
+  let closes = 0;
   const channel = {
-    async close() {},
+    async close() { closes += 1; },
     async checkQueue(queue: string) {
+      const invalidFirstRead = queue === TENANT_JOB_RABBITMQ_TOPOLOGY.queue && workerReads++ === 0;
       return {
         queue,
-        messageCount: queue === TENANT_JOB_RABBITMQ_TOPOLOGY.queue
-          ? Number.MAX_SAFE_INTEGER + 1
-          : 0,
-        consumerCount: 0,
+        messageCount: invalidFirstRead ? Number.MAX_SAFE_INTEGER + 1 : 4,
+        consumerCount: 1,
       };
     },
   } as unknown as Pick<Channel, "checkQueue" | "close">;
@@ -48,6 +49,15 @@ test("rejects invalid broker counts instead of exporting negative or unsafe gaug
     reader.readSnapshot(),
     /invalid aggregate metric: worker_queue_ready_messages/,
   );
+  assert.equal(closes, 0);
+
+  assert.deepEqual(await reader.readSnapshot(), {
+    workerQueueReadyMessages: 4,
+    workerQueueConsumers: 1,
+    deadLetterQueueReadyMessages: 4,
+    deadLetterQueueConsumers: 1,
+  });
+  assert.equal(closes, 0);
 });
 
 test("rejects invalid queue names", () => {
@@ -65,7 +75,9 @@ test("rejects invalid queue names", () => {
 
 
 test("bounds a stalled broker metrics RPC", async () => {
+  let closes = 0;
   const channel = {
+    async close() { closes += 1; },
     checkQueue: () => new Promise(() => undefined),
   } as unknown as Pick<Channel, "checkQueue" | "close">;
   const reader = new RabbitMqTenantJobQueueMetricsReader(
@@ -76,6 +88,8 @@ test("bounds a stalled broker metrics RPC", async () => {
   );
 
   await assert.rejects(reader.readSnapshot(), /sample timed out/);
+  await Promise.resolve();
+  assert.equal(closes, 1);
 });
 
 test("opens a channel circuit after timeout and does not queue further RPCs", async () => {
