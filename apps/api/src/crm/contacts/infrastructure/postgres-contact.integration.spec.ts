@@ -7,6 +7,8 @@ import { DatabaseService } from "../../../platform/database/database.module.js";
 import { AppendOnlyAuditRepository } from "../../../platform/identity/audit/append-only-audit.repository.js";
 import type { TenantAccessContext } from "../../../platform/identity/tenant-access-context.js";
 import { ContactService } from "../application/contact.service.js";
+import { ContactIdentityService } from "../application/contact-identity.service.js";
+import { PostgresContactIdentityRepository } from "./postgres-contact-identity.repository.js";
 import { PostgresContactRepository } from "./postgres-contact.repository.js";
 
 const runtimeUrl = process.env["DATABASE_URL"];
@@ -19,7 +21,11 @@ test("PostgreSQL CRM contacts enforce tenant RLS, idempotency, audit and optimis
   const admin = new Pool({ connectionString: migrationUrl, max: 1 });
   const runtime = new Pool({ connectionString: runtimeUrl, max: 3 });
   const database = new DatabaseService(runtime);
-  const service = new ContactService(database, new PostgresContactRepository(), new AppendOnlyAuditRepository());
+  const contactRepository = new PostgresContactRepository();
+  const service = new ContactService(database, contactRepository, new AppendOnlyAuditRepository());
+  const identityService = new ContactIdentityService(
+    database, new PostgresContactIdentityRepository(), contactRepository, new AppendOnlyAuditRepository(),
+  );
 
   const organizationId = randomUUID();
   const actorId = randomUUID();
@@ -39,7 +45,7 @@ test("PostgreSQL CRM contacts enforce tenant RLS, idempotency, audit and optimis
     membershipStatus: "active",
     authzVersion: tenantId === tenantA ? authzVersionA : authzVersionB,
     roleKeys: ["tenant_owner"],
-    permissionKeys: ["crm.contacts.read", "crm.contacts.create", "crm.contacts.update"],
+    permissionKeys: ["crm.contacts.read", "crm.contacts.create", "crm.contacts.update", "crm.contacts.identities.read", "crm.contacts.identities.link"],
     entitlementKeys: [],
     locale: "es-EC",
     timezone: "America/Guayaquil",
@@ -107,6 +113,48 @@ test("PostgreSQL CRM contacts enforce tenant RLS, idempotency, audit and optimis
     assert.equal(created.tenantId, tenantA);
     assert.equal(created.version, 1);
     assert.equal(created.displayName, "Ana María López");
+
+    const identityInput = {
+      provider: "meta",
+      product: "whatsapp",
+      channel: "whatsapp",
+      identifierType: "bsuid",
+      externalId: "12345678901234567890",
+      sourceReference: "embedded-signup-synthetic",
+    };
+    const identityLinkKey = "identity-link-" + randomUUID();
+    const identitySubject = subject(tenantA, membershipA, "crm.contacts.identities.link");
+    const linkedIdentity = await identityService.link(identitySubject, created.id, identityInput, identityLinkKey);
+    assert.equal(linkedIdentity.tenantId, tenantA);
+    assert.equal(linkedIdentity.contactId, created.id);
+    assert.equal(linkedIdentity.externalId, identityInput.externalId);
+    assert.equal(linkedIdentity.sourceType, "api");
+    assert.equal(linkedIdentity.verifiedAt, null, "A link request must not claim provider verification.");
+    assert.equal(linkedIdentity.confidence, null, "Do not fabricate confidence without evidence.");
+    assert.equal(linkedIdentity.visibility, "tenant_only");
+
+    const replayedIdentity = await identityService.link(identitySubject, created.id, identityInput, identityLinkKey);
+    assert.deepEqual(replayedIdentity, linkedIdentity);
+    await assert.rejects(
+      identityService.link(identitySubject, created.id,
+        { ...identityInput, externalId: "different-external-id" }, identityLinkKey),
+      (error: unknown) => error instanceof ConflictException
+        && (error.getResponse() as { code?: string }).code === "CRM_IDEMPOTENCY_KEY_REUSED",
+    );
+
+    const identityPage = await identityService.list(
+      subject(tenantA, membershipA, "crm.contacts.identities.read"), created.id, { pageSize: "10" },
+    );
+    assert.equal(identityPage.items.length, 1);
+    assert.equal(identityPage.items[0]?.id, linkedIdentity.id);
+    assert.equal(identityPage.nextCursor, null);
+
+    await assert.rejects(
+      identityService.link(identitySubject, created.id, identityInput, "identity-collision-" + randomUUID()),
+      (error: unknown) => error instanceof ConflictException
+        && (error.getResponse() as { code?: string }).code === "CRM_CONTACT_IDENTITY_ALREADY_LINKED",
+      "A duplicate namespaced identifier must not be linked twice inside one tenant.",
+    );
 
     await database.withTenantContextAtVersion(actorId, tenantA, authzVersionA, async (client) => {
       await client.query("SAVEPOINT crm_contact_database_invariant");
@@ -179,6 +227,23 @@ test("PostgreSQL CRM contacts enforce tenant RLS, idempotency, audit and optimis
       { ...createInput, displayName: "Tenant B Contact", sourceReference: "tenant-b" },
       "contact-create-" + randomUUID(),
     );
+    const tenantBIdentity = await identityService.link(
+      subject(tenantB, membershipB, "crm.contacts.identities.link"),
+      tenantBContact.id,
+      identityInput,
+      "identity-link-tenant-b-" + randomUUID(),
+    );
+    assert.equal(tenantBIdentity.externalId, linkedIdentity.externalId,
+      "The same provider identifier may exist in a different tenant namespace.");
+    await assert.rejects(
+      identityService.list(
+        subject(tenantA, membershipA, "crm.contacts.identities.read"),
+        tenantBContact.id,
+        {},
+      ),
+      (error: unknown) => error instanceof NotFoundException,
+      "An identity from another tenant must remain invisible.",
+    );
     await assert.rejects(
       service.get(subject(tenantA, membershipA, "crm.contacts.read"), tenantBContact.id),
       (error: unknown) => error instanceof NotFoundException,
@@ -192,9 +257,9 @@ test("PostgreSQL CRM contacts enforce tenant RLS, idempotency, audit and optimis
       new AppendOnlyAuditRepository().verifyStream(client, tenantB),
     );
     assert.equal(auditA.valid, true, `Tenant A audit verification failed: ${JSON.stringify(auditA)}`);
-    assert.equal(auditA.eventCount, 2);
+    assert.equal(auditA.eventCount, 3);
     assert.equal(auditB.valid, true, `Tenant B audit verification failed: ${JSON.stringify(auditB)}`);
-    assert.equal(auditB.eventCount, 1);
+    assert.equal(auditB.eventCount, 2);
   } finally {
     await database.onModuleDestroy();
     await admin.end();

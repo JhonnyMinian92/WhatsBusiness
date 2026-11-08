@@ -242,3 +242,12 @@ Estado actual:
 - El fixture live mantiene las colas exclusivas por conexión con `autoDelete=false`; `finally` las elimina después del scrape idle, evitando que desaparezcan al cancelar el último consumer.
 - Source CI #572 y CodeQL #107 SUCCESS en `1c6e682eb755e77b8359e52d4e7091a41e4ef6d5`; suite incluye migraciones/idempotencia, provisioning, build/typecheck, API/PostgreSQL, backend/PostgreSQL/RabbitMQ y refuerzo de guards CRM.
 - TASK-003/027/028 siguen `in_progress` por handlers de negocio, operación desplegada, alert routing, SLO, carga/DR y aceptación. TASK-042 sigue `in_progress` por review/aceptación del propietario.
+
+## Actualización — CRM ContactIdentity slice / 2026-11-08
+
+- Se incorporó en environment/local el slice de CRM-005 (list identities) y CRM-006 (link identity), junto con migración 0024 y contratos design-frozen.
+- El OpenAPI conserva 296 operaciones HTTP: 11 design-frozen/implementation-allowed y 285 catalog-only. El allowlist exacto se amplía solo a CRM-001..006 + PLT-001..005.
+- El modelo impone identidad namespaced por tenant; teléfono no es PK universal, colisiones no revelan el otro contacto y no existe merge automático.
+- Código/tests/contrato ya están en el cambio; Source CI y Contract CI del nuevo commit todavía deben confirmar build, typecheck, migraciones repetidas, pruebas unitarias/PostgreSQL y validez OpenAPI.
+- TASK-043/053 permanecen in_progress: no cubre candidatos, merge reversible, asociaciones Asset Registry ni verificación real de cuentas Meta. TASK-042 permanece pendiente de revisión independiente/aceptación.
+- GO-PRODUCTION permanece NO-GO. No se declara porcentaje global hasta reconciliar criterios de producto con evidencia.

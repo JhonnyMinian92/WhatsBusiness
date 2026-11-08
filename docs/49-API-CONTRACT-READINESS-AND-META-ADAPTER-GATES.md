@@ -8,7 +8,7 @@
 
 El catálogo docs/47 contiene **288 operaciones REST activas y 8 rutas de ingress de webhook** (296 operaciones HTTP). LEAD-010 es un alias histórico retirado y superseded by SALES-014, con ID no reutilizable.
 
-El OpenAPI incluye las 296 operaciones activas:
+El OpenAPI incluye las 296 operaciones activas: 11 design-frozen y 285 catalog-only.
 - **5 operaciones de plataforma** conservan schemas de diseño concretos: PLT-001..005 (health, identidad y tenant context). Su estado design-frozen no levanta G0 ni autoriza scaffold productivo.
 - **291 operaciones** se registran como catalog-only: tienen route, method, operationId/API ID y trazabilidad, pero no tienen request/response schema de negocio congelado.
 - Las 8 rutas WH-* llevan autenticación/handshake específico del producto Meta; no deben heredar Bearer Auth del usuario.

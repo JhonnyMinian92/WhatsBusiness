@@ -137,3 +137,10 @@ Source CI #558 y la siguiente repetición mostraron que el agregado, la idempote
 La integración ahora aprovisiona, solo en sus tenants sintéticos, un rol `compliance_auditor`, la arista tenant-scoped `role_permissions(audit.read)` y su asignación `membership_roles`. El snapshot `authz_version` se consulta después de estas escrituras, porque los triggers invalidan los contextos antiguos. Así, `verifyStream` se ejecuta con permiso de auditoría real en la base. No se debilita RLS ni se concede `audit.read` al rol runtime global.
 
 **Estado:** fixture corregido; pendiente Source CI completo. TASK-042 continúa `in_progress`.
+
+
+## Addendum de implementación — ContactIdentity (2026-11-08)
+
+Se implementa un primer slice del grafo de identidad provider-scoped para CRM-005/006. Cada identidad pertenece a un contacto del mismo tenant y conserva provider, product, channel, identifierType y externalId como dimensiones distintas. WhatsApp admite BSUID y teléfono E.164; Messenger PSID; Instagram Direct ID scoped; Threads user ID; los sistemas externos usan una namespace external explícita.
+
+La unicidad está limitada al tenant y a la tupla completa de namespace. Un teléfono no es PK de Contact ni une perfiles entre canales. Un conflicto de identidad produce 409 sin revelar a qué otro perfil pertenece el ID. Los vínculos creados por API registran provenance api; verifiedAt y confidence quedan NULL hasta que un proceso con evidencia los establezca. No hay merge automático, merge reversible, unlink ni dedupe probabilístico en este slice.

@@ -103,6 +103,16 @@ export const PERMISSION_CATALOG = {
     riskClass: "sensitive",
     requiresIndependentApproval: false,
   },
+  "crm.contacts.identities.read": {
+    description: "Read provider-scoped external identities linked to tenant contacts",
+    riskClass: "sensitive",
+    requiresIndependentApproval: false,
+  },
+  "crm.contacts.identities.link": {
+    description: "Link a namespaced external identity to a tenant contact",
+    riskClass: "sensitive",
+    requiresIndependentApproval: false,
+  },
   "crm.contacts.merge": {
     description: "Merge duplicate contact identities",
     riskClass: "critical",

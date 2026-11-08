@@ -141,7 +141,7 @@ export function parseContactListQuery(input: {
     contactType,
     status,
     pageSize,
-    cursor: input.cursor === undefined ? null : decodeCursor(input.cursor),
+    cursor: input.cursor === undefined ? null : parseContactCursor(input.cursor),
   });
 }
 
@@ -153,7 +153,7 @@ export function isContactUuid(value: string): boolean {
   return UUID.test(value);
 }
 
-function decodeCursor(value: string): ContactCursor {
+export function parseContactCursor(value: string): ContactCursor {
   if (value.length < 1 || value.length > 1024 || !/^[A-Za-z0-9_-]+$/.test(value)) {
     throw new ContactValidationError("CONTACT_CURSOR_INVALID");
   }

@@ -567,3 +567,17 @@ Se añadió una regresión de integración a `microservices-meta-ecuapp/src/jobs
 - Source CI [#572](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42498026616) y CodeQL [#107](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42498026686) SUCCESS en `1c6e682eb755e77b8359e52d4e7091a41e4ef6d5`.
 - CRM-001..004 está habilitado y CI-verificado; el controller exige OIDC, tenant context y RBAC por ruta. TASK-042 sigue pendiente de revisión independiente y aceptación del Product Owner.
 - TASK-003/027/028 permanecen `in_progress`: handlers reales y event bus, operación desplegada, alert routing, SLO, retención y DR siguen pendientes. GO-PRODUCTION NO-GO.
+
+## Handoff incremental — TASK-043 / TASK-053 (2026-11-08)
+
+**Estado general de TASK-043: in_progress. Estado general de TASK-053: in_progress.** Se completó código fuente para el primer slice CRM-005/006; su estado de verificación queda pendiente de Source CI y Contract CI del commit que lo incorpora.
+
+Entregables del slice:
+- CRM-005 consulta identidades con cursor estable (pageSize 1–100), OIDC, tenant context, purpose y permiso crm.contacts.identities.read.
+- CRM-006 vincula la identidad con Idempotency-Key, auditoría append-only, permiso sensible crm.contacts.identities.link y conflicto 409 sin revelar el contacto existente.
+- Migración 0024 con FK compuesta tenant-contact, unicidad namespaced por tenant, RLS ENABLE/FORCE, trigger actor/tenant y permisos SELECT/INSERT.
+- Roles: tenant_owner por catálogo completo; solo tenant_admin puede leer/vincular además de tenant_owner (catálogo completo); compliance_auditor solo leer. integration_admin no recibe acceso al PII del CRM y los roles agent, inbox_supervisor, analyst y developer_api_integrator tampoco.
+- Se reutiliza cursor y repositorio de contactos, y se extrae la lógica común de idempotencia/hash para evitar duplicación.
+- Pruebas añadidas: dominio, metadatos de guards, PostgreSQL con idempotencia, colisión dentro de tenant, mismo ID entre tenants, RLS y audit stream.
+
+Fuera de este cierre parcial: CRM-007 candidatos de duplicación, CRM-008..010 merge/undo, asociaciones de activos WAAC/PMA/WABA, importadores de Lead Ads, deduplicación, verificación del proveedor, unlink y eventos de negocio. No marcar TASK-043/053 como verified/accepted hasta completar sus criterios restantes y validación independiente.

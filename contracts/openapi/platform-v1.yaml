@@ -5,13 +5,13 @@ info:
   description: >
     Canonical route registry for first-party product APIs and webhook ingress.
     It contains 288 active first-party REST operations plus 8 webhook ingress routes; LEAD-010 is a retired alias superseded by SALES-014.
-    Only PLT-001..005 and CRM-001..004 are design-frozen and implementation-allowed (9 operations);
-    the remaining 287 operations are catalog-only until their business schemas are approved.
+    Only PLT-001..005 and CRM-001..006 are design-frozen and implementation-allowed (11 operations);
+    the remaining 285 operations are catalog-only until their business schemas are approved.
   x-first-party-rest-operations: 288
   x-webhook-ingress-operations: 8
   x-total-http-operations: 296
-  x-design-frozen-operations: 5
-  x-catalog-only-operations: 291
+  x-design-frozen-operations: 11
+  x-catalog-only-operations: 285
 servers:
   - url: /api
     description: Gateway base path; deployment configuration is environment-specific.
@@ -6884,15 +6884,18 @@ paths:
     get:
       tags: ['CRM']
       operationId: apiCRM005
-      summary: 'Lista identificadores externos namespaced.'
+      summary: 'Lista identidades externas namespaced de un contacto.'
+      description: 'Expone identificadores de canal únicamente a actores con el permiso CRM específico; no consulta ni revela contactos de otros tenants.'
       x-api-id: 'CRM-005'
       x-traceability: 'US-018; TASK-043,053'
-      x-contract-status: 'catalog-only'
+      x-contract-status: 'design-frozen'
       x-common-error-profile: 'problem-details-v1'
       x-contract-error-catalog: [400, 401, 403, 404, 409, 422, 429, 500, 503]
-      x-contract-ready: false
-      x-implementation-allowed: false
-      x-required-gate: API-CONTRACT-FREEZE+G0
+      x-contract-ready: true
+      x-implementation-allowed: true
+      x-required-gate: 'GO-CODE-CRM-CONTACT-IDENTITIES+TASK-043'
+      x-required-permission: 'crm.contacts.identities.read'
+      x-required-purpose: 'crm.contacts.identities.read'
       security:
         - bearerAuth: []
       parameters:
@@ -6903,16 +6906,25 @@ paths:
         - name: 'contactId'
           in: path
           required: true
-          schema: { type: string, maxLength: 255 }
+          schema: { type: string, format: uuid }
+        - name: pageSize
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+        - name: cursor
+          in: query
+          required: false
+          schema: { type: string, maxLength: 1024 }
         - name: X-Correlation-ID
           in: header
           required: false
           schema: { type: string, format: uuid }
-      x-request-schema-pending: true
-      x-response-schema-pending: true
-      x-error-catalog-pending: true
-      x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
       responses:
+        '200':
+          description: Identidades del contacto, ordenadas de forma estable y dentro del tenant autorizado.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactIdentityListResponse' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6922,19 +6934,21 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
         '503': { $ref: '#/components/responses/ServiceUnavailable' }
-        'default': { $ref: '#/components/responses/ContractNotFrozen' }
     post:
       tags: ['CRM']
       operationId: apiCRM006
-      summary: 'Vincula una identidad después de validación/collision check.'
+      summary: 'Vincula una identidad externa al contacto sin fusionar perfiles.'
+      description: 'La unicidad se limita al tenant y a la tupla provider/product/channel/identifierType/externalId. La operación es idempotente y no verifica por sí sola la identidad frente a Meta.'
       x-api-id: 'CRM-006'
       x-traceability: 'US-018; TASK-043,053'
-      x-contract-status: 'catalog-only'
+      x-contract-status: 'design-frozen'
       x-common-error-profile: 'problem-details-v1'
       x-contract-error-catalog: [400, 401, 403, 404, 409, 422, 429, 500, 503]
-      x-contract-ready: false
-      x-implementation-allowed: false
-      x-required-gate: API-CONTRACT-FREEZE+G0
+      x-contract-ready: true
+      x-implementation-allowed: true
+      x-required-gate: 'GO-CODE-CRM-CONTACT-IDENTITIES+TASK-043'
+      x-required-permission: 'crm.contacts.identities.link'
+      x-required-purpose: 'crm.contacts.identities.link'
       security:
         - bearerAuth: []
       parameters:
@@ -6945,20 +6959,26 @@ paths:
         - name: 'contactId'
           in: path
           required: true
-          schema: { type: string, maxLength: 255 }
+          schema: { type: string, format: uuid }
         - name: Idempotency-Key
           in: header
           required: true
-          schema: { type: string, minLength: 16, maxLength: 255 }
+          schema: { type: string, minLength: 16, maxLength: 255, pattern: '^[\x21-\x7e]+$' }
         - name: X-Correlation-ID
           in: header
           required: false
           schema: { type: string, format: uuid }
-      x-request-schema-pending: true
-      x-response-schema-pending: true
-      x-error-catalog-pending: true
-      x-freeze-instructions: 'Complete this operation contract under docs/49 before implementation.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateContactIdentityRequest' }
       responses:
+        '201':
+          description: Identidad vinculada; verifiedAt y confidence permanecen nulos hasta que exista evidencia explícita.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactIdentityRecord' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -6968,7 +6988,6 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
         '503': { $ref: '#/components/responses/ServiceUnavailable' }
-        'default': { $ref: '#/components/responses/ContractNotFrozen' }
   '/v1/tenants/{tenantId}/identity-resolution/candidates':
     post:
       tags: ['CRM']
@@ -12818,3 +12837,44 @@ components:
           items: { $ref: '#/components/schemas/ContactRecord' }
         nextCursor: { type: [string, "null"], maxLength: 1024 }
 
+
+    CreateContactIdentityRequest:
+      type: object
+      additionalProperties: false
+      required: [provider, product, channel, identifierType, externalId]
+      properties:
+        provider: { type: string, enum: [meta, external] }
+        product: { type: string, enum: [whatsapp, facebook, instagram, threads, external] }
+        channel: { type: string, enum: [whatsapp, messenger, instagram_dm, threads, external] }
+        identifierType: { type: string, enum: [phone_e164, bsuid, psid, ig_scoped_id, threads_user_id, external_id] }
+        externalId: { type: string, minLength: 1, maxLength: 255, pattern: '^\S+$' }
+        sourceReference: { type: [string, "null"], minLength: 1, maxLength: 255 }
+    ContactIdentityRecord:
+      type: object
+      additionalProperties: false
+      required: [id, tenantId, contactId, provider, product, channel, identifierType, externalId, sourceType, sourceReference, observedAt, verifiedAt, confidence, visibility, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        tenantId: { type: string, format: uuid }
+        contactId: { type: string, format: uuid }
+        provider: { type: string, enum: [meta, external] }
+        product: { type: string, enum: [whatsapp, facebook, instagram, threads, external] }
+        channel: { type: string, enum: [whatsapp, messenger, instagram_dm, threads, external] }
+        identifierType: { type: string, enum: [phone_e164, bsuid, psid, ig_scoped_id, threads_user_id, external_id] }
+        externalId: { type: string, minLength: 1, maxLength: 255 }
+        sourceType: { type: string, enum: [api] }
+        sourceReference: { type: [string, "null"] }
+        observedAt: { type: string, format: date-time }
+        verifiedAt: { type: [string, "null"], format: date-time }
+        confidence: { type: [number, "null"], minimum: 0, maximum: 1 }
+        visibility: { type: string, enum: [tenant_only] }
+        createdAt: { type: string, format: date-time }
+    ContactIdentityListResponse:
+      type: object
+      additionalProperties: false
+      required: [items, nextCursor]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/ContactIdentityRecord' }
+        nextCursor: { type: [string, "null"], maxLength: 1024 }

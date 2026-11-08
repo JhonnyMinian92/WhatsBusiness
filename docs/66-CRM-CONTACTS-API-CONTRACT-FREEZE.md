@@ -91,3 +91,10 @@ La corrección posterior de formato YAML en `559cd22` no altera la semántica de
 
 La exposición HTTP de CRM-001..004 está implementada y verificada por CI; **TASK-042 sigue `in_progress`, no `accepted`**. Aún se necesita revisión independiente de seguridad/arquitectura y aceptación del Product Owner. Este freeze no habilita CRM-005..017 ni ContactIdentity, merge, custom fields, companies, leads, opportunities, activities, inbox ni event publishing. Los eventos `crm.contact.created/updated` no se emiten hasta cerrar el event bus operativo de TASK-028. La política de retención, exportación y eliminación legal continúa en TASK-059.
 
+
+
+## Addendum — ampliación CRM Identity (2026-11-08)
+
+CRM-005 (GET identities) y CRM-006 (POST link identity) se congelaron e incorporaron al allowlist mediante [docs/67](67-CRM-CONTACT-IDENTITY-CONTRACT-FREEZE.md). El slice añade namespace provider/product/channel/type, unicidad por tenant, RLS, RBAC sensible, idempotencia y auditoría append-only.
+
+CRM-007..017 siguen catalog-only. No se habilitan candidatos de duplicación, merge/undo, custom fields, leads ni pipeline por el hecho de congelar CRM-005/006. La identidad vinculada no se marca como verificada ni recibe confidence sin evidencia externa.

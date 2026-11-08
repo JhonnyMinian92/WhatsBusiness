@@ -1,5 +1,4 @@
 import { ConflictException, ForbiddenException, Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
-import { createHash } from "node:crypto";
 import type { TenantAccessContext } from "../../../platform/identity/tenant-access-context.js";
 import type { PermissionKey } from "../../../platform/identity/authorization/permission-catalog.js";
 import { AppendOnlyAuditRepository } from "../../../platform/identity/audit/append-only-audit.repository.js";
@@ -10,6 +9,7 @@ import {
   type ContactListQuery, type ContactPage, type ContactRecord,
 } from "../domain/contact.js";
 import { PostgresContactRepository } from "../infrastructure/postgres-contact.repository.js";
+import { assertIdempotencyKey, assertSameIdempotencyRequest, hashContactCommand } from "./contact-command-support.js";
 
 @Injectable()
 export class ContactService {
@@ -60,8 +60,8 @@ export class ContactService {
   async create(subject: TenantAccessContext, input: unknown, idempotencyKey: string): Promise<ContactRecord> {
     this.assertPermission(subject, "crm.contacts.create");
     const command = (() => { try { return parseCreateContact(input); } catch (error) { throw mapValidationError(error); } })();
-    this.assertIdempotencyKey(idempotencyKey);
-    const requestHash = hashRequest({
+    assertIdempotencyKey(idempotencyKey);
+    const requestHash = hashContactCommand({
       contactType: command.contactType, displayName: command.displayName,
       firstName: command.firstName, lastName: command.lastName,
       sourceType: command.sourceType, sourceReference: command.sourceReference,
@@ -76,7 +76,7 @@ export class ContactService {
           operation: "create", idempotencyKey, requestHash,
         });
         if (reservation.kind === "existing") {
-          this.assertSameRequest(reservation.requestHash, requestHash);
+          assertSameIdempotencyRequest(reservation.requestHash, requestHash);
           if (!reservation.response) throw new ConflictException({ code: "CRM_CONTACT_IDEMPOTENCY_INCOMPLETE" });
           return reservation.response;
         }
@@ -106,8 +106,8 @@ export class ContactService {
       throw new BadRequestException({ code: "CRM_CONTACT_VERSION_INVALID", detail: "La versión If-Match no es válida." });
     }
     const command = (() => { try { return parseUpdateContact(input); } catch (error) { throw mapValidationError(error); } })();
-    this.assertIdempotencyKey(idempotencyKey);
-    const requestHash = hashRequest({ contactId, expectedVersion, patch: command });
+    assertIdempotencyKey(idempotencyKey);
+    const requestHash = hashContactCommand({ contactId, expectedVersion, patch: command });
 
     return this.database.withTenantContextAtVersion(
       subject.actorId, subject.tenantId, subject.authzVersion,
@@ -117,7 +117,7 @@ export class ContactService {
           operation: "update", idempotencyKey, requestHash,
         });
         if (reservation.kind === "existing") {
-          this.assertSameRequest(reservation.requestHash, requestHash);
+          assertSameIdempotencyRequest(reservation.requestHash, requestHash);
           if (!reservation.response) throw new ConflictException({ code: "CRM_CONTACT_IDEMPOTENCY_INCOMPLETE" });
           return reservation.response;
         }
@@ -152,21 +152,6 @@ export class ContactService {
   private assertContactId(contactId: string): void {
     if (!isContactUuid(contactId)) throw new BadRequestException({ code: "CRM_CONTACT_ID_INVALID", detail: "contactId debe ser UUID." });
   }
-  private assertIdempotencyKey(value: string): void {
-    if (typeof value !== "string" || value.length < 16 || value.length > 255 || !/^[\x21-\x7e]+$/.test(value)) {
-      throw new BadRequestException({ code: "CRM_IDEMPOTENCY_KEY_INVALID", detail: "Se requiere Idempotency-Key de 16 a 255 caracteres ASCII visibles." });
-    }
-  }
-  private assertSameRequest(existing: string, expected: string): void {
-    if (existing !== expected) throw new ConflictException({
-      code: "CRM_IDEMPOTENCY_KEY_REUSED",
-      detail: "La clave de idempotencia ya fue utilizada para una solicitud diferente.",
-    });
-  }
-}
-
-function hashRequest(value: unknown): string {
-  return createHash("sha256").update(JSON.stringify(value), "utf8").digest("hex");
 }
 
 function mapValidationError(error: unknown): Error {

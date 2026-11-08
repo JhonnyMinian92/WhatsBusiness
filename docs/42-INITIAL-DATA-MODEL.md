@@ -115,3 +115,12 @@ El modelo lógico de la sección 5 ya tiene un primer agregado persistente real:
 El agregado Contact no incorpora todavía ContactIdentity, leads, companies, pipeline, opportunities, activities ni custom fields. El endpoint runtime está deshabilitado por el contract allowlist vigente; ver docs/66. No inferir que el modelo CRM completo está implementado.
 
 La migración `0023-crm-contact-organization-name-invariant.sql` endurece el agregado en DB: `contact_type='organization'` obliga `first_name` y `last_name` a NULL incluso si alguien intenta eludir el parser de dominio. La integración PostgreSQL cubre el rechazo con el rol runtime y SQLSTATE `23514`; evidencia de Source CI pendiente.
+
+
+## Addendum de implementación — CRM ContactIdentity / migración 0024
+
+La migración microservices-meta-ecuapp/migrations/0024-crm-contact-identities.sql crea crm.contact_identities con FK compuesta (tenant_id, contact_id) → crm.contacts(tenant_id,id), unicidad por (tenant_id,provider,product,channel,identifier_type,external_id), RLS ENABLE/FORCE y trigger de actor/tenant. La aplicación solo recibe SELECT/INSERT; el agregado es append-only para este slice y no concede UPDATE/DELETE.
+
+El registro conserva source_type, source_reference, observed_at, verified_at, confidence, visibility y created_by. El endpoint CRM-006 fija source_type=api, registra el momento observado en DB y deja verified_at/confidence como NULL: vincular desde el CRM no acredita que Meta haya verificado la identidad. visibility=tenant_only es explícito.
+
+La tabla reutiliza crm.contact_command_idempotency extendiendo su operación permitida con link_identity; el mismo repositorio de contactos presta la reserva/finalización genérica del comando. El índice único evita colisiones dentro del tenant, mientras dos tenants distintos pueden tener el mismo identificador namespaced.

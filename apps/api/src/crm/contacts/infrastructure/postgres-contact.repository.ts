@@ -20,27 +20,27 @@ interface ContactRow {
   readonly updated_at: Date | string;
 }
 
-interface IdempotencyRow {
+interface IdempotencyRow<TResponse extends object> {
   readonly id: string;
   readonly request_hash: string;
-  readonly response_snapshot: ContactRecord | null;
+  readonly response_snapshot: TResponse | null;
 }
 
-export type IdempotencyReservation =
+export type IdempotencyReservation<TResponse extends object = ContactRecord> =
   | { readonly kind: "reserved"; readonly id: string }
-  | { readonly kind: "existing"; readonly requestHash: string; readonly response: ContactRecord | null };
+  | { readonly kind: "existing"; readonly requestHash: string; readonly response: TResponse | null };
 
 export class PostgresContactRepository {
-  async reserveCommand(
+  async reserveCommand<TResponse extends object = ContactRecord>(
     client: PoolClient,
     input: {
       tenantId: string;
       actorId: string;
-      operation: "create" | "update";
+      operation: "create" | "update" | "link_identity";
       idempotencyKey: string;
       requestHash: string;
     },
-  ): Promise<IdempotencyReservation> {
+  ): Promise<IdempotencyReservation<TResponse>> {
     const inserted = await client.query<{ id: string }>(
       [
         "INSERT INTO crm.contact_command_idempotency",
@@ -54,7 +54,7 @@ export class PostgresContactRepository {
     const newId = inserted.rows[0]?.id;
     if (newId) return Object.freeze({ kind: "reserved", id: newId });
 
-    const existing = await client.query<IdempotencyRow>(
+    const existing = await client.query<IdempotencyRow<TResponse>>(
       [
         "SELECT id::text, request_hash, response_snapshot",
         "FROM crm.contact_command_idempotency",
@@ -68,14 +68,14 @@ export class PostgresContactRepository {
     return Object.freeze({
       kind: "existing",
       requestHash: row.request_hash.trim(),
-      response: row.response_snapshot ? toContactRecord(row.response_snapshot) : null,
+      response: row.response_snapshot ? Object.freeze(row.response_snapshot) as TResponse : null,
     });
   }
 
-  async completeCommand(
+  async completeCommand<TResponse extends object = ContactRecord>(
     client: PoolClient,
     commandId: string,
-    response: ContactRecord,
+    response: TResponse,
   ): Promise<void> {
     const result = await client.query(
       "UPDATE crm.contact_command_idempotency SET response_snapshot = $2::jsonb WHERE id = $1 AND response_snapshot IS NULL",

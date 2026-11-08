@@ -134,7 +134,7 @@ GO-CODE aprobado el 2026-11-07: está autorizado crear el workspace fuente e imp
 
 El estado de validación, las propuestas de eventos pendientes y el GO/NO-GO arquitectónico se consolidan en [docs/56](56-ARCHITECTURE-REVIEW-AND-ACCEPTANCE-GATES.md). AsyncAPI define operaciones producer/consumer; su presencia no significa runtime desplegado.
 
-- OpenAPI: ../contracts/openapi/platform-v1.yaml (296 operaciones activas; 5 design-frozen y 291 catalog-only; LEAD-010 es alias histórico superseded by SALES-014, hasta congelar schemas).
+- OpenAPI: ../contracts/openapi/platform-v1.yaml (296 operaciones activas; 11 design-frozen y 285 catalog-only; LEAD-010 es alias histórico superseded by SALES-014, hasta congelar schemas).
 - AsyncAPI: ../contracts/asyncapi/platform-events-v1.yaml.
 - Envelope: ../contracts/schemas/event-envelope.schema.json.
 - Payloads de dominio: ../contracts/schemas/domain-events-v1.schema.json.
@@ -185,3 +185,8 @@ El estado de validación, las propuestas de eventos pendientes y el GO/NO-GO arq
 ## 66 — CRM Contacts API contract freeze
 
 [66 — CRM Contacts API contract freeze](66-CRM-CONTACTS-API-CONTRACT-FREEZE.md) registra el slice CRM-001..004, sus contratos congelados y el gate que impide activar las rutas HTTP antes de completar las condiciones de implementación y validación.
+
+
+## CRM Identity — freeze e implementación incremental
+
+67. [Freeze de contrato CRM ContactIdentity](67-CRM-CONTACT-IDENTITY-CONTRACT-FREEZE.md) — CRM-005/006, identidad namespaced por canal, permisos, idempotencia, RLS, provenance y límites explícitos del primer slice.
