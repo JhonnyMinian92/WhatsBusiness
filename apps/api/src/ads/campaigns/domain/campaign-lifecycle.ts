@@ -8,6 +8,7 @@ export type AdsCampaignStatus =
   | "pause_requested"
   | "paused"
   | "rejected"
+  | "expired"
   | "unknown"
   | "failed";
 
@@ -16,6 +17,7 @@ export type AdsCampaignCommand =
   | "request_approval"
   | "approval_granted"
   | "approval_rejected"
+  | "approval_expired"
   | "queue_submission"
   | "request_pause"
   | "provider_active"
@@ -44,7 +46,7 @@ export class AdsCampaignTransitionError extends Error {
 const TRANSITIONS: Readonly<Record<AdsCampaignStatus, Partial<Record<AdsCampaignCommand, AdsCampaignStatus>>>> = {
   draft: { validation_passed: "validated" },
   validated: { request_approval: "approval_pending", revise_draft: "draft" },
-  approval_pending: { approval_granted: "approved", approval_rejected: "rejected" },
+  approval_pending: { approval_granted: "approved", approval_rejected: "rejected", approval_expired: "expired" },
   approved: { queue_submission: "submission_queued" },
   submission_queued: {
     provider_active: "active",
@@ -61,6 +63,7 @@ const TRANSITIONS: Readonly<Record<AdsCampaignStatus, Partial<Record<AdsCampaign
   },
   paused: { revise_draft: "draft" },
   rejected: { revise_draft: "draft" },
+  expired: { revise_draft: "draft" },
   unknown: {
     provider_active: "active",
     provider_paused: "paused",
