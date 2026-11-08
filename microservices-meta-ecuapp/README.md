@@ -26,7 +26,7 @@ El HTTP foundation existente sigue temporalmente en `apps/api` mientras se migra
 6. La expiración de leases permite recuperar dispatchers/workers caídos. Los fencing tokens evitan que un worker antiguo confirme después de perder su lease; los handlers largos renuevan el lease con el token actual y reciben AbortSignal si la renovación falla.
 7. Los handlers no hacen I/O de proveedor dentro de la transacción de ejecución; deben stagear esos side effects en outbox.
 8. Cada handler recibe AbortSignal y está sujeto a TENANT_JOB_HANDLER_TIMEOUT_MS (1–900 s); debe cooperar con cancelación. El timeout aborta el trabajo y fuerza rollback, pero no puede matar una promesa Node.js no cooperativa: el host no debe registrar handlers que ignoren AbortSignal.
-8. At-least-once implica duplicados. No se promete exactly-once end-to-end.
+9. At-least-once implica duplicados. No se promete exactly-once end-to-end.
 
 ## Operación
 
@@ -34,7 +34,7 @@ RabbitMQ 4.4 con quorum queues es la baseline documentada en docs/51. Se requier
 
 ## Validación
 
-`pnpm build`, `pnpm typecheck` y `pnpm test` ejecutan también este proyecto Nx. Source CI aplica migraciones versionadas hasta la 0009 y habilita `RUN_TENANT_JOB_RUNTIME_INTEGRATION_TESTS=true y valida renovación de leases con fencing` sobre PostgreSQL efímero.
+`pnpm build`, `pnpm typecheck` y `pnpm test` ejecutan también este proyecto Nx. Source CI aplica las migraciones versionadas vigentes (hasta `0014`) e idempotencia; habilita las suites `RUN_TENANT_JOB_RUNTIME_INTEGRATION_TESTS=true` y valida PostgreSQL/RabbitMQ efímeros, renovación/recuperación de leases y fencing. Source CI #42433941375 terminó SUCCESS para commit `f136cff710fe8c60c8430c82928092320b9d90b5`.
 
 ## Estado honesto
 
@@ -58,3 +58,13 @@ pnpm db:migrate
 ```
 
 La raíz HTTP legacy sigue en `apps/api` durante la migración gradual de contextos; los nuevos ports/adapters de jobs viven aquí. No existe aún una aplicación web; solo se creará `app-meta-ecuapp` cuando una historia frontend concreta lo requiera.
+
+
+## Estado verificado — 2026-11-08
+
+- Source CI [#42433941375](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42433941375) SUCCESS en `environment/local`, commit `f136cff710fe8c60c8430c82928092320b9d90b5`. La ejecución pasó migraciones/idempotencia, grants de mínimo privilegio, DLX quorum, build, typecheck, pruebas unitarias, integraciones PostgreSQL/RabbitMQ y cleanup de contenedores.
+- El consumer diferencia errores de envelope y fallos de persistencia: envelope inválido va a DLQ; job válido con estado durable desconocido fuerza cierre de sesión sin ACK/NACK para redelivery. ACK ambiguo posterior a posible COMMIT tampoco provoca NACK destructivo. Cierres concurrentes de deliveries prefetched están agrupados single-flight.
+- Pruebas cubren redelivery real tras pérdida de canal, ACK ambiguo, outage de procesamiento durable, cierre concurrente, expiración de leases y rechazo de fencing tokens obsoletos.
+- Métricas: Prometheus counters/histograms in-memory con outcomes allowlisted y sin datos tenant/personales en labels. Todavía no hay servidor HTTP de scrape ni gauges de cola/outbox/leases/DLQ, alertas o SLO.
+- Replay administrativo conserva two-person approval, step-up, hash binding y audit; el policy registry sigue vacío y fail-closed hasta que handlers reales demuestren idempotencia de efectos externos.
+- El runtime no se declara listo para producción. Pendientes: handlers reales y replay end-to-end, DLQ operator runbook/retención, endpoint/gauges/alerts/SLO, broker deployment validation, Secret Manager/rotación, TLS/AMQPS reales, carga/DR, revisión independiente y aprobación del propietario. TASK-003 permanece `in_progress`; GO-PRODUCTION NO-GO.
