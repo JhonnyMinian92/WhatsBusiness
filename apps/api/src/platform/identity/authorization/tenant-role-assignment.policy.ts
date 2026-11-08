@@ -19,7 +19,7 @@ export interface RoleAssignmentEvaluation {
   readonly roleKey: string;
   readonly operation?: RoleAssignmentOperation;
   readonly approval?: ApprovalEvidence;
-  readonly now?: number;
+  readonly now?: Date;
 }
 
 export interface RoleAssignmentDecision {
@@ -121,7 +121,7 @@ export class TenantRoleAssignmentPolicy {
         permission: "tenant.read",
         purpose: "tenant.roles.assign",
         resource: { tenantId: input.target.tenantId },
-        now: toAuthorizationDate(input.now),
+        now: input.now,
       });
       if (!requestContext.allowed) {
         return deny(mapAuthorizationDenyReason(requestContext.reason));
@@ -149,9 +149,6 @@ function isUuid(value: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 }
 
-function toAuthorizationDate(timestamp: number | undefined): Date | undefined {
-  return timestamp === undefined ? undefined : new Date(timestamp);
-}
 
 function mapAuthorizationDenyReason(reason: AuthorizationDenyReason | undefined): RoleAssignmentDenyReason {
   switch (reason) {
