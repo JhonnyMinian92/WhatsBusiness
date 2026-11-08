@@ -465,3 +465,16 @@ Tests añadidos a `api:test`; Source CI debe registrarse desde el run resultante
 El runtime factory recibe `handlers`, `reporter`, `poolFactory`, `protectorFactory` y `supervisorFactory`; el dominio permanece desacoplado de implementaciones de infraestructura. `MetaWebhookWorkerRuntime.run(AbortSignal)` delega cancelación y drenado al supervisor; el worker posee el pool dedicado `DATABASE_WEBHOOK_WORKER_URL`. Se exporta desde `microservices-meta-ecuapp/src/index.ts` y la suite se ejecuta desde el target Nx del paquete.
 
 Commits de runtime: `b2fae18c07b1ede450a7ee8248df1ceceb3c0fd2`, `65e173921ff83461a22bce86198305b21816b252`, `7daebb92507e51a3f2e6316bee592fa2e4edb583`, `7d6e33c10ceb19a4f4f68af3fb932c8783f1ed5b`, `12cabafa446e1b1408e42a219e0f5638838dbba2` y `d6d1e015d01b9810f7b92a047f5a5ed51ab097bf`. No cerrar el criterio global: faltan handlers reales, ejecución CI del último código, replay gobernado por CR-0016 y operación/despliegue real.
+
+
+## 12. Evidencia inicial — US-012 / TASK-024..025 (2026-11-08)
+
+| TEST ID | Criterio / riesgo | Implementación y prueba | Estado de evidencia |
+|---|---|---|---|
+| TEST-ADS-001 | AC-012-01 — no saltar validación, aprobación ni staging | `campaign-lifecycle.ts`; `campaign-lifecycle.spec.ts` prueba caminos válidos, bypass y estado externo unknown | Código/test añadido; Source CI pendiente |
+| TEST-ADS-002 | AC-012-01 — no validar sin objetivo/cuenta/capability vigentes | `campaign-validation.ts`; `campaign-validation.spec.ts` prueba evidencia desconocida, caducada, desalineación de API version y errores de moneda | Código/test añadido; Source CI pendiente |
+| TEST-ADS-003 | AC-012-02 — exactitud decimal sin float | `ads-money.ts`; `ads-money.spec.ts` prueba representación, precisión y límites de +20% | Código/test añadido; Source CI pendiente |
+| TEST-ADS-004 | AC-012-02 — limitar cada operación y acumulado rolling 24h | `budget-guardrail.ts`; `budget-guardrail.spec.ts` prueba boundary inclusivo, bypass en varias subidas, kill switch, monedas y expiración | Código/test añadido; Source CI pendiente |
+| TEST-ADS-005 | AC-012-02 — requerir asset, capability y quorum independiente | `ads-execution-guard.ts`; `ads-execution-guard.spec.ts` prueba kill switch, pausa segura y falta de evidencia/aprobación | Código/test añadido; Source CI pendiente |
+
+Las pruebas cubren el dominio, no una ejecución de campañas real. TASK-024/025 continúan `in_progress`; faltan contratos HTTP congelados y reviewer, PostgreSQL/RLS, approval/outbox wiring, TASK-010, TASK-029, adapters, conciliación y review independiente. No existe evidencia de publicación ni gasto Meta.
