@@ -196,9 +196,24 @@ function parseQueueStatistics(value: unknown): Record<string, unknown> {
     (field) => !Object.prototype.hasOwnProperty.call(statistics, field),
   );
   if (missingFields.length > 0) {
+    const knownFields = [
+      "name",
+      "vhost",
+      "type",
+      "state",
+      "messages",
+      "messages_ready",
+      "messages_unacknowledged",
+      "consumers",
+      "error",
+      "reason",
+    ].filter((field) => Object.prototype.hasOwnProperty.call(statistics, field));
     throw new Error(
       "RabbitMQ Management API metrics response is missing queue counters: "
-        + missingFields.join(", ") + ".",
+        + missingFields.join(", ")
+        + "; response fields: "
+        + (knownFields.length > 0 ? knownFields.join(", ") : "none")
+        + ".",
     );
   }
   return statistics;
