@@ -30,12 +30,14 @@ test("PostgreSQL CRM contacts enforce tenant RLS, idempotency, audit and optimis
   const membershipB = randomUUID();
   const correlationId = randomUUID();
   const now = new Date().toISOString();
+  let authzVersionA = 1;
+  let authzVersionB = 1;
   const subject = (tenantId: string, membershipId: string, purpose: string): TenantAccessContext => ({
     actorId,
     tenantId,
     membershipId,
     membershipStatus: "active",
-    authzVersion: 1,
+    authzVersion: tenantId === tenantA ? authzVersionA : authzVersionB,
     roleKeys: ["tenant_owner"],
     permissionKeys: ["crm.contacts.read", "crm.contacts.create", "crm.contacts.update"],
     entitlementKeys: [],
@@ -63,6 +65,14 @@ test("PostgreSQL CRM contacts enforce tenant RLS, idempotency, audit and optimis
       "INSERT INTO platform.memberships (id, tenant_id, user_id, status) VALUES ($1, $2, $3, 'active'), ($4, $5, $3, 'active')",
       [membershipA, tenantA, actorId, membershipB, tenantB],
     );
+    const authorizationVersions = await admin.query<{ id: string; authz_version: number }>(
+      "SELECT id::text, authz_version FROM platform.tenants WHERE id = ANY($1::uuid[])",
+      [[tenantA, tenantB]],
+    );
+    for (const row of authorizationVersions.rows) {
+      if (row.id === tenantA) authzVersionA = row.authz_version;
+      if (row.id === tenantB) authzVersionB = row.authz_version;
+    }
 
     const createInput = {
       contactType: "person",
@@ -140,10 +150,10 @@ test("PostgreSQL CRM contacts enforce tenant RLS, idempotency, audit and optimis
       "A contact from tenant B must not be visible from tenant A.",
     );
 
-    const auditA = await database.withTenantContextAtVersion(actorId, tenantA, 1, (client) =>
+    const auditA = await database.withTenantContextAtVersion(actorId, tenantA, authzVersionA, (client) =>
       new AppendOnlyAuditRepository().verifyStream(client, tenantA),
     );
-    const auditB = await database.withTenantContextAtVersion(actorId, tenantB, 1, (client) =>
+    const auditB = await database.withTenantContextAtVersion(actorId, tenantB, authzVersionB, (client) =>
       new AppendOnlyAuditRepository().verifyStream(client, tenantB),
     );
     assert.equal(auditA.valid, true);
