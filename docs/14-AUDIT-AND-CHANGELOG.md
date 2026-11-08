@@ -741,3 +741,13 @@ El Source Validation del HEAD previo también reportó indisponibilidad del endp
 | AUD-207 | 22 casos unitarios registrados en api:test; backlog, roadmap, traceability, memory, work package y docs/77 actualizados. | Tests registrados; Source CI/CodeQL exactos pendientes |
 
 TASK-052 tiene soporte JIT interno separado; sus support_grants no conceden can_use_tenant ni sustituyen partner grants. No hay aún persistencia, partner context, auditoría/outbox transaccional, invalidación de sesiones/cache/jobs ni contrato PAR congelado. No se abrieron rutas/endpoints ni se modificaron OpenAPI/AsyncAPI. US-025/TASK-058 permanecen in_progress; no Product Owner acceptance ni GO-PRODUCTION.
+
+
+## Correcciones de validación detectadas durante US-025 (2026-11-08)
+
+| ID | Hallazgo | Acción | Estado |
+|---|---|---|---|
+| AUD-208 | Test de partner esperaba GRANT_PARTNER_MISMATCH al variar la organización del actor, pero la policy denegaba antes correctamente por PARTNER_SUBJECT_NOT_MEMBER. | Se cambió el fixture para mantener la membership válida y variar el partner almacenado en el grant. | Corregido; CI siguiente pendiente |
+| AUD-209 | Tres tests CRM esperaban OidcAuthGuard aunque los controladores ya usan OidcOrApiClientGuard. | Se sincronizaron imports y expectativas de los tests con el guard real, manteniendo la verificación tenant/RBAC. | Corregido; CI siguiente pendiente |
+| AUD-210 | PlatformAdministrationService validaba correlación con un UUID regex 8-4-4-13 en vez del formato 8-4-4-4-12. | Se corrigió el patrón y se conserva el rechazo de valores malformados. | Corregido; CI siguiente pendiente |
+

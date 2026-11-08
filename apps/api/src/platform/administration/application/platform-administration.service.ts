@@ -149,7 +149,7 @@ export class PlatformAdministrationService {
   }
 
   private assertCorrelationId(value: string): void {
-    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i.test(value)) {
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)) {
       throw new BadRequestException({ code: "CORRELATION_ID_INVALID", detail: "El identificador de correlación no es válido." });
     }
   }

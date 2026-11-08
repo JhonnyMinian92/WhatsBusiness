@@ -732,3 +732,12 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - TASK-052 mantiene soporte JIT interno en separado; no se reutiliza para agencies.
 - PAR-001..007 siguen catalog-only y x-implementation-allowed=false; API contract freeze + G0 es obligatorio. No se agregaron controllers/endpoints/migration/outbox, ni writes a Meta.
 - US-025/TASK-058 siguen in_progress. Siguiente: diseñar predicate de membership partner y RLS grant-context específico sin debilitar can_use_tenant; persistencia relacional; approval consumeAndStage; audit/outbox; revalidación jobs/cache/sesiones; pruebas PostgreSQL/BOLA; Source CI/CodeQL; review independiente y Product Owner acceptance.
+
+
+## Seguimiento CI US-025 y correcciones de regresión detectadas (2026-11-08)
+
+- Source CI inicial: build, typecheck y migraciones terminaron; api:test reportó cuatro regresiones preexistentes en CRM/TASK-052 además del test de partner corregido.
+- La aserción de partner se afinó para comprobar el partner almacenado en el grant sin fallar antes por membership del subject.
+- Se alinearon tres tests CRM con el OidcOrApiClientGuard que sus controladores ya utilizan (OIDC o API client verificado).
+- Se corrigió un UUID regex defectuoso en PlatformAdministrationService.assertCorrelationId: faltaba el grupo hexadecimal 4-4-12. El test de integración usa randomUUID() y validará el caso en el siguiente CI.
+- No marcar CI como verde hasta el resultado del SHA actualizado.

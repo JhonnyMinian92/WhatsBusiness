@@ -8,7 +8,7 @@ import type { ContactIdentityPage, ContactIdentityRecord } from "../domain/conta
 import { AuthorizationGuard, REQUIRED_TENANT_PERMISSION } from "../../../platform/identity/authorization/authorization.guard.js";
 import { TenantContextGuard, TENANT_ACCESS_PURPOSE, type TenantAuthenticatedRequest } from "../../../platform/identity/tenant-context.guard.js";
 import type { TenantAccessContext } from "../../../platform/identity/tenant-access-context.js";
-import { OidcAuthGuard } from "../../../platform/identity/oidc-auth.guard.js";
+import { OidcOrApiClientGuard } from "../../../platform/developer/application/oidc-or-api-client.guard.js";
 
 const tenantId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const contactId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
@@ -34,7 +34,7 @@ function controller(service: Partial<ContactIdentityService> = {}): ContactIdent
 
 test("identity routes require OIDC, tenant context, declared purpose and exact RBAC", () => {
   const reflector = Reflect as unknown as { getMetadata(key: string, target: object): unknown };
-  assert.deepEqual(reflector.getMetadata("__guards__", ContactIdentityController), [OidcAuthGuard]);
+  assert.deepEqual(reflector.getMetadata("__guards__", ContactIdentityController), [OidcOrApiClientGuard]);
   for (const handler of [ContactIdentityController.prototype.list, ContactIdentityController.prototype.link]) {
     assert.deepEqual(reflector.getMetadata("__guards__", handler), [TenantContextGuard, AuthorizationGuard]);
   }
