@@ -1,7 +1,7 @@
 import {
   BadRequestException, Body, Controller, Get, Headers, Param, Post, Query, Req, UseGuards,
 } from "@nestjs/common";
-import { OidcAuthGuard } from "../../../platform/identity/oidc-auth.guard.js";
+import { OidcOrApiClientGuard } from "../../../platform/developer/application/oidc-or-api-client.guard.js";
 import {
   requireTenantAccessContext, type TenantAuthenticatedRequest,
 } from "../../../platform/identity/tenant-context.guard.js";
@@ -9,7 +9,7 @@ import { RequireTenantPermission } from "../../../platform/identity/authorizatio
 import { ContactIdentityService } from "../application/contact-identity.service.js";
 
 @Controller("v1/tenants/:tenantId/contacts/:contactId/identities")
-@UseGuards(OidcAuthGuard)
+@UseGuards(OidcOrApiClientGuard)
 export class ContactIdentityController {
   constructor(private readonly identities: ContactIdentityService) {}
 
