@@ -13,6 +13,10 @@ const AjvModule = require("ajv");
 const Ajv = AjvModule.default ?? AjvModule;
 const asyncApiSpecs = require("@asyncapi/specs");
 
+const assert = (condition, message) => {
+  if (!condition) throw new Error(message);
+};
+
 const read = (path) => fs.readFileSync(path, "utf8");
 const parseYaml = (path) => YAML.parse(read(path), { uniqueKeys: true });
 const openapi = parseYaml("contracts/openapi/platform-v1.yaml");
@@ -31,9 +35,6 @@ console.log("AsyncAPI document conforms to the official AsyncAPI 2.6.0 JSON Sche
 const envelope = JSON.parse(read("contracts/schemas/event-envelope.schema.json"));
 const domain = JSON.parse(read("contracts/schemas/domain-events-v1.schema.json"));
 
-const assert = (condition, message) => {
-  if (!condition) throw new Error(message);
-};
 const operations = [];
 for (const [route, pathItem] of Object.entries(openapi.paths ?? {})) {
   for (const method of ["get", "post", "put", "patch", "delete", "options", "head"]) {
