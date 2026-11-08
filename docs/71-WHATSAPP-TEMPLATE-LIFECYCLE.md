@@ -72,3 +72,10 @@ La migración es aditiva. Cualquier rollback de datos requiere migración compen
 ## 8. Referencias
 
 docs/10-USER-STORIES.md; docs/11-TASK-BACKLOG.md; docs/18-EXECUTION-GRAPH.md; docs/20-PRODUCT-ACCEPTANCE.md; docs/47-API-INVENTORY-AND-TASK-MAP.md; docs/49-API-CONTRACT-READINESS-AND-META-ADAPTER-GATES.md; docs/53-TASK-WORK-PACKAGES.md.
+
+
+## 9. Política pura de elegibilidad de envío
+
+Se añade template-send-policy.ts y su suite. La política falla cerrada y devuelve reason codes: solo permite cuando la plantilla está activa, enlazada a un ID Meta, status APPROVED, coincide exactamente la categoría/idioma esperado y el consumidor aporta capabilityState=available. PENDING, PAUSED, REJECTED, status ausente, plantilla archivada o capability unknown/unavailable deniegan el resultado.
+
+La policy es determinista y no invoca el sender ni consulta Meta. No sustituye la verificación runtime TASK-010: el consumidor debe aportar una decisión de capability verificada para el tenant/WABA/operación correctos. AC-006-03 continúa abierto hasta integrar esta policy con el sender y probar end-to-end.

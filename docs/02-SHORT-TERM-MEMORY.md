@@ -589,3 +589,11 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Se corrigió el cierre doble del workerPool en tenant-job-record.integration.spec.ts (DatabaseService ya cierra su pool) y una ruta ESM relativa incorrecta en postgres-message-template.integration.spec.ts.
 - Estado: correcciones preparadas en código/documentación; Source CI posterior pendiente. No declarar US-002 verified hasta que la suite completa pase. TASK-004/005 permanecen in_progress por IdP/owner bootstrap/review/aceptación.
 - Dependencia operativa no resuelta: el primer tenant_owner debe ser creado por un flujo de provisioning confiable. No existe aún en esta capa un endpoint/flujo seguro de bootstrap inicial; no se permite autopromoción ni se inventa un actor de plataforma. El servicio implementa asignaciones posteriores.
+
+
+## US-006 — segundo cierre de integración (2026-11-08)
+
+- La verificación de audit stream exige audit.read. La integración PostgreSQL crea roles por tenant con permiso audit.read y conserva el permiso whatsapp.templates.* de la operación separado.
+- El cleanup tenant-job elimina tenant_job_inbox antes de tenant_job_records por FK RESTRICT.
+- La política template-send-policy deniega por defecto y solo permite estado APPROVED, Meta ID, ciclo local activo, category/language compatibles y capability available. Está lista como dominio pero no conectada al sender.
+- Source CI #42513649341: migration/build/typecheck correctos, API 184/186; se corrigieron los dos fallos restantes. Nueva ejecución pendiente.

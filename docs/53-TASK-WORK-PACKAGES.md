@@ -214,3 +214,11 @@ TASK-046 y TASK-064 nombran “frontend foundation” sin ID ni entregable acept
 - La restricción de description de 0007 mostró que tres suites existentes insertan roles con solo display_name. Se preservó la integridad con migration 0008-role-description-defaults.sql: trigger BEFORE INSERT/UPDATE completa description con display_name o role_key. La integración añade assertion de compatibilidad.
 - Se reparó un doble cierre de pool en tenant-job-record.integration.spec.ts (DatabaseService ya libera workerPool) y un import ESM relativo incorrecto en postgres-message-template.integration.spec.ts.
 - Nuevo Source CI pendiente: no elevar status a verified hasta SUCCESS. Bootstrap seguro del primer tenant_owner, ACR/AMR del IdP real, contract freeze, revisión independiente y aceptación PO continúan pendientes.
+
+
+### US-006 — cierre de hallazgos PostgreSQL
+
+- Se asigna audit.read a roles de test tenant-scoped antes de verifyStream, manteniendo separado el permiso de plantillas.
+- Se elimina tenant_job_inbox antes de tenant_job_records en la limpieza debido a la FK restrictiva.
+- Se añade template-send-policy y su spec al target api:test; no se integra aún al sender.
+- Source CI #42513649341 pasó build/typecheck/migration, tests API 184/186; nueva ejecución correctiva pendiente.

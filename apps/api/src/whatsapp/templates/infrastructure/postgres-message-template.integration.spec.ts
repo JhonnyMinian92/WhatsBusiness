@@ -40,7 +40,7 @@ test("PostgreSQL WhatsApp templates enforce tenant RLS, idempotency, immutable r
     roleKeys: ["tenant_owner"],
     permissionKeys: [
       "whatsapp.templates.read", "whatsapp.templates.create",
-      "whatsapp.templates.update", "whatsapp.templates.delete",
+      "whatsapp.templates.update", "whatsapp.templates.delete", "audit.read",
     ],
     entitlementKeys: [], locale: "es-EC", timezone: "America/Guayaquil",
     currency: "USD", purpose, correlationId,
@@ -62,6 +62,24 @@ test("PostgreSQL WhatsApp templates enforce tenant RLS, idempotency, immutable r
     await admin.query(
       "INSERT INTO platform.memberships (id, tenant_id, user_id, status) VALUES ($1, $2, $3, 'active'), ($4, $5, $3, 'active')",
       [membershipA, tenantA, actorId, membershipB, tenantB],
+    );
+    const auditRoleA = randomUUID();
+    const auditRoleB = randomUUID();
+    await admin.query(
+      [
+        "INSERT INTO platform.roles (id, tenant_id, role_key, display_name, description)",
+        "VALUES ($1, $2, 'template_auditor', 'Template Auditor A', 'Synthetic audit reader for template tenant A'),",
+        "       ($3, $4, 'template_auditor', 'Template Auditor B', 'Synthetic audit reader for template tenant B')",
+      ].join(" "),
+      [auditRoleA, tenantA, auditRoleB, tenantB],
+    );
+    await admin.query(
+      "INSERT INTO platform.role_permissions (role_id, tenant_id, permission_key) VALUES ($1, $2, 'audit.read'), ($3, $4, 'audit.read')",
+      [auditRoleA, tenantA, auditRoleB, tenantB],
+    );
+    await admin.query(
+      "INSERT INTO platform.membership_roles (membership_id, role_id, tenant_id) VALUES ($1, $2, $3), ($4, $5, $6)",
+      [membershipA, auditRoleA, tenantA, membershipB, auditRoleB, tenantB],
     );
     const versions = await admin.query<{ id: string; authz_version: number }>(
       "SELECT id::text, authz_version FROM platform.tenants WHERE id = ANY($1::uuid[])",

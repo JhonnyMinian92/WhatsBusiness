@@ -402,3 +402,8 @@ Código en apps/api/src/whatsapp/templates/**; migración 0027 en microservices-
 | Aislamiento de plataforma | Test tenant job cleanup lanzó pool.end doble; test WhatsApp templates ESM import path no resolvió | Se corrigen lifecycle de pool e imports | CI pendiente |
 
 Source CI 42513396813: 181 PASS / 5 FAIL; no aceptar US-002 ni cerrar TASK-004/005 hasta que run posterior a 0008 obtenga SUCCESS. Bootstrap del primer owner, IdP ACR/AMR real y rutas IAM bajo contract freeze permanecen abiertos.
+
+
+## US-006 — extensión de matriz de envío
+
+La policy de dominio template-send-policy exige plantilla activa, Meta ID, status APPROVED, coincidencia exacta de categoría/idioma y capability available. La política falla cerrada cuando falta cualquiera de esas evidencias. La integración con el sender y la comprobación runtime por activo WABA siguen abiertas; AC-006-03 no se cierra.

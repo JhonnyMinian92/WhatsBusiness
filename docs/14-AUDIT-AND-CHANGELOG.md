@@ -519,3 +519,7 @@ TASK-014 y TASK-015 continúan in_progress. AC-006-01/02/04 tienen implementaci�
 | AUD-166 | La prueba PostgreSQL de plantillas WhatsApp corrige imports ESM relativos al directorio src/platform. | Import corregido; CI pendiente. |
 
 En Source CI run 42513396813 la migración 0007, su idempotencia, build y typecheck pasaron; la suite fue 181 PASS / 5 FAIL. La prueba nueva de TenantRoleAssignment pasó. Los cuatro ajustes anteriores apuntan a los fallos observados; no se elevará el estado hasta nuevo SUCCESS. GO-PRODUCTION sigue NO-GO.
+
+
+| AUD-171 | Source CI #42513649341: build/typecheck y migración correctos; tests API 184/186. Los fallos restantes fueron (a) auditoría invisible por falta de rol audit.read en el fixture de templates y (b) FK tenant_job_inbox durante la limpieza de tenant-job-record. | Corrección de fixtures y cleanup añadida; reejecución pendiente. |
+| AUD-172 | Se añade policy pura de elegibilidad de plantilla para el futuro sender: exige lifecycle activo, Meta ID, APPROVED, categoría/idioma exactos y capability available. | Tests añadidos al target; sigue sin invocación desde el sender. |

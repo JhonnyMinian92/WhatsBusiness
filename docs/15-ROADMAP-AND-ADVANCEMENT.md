@@ -320,3 +320,8 @@ Estado propuesto: TASK-014/015 in_progress; AC-006-01/02/04 parciales; AC-006-03
 La primera integración real confirmó que el flujo nuevo de asignación/revocación de roles es correcto (test PASS), pero detectó una regresión de compatibilidad: código existente inserta roles sin description. Se añadió migration 0008 con trigger derivado display_name/role_key sin retirar la restricción no vacía de 0007. También se repararon dos problemas de test harness en jobs y WhatsApp templates, observados en el mismo Source CI.
 
 CI run 42513396813: migraciones 0001–0007 e idempotencia, build y typecheck SUCCESS; tests 181/186. Validación posterior de 0008 y suite completa pendiente. No marcar verified hasta nuevo run exitoso. Continúan como gates: bootstrap seguro de tenant_owner, IdP real (ACR/AMR), contratos IAM, review independiente y Product Owner acceptance.
+
+
+## US-006 — policy y hardening de pruebas (2026-11-08)
+
+Se añadió una política pura fail-closed de elegibilidad de plantillas para el futuro sender, con tests para status no aprobado, archived, incompatibilidad y capability unknown/unavailable. Todavía no se integra al servicio real de envío, así que AC-006-03 continúa pendiente. La integración PostgreSQL ahora asigna audit.read por tenant para verificar el ledger bajo RLS. El test tenant-job elimina inbox antes de job rows para respetar FK RESTRICT. Source CI #42513649341 alcanzó build/typecheck/migración y 184/186 tests; nueva ejecución requerida.

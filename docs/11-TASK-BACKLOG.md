@@ -788,3 +788,8 @@ Correcciones añadidas para revalidar:
 - Se ajustan imports relativos de la prueba PostgreSQL de plantillas WhatsApp.
 
 Estado de TASK-004/005: implementación amplia con nueva compatibilidad y tests; CI completo pendiente. Se mantiene in_progress. Bootstrap de tenant_owner inicial y allowlist ACR/AMR del IdP real continúan como dependencias explícitas. No se publican rutas IAM catalog-only.
+
+
+### Corrección 2 — integración multi-tenant y política de envío (2026-11-08)
+
+La integración US-006 configura roles de lectura de auditoría por tenant para que RLS muestre la cadena al verificarla; las claves whatsapp.templates.* permanecen separadas de audit.read. Se corrige el test de limpieza tenant-job eliminando tenant_job_inbox antes de tenant_job_records por su FK RESTRICT. Se añade template-send-policy, determinista y fail-closed, aún sin integración al sender. Validación Source CI pendiente.

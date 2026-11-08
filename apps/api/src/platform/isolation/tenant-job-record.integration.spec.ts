@@ -225,6 +225,7 @@ test("PostgreSQL tenant jobs enforce transactional staging, idempotency, least p
     await assert.rejects(executor.execute(context, async () => "must-not-run"));
   } finally {
     try {
+      await adminPool.query("DELETE FROM platform.tenant_job_inbox WHERE tenant_id = ANY($1::uuid[])", [[tenantId, otherTenantId]]);
       await adminPool.query("DELETE FROM platform.tenant_job_records WHERE tenant_id = ANY($1::uuid[])", [[tenantId, otherTenantId]]);
       await adminPool.query("DELETE FROM platform.memberships WHERE tenant_id = ANY($1::uuid[])", [[tenantId, otherTenantId]]);
       await adminPool.query("DELETE FROM platform.tenants WHERE id = ANY($1::uuid[])", [[tenantId, otherTenantId]]);
