@@ -44,10 +44,10 @@ export class TenantJobRuntimeProcess {
       throw new Error("DB_SSL=true is required for tenant job runtime in production.");
     }
 
-    const managementUrl = requiredEnvironment(environment, "RABBITMQ_MANAGEMENT_URL");
-    const monitoringUsername = requiredEnvironment(environment, "RABBITMQ_MONITORING_USERNAME");
-    const monitoringPassword = requiredEnvironment(environment, "RABBITMQ_MONITORING_PASSWORD");
-    validateMonitoringIdentity(managementUrl, monitoringUsername, monitoringPassword, production);
+    const prometheusUrl = requiredEnvironment(environment, "RABBITMQ_PROMETHEUS_URL");
+    const prometheusUsername = environment["RABBITMQ_PROMETHEUS_USERNAME"]?.trim() || undefined;
+    const prometheusPassword = environment["RABBITMQ_PROMETHEUS_PASSWORD"] || undefined;
+    validatePrometheusEndpoint(prometheusUrl, prometheusUsername, prometheusPassword, production);
 
     const poolMaximum = boundedInteger(environment, "DATABASE_POOL_MAX", 10, 1, 50);
     const metrics = options.metrics ?? new PrometheusTenantJobRuntimeMetrics();
@@ -97,10 +97,10 @@ export class TenantJobRuntimeProcess {
         dispatcherPool,
         metricsPool,
         workerPool,
-        managementMetrics: {
-          endpoint: managementUrl,
-          username: monitoringUsername,
-          password: monitoringPassword,
+        prometheusMetrics: {
+          endpoint: prometheusUrl,
+          ...(prometheusUsername ? { username: prometheusUsername } : {}),
+          ...(prometheusPassword ? { password: prometheusPassword } : {}),
         },
         database: options.databaseFactory(workerPool),
         handlers: options.handlers,
@@ -210,27 +210,31 @@ function boundedNumber(
   return value;
 }
 
-function validateMonitoringIdentity(
+function validatePrometheusEndpoint(
   endpoint: string,
-  username: string,
-  password: string,
+  username: string | undefined,
+  password: string | undefined,
   production: boolean,
 ): void {
   let url: URL;
   try {
     url = new URL(endpoint);
   } catch {
-    throw new Error("RABBITMQ_MANAGEMENT_URL must be an absolute HTTP(S) URL.");
+    throw new Error("RABBITMQ_PROMETHEUS_URL must be an absolute HTTP(S) URL.");
   }
   const loopback = url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname === "[::1]";
   if (!["http:", "https:"].includes(url.protocol) || url.username || url.password || url.search || url.hash
+    || (url.pathname !== "/" && url.pathname !== "")
     || (production && url.protocol !== "https:") || (url.protocol === "http:" && !loopback)) {
-    throw new Error("RABBITMQ_MANAGEMENT_URL must use HTTPS except for local loopback and must not include credentials.");
+    throw new Error("RABBITMQ_PROMETHEUS_URL must use HTTPS except for local loopback and must not include credentials or URL parameters.");
   }
-  if (!/^[a-zA-Z0-9_.-]{3,128}$/.test(username)) {
-    throw new Error("RABBITMQ_MONITORING_USERNAME is invalid.");
+  if ((username && !password) || (!username && password)) {
+    throw new Error("RABBITMQ_PROMETHEUS_USERNAME and RABBITMQ_PROMETHEUS_PASSWORD must be configured together.");
   }
-  if (password.length < 32 || password.length > 4_096) {
-    throw new Error("RABBITMQ_MONITORING_PASSWORD must contain between 32 and 4096 characters.");
+  if (username && !/^[a-zA-Z0-9_.-]{3,128}$/.test(username)) {
+    throw new Error("RABBITMQ_PROMETHEUS_USERNAME is invalid.");
+  }
+  if (password !== undefined && (password.length < 32 || password.length > 4_096)) {
+    throw new Error("RABBITMQ_PROMETHEUS_PASSWORD must contain between 32 and 4096 characters.");
   }
 }

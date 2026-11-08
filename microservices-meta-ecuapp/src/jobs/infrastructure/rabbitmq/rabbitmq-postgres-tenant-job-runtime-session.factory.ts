@@ -19,7 +19,7 @@ import type { TenantJobRuntimeSession, TenantJobRuntimeSessionFactory } from "..
 import { TenantJobRetryPolicy } from "../../domain/tenant-job-retry-policy.js";
 import { PostgresTenantJobRuntimeRepository } from "../postgres/postgres-tenant-job-runtime.repository.js";
 import { PostgresTenantJobRuntimeMetricsReader } from "../postgres/postgres-tenant-job-runtime-metrics.reader.js";
-import { RabbitMqManagementTenantJobQueueMetricsReader } from "./rabbitmq-management-tenant-job-queue-metrics.reader.js";
+import { RabbitMqPrometheusTenantJobQueueMetricsReader } from "./rabbitmq-prometheus-tenant-job-queue-metrics.reader.js";
 import { CompositeTenantJobRuntimeMetricsReader } from "../metrics/composite-tenant-job-runtime-metrics.reader.js";
 import { PostgresTenantJobContextResolver } from "../postgres/postgres-tenant-job-context-resolver.js";
 import { PostgresTenantJobExecutionBoundary } from "../postgres/postgres-tenant-job-execution-boundary.js";
@@ -42,7 +42,7 @@ export interface RabbitMqPostgresTenantJobRuntimeSessionFactoryOptions {
   readonly dispatcherPool: Pool;
   readonly workerPool: Pool;
   readonly metricsPool?: Pool;
-  readonly managementMetrics: { readonly endpoint: string; readonly username: string; readonly password: string };
+  readonly prometheusMetrics: { readonly endpoint: string; readonly username?: string; readonly password?: string };
   readonly database: TenantDatabaseTransactionBoundary;
   readonly handlers: readonly TenantJobHandler[];
   readonly logger: TenantJobRuntimeSessionLogger;
@@ -142,10 +142,10 @@ export class RabbitMqPostgresTenantJobRuntimeSessionFactory implements TenantJob
       },
       {
         source: "rabbitmq",
-        reader: new RabbitMqManagementTenantJobQueueMetricsReader({
-          endpoint: options.managementMetrics.endpoint,
-          username: options.managementMetrics.username,
-          password: options.managementMetrics.password,
+        reader: new RabbitMqPrometheusTenantJobQueueMetricsReader({
+          endpoint: options.prometheusMetrics.endpoint,
+          ...(options.prometheusMetrics.username ? { username: options.prometheusMetrics.username } : {}),
+          ...(options.prometheusMetrics.password ? { password: options.prometheusMetrics.password } : {}),
           virtualHost: "/",
           workerQueue: TENANT_JOB_RABBITMQ_TOPOLOGY.queue,
           deadLetterQueue: TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue,

@@ -4,19 +4,19 @@ import type { ConfirmChannel, Message } from "amqplib";
 import { setTimeout as delay } from "node:timers/promises";
 import test from "node:test";
 import { RabbitMqConnectionFactory, type RabbitMqWorkerChannels } from "../rabbitmq/rabbitmq-connection.factory.js";
-import { RabbitMqManagementTenantJobQueueMetricsReader } from "../rabbitmq/rabbitmq-management-tenant-job-queue-metrics.reader.js";
+import { RabbitMqPrometheusTenantJobQueueMetricsReader } from "../rabbitmq/rabbitmq-prometheus-tenant-job-queue-metrics.reader.js";
 import type { TenantJobRuntimeMetricsSnapshotPatch } from "../../../application/tenant-job-runtime-metrics.js";
 
 const enabled = process.env["RUN_RABBITMQ_METRICS_INTEGRATION_TESTS"] === "true";
 
-test("reads live RabbitMQ Management API queue metrics with a monitoring-only identity", {
+test("reads live RabbitMQ Prometheus detailed metrics for worker and dead-letter queues", {
   skip: !enabled,
   timeout: 60_000,
 }, async () => {
   const brokerUrl = requiredEnvironment("RABBITMQ_URL");
-  const endpoint = requiredEnvironment("RABBITMQ_MANAGEMENT_URL");
-  const username = requiredEnvironment("RABBITMQ_MONITORING_USERNAME");
-  const password = requiredEnvironment("RABBITMQ_MONITORING_PASSWORD");
+  const endpoint = requiredEnvironment("RABBITMQ_PROMETHEUS_URL");
+  const username = process.env["RABBITMQ_PROMETHEUS_USERNAME"]?.trim();
+  const password = process.env["RABBITMQ_PROMETHEUS_PASSWORD"];
   const exchange = "whatsbusiness.metrics.integration." + randomUUID().replace(/-/g, "");
   const workerQueue = exchange + ".worker";
   const deadLetterQueue = exchange + ".dead";
@@ -31,10 +31,9 @@ test("reads live RabbitMQ Management API queue metrics with a monitoring-only id
       brokerUrl,
       "whatsbusiness-rabbitmq-metrics-ci",
     );
-    const reader = new RabbitMqManagementTenantJobQueueMetricsReader({
+    const reader = new RabbitMqPrometheusTenantJobQueueMetricsReader({
       endpoint,
-      username,
-      password,
+      ...(username && password ? { username, password } : {}),
       virtualHost: "/",
       workerQueue,
       deadLetterQueue,
@@ -42,8 +41,6 @@ test("reads live RabbitMQ Management API queue metrics with a monitoring-only id
     });
 
     await channels.consumer.assertExchange(exchange, "topic", { durable: false, autoDelete: true });
-    // RabbitMQ 4.4 rejects transient non-exclusive classic queues. These per-run
-    // fixtures are connection-scoped, so exclusive auto-delete queues are correct.
     await channels.consumer.assertQueue(workerQueue, { durable: false, exclusive: true, autoDelete: true });
     await channels.consumer.assertQueue(deadLetterQueue, { durable: false, exclusive: true, autoDelete: true });
     await channels.consumer.bindQueue(workerQueue, exchange, "worker");
@@ -117,14 +114,11 @@ test("reads live RabbitMQ Management API queue metrics with a monitoring-only id
     ], [0, 0, 0, 0, 0, 0]);
   } finally {
     if (channels) {
-      // Cleanup runs even after setup/reader failures. Bound every phase so one
-      // failed AMQP RPC cannot keep the CI Node process alive indefinitely.
       const cancellations = [
         ...(workerConsumerTag ? [channels.consumer.cancel(workerConsumerTag)] : []),
         ...(deadLetterConsumerTag ? [channels.consumer.cancel(deadLetterConsumerTag)] : []),
       ];
       await settleWithin(Promise.allSettled(cancellations), 1_500);
-
       const removals = [
         channels.consumer.deleteQueue(workerQueue),
         channels.consumer.deleteQueue(deadLetterQueue),
@@ -153,18 +147,18 @@ function publishConfirmed(
 }
 
 async function waitForSnapshot(
-  reader: RabbitMqManagementTenantJobQueueMetricsReader,
+  reader: RabbitMqPrometheusTenantJobQueueMetricsReader,
   predicate: (snapshot: TenantJobRuntimeMetricsSnapshotPatch) => boolean,
   expectation: string,
 ): Promise<TenantJobRuntimeMetricsSnapshotPatch> {
-  const deadline = Date.now() + 10_000;
+  const deadline = Date.now() + 12_000;
   let lastSnapshot: TenantJobRuntimeMetricsSnapshotPatch = {};
   while (Date.now() < deadline) {
     lastSnapshot = await reader.readSnapshot();
     if (predicate(lastSnapshot)) return lastSnapshot;
-    await delay(150);
+    await delay(250);
   }
-  throw new Error("RabbitMQ Management API did not expose the expected state: " + expectation
+  throw new Error("RabbitMQ Prometheus endpoint did not expose the expected state: " + expectation
     + ". Last snapshot: " + JSON.stringify(lastSnapshot));
 }
 
