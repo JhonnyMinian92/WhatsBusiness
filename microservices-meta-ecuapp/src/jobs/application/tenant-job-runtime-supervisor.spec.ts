@@ -225,8 +225,10 @@ test("samples RabbitMQ queue metrics independently and records ready counts", as
   const controller = new AbortController();
   const brokerSnapshot: TenantJobBrokerMetricsSnapshot = {
     workerQueueReadyMessages: 14,
+    workerQueueUnacknowledgedMessages: 6,
     workerQueueConsumers: 2,
     deadLetterQueueReadyMessages: 1,
+    deadLetterQueueUnacknowledgedMessages: 0,
     deadLetterQueueConsumers: 0,
   };
   const brokerReader: TenantJobBrokerMetricsReader = {
