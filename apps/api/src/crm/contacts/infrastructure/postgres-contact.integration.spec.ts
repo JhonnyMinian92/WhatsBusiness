@@ -173,9 +173,9 @@ test("PostgreSQL CRM contacts enforce tenant RLS, idempotency, audit and optimis
     const auditB = await database.withTenantContextAtVersion(actorId, tenantB, authzVersionB, (client) =>
       new AppendOnlyAuditRepository().verifyStream(client, tenantB),
     );
-    assert.equal(auditA.valid, true);
+    assert.equal(auditA.valid, true, `Tenant A audit verification failed: ${JSON.stringify(auditA)}`);
     assert.equal(auditA.eventCount, 2);
-    assert.equal(auditB.valid, true);
+    assert.equal(auditB.valid, true, `Tenant B audit verification failed: ${JSON.stringify(auditB)}`);
     assert.equal(auditB.eventCount, 1);
   } finally {
     await database.onModuleDestroy();
