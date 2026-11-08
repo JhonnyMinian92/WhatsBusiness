@@ -90,3 +90,6 @@ El Source CI del commit \`6d8e6d3\` confirmó que PostgreSQL aplicó la migraci�
 ## Addendum de catálogo de roles y permisos — 2026-11-08
 
 La migración 0030 también siembra las cinco claves \`developer.*\` que ya consume el catálogo canónico de roles. Sin este seed, el provisioning de cualquier tenant fallaría al comparar el número de permisos materializados con \`TENANT_ROLE_CATALOG\`. Se agregó igualmente el grant SQL de UPDATE exclusivo sobre \`plan_versions.status\`, necesario para retirar versiones activas sin permitir modificar su contenido. La suite de integración ahora cubre cambio de versión de suscripción, retiro y rechazo de asignación de un plan retirado.
+
+
+El chequeo estático completo del PermissionCatalog frente a todas las migraciones históricas identificó además cuatro claves de plantillas WhatsApp consumidas por \`TENANT_ROLE_CATALOG\` que no estaban sembradas en SQL (\`whatsapp.templates.read/create/update/delete\`). Migration 0030 se encarga de provisionar esas cuatro claves además de las claves \`developer.*\` y \`billing.usage.read\`. Esto evita que el rol canónico del nuevo tenant falle al materializar permisos; la validación de integración PostgreSQL del nuevo HEAD deberá confirmarlo.
