@@ -935,3 +935,12 @@ TASK-021 continúa in_progress: Insights sigue fail-closed/unknown, y las operac
 - No se añadieron endpoints, eventos de runtime ni código de producto: TASK-066 es discovery y el work package indica “Sin API REST”. El diccionario de pilotos es un instrumento de investigación, no un contrato AsyncAPI.
 - Límites: sin PII/credenciales/archivos de clientes en Git; GO-PRODUCTION sigue NO-GO; cualquier piloto con datos reales requiere gates de privacidad/seguridad y autorización del propietario.
 - No existe evidencia para confirmar product-market fit ni disposición a pagar. La aceptación final pertenece al Product Owner.
+
+
+## Execution update — US-024 / TASK-052 (2026-11-08)
+
+| Tarea | Estado de ejecución | Evidencia en código | Límite vigente |
+|---|---|---|---|
+| TASK-052 — administración de tenants, planes, entitlements y soporte | **in_progress**; slice de dominio, aplicación, persistencia y tests incorporados. No verified/accepted. | Migration 0030; módulo \`apps/api/src/platform/administration\`; suites \`platform-administration.policy.spec.ts\` y \`platform-administration.integration.spec.ts\`; detalle docs/76. | Source CI del commit corregido debe pasar; TASK-041 y G0 / API contract freeze; dispatcher TASK-028; adapters reales de medición; integración PAR-007 por recurso; review independiente y Product Owner acceptance. |
+
+La tabla kickoff de TASK-034..041 se conserva como registro histórico. Esta fila es la actualización específica de TASK-052 y no cambia el estado de sus dependencias.

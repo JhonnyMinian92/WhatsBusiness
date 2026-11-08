@@ -138,11 +138,13 @@ export class SupportGrantPolicy {
       throw new PlatformAdministrationPolicyViolation("SUPPORT_WINDOW_TOO_LONG", "El acceso de soporte supera la duración máxima.");
     }
     const stepUpTime = Date.parse(grant.stepUpAuthTime);
+    const stepUpAmr = Array.isArray(grant.stepUpAmr) ? grant.stepUpAmr : [];
+    const stepUpAcr = typeof grant.stepUpAcr === "string" ? grant.stepUpAcr.trim() : "";
     const now = Date.now();
     if (!Number.isFinite(stepUpTime) || stepUpTime > now + 30_000 || stepUpTime < now - 5 * 60_000
-      || ((!grant.stepUpAcr || grant.stepUpAcr.trim().length === 0) && grant.stepUpAmr.length === 0)
-      || grant.stepUpAmr.length > 10
-      || grant.stepUpAmr.some((method) => typeof method !== "string" || method.trim().length < 1 || method.length > 64)) {
+      || ((!stepUpAcr || stepUpAcr.length > 256) && stepUpAmr.length === 0)
+      || stepUpAmr.length > 10
+      || stepUpAmr.some((method) => typeof method !== "string" || method.trim().length < 1 || method.length > 64)) {
       throw new PlatformAdministrationPolicyViolation("SUPPORT_STEP_UP_REQUIRED", "La aprobación requiere evidencia OIDC step-up vigente y verificable.");
     }
   }

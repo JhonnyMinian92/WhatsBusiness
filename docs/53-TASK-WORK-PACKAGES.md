@@ -318,3 +318,11 @@ Las policies son código de dominio y no habilitan endpoints congelados. Source 
 - **Suites:** `assignment-policy.spec.ts`, `ownership-lease.policy.spec.ts`, `handoff-policy.spec.ts`, `internal-note.policy.spec.ts`, `reply-authority.policy.spec.ts`, `presence-policy.spec.ts`; 36 casos unitarios declarados y registrados en `api:test`.
 - **Gates pendientes:** correr Source CI y CodeQL del commit exacto; migraciones Inbox/RLS y tests PostgreSQL reales para carreras y unique idempotency; repositories/ports/use cases/controllers tras API freeze; outbox/consumers/scheduler de expiración/heartbeats; UI/E2E dependiente de TASK-045; contract freeze+G0 para INB-006..014/018; revisión independiente y aceptación PO.
 - **Estado:** código/specs añadidos; sin evidencia de CI del HEAD al momento de este registro. TASK-047/US-021 `in_progress`, no verified/accepted. No se activaron rutas catalog-only ni se realizaron operaciones externas. GO-PRODUCTION NO-GO.
+
+
+## Estado de ejecución — TASK-052 / US-024 (2026-11-08)
+
+- Slice implementado en \`apps/api/src/platform/administration\`, migration \`0030-platform-tenant-administration.sql\`, tests unitarios y PostgreSQL sintéticos registrados en \`api:test\`.
+- No marcar verified hasta obtener Source CI/CodeQL SUCCESS para el HEAD exacto y completar revisión independiente.
+- Dependencias y gates aún abiertos: TASK-041, G0/API-CONTRACT-FREEZE para IAM/BILL/PAR, dispatcher TASK-028, productores reales del ledger, authorization JIT en handlers por recurso y aceptación formal del Product Owner.
+- Trazabilidad operativa detallada: [docs/76-US-024-TASK-052-PLATFORM-ADMINISTRATION.md](76-US-024-TASK-052-PLATFORM-ADMINISTRATION.md).

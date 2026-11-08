@@ -228,3 +228,8 @@ El estado de validación, las propuestas de eventos pendientes y el GO/NO-GO arq
 [75 — Investigación de mercado, ICP y evidencia de disposición a pagar](75-US-028-MARKET-DISCOVERY-AND-ICP.md) documenta REEM/ENESEM, ICP candidato, hipótesis falsables, método TAM/SAM/SOM y el estado real de AC-028-01..06.
 
 Los instrumentos de campo están en research/us-028/: guía de entrevistas, reglas de anonimización, registros de participantes/codificación y diccionario/plantilla de métricas de piloto. No contienen entrevistas ni resultados reales. TASK-066 sigue in_progress hasta ejecutar trabajo de campo y pilotos autorizados.
+
+
+## 76 — US-024 / TASK-052: Platform Administration
+
+[76 — Administración SaaS de tenants, planes, consumo y soporte JIT](76-US-024-TASK-052-PLATFORM-ADMINISTRATION.md) documenta AC-024-01..04, módulo, migración, pruebas, decisiones de seguridad, resultado CI observado y gates abiertos.

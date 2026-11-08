@@ -707,3 +707,14 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - No hay entrevistas, señales de compra ni pilotos reales. No se inventan datos de campo ni importes. TAM/SAM/SOM queda sin cuantificar hasta obtener filtros y denominadores.
 - TASK-066 pasa de proposed a in_progress. AC-028-01 documentado; AC-028-02/03 preparados; AC-028-04 diseñado; AC-028-05 metodológicamente preparado; AC-028-06 guardrail reforzado.
 - No se modificó código de producto ni contratos: el work package no define endpoint. GO-PRODUCTION sigue NO-GO. Datos reales/pilotos requieren aprobación y gates de privacidad/seguridad.
+
+
+## Handoff US-024 / TASK-052 — administración SaaS de tenants (2026-11-08)
+
+- Rama autorizada: \`environment/local\`; repositorio \`JhonnyMinian92/WhatsBusiness\`.
+- Implementado slice en \`apps/api/src/platform/administration\` y migration \`0030-platform-tenant-administration.sql\`: organización/provisioning, lifecycle tenant, planes inmutables y suscripciones, entitlements, usage ledger separado por Meta/infraestructura/IA, resumen, soporte JIT y auditoría global.
+- Integración NestJS por módulo; port de aplicación separado de políticas puras y repositorio PostgreSQL. Se reutiliza TENANT_ROLE_CATALOG, DatabaseService, AppendOnlyAuditRepository y context RLS.
+- Support JIT: requester/approver/operator deben ser distintos; aprobador platform_owner; step-up OIDC fresco; duración máxima configurable 1..60m; scope + purpose exactos; el grant no concede membership ni bypass a tenant RLS. Se invalida por revocación o suspensión.
+- Tests registrados en \`api:test\`: domain policies + PostgreSQL integration con usuarios synthetic. El CI anterior falló en migration 0030 por delimiter de función SQL; fix aplicado. Inspeccionar Source CI del HEAD actual antes de llamar PASS. CodeQL también debe corresponder al HEAD verificado.
+- Sigue pendiente TASK-041/G0, contract freeze IAM/BILL/PAR, publisher/outbox TASK-028, productores y conciliación reales, uso de autorización JIT en handlers por recurso, revisión independiente y Product Owner acceptance.
+- Detalle y estado AC-024-01..04: \`docs/76-US-024-TASK-052-PLATFORM-ADMINISTRATION.md\`. GO-PRODUCTION NO-GO.

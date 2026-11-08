@@ -689,3 +689,16 @@ No se realizaron entrevistas, grabaciones, pilotos, pagos, integraciones reales 
 | AUD-199 | Seis suites registradas en `api:test`, con 36 casos unitarios y TEST-INBOX-001..007 trazados. | Source CI, CodeQL, revisión independiente y aceptación del Product Owner pendientes al corte. |
 
 **Límites preservados:** INB-006..014 e INB-018 siguen `catalog-only`, `x-contract-ready=false`, `x-implementation-allowed=false` y exigen API-CONTRACT-FREEZE+G0. No se abrieron controllers, rutas HTTP, migraciones ni writes a proveedor. TASK-045 aún debe proporcionar conversaciones/mensajes/adapters runtime. TASK-047 y US-021 siguen `in_progress`; el slice de dominio no equivale a cierre técnico integral ni aceptación. GO-PRODUCTION permanece NO-GO.
+
+
+## 49. US-024 / TASK-052 — slice de administración de plataforma (2026-11-08)
+
+| ID | Cambio / control | Resultado al registrar |
+|---|---|---|
+| AUD-200 | Migration 0030: roles de operador de plataforma, planes/entitlements versionados, suscripciones, ledger de uso, soporte JIT, outbox y auditoría global | Código incorporado; fallo inicial de sintaxis SQL en \`is_active_platform_user\` identificado mediante PostgreSQL CI y corregido. CI del HEAD corregido pendiente. |
+| AUD-201 | Provisioning transaccional de organization/tenant, membership y rol owner canónico, asignación del plan, outbox y auditoría | Implementación incorporada; validación PostgreSQL automatizada pendiente |
+| AUD-202 | Ledger append-only segregado por categoría con idempotencia y summary tenant-scoped | Implementación incorporada; validación PostgreSQL automatizada pendiente |
+| AUD-203 | Grants de soporte JIT con solicitante, aprobador, operador distintos; step-up reciente, límite 60 min, alcance, purpose, revocación y audit | Implementación incorporada; sin bypass de \`can_use_tenant()\`; freeze PAR y cableado por recurso pendientes |
+| AUD-204 | Planes inmutables, retiro versionado, asignación de suscripción y materialización de entitlements | Implementación incorporada; TASK-041 y validación de owner sobre modelo comercial pendientes |
+
+**Límites:** no se activaron endpoints IAM/BILL/PAR catalog-only; no se conectaron fuentes reales ni se cobraron importes; no se declara verified/accepted. Ver docs/76.

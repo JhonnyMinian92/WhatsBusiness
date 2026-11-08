@@ -552,3 +552,15 @@ TASK-066/US-028 permanece **in_progress**. El informe y los instrumentos son ent
 | AC-021-04 | `inbox/domain/ownership-lease.policy.ts`, `reply-authority.policy.ts`, `presence-policy.ts` | TEST-INBOX-003, TEST-INBOX-006, TEST-INBOX-007 | PostgreSQL CAS/race tests, unique idempotency constraint, multi-worker lease expiry, reply outbox/dedupe, presence runtime |
 
 Las seis suites agregadas a `api:test` contienen 36 casos unitarios declarados. Esto documenta cobertura prevista/implementada en código, no resultados ejecutados; el estado de CI se registra con el commit exacto en docs/14 y docs/75.
+
+
+## 14. Estado de implementación — US-024 / TASK-052 (2026-11-08)
+
+| Resultado | Código / evidencia | Estado |
+|---|---|---|
+| Provisioning y lifecycle de tenants | \`platform/administration\`, migration 0030, outbox de lifecycle, tenant/platform audit | Implementado en slice; Source CI del HEAD final pendiente |
+| Planes y entitlements versionados | catálogo inmutable, suscripciones, derivación de entitlements, version bump de autorización | Implementado en slice; matriz comercial y G0 pendientes |
+| Consumo por origen | ledger inmutable Meta/infraestructura/IA, decimal, idempotencia y resumen segregado | Implementado en slice; productores y conciliación reales pendientes |
+| Soporte JIT | razón, purpose, scopes, tenant, solicitante/aprobador/operador distintos, step-up y revocación | Implementado en slice; freeze PAR-007 y autorización por recurso en cada handler pendientes |
+
+Rutas concretas, contratos HTTP congelados y pruebas detalladas están en docs/76. Los nombres de contextos propuestos en la tabla §7 siguen siendo conceptuales para los demás bounded contexts; este estado solo actualiza TASK-052.

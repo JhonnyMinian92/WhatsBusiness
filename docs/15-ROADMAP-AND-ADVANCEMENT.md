@@ -420,3 +420,15 @@ Se añadió un slice puro bajo `apps/api/src/inbox/domain`:
 **Estado real:** código y specs añadidos; Source CI/CodeQL del commit de este slice aún no inspeccionados. TASK-047/US-021 permanece `in_progress`, no `verified` ni `accepted`. No existen todavía repositories/migraciones Inbox, RLS, transacciones CAS/outbox, workers de expiración, presencia runtime, endpoints/controller ni E2E de frontend. TASK-045 (conversaciones, mensajes y adapters) es dependencia.
 
 **Gate contractual sin cambios:** INB-006..014 e INB-018 continúan catalog-only y con implementación bloqueada hasta API-CONTRACT-FREEZE+G0. Los esquemas v1 existentes se reutilizan exactamente para assignment.changed, ownership.acquired y handoff.requested. No existe aún un evento de notas internas y no se inventó uno. Ningún mensaje real ni escritura Meta fue ejecutado; GO-PRODUCTION sigue NO-GO. Detalle: docs/75.
+
+
+## US-024 / TASK-052 — administración SaaS de tenants, planes y uso (2026-11-08)
+
+- Incorporado migration 0030 con catálogo de operadores de plataforma no autoasignable, versiones inmutables de planes/entitlements, suscripciones e historial, ledger de uso append-only separado en Meta/infraestructura/IA, grants JIT con separación de funciones, step-up OIDC, ventana limitada, revocación y outbox de lifecycle.
+- Implementadas políticas de dominio, port de aplicación, casos de uso de organización/provisioning/suspensión/reactivación/plan/consumo/soporte, persistencia transaccional, auditoría global hash-chain y módulo NestJS.
+- El provisioning asigna la plantilla canónica tenant_owner, materializa los entitlements publicados y escribe el evento en outbox dentro de la transacción. Suspensión revoca grants; reactivación no restaura accesos.
+- El ledger soporta idempotencia, evidencia de origen y resumen agrupado sin mezclar categorías o monedas. Los precios/tasas/impuestos no se inventan.
+- Pruebas añadidas: cuatro grupos unitarios y una integración PostgreSQL sintética que cubre ciclo tenant, entitlements, idempotencia, resumen, soporte JIT, no-bypass de membership y revocación.
+- **CI inicial falló antes de build/typecheck/tests:** migration 0030 tenía un delimitador SQL incompleto en \`is_active_platform_user\`. Corregido usando \`$function$\`; el commit corregido requiere un Source CI completo. No declarar la suite verificada antes de confirmar el resultado del HEAD actual.
+- Sin controllers ni rutas públicas: IAM/BILL/PAR permanecen bajo API-CONTRACT-FREEZE+G0. TASK-041 (SLO/capacidad/presupuesto), TASK-028 (outbox dispatcher), productores reales de uso, cableado PAR-007 en handlers, revisión independiente y aceptación PO siguen pendientes. GO-PRODUCTION permanece NO-GO.
+- Documento: [docs/76-US-024-TASK-052-PLATFORM-ADMINISTRATION.md](76-US-024-TASK-052-PLATFORM-ADMINISTRATION.md).

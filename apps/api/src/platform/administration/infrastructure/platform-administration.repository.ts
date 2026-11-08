@@ -10,7 +10,8 @@ import { PlatformAuditRepository } from "./platform-audit.repository.js";
 import type {
   AssignTenantPlanCommand, AuthorizeSupportAccessCommand, CreateOrganizationCommand,
   CreateSupportGrantCommand, PlatformAdministrationPort, ProvisionTenantCommand,
-  PublishPlanVersionCommand, RecordUsageCommand, RevokeSupportGrantCommand, TenantLifecycleCommand,
+  PublishPlanVersionCommand, RecordUsageCommand, RevokeSupportGrantCommand, RetirePlanVersionCommand,
+  TenantLifecycleCommand, UsageSummaryEntry, UsageSummaryQuery,
 } from "../application/platform-administration.port.js";
 import type { PlanEntitlementDefinition } from "../domain/platform-administration.policy.js";
 
@@ -187,7 +188,7 @@ export class PlatformAdministrationRepository implements PlatformAdministrationP
     });
   }
 
-  async retirePlanVersion(command:import("../application/platform-administration.port.js").RetirePlanVersionCommand):Promise<void> {
+  async retirePlanVersion(command:RetirePlanVersionCommand):Promise<void> {
     await this.withAdmin(command.actorUserId,null,async(client)=>{
       const retired=await client.query<{id:string}>(
         "UPDATE platform.plan_versions SET status='retired' WHERE plan_key=$1 AND version=$2 AND status='active' RETURNING id::text",
@@ -205,9 +206,9 @@ export class PlatformAdministrationRepository implements PlatformAdministrationP
     });
   }
 
-  async getUsageSummary(query:import("../application/platform-administration.port.js").UsageSummaryQuery):Promise<readonly import("../application/platform-administration.port.js").UsageSummaryEntry[]> {
+  async getUsageSummary(query:UsageSummaryQuery):Promise<readonly UsageSummaryEntry[]> {
     return this.database.withTenantContext(query.actorUserId,query.tenantId,async(client)=>{
-      const result=await client.query<import("../application/platform-administration.port.js").UsageSummaryEntry>(
+      const result=await client.query<UsageSummaryEntry>(
         "SELECT category,metric_key AS \"metricKey\",unit,sum(quantity)::text AS quantity,CASE WHEN count(cost_amount)=0 THEN NULL ELSE sum(cost_amount)::text END AS \"costAmount\",currency,count(*)::int AS \"entryCount\" FROM platform.usage_ledger WHERE tenant_id=$1 AND observed_at >= $2 AND observed_at < $3 GROUP BY category,metric_key,unit,currency ORDER BY category,metric_key,unit,currency",
         [query.tenantId,query.from,query.to]);
       return result.rows;
@@ -294,7 +295,7 @@ export class PlatformAdministrationRepository implements PlatformAdministrationP
       await this.tenantAudit.append(client,{
         tenantId:command.tenantId,actorUserId:command.requestedByUserId,actionKey:"support.grant.requested",
         resourceType:"support_grant",resourceId:grantId,purpose:"platform.support.grant",
-        outcome:"approval_requested",reasonCode:"SUPPORT_ACCESS_APPROVED",correlationId:command.correlationId,requestHash,
+        outcome:"approval_requested",reasonCode:"SUPPORT_ACCESS_APPROVAL_RECORDED",correlationId:command.correlationId,requestHash,
       });
       await this.platformAudit.append(client,{
         actorUserId:command.requestedByUserId,actionKey:"platform.support.grant.created",

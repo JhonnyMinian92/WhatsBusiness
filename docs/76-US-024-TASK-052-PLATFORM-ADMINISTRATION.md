@@ -75,3 +75,8 @@ Usar parámetros enlazados (no concatenación), verificar que se afectó exactam
 ## 6. Estado de cierre
 
 TASK-052 / US-024 permanece **in_progress**. El slice de dominio, persistencia y pruebas está implementado en código, pero la verificación CI del HEAD, el contract freeze/G0, TASK-041, publisher outbox, productores reales de métricas, cableado PAR por recurso, revisión independiente y aceptación del Product Owner siguen abiertos. Esto no equivale a historia terminada ni habilita GO-PRODUCTION.
+
+
+## Addendum de verificación — 2026-11-08
+
+El Source CI del commit anterior encontró un error real de sintaxis SQL en el delimitador de \`platform.is_active_platform_user\`; la migración se corrigió a delimitador etiquetado \`$function$\`. También se agregó comprobación explícita de \`has_active_support_grant(tenant, operator, scope)\` justo antes de resolver autorización de recurso. El CI del HEAD que contiene ambos fixes debe pasar antes de registrar validación positiva. No se considera terminada ni aceptada la historia.
