@@ -365,4 +365,4 @@ TASK-004 (RBAC/ABAC y asignación persistente) y TASK-005 (step-up, approvals y 
 - Los cinco archivos spec se registraron en el target oficial `api:test`; el resultado CI de este HEAD se mantiene pendiente hasta inspeccionar la ejecución.
 - TASK-024 y TASK-025 siguen `in_progress`: no hay controller Ads, repositorio/migración de campañas, outbox/worker ni adapter Marketing API conectado.
 - Contratos ADS continúan catalog-only bajo docs/49/55; TASK-010 (Meta capability evidence) y TASK-029 (observabilidad operativa) son dependencias abiertas. No se declara US-012 verified/accepted ni se realizan escrituras Meta.
-- Detalle: docs/72-US-012-ADS-CAMPAIGN-IMPLEMENTATION.md.
+- Detalle: docs/73-US-012-ADS-CAMPAIGN-IMPLEMENTATION.md.
