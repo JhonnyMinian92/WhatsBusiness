@@ -23,6 +23,7 @@ export class TenantJobRuntimeProcess {
     private readonly application: TenantJobRuntimeApplication,
     private readonly dispatcherPool: Pool,
     private readonly workerPool: Pool,
+    private readonly metricsPool: Pool,
     private readonly metrics: PrometheusTenantJobRuntimeMetrics,
     private readonly metricsServer: TenantJobMetricsHttpServer,
   ) {}
@@ -64,6 +65,15 @@ export class TenantJobRuntimeProcess {
       application_name: "whatsbusiness-job-dispatcher",
       max: Math.min(poolMaximum, 4),
     });
+    const metricsPool = new Pool({
+      connectionString: dispatcherConnection,
+      ...poolOptions,
+      application_name: "whatsbusiness-job-metrics",
+      max: 1,
+      connectionTimeoutMillis: 1_000,
+      statement_timeout: 750,
+      query_timeout: 1_000,
+    });
     const workerPool = new Pool({
       connectionString: workerConnection,
       ...poolOptions,
@@ -72,6 +82,7 @@ export class TenantJobRuntimeProcess {
     });
 
     dispatcherPool.on("error", () => options.logger.failed("DISPATCHER_DATABASE_IDLE_CLIENT_ERROR"));
+    metricsPool.on("error", () => options.logger.failed("METRICS_DATABASE_IDLE_CLIENT_ERROR"));
     workerPool.on("error", () => options.logger.failed("WORKER_DATABASE_IDLE_CLIENT_ERROR"));
 
     try {
@@ -79,6 +90,7 @@ export class TenantJobRuntimeProcess {
         rabbitMqUrl,
         connectionName: environment["TENANT_JOB_CONNECTION_NAME"]?.trim() || "whatsbusiness-job-runtime",
         dispatcherPool,
+        metricsPool,
         workerPool,
         database: options.databaseFactory(workerPool),
         handlers: options.handlers,
@@ -115,9 +127,9 @@ export class TenantJobRuntimeProcess {
         },
       );
 
-      return new TenantJobRuntimeProcess(application, dispatcherPool, workerPool, metrics, metricsServer);
+      return new TenantJobRuntimeProcess(application, dispatcherPool, workerPool, metricsPool, metrics, metricsServer);
     } catch (error) {
-      await Promise.allSettled([dispatcherPool.end(), workerPool.end()]);
+      await Promise.allSettled([dispatcherPool.end(), metricsPool.end(), workerPool.end()]);
       throw error;
     }
   }
@@ -143,6 +155,7 @@ export class TenantJobRuntimeProcess {
     const results = await Promise.allSettled([
       this.metricsServer.close(),
       this.workerPool.end(),
+      this.metricsPool.end(),
       this.dispatcherPool.end(),
     ]);
     if (results.some((result) => result.status === "rejected")) {
