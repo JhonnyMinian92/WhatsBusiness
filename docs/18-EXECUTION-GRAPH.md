@@ -165,3 +165,8 @@ TASK-067..080 remain proposed. No autonomous spend, publication, or live WhatsAp
 
 
 TASK-004 permissions/approval + TASK-029 observability/audit + TASK-067 Campaign Intelligence + TASK-074 Meta Ads MCP + TASK-075 Business Agent handoff → TASK-080 Agent Tool Gateway/MCP server. TASK-080 is a shared control boundary and must be complete before any AI agent performs external write operations.
+
+
+## 7. Estado observado — US-013 / TASK-026 (2026-11-08)
+
+TASK-026 cuenta con un slice de dominio en `apps/api/src/marketing/conversions` y suites integradas en `api:test`; permanece `in_progress`, porque las dependencias TASK-023/031 no están verificadas, el consentimiento TASK-032 carece de adapter y CAPI-001..004 siguen catalog-only. El DAG no cambia: el gateway persistente/outbox/adapter se implementará después de satisfacer esos gates. No existe external write ni integración de producción.
