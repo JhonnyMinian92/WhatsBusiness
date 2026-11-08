@@ -90,7 +90,7 @@ No se sembró un catálogo falso de operaciones: las definiciones concretas sigu
 - meta-capability-evaluator.spec.ts: decisión positiva; scope faltante; task faltante; actor denegado; evidencia unknown; version no soportada; evidencia expirada; tier insuficiente; consent/approval; App Mode/App Review/account type/country; gates opcionales; definición inválida.
 - Ambas suites están en apps/api/project.json y se ejecutan con el target api:test.
 
-Evidencia CI: Source CI #42512236821 detectó en build TS4111 por dot notation en Record<string, unknown>. Se corrigió en el commit 2f97c8a94275c87f8543de065c30ae00cbf52b43. Source CI #42512364598 y CodeQL #42512364506 estaban en ejecución al registrar esta especificación; actualizar estado solo cuando las ejecuciones terminen.
+Evidencia CI: Source CI #42512236821 detectó en build TS4111 por dot notation en Record<string, unknown>. Se corrigió en el commit 2f97c8a94275c87f8543de065c30ae00cbf52b43. Source CI #42512364598 terminó SUCCESS (build, typecheck, API unit/PostgreSQL integration y Meta backend PostgreSQL/RabbitMQ integration); CodeQL #42512364506 terminó SUCCESS, ambos sobre 2f97c8a. El HEAD posterior 9e5dfa1 agrega un cambio separado de aislamiento de jobs; su Source CI #42512536601 estaba in_progress al actualizar este documento.
 
 ## 7. Trabajo todavía necesario para cerrar TASK-009/010
 
