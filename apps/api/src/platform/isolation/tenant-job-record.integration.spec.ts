@@ -111,6 +111,39 @@ test("PostgreSQL tenant jobs enforce transactional staging, idempotency, least p
     );
     assert.equal(crossTenantRead.rowCount, 0);
 
+    // Requests without a tenant context must see no tenant-owned job rows.
+    const unscopedRead = await runtimePool.query(
+      "SELECT id FROM platform.tenant_job_records WHERE id = $1",
+      [jobId],
+    );
+    assert.equal(unscopedRead.rowCount, 0);
+
+    // A valid tenant-A context must not be usable to create a tenant-B job,
+    // even when the caller supplies tenant-B's legitimate actor ID.
+    await assert.rejects(
+      database.withTenantContext(actorUserId, tenantId, (client) => writer.stage(client, {
+        ...jobInput,
+        tenantId: otherTenantId,
+        actorUserId: otherActorUserId,
+        idempotencyKey: randomUUID() + randomUUID(),
+        payload: { messageId: "cross-tenant-write" },
+      })),
+      (error: unknown) => typeof error === "object" && error !== null && "code" in error
+        && (error as { code: string }).code === "42501",
+    );
+
+    // Actor spoofing inside the correct tenant boundary is rejected as well.
+    await assert.rejects(
+      database.withTenantContext(actorUserId, tenantId, (client) => writer.stage(client, {
+        ...jobInput,
+        actorUserId: otherActorUserId,
+        idempotencyKey: randomUUID() + randomUUID(),
+        payload: { messageId: "cross-actor-write" },
+      })),
+      (error: unknown) => typeof error === "object" && error !== null && "code" in error
+        && (error as { code: string }).code === "42501",
+    );
+
     await assert.rejects(
       adminPool.query("UPDATE platform.tenant_job_records SET status = 'succeeded' WHERE id = $1", [jobId]),
       (error: unknown) => typeof error === "object" && error !== null && "code" in error
