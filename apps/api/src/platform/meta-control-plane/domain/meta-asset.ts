@@ -179,22 +179,32 @@ export function assertValidMetaAssetSnapshot(
   if (!isRecord(value)) {
     throw new MetaAssetValidationError("META_ASSET_SNAPSHOT_INVALID", "El snapshot de activos no es válido.");
   }
-  if (typeof value.tenantId !== "string" || !UUID_PATTERN.test(value.tenantId)) {
+  const tenantIdValue = value["tenantId"];
+  const connectionIdValue = value["connectionId"];
+  const apiVersionValue = value["apiVersion"];
+  const observedAtValue = value["observedAt"];
+  const completeForValue = value["completeFor"];
+  const assetsValue = value["assets"];
+
+  if (typeof tenantIdValue !== "string" || !UUID_PATTERN.test(tenantIdValue)) {
     throw new MetaAssetValidationError("META_ASSET_TENANT_INVALID", "El tenant del snapshot no es válido.");
   }
-  if (typeof value.connectionId !== "string" || !UUID_PATTERN.test(value.connectionId)) {
+  if (typeof connectionIdValue !== "string" || !UUID_PATTERN.test(connectionIdValue)) {
     throw new MetaAssetValidationError("META_ASSET_CONNECTION_INVALID", "La conexión Meta del snapshot no es válida.");
   }
-  if (typeof value.apiVersion !== "string" || !API_VERSION_PATTERN.test(value.apiVersion)) {
+  if (typeof apiVersionValue !== "string" || !API_VERSION_PATTERN.test(apiVersionValue)) {
     throw new MetaAssetValidationError("META_ASSET_API_VERSION_INVALID", "La versión del API Meta debe ser explícita por producto.");
   }
-  assertIsoDate(value.observedAt, "META_ASSET_SNAPSHOT_TIME_INVALID");
-  if (!Array.isArray(value.completeFor) || !Array.isArray(value.assets)) {
+  assertIsoDate(observedAtValue, "META_ASSET_SNAPSHOT_TIME_INVALID");
+  if (!Array.isArray(completeForValue) || !Array.isArray(assetsValue)) {
     throw new MetaAssetValidationError("META_ASSET_SNAPSHOT_INVALID", "El snapshot debe incluir completeFor y assets.");
+  }
+  if (completeForValue.length > ASSET_TYPES.length || assetsValue.length > 10_000) {
+    throw new MetaAssetValidationError("META_ASSET_SNAPSHOT_LIMIT_EXCEEDED", "El snapshot excede los límites de inventario admitidos.");
   }
 
   const completedTypes = new Set<string>();
-  for (const assetType of value.completeFor) {
+  for (const assetType of completeForValue) {
     assertAssetType(assetType);
     if (completedTypes.has(assetType)) {
       throw new MetaAssetValidationError("META_ASSET_SNAPSHOT_DUPLICATE_COVERAGE", "El snapshot repite un tipo de activo.");
@@ -202,66 +212,99 @@ export function assertValidMetaAssetSnapshot(
     completedTypes.add(assetType);
   }
 
+  const snapshotTime = Date.parse(observedAtValue);
   const seen = new Set<string>();
-  for (const candidate of value.assets) {
+  for (const candidate of assetsValue) {
     if (!isRecord(candidate)) {
       throw new MetaAssetValidationError("META_ASSET_ENTRY_INVALID", "Una entrada del inventario no es válida.");
     }
-    assertAssetType(candidate.assetType);
-    assertNonEmptyString(candidate.product, "META_ASSET_PRODUCT_INVALID", 80);
-    const assetType = candidate.assetType;
-    const expectedProduct = PRODUCT_BY_ASSET_TYPE[assetType];
-    if (candidate.product !== expectedProduct) {
+    const assetTypeValue = candidate["assetType"];
+    assertAssetType(assetTypeValue);
+    const productValue = candidate["product"];
+    assertNonEmptyString(productValue, "META_ASSET_PRODUCT_INVALID", 80);
+    const expectedProduct = PRODUCT_BY_ASSET_TYPE[assetTypeValue];
+    if (productValue !== expectedProduct) {
       throw new MetaAssetValidationError("META_ASSET_PRODUCT_MISMATCH", "El producto Meta no corresponde al tipo de activo.");
     }
-    assertNonEmptyString(candidate.externalId, "META_ASSET_EXTERNAL_ID_INVALID", 512);
-    if (candidate.displayName !== null) {
-      assertNonEmptyString(candidate.displayName, "META_ASSET_DISPLAY_NAME_INVALID", 500);
+    const externalIdValue = candidate["externalId"];
+    assertNonEmptyString(externalIdValue, "META_ASSET_EXTERNAL_ID_INVALID", 512);
+
+    const displayNameValue = candidate["displayName"];
+    if (displayNameValue !== null) {
+      assertNonEmptyString(displayNameValue, "META_ASSET_DISPLAY_NAME_INVALID", 500);
     }
+
+    const ownershipValue = candidate["ownership"];
     if (
-      candidate.ownership !== "owned"
-      && candidate.ownership !== "client_owned"
-      && candidate.ownership !== "shared"
-      && candidate.ownership !== "assigned"
-      && candidate.ownership !== "unknown"
+      ownershipValue !== "owned"
+      && ownershipValue !== "client_owned"
+      && ownershipValue !== "shared"
+      && ownershipValue !== "assigned"
+      && ownershipValue !== "unknown"
     ) {
       throw new MetaAssetValidationError("META_ASSET_OWNERSHIP_INVALID", "La relación de titularidad no es válida.");
     }
-    if (!isRecord(candidate.access)
-      || (candidate.access.state !== "granted" && candidate.access.state !== "denied" && candidate.access.state !== "unknown")
-      || !Array.isArray(candidate.access.assetTasks)
+
+    const accessCandidate = candidate["access"];
+    if (!isRecord(accessCandidate)) {
+      throw new MetaAssetValidationError("META_ASSET_ACCESS_INVALID", "La evidencia de acceso al activo no es válida.");
+    }
+    const accessState = accessCandidate["state"];
+    const assetTasks = accessCandidate["assetTasks"];
+    if (
+      (accessState !== "granted" && accessState !== "denied" && accessState !== "unknown")
+      || !Array.isArray(assetTasks)
+      || assetTasks.length > 100
     ) {
       throw new MetaAssetValidationError("META_ASSET_ACCESS_INVALID", "La evidencia de acceso al activo no es válida.");
     }
-    for (const task of candidate.access.assetTasks) {
+    for (const task of assetTasks) {
       assertNonEmptyString(task, "META_ASSET_TASK_INVALID", 160);
     }
-    assertIsoDate(candidate.access.observedAt, "META_ASSET_ACCESS_TIME_INVALID");
-    if (candidate.access.validUntil !== undefined && candidate.access.validUntil !== null) {
-      assertIsoDate(candidate.access.validUntil, "META_ASSET_ACCESS_EXPIRY_INVALID");
+    const accessObservedAt = accessCandidate["observedAt"];
+    assertIsoDate(accessObservedAt, "META_ASSET_ACCESS_TIME_INVALID");
+    if (Date.parse(accessObservedAt) > snapshotTime) {
+      throw new MetaAssetValidationError("META_ASSET_ACCESS_TIME_INVALID", "La evidencia de acceso no puede ser posterior al snapshot.");
     }
-    if (!Array.isArray(candidate.relationships)) {
-      throw new MetaAssetValidationError("META_ASSET_RELATIONSHIPS_INVALID", "Las relaciones del activo no son válidas.");
-    }
-    for (const relationship of candidate.relationships) {
-      if (!isRecord(relationship)) {
-        throw new MetaAssetValidationError("META_ASSET_RELATIONSHIP_INVALID", "Una relación del activo no es válida.");
-      }
-      assertAssetType(relationship.relatedAssetType);
-      assertNonEmptyString(relationship.relatedExternalId, "META_ASSET_RELATIONSHIP_ID_INVALID", 512);
-      if (!["owned_by", "managed_by", "linked_to", "delegated_to", "contains"].includes(String(relationship.type))) {
-        throw new MetaAssetValidationError("META_ASSET_RELATIONSHIP_TYPE_INVALID", "El tipo de relación del activo no está soportado.");
+    const accessValidUntil = accessCandidate["validUntil"];
+    if (accessValidUntil !== undefined && accessValidUntil !== null) {
+      assertIsoDate(accessValidUntil, "META_ASSET_ACCESS_EXPIRY_INVALID");
+      if (Date.parse(accessValidUntil) <= Date.parse(accessObservedAt)) {
+        throw new MetaAssetValidationError("META_ASSET_ACCESS_EXPIRY_INVALID", "La expiración debe ser posterior a la observación del grant.");
       }
     }
 
-    const key = metaAssetKey(candidate as unknown as MetaAssetSnapshotEntry);
+    const relationshipsValue = candidate["relationships"];
+    if (!Array.isArray(relationshipsValue) || relationshipsValue.length > 100) {
+      throw new MetaAssetValidationError("META_ASSET_RELATIONSHIPS_INVALID", "Las relaciones del activo no son válidas.");
+    }
+    const relationshipKeys = new Set<string>();
+    for (const relationship of relationshipsValue) {
+      if (!isRecord(relationship)) {
+        throw new MetaAssetValidationError("META_ASSET_RELATIONSHIP_INVALID", "Una relación del activo no es válida.");
+      }
+      const relatedAssetType = relationship["relatedAssetType"];
+      assertAssetType(relatedAssetType);
+      const relatedExternalId = relationship["relatedExternalId"];
+      assertNonEmptyString(relatedExternalId, "META_ASSET_RELATIONSHIP_ID_INVALID", 512);
+      const relationshipType = relationship["type"];
+      if (!["owned_by", "managed_by", "linked_to", "delegated_to", "contains"].includes(String(relationshipType))) {
+        throw new MetaAssetValidationError("META_ASSET_RELATIONSHIP_TYPE_INVALID", "El tipo de relación del activo no está soportado.");
+      }
+      const relationshipKey = JSON.stringify([relationshipType, relatedAssetType, relatedExternalId]);
+      if (relationshipKeys.has(relationshipKey)) {
+        throw new MetaAssetValidationError("META_ASSET_RELATIONSHIP_DUPLICATE", "El snapshot repite una relación de activo.");
+      }
+      relationshipKeys.add(relationshipKey);
+    }
+
+    const key = JSON.stringify([productValue, assetTypeValue, externalIdValue]);
     if (seen.has(key)) {
       throw new MetaAssetValidationError("META_ASSET_DUPLICATE", "El snapshot contiene el mismo activo más de una vez.");
     }
     seen.add(key);
   }
 }
-
 /**
  * Reconciles a complete or partial provider snapshot without deleting history.
  * A complete enumeration may mark an absent item as not visible, but never
