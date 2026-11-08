@@ -3,6 +3,11 @@ import { AesGcmMetaWebhookPayloadProtector } from "./aes-gcm-meta-webhook-payloa
 
 export class EnvironmentMetaWebhookPayloadProtector implements MetaWebhookPayloadProtector {
   private delegate: AesGcmMetaWebhookPayloadProtector | null = null;
+
+  /** Validate and load the keyring before the worker accepts broker deliveries. */
+  validateConfiguration(): void {
+    this.requireDelegate();
+  }
   protect(value: Buffer, aad: string): ProtectedMetaWebhookPayload { return this.requireDelegate().protect(value, aad); }
   unprotect(value: ProtectedMetaWebhookPayload, aad: string): Buffer { return this.requireDelegate().unprotect(value, aad); }
 
