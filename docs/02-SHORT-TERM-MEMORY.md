@@ -348,3 +348,12 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Build falló en el adapter RabbitMQ por tipos de amqplib 2.2.1: heartbeat es tuning parameter de URI, no socket option; `connect` devuelve `ChannelModel`, no `Connection`. Se corrigió con heartbeat en query AMQP y tipo ChannelModel.
 - Build también falló por abstracción `TenantPseudonymizer` ausente y dependencia desde adapter concreto. Se restauró el port y se corrigió el import.
 - Source CI del commit `489b8cd3d84b057d2bdc40c8fa740008b4ac4bbc` pendiente. Próximo criterio: build verde; luego typecheck y suites unitarias + PostgreSQL/RabbitMQ.
+
+## Handoff — continuidad backend y decisión CRM con IA (2026-11-07)
+
+- Decisión del propietario: mantener CRM como núcleo del producto e incorporar IA para asistir, mejorar y automatizar funciones CRM. ARM queda fuera del alcance y en pausa; no crear bounded context, naming, contratos ni migraciones ARM.
+- Source CI #42428439526 (commit 489b8cd) confirmó instalación, migraciones 0001–0009, idempotencia, RabbitMQ DLX, build y typecheck. Fallaron dos pruebas de integración: ambigüedad SQL en claim execution y validador RabbitMQ demasiado restrictivo.
+- Correcciones registradas: migración microservices-meta-ecuapp/migrations/0010-tenant-job-execution-claim-ambiguity.sql; publisher RabbitMQ acepta routing keys con guiones y single-segment; prueba unitaria adicional. Commit de migración 4e44d17c25319c9c5067dc7536599f99f6e66051, publisher 9a462529882582c6bf16717964afaaa2287f5ac3, pruebas b96ec893397dda413164edaf56b0914135cee9b0.
+- Source CI #42429156061, commit b96ec893397dda413164edaf56b0914135cee9b0, está pendiente. No declarar TASK-003 verificada ni CI verde.
+- Siguiente bloque: validar CI completo; luego pool reuse A→B, replay administrativo con autorización/approval/audit, métricas/alertas, crash/redelivery/fencing tests y handlers de negocio reales. Mantener TASK-003 in_progress.
+- GO-PRODUCTION sigue NO-GO. No usar datos reales, Meta writes, mensajes, gasto Ads ni proveedor IA externo sin autorización y gates correspondientes.
