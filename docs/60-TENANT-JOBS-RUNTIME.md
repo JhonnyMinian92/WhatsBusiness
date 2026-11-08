@@ -96,7 +96,8 @@ Suites fuente registradas en Nx:
 - Consumer unitario: handler, contexto, lease y fallo.
 - Supervisor: recovery antes de dispatch.
 - Application lifecycle: desconexión, reconnect y cierre de sesión.
-- Bootstrap: handlers obligatorios, env y TLS.
+- Bootstrap: handlers obligatorios, env, TLS y timeout de ejecución acotado.
+- Heartbeat/deadline: renovación, pérdida de lease, cancelación cooperativa, timeout y handler que ignora AbortSignal.
 - Publisher/consumer RabbitMQ: confirms, unroutable, ACK/NACK y drain.
 - PostgreSQL gated: roles separados, claims, fencing, renovación de lease con token válido/obsoleto, inbox/rollback, retry, dead-letter, lease expiry y denegación de acceso directo al payload.
 - RabbitMQ gated: quorum queue, confirm, mandatory return y DLX.
@@ -108,7 +109,7 @@ Source CI declara PostgreSQL 18.6 y RabbitMQ 4.4 para pruebas de integración. A
 - [ ] Ejecutar y corregir Source CI hasta SUCCESS (frozen install, migrations/idempotence, build, typecheck, unit, PostgreSQL, RabbitMQ).
 - [ ] Probar pool reuse A→B en worker login y en DatabaseService boundary.
 - [x] Implementar heartbeat/renew del execution lease mediante token de fencing y PostgreSQL; el worker cancela cooperativamente el handler si pierde el lease. La suite unitaria e integración quedan sujetas a Source CI.
-- [ ] Añadir límites/timeouts y cancelación cooperativa de handlers para que no ejecuten indefinidamente.
+- [x] Añadir deadline configurable `TENANT_JOB_HANDLER_TIMEOUT_MS` (1–900 s; default 300 s), abortar el handler y rechazar el procesamiento al perder lease o exceder el deadline. La cancelación exige cooperación del handler mediante AbortSignal; JavaScript no puede terminar forzosamente una promesa no cooperativa. Source CI de esta iteración pendiente.
 - [ ] Implementar replay administrativo de DLQ/job dead-letter, con permission/approval/audit; no crear bypass SQL público.
 - [ ] Implementar lease/lock y replay seguro de broker DLQ, retención, acceso restringido y audit.
 - [ ] Agregar métricas/alertas: age de outbox, publishing leases expired, queue depth, consumer lag, failed/blocked/dead-letter y replays.
