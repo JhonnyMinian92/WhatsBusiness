@@ -199,21 +199,35 @@ export class AppendOnlyAuditRepository {
 
   private validate(input: AppendAuditEvent): void {
     const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (
-      !uuid.test(input.tenantId)
-      || !uuid.test(input.actorUserId)
-      || !uuid.test(input.correlationId)
-      || (input.approvalId !== undefined && !uuid.test(input.approvalId))
-      || !/^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*){1,7}$/.test(input.actionKey)
-      || !/^[a-z][a-z0-9_]{1,63}$/.test(input.resourceType)
-      || input.resourceId.trim().length === 0
-      || input.resourceId.length > 255
-      || !/^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*){2,7}$/.test(input.purpose)
-      || (input.reasonCode !== undefined && !/^[A-Z][A-Z0-9_]{1,95}$/.test(input.reasonCode))
-      || (input.requestHash !== undefined && !/^[0-9a-f]{64}$/.test(input.requestHash))
-      || (input.occurredAt !== undefined && !Number.isFinite(input.occurredAt.getTime()))
-    ) {
-      throw new Error("Audit event contains an invalid or unsafe field.");
+    const outcomes: readonly string[] = [
+      "allowed",
+      "denied",
+      "approval_requested",
+      "approval_approved",
+      "approval_rejected",
+      "approval_vote_recorded",
+      "approval_expired",
+      "approval_consumed",
+    ];
+    const invalidFields: string[] = [];
+
+    if (!uuid.test(input.tenantId)) invalidFields.push("tenantId");
+    if (!uuid.test(input.actorUserId)) invalidFields.push("actorUserId");
+    if (!uuid.test(input.correlationId)) invalidFields.push("correlationId");
+    if (input.approvalId !== undefined && !uuid.test(input.approvalId)) invalidFields.push("approvalId");
+    if (!/^[a-z][a-z0-9]*(?:\\.[a-z][a-z0-9]*){1,7}$/.test(input.actionKey)) invalidFields.push("actionKey");
+    if (!/^[a-z][a-z0-9_]{1,63}$/.test(input.resourceType)) invalidFields.push("resourceType");
+    if (typeof input.resourceId !== "string" || input.resourceId.trim().length === 0 || input.resourceId.length > 255) {
+      invalidFields.push("resourceId");
+    }
+    if (!/^[a-z][a-z0-9]*(?:\\.[a-z][a-z0-9]*){2,7}$/.test(input.purpose)) invalidFields.push("purpose");
+    if (!outcomes.includes(input.outcome)) invalidFields.push("outcome");
+    if (input.reasonCode !== undefined && !/^[A-Z][A-Z0-9_]{1,95}$/.test(input.reasonCode)) invalidFields.push("reasonCode");
+    if (input.requestHash !== undefined && !/^[0-9a-f]{64}$/.test(input.requestHash)) invalidFields.push("requestHash");
+    if (input.occurredAt !== undefined && !Number.isFinite(input.occurredAt.getTime())) invalidFields.push("occurredAt");
+
+    if (invalidFields.length > 0) {
+      throw new Error("Audit event contains invalid or unsafe fields: " + invalidFields.join(", "));
     }
   }
 }
