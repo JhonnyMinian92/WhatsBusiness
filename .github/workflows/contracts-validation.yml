@@ -46,7 +46,7 @@ jobs:
       - name: Validate OpenAPI
         run: npx --yes @redocly/cli@1.34.5 lint contracts/openapi/platform-v1.yaml
       - name: Validate AsyncAPI
-        run: npx --yes @asyncapi/cli@3.4.2 validate contracts/asyncapi/platform-events-v1.yaml
+        run: npx --yes @asyncapi/cli@3.4.2 validate contracts/asyncapi/platform-events-v1.yaml --fail-severity error
       - name: Validate event schemas, references and fixtures
         env:
           CONTRACT_TOOLS_REQUIRE_BASE: ${{ runner.temp }}/whatsbusiness-contract-tools/contract-tools.cjs
