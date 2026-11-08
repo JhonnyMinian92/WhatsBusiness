@@ -3,7 +3,7 @@
 **Fecha:** 2026-11-07  
 **Rama:** `environment/local`  
 **Tarea primaria:** TASK-003 / REQ-0001 / REQ-0010  
-**Estado:** código fuente parcial implementado; build, typecheck e integración CI de esta iteración pendientes. No es GO-PRODUCTION.
+**Estado:** código fuente parcial implementado; build y typecheck pasaron en Source CI #42428439526; dos pruebas de integración fallaron y se corrigieron en commits posteriores, pendientes de nueva ejecución. No es GO-PRODUCTION.
 
 ## 1. Objetivo y límites
 
@@ -102,14 +102,14 @@ Suites fuente registradas en Nx:
 - PostgreSQL gated: roles separados, claims, fencing, renovación de lease con token válido/obsoleto, inbox/rollback, retry, dead-letter, lease expiry y denegación de acceso directo al payload.
 - RabbitMQ gated: quorum queue, confirm, mandatory return y DLX.
 
-Source CI declara PostgreSQL 18.6 y RabbitMQ 4.4 para pruebas de integración. Al documentar esta revisión, Source CI del commit d9d9b10 falló en build: errores de tipado del adapter amqplib 2.2.1 (heartbeat enviado como socket option y tipo Connection en lugar de ChannelModel) y abstracción TenantPseudonymizer ausente/importada desde módulo incorrecto. Se corrigieron el adapter RabbitMQ (heartbeat en URI, ChannelModel), el port TenantPseudonymizer y su import. Source CI del commit 489b8cd está pendiente; no se declara build/typecheck/test SUCCESS hasta que finalice. La ausencia de errores de TypeScript en esta documentación no equivale a build pass.
+Source CI declara PostgreSQL 18.6 y RabbitMQ 4.4 para pruebas de integración. Run #42428439526 (commit 489b8cd) pasó instalación frozen, migraciones 0001–0009 e idempotencia, configuración RabbitMQ DLX, build y typecheck. Fallaron dos integraciones: (1) claim_tenant_job_execution por ambigüedad de tenant_id en RETURNING; (2) publisher RabbitMQ por rechazar routing keys válidas con guion. Los errores de permisos observados en logs corresponden a aserciones negativas esperadas de los roles least-privilege, no a fallos adicionales. Se añadió migración 0010-tenant-job-execution-claim-ambiguity.sql que cualifica columnas y conserva EXECUTE solo para el rol worker; se amplió el validador de routing keys para aceptar jobs.dead y segmentos kebab-case, con prueba unitaria. La nueva ejecución #42429156061 (commit b96ec89) está pendiente; todavía no se declara CI SUCCESS.
 
 ## 9. Pendientes reales para cerrar TASK-003
 
-- [ ] Ejecutar y corregir Source CI hasta SUCCESS (frozen install, migrations/idempotence, build, typecheck, unit, PostgreSQL, RabbitMQ).
+- [ ] Ejecutar y corregir Source CI hasta SUCCESS (frozen install, migrations/idempotence, build, typecheck, unit, PostgreSQL, RabbitMQ). Build/typecheck ya pasaron en #42428439526; la ejecución #42429156061 debe validar la migración 0010 y las correcciones RabbitMQ.
 - [ ] Probar pool reuse A→B en worker login y en DatabaseService boundary.
 - [x] Implementar heartbeat/renew del execution lease mediante token de fencing y PostgreSQL; el worker cancela cooperativamente el handler si pierde el lease. La suite unitaria e integración quedan sujetas a Source CI.
-- [x] Añadir deadline configurable `TENANT_JOB_HANDLER_TIMEOUT_MS` (1–900 s; default 300 s), abortar el handler y rechazar el procesamiento al perder lease o exceder el deadline. La cancelación exige cooperación del handler mediante AbortSignal; JavaScript no puede terminar forzosamente una promesa no cooperativa. Source CI de esta iteración pendiente.
+- [x] Añadir deadline configurable `TENANT_JOB_HANDLER_TIMEOUT_MS` (1–900 s; default 300 s), abortar el handler y rechazar el procesamiento al perder lease o exceder el deadline. La cancelación exige cooperación del handler mediante AbortSignal; JavaScript no puede terminar forzosamente una promesa no cooperativa. Build/typecheck de #42428439526 pasaron; integración posterior pendiente.
 - [ ] Implementar replay administrativo de DLQ/job dead-letter, con permission/approval/audit; no crear bypass SQL público.
 - [ ] Implementar lease/lock y replay seguro de broker DLQ, retención, acceso restringido y audit.
 - [ ] Agregar métricas/alertas: age de outbox, publishing leases expired, queue depth, consumer lag, failed/blocked/dead-letter y replays.
