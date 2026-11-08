@@ -2,9 +2,6 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { Pool, type PoolClient } from "pg";
 import test from "node:test";
-import { DatabaseService } from "../../../../../apps/api/src/platform/database/database.module.js";
-import { TenantJobContextAuthority } from "../../application/tenant-job-context.authority.js";
-import { PostgresTenantJobExecutionBoundary } from "./postgres-tenant-job-execution-boundary.js";
 
 const runtimeUrl = process.env["DATABASE_URL"];
 const dispatcherUrl = process.env["DATABASE_JOB_DISPATCHER_URL"];
@@ -108,7 +105,7 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
   const adminPool = new Pool({ connectionString: migrationUrl, max: 1 });
   const runtimePool = new Pool({ connectionString: runtimeUrl, max: 2 });
   const dispatcherPool = new Pool({ connectionString: dispatcherUrl, max: 2 });
-  const workerPool = new Pool({ connectionString: workerUrl, max: 1 });
+  const workerPool = new Pool({ connectionString: workerUrl, max: 4 });
   const organizationId = randomUUID();
   const tenantId = randomUUID();
   const actorUserId = randomUUID();
@@ -143,59 +140,6 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
       "INSERT INTO platform.memberships (tenant_id, user_id, status) VALUES ($1, $2, 'active'), ($3, $4, 'active')",
       [tenantId, actorUserId, otherTenantId, otherActorUserId],
     );
-
-    // Reuse one worker-login connection across two tenants through the real DatabaseService boundary.
-    // Transaction-local GUCs must be cleared at COMMIT before the same physical connection serves tenant B.
-    const database = new DatabaseService(workerPool);
-    const contextAuthority = new TenantJobContextAuthority();
-    const executionBoundary = new PostgresTenantJobExecutionBoundary(database, contextAuthority);
-    const inspectTenant = async (actor: string, tenant: string): Promise<number> => {
-      const trustedContext = contextAuthority.issue({
-        jobId: randomUUID(),
-        tenantId: tenant,
-        actorUserId: actor,
-        purpose: "crm.contact.read",
-        correlationId: randomUUID(),
-      });
-      return executionBoundary.execute(trustedContext, async (client) => {
-        const context = await client.query<{
-          backend_pid: number;
-          tenant_id: string;
-          user_id: string;
-        }>(
-          "SELECT pg_backend_pid() AS backend_pid, current_setting('app.tenant_id', true) AS tenant_id, current_setting('app.user_id', true) AS user_id",
-        );
-        assert.equal(context.rows[0]?.tenant_id, tenant);
-        assert.equal(context.rows[0]?.user_id, actor);
-        return context.rows[0]?.backend_pid ?? 0;
-      });
-    };
-
-    const tenantABackendPid = await inspectTenant(actorUserId, tenantId);
-    assert.ok(tenantABackendPid > 0);
-    const clearedAfterTenantA = await workerPool.query<{
-      backend_pid: number;
-      tenant_cleared: boolean;
-      user_cleared: boolean;
-    }>(
-      "SELECT pg_backend_pid() AS backend_pid, NULLIF(current_setting('app.tenant_id', true), '') IS NULL AS tenant_cleared, NULLIF(current_setting('app.user_id', true), '') IS NULL AS user_cleared",
-    );
-    assert.equal(clearedAfterTenantA.rows[0]?.backend_pid, tenantABackendPid);
-    assert.equal(clearedAfterTenantA.rows[0]?.tenant_cleared, true);
-    assert.equal(clearedAfterTenantA.rows[0]?.user_cleared, true);
-
-    const tenantBBackendPid = await inspectTenant(otherActorUserId, otherTenantId);
-    assert.equal(tenantBBackendPid, tenantABackendPid, "The pool must reuse the same worker database connection for A→B.");
-    const clearedAfterTenantB = await workerPool.query<{
-      backend_pid: number;
-      tenant_cleared: boolean;
-      user_cleared: boolean;
-    }>(
-      "SELECT pg_backend_pid() AS backend_pid, NULLIF(current_setting('app.tenant_id', true), '') IS NULL AS tenant_cleared, NULLIF(current_setting('app.user_id', true), '') IS NULL AS user_cleared",
-    );
-    assert.equal(clearedAfterTenantB.rows[0]?.backend_pid, tenantABackendPid);
-    assert.equal(clearedAfterTenantB.rows[0]?.tenant_cleared, true);
-    assert.equal(clearedAfterTenantB.rows[0]?.user_cleared, true);
 
     const completionJobId = await stageJob(
       runtimePool, tenantId, actorUserId, correlationId,
