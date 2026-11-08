@@ -517,3 +517,9 @@ Se añadió una regresión de integración a `microservices-meta-ecuapp/src/jobs
 - Pruebas agregadas: dominio y PostgreSQL integration test con tenants A/B, insert/list/get/update, replay idempotente create/update, conflict por clave reutilizada, stale version, audit chain y cross-tenant not-found. Source CI debe ejecutarlas con RUN_CRM_CONTACTS_INTEGRATION_TESTS=true.
 - Contrato: CRM-001..004 tiene schemas completos en OpenAPI y docs/66. Contract CI actualmente permite activar únicamente PLT-001..005. Por tanto CRM-001..004 están design-frozen pero x-implementation-allowed=false; CrmContactsModule no se importa en AppModule y no se exponen endpoints HTTP.
 - Estado global TASK-042: in_progress. No marcar verified hasta Source CI/Contract CI verdes, ni accepted sin revisión independiente y aceptación del propietario. CRM-005..017 (identities/merge/custom fields/companies) siguen fuera de este slice.
+  
+### Handoff incremental — invariant de tipo de contacto (2026-11-08)
+
+- Se añade migración 0023 para imponer en PostgreSQL `organization => first_name IS NULL AND last_name IS NULL`, manteniendo la validación ya presente en el agregado de dominio.
+- La integración intenta una inserción inválida con el login runtime dentro del tenant y comprueba SQLSTATE `23514`, recuperándose mediante SAVEPOINT/ROLLBACK TO SAVEPOINT.
+- **Estado:** pendiente Source CI (migración idempotente + suite real PostgreSQL). TASK-042 permanece `in_progress`; los endpoints CRM siguen fuera de `AppModule` y `x-implementation-allowed=false` hasta superar los gates.

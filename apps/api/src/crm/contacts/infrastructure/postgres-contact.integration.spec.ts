@@ -90,6 +90,23 @@ test("PostgreSQL CRM contacts enforce tenant RLS, idempotency, audit and optimis
     assert.equal(created.version, 1);
     assert.equal(created.displayName, "Ana María López");
 
+    await database.withTenantContextAtVersion(actorId, tenantA, authzVersionA, async (client) => {
+      await client.query("SAVEPOINT crm_contact_database_invariant");
+      await assert.rejects(
+        client.query(
+          [
+            "INSERT INTO crm.contacts",
+            "(tenant_id, contact_type, display_name, first_name, last_name, source_type, created_by, updated_by)",
+            "VALUES ($1, 'organization', 'Acme Holdings', 'Ada', NULL, 'manual', $2, $2)",
+          ].join(" "),
+          [tenantA, actorId],
+        ),
+        (error: unknown) => (error as { code?: string }).code === "23514",
+        "PostgreSQL must reject organization contacts with person-name fields even when writes bypass the application service.",
+      );
+      await client.query("ROLLBACK TO SAVEPOINT crm_contact_database_invariant");
+    });
+
     const replayedCreate = await service.create(tenantASubject, createInput, createKey);
     assert.deepEqual(replayedCreate, created);
     await assert.rejects(

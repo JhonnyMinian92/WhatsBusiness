@@ -120,3 +120,11 @@ El CRM puede consumir modelos estadísticos/ML para lead scoring, probabilidad d
 - Toda capacidad tiene fallback sin ML, métricas adecuadas al problema y monitoreo de drift/calibración.
 
 Diseño, algoritmos, contratos de salida, aislamiento y pruebas: [docs/62](62-CRM-MACHINE-LEARNING-STRATEGY.md).
+  
+## 15. Invariante de organization reforzada en PostgreSQL (2026-11-08)
+
+La migración `0023-crm-contact-organization-name-invariant.sql` aplica un `CHECK` para garantizar que `organization` no almacene `first_name` ni `last_name`. La regla ya existía en el parser del agregado; ahora también se cumple en la capa de persistencia, incluso si una ruta futura o una incidencia intenta insertar directamente usando la identidad runtime.
+
+La integración usa el rol de API dentro de `withTenantContextAtVersion`, abre un savepoint y verifica SQLSTATE `23514` para el INSERT inválido, revirtiendo el savepoint sin abortar el resto de la transacción.
+
+**Estado:** migración y prueba añadidas; pendiente Source CI con migración 0023 e integración PostgreSQL. TASK-042 sigue `in_progress`.
