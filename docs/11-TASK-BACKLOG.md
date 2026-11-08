@@ -857,3 +857,8 @@ La implementación de TASK-004 y TASK-005 fue publicada y verificada por CI en c
 - **TASK-024:** `in_progress`. Núcleo de validación fail-closed, catálogo de objetivos versionado y máquina de estados local añadidos en `apps/api/src/ads/campaigns/domain`. Persistencia, API, integración de approvals/outbox, objetivo/catalogue oficial y capability runtime continúan pendientes.
 - **TASK-025:** `in_progress`. Guardrail PD-024 con aritmética decimal exacta, baseline inmutable rolling 24h, control de bypass por aumentos fragmentados y policy de kill switch añadidos en el dominio. Falta integración transaccional, worker/adapter, pause real, reconciliation, insights y spend ledger.
 - Evidencia y bloqueos: `docs/73-US-012-ADS-CAMPAIGN-IMPLEMENTATION.md`. No cambiar a `verified`/`accepted` por código aislado o CI parcial.
+
+
+### TASK-026 — hardening de consentimiento pre-despacho (2026-11-08)
+
+El validador recibe el instante de evaluación del servidor y rechaza consentimiento caducado o revocado entre `occurredAt` y `evaluatedAt`; también rechaza reloj inválido y evento futuro. Tests de regresión añadidos. Esto no sustituye al adapter confiable TASK-032. Se confirmó en un snapshot que enlaza la referencia oficial Meta que `user_data` es requerido, dedupe provider usa event_name/event_id y event_time tiene ventana máxima de envío de siete días; el sitio oficial contestó 429, por lo que se registra como dato pendiente de ratificación antes del contract freeze. Ver docs/72.
