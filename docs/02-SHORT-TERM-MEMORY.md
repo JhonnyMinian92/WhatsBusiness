@@ -402,3 +402,15 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Repository port separado de adapter. Policy registry vacío y fail-closed; test verifica que sin handler con stable domain-effect idempotency no se crea una aprobación. No hay todavía handler productivo habilitado ni replay e2e; no anunciarlo como operativo.
 - Se verificó prueba de aislamiento concurrente A/B con pool worker: dos transacciones simultáneas en conexiones físicas diferentes mantienen actor/tenant propios y RLS rechaza el otro tenant. La secuencia A→B y cleanup tras COMMIT/ROLLBACK también siguen verdes.
 - TASK-003 sigue in_progress; quedan handler real/policy idempotente, flujo replay e2e broker, DLQ operacional, métricas/alertas, crash/redelivery/fencing ampliado, secrets/deployment y review independiente.
+
+## Handoff vigente — TASK-003 durable jobs y recuperación RabbitMQ (2026-11-08)
+
+- Branch autorizada: `environment/local`. No modificar `master`, `environment/develop`, despliegues ni datos productivos.
+- Último commit de código verificado: `f136cff710fe8c60c8430c82928092320b9d90b5`.
+- Source CI [#42433941375](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42433941375) terminó SUCCESS: frozen install, provisionamiento de logins DB mínimos, migraciones versionadas e idempotencia, quorum DLX, build, typecheck, unit tests y pruebas PostgreSQL/RabbitMQ.
+- RabbitMQ consumer: envelope inválido → NACK sin requeue/DLX; mensaje válido pero fallo de procesamiento durable (p. ej. PostgreSQL no disponible) → cerrar sesión worker sin ACK/NACK para redelivery; ACK ambiguo después del posible COMMIT → también cerrar sesión, nunca NACK destructivo. Varias entregas prefetched fallidas comparten cierre single-flight.
+- Tests CI incluyen persistencia/redelivery tras pérdida de canal, procesamiento válido interrumpido, ACK ambiguo, dos fallos concurrentes con una sola llamada a close, leases dispatch/execution expirados y rechazo de fencing tokens antiguos para renew/complete/mark-published.
+- Prometheus actual: counters/histograms in-memory, vocabulario de outcomes fijo y bounded; no HTTP scrape endpoint, gauges operativos, alertas ni SLO.
+- Replay SQL/API protegido: aprobación two-person + step-up + hash/snapshot/audit y child lineage inmutable; registry de policies vacío y fail-closed. No hay handlers reales Meta/CRM registrados: se requiere probar stable domain-effect idempotency antes de habilitar replay.
+- Pendientes: DLQ operator workflow/replay, handler real end-to-end, scrape endpoint/gauges/alerts/SLO, validar topology/policy en broker desplegado, secret manager y rotación, TLS/AMQPS reales, carga/DR, revisión independiente y aceptación del propietario. TASK-003 está `in_progress`, no `accepted`; GO-PRODUCTION NO-GO.
+- No crear frontend `app-meta-ecuapp` sin historia frontend; prioridad inmediata sigue siendo terminar backend `microservices-meta-ecuapp` por work packages verificables. CRM Intelligence es ML clásico/estadística CPU-first según docs/62, no LLM ni agentes; sus modelos aún no están implementados.
