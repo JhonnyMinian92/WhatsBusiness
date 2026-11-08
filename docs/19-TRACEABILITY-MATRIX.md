@@ -438,3 +438,14 @@ Source CI #42513964425: migrations/idempotency, build, typecheck, API/PostgreSQL
 Las pruebas anteriores se suman a la evidencia preexistente de firma HMAC sobre bytes originales, límite de payload, persistencia inbox/outbox, confirmación antes del ACK, consumer receipt idempotente, tenant isolation, retry y DLQ. Los commits del nuevo slice son `96506d956c4af70b061d02623fd42c0749f12fea` y `5b7374ef39113d4a264bd1c0ccf9d8cda8428948`; Source CI #42527271340 y CodeQL #42527271448 se encontraban en ejecución al crear esta entrada.
 
 No se cierra AC-014-03: replay webhooks permanece sujeto a CR-0016, handler/product side-effect idempotency, doble aprobación, step-up y auditoría. No se convierte CI sintético en evidencia de callbacks Meta reales ni de despliegue.
+
+
+## Evidence map — US-013 / TASK-026 CAPI domain slice (2026-11-08)
+
+| Criterio | Implementación | Test añadido | Estado al commit |
+|---|---|---|---|
+| AC-013-01 — identidad estable y dedupe browser/server | `conversion-event.ts`: eventId caller-supplied and shared; identity datasetId + eventName + eventId | `conversion-event.spec.ts`: pair equality, dataset/event isolation, missing ID denied | Parcial: no DB uniqueness, ingest ni Meta dedupe observed |
+| AC-013-02 — consent + action_source | `validateConversionEvent` + `ConversionConsentVerifier` port; purpose/tenant/subject/time fail-closed; explicit action source | `conversion-event.spec.ts`: denied/unknown/mismatched/ineffective/expired/revoked cases | Parcial: no TASK-032 adapter trusted / live capability |
+| AC-013-03 — match quality + resultado | `conversion-measurement-report.ts`: provider-only observation; delivery/dedupe/attribution axes distinct | `conversion-measurement-report.spec.ts`: unavailable and explicit provider observation cases | Parcial: no provider response, reporting UI or approved attribution window |
+
+Tests añadidos a `api:test`; Source CI debe registrarse desde el run resultante antes de reclamar CI verification. CAPI-001..004 permanecen catalog-only. Ver docs/72.
