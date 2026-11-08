@@ -18,6 +18,7 @@ export class RabbitMqTenantJobConsumerAdapter {
     private readonly leaseSeconds: number,
     private readonly prefetch: number,
     private readonly reporter: TenantJobConsumerErrorReporter,
+    private readonly closeConnection: () => Promise<void> = async () => this.channel.close(),
   ) {
     if (!queue.trim()
       || !Number.isInteger(leaseSeconds) || leaseSeconds < 5 || leaseSeconds > 900
@@ -43,7 +44,13 @@ export class RabbitMqTenantJobConsumerAdapter {
   async stop(): Promise<void> {
     const tag = this.consumerTag;
     this.consumerTag = null;
-    if (tag) await this.channel.cancel(tag);
+    if (tag) {
+      try {
+        await this.channel.cancel(tag);
+      } catch {
+        // The channel may already be closed by an ambiguous ACK failure.
+      }
+    }
     // Stop intake first, then let active transactions finish before closing
     // the channel. Any process crash still relies on lease expiry/recovery.
     await Promise.all([...this.inFlight]);
@@ -72,6 +79,13 @@ export class RabbitMqTenantJobConsumerAdapter {
       // job. Closing the channel lets RabbitMQ redeliver if it did not persist
       // the ACK; PostgreSQL's terminal state/inbox makes that delivery safe.
       this.report("BROKER_ACK_FAILED");
+      try {
+        // Closing the entire session returns unacknowledged deliveries to the
+        // broker and makes the runtime supervisor reconnect with a fresh channel.
+        await this.closeConnection();
+      } catch {
+        this.report("BROKER_ACK_CLOSE_FAILED");
+      }
     }
   }
 

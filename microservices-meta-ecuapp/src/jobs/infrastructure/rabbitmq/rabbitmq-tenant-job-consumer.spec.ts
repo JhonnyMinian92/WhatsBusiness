@@ -14,6 +14,8 @@ class FakeChannel extends EventEmitter {
   readonly acknowledged: ConsumeMessage[] = [];
   readonly rejected: Array<{ message: ConsumeMessage; requeue: boolean }> = [];
   cancelled = false;
+  closed = false;
+  closeCount = 0;
   acknowledgementError: Error | null = null;
 
   async prefetch(_count: number): Promise<void> {}
@@ -25,8 +27,13 @@ class FakeChannel extends EventEmitter {
     return { consumerTag: "synthetic-consumer" } as Replies.Consume;
   }
   async cancel(_tag: string): Promise<Replies.Empty> {
+    if (this.closed) throw new Error("channel already closed");
     this.cancelled = true;
     return {} as Replies.Empty;
+  }
+  async close(): Promise<void> {
+    this.closed = true;
+    this.closeCount += 1;
   }
   ack(message: ConsumeMessage, _allUpTo?: boolean): void {
     if (this.acknowledgementError) throw this.acknowledgementError;
@@ -156,6 +163,7 @@ test("a failed broker ACK never NACKs a business transaction that already resolv
     30,
     4,
     { report: (code) => errors.push(code) },
+    async () => { await channel.close(); },
   );
 
   await adapter.start();
@@ -166,6 +174,8 @@ test("a failed broker ACK never NACKs a business transaction that already resolv
   assert.equal(completedTransactions, 1);
   assert.deepEqual(channel.acknowledged, []);
   assert.deepEqual(channel.rejected, []);
+  assert.equal(channel.closed, true, "ambiguous ACK must close the consumer session to trigger redelivery");
+  assert.equal(channel.closeCount, 1);
   assert.deepEqual(errors, ["BROKER_ACK_FAILED"]);
 });
 

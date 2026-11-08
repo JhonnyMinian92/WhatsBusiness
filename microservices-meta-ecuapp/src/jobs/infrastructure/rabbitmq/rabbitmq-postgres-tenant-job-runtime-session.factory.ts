@@ -128,6 +128,7 @@ export class RabbitMqPostgresTenantJobRuntimeSessionFactory implements TenantJob
       options.consumerLeaseSeconds,
       options.consumerPrefetch,
       options.logger,
+      () => channels.close(),
     );
     const supervisor = new TenantJobRuntimeSupervisor(
       dispatcherRepository,
