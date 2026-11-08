@@ -1,6 +1,7 @@
 import { randomInt } from "node:crypto";
 import { Pool } from "pg";
 import { PrometheusTenantJobRuntimeMetrics } from "../metrics/prometheus-tenant-job-runtime-metrics.js";
+import { TenantJobMetricsHttpServer } from "../metrics/tenant-job-metrics-http.server.js";
 import { TenantJobRuntimeApplication } from "../../application/tenant-job-runtime.application.js";
 import type { TenantJobHandler } from "../../application/tenant-job-ports.js";
 import type { TenantJobRuntimeSessionLogger } from "../rabbitmq/rabbitmq-postgres-tenant-job-runtime-session.factory.js";
@@ -23,6 +24,7 @@ export class TenantJobRuntimeProcess {
     private readonly dispatcherPool: Pool,
     private readonly workerPool: Pool,
     private readonly metrics: PrometheusTenantJobRuntimeMetrics,
+    private readonly metricsServer: TenantJobMetricsHttpServer,
   ) {}
 
   static async create(options: TenantJobRuntimeBootstrapOptions): Promise<TenantJobRuntimeProcess> {
@@ -43,6 +45,11 @@ export class TenantJobRuntimeProcess {
 
     const poolMaximum = boundedInteger(environment, "DATABASE_POOL_MAX", 10, 1, 50);
     const metrics = options.metrics ?? new PrometheusTenantJobRuntimeMetrics();
+    const metricsServer = new TenantJobMetricsHttpServer(metrics, {
+      host: environment["TENANT_JOB_METRICS_HOST"]?.trim() || "127.0.0.1",
+      port: boundedInteger(environment, "TENANT_JOB_METRICS_PORT", 9464, 0, 65_535),
+      bearerToken: environment["TENANT_JOB_METRICS_BEARER_TOKEN"],
+    }, () => options.logger.failed("TENANT_JOB_METRICS_SERVER_ERROR"));
     const poolOptions = {
       max: poolMaximum,
       connectionTimeoutMillis: 5_000,
@@ -107,7 +114,7 @@ export class TenantJobRuntimeProcess {
         },
       );
 
-      return new TenantJobRuntimeProcess(application, dispatcherPool, workerPool, metrics);
+      return new TenantJobRuntimeProcess(application, dispatcherPool, workerPool, metrics, metricsServer);
     } catch (error) {
       await Promise.allSettled([dispatcherPool.end(), workerPool.end()]);
       throw error;
@@ -117,6 +124,7 @@ export class TenantJobRuntimeProcess {
   async run(signal: AbortSignal): Promise<void> {
     if (this.closed) throw new Error("Tenant job runtime process is already closed.");
     try {
+      if (!signal.aborted) await this.metricsServer.listen();
       await this.application.run(signal);
     } finally {
       await this.close();
@@ -132,11 +140,12 @@ export class TenantJobRuntimeProcess {
     if (this.closed) return;
     this.closed = true;
     const results = await Promise.allSettled([
+      this.metricsServer.close(),
       this.workerPool.end(),
       this.dispatcherPool.end(),
     ]);
     if (results.some((result) => result.status === "rejected")) {
-      throw new Error("One or more tenant job database pools failed to close cleanly.");
+      throw new Error("Tenant job metrics server or database pools failed to close cleanly.");
     }
   }
 }
