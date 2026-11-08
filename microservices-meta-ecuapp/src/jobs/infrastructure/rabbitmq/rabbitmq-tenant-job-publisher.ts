@@ -25,7 +25,7 @@ export class RabbitMqTenantJobPublisher implements TenantJobPublisher {
   }
 
   async publish(message: TenantJobMessage, routingKey: string): Promise<void> {
-    if (!/^jobs\.[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*){1,7}$/.test(routingKey)) {
+    if (!/^jobs\.[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?:\.[a-z][a-z0-9]*(?:-[a-z0-9]+)*){0,7}$/.test(routingKey)) {
       throw new TenantJobFailureError({ code: "INVALID_JOB_ROUTING_KEY", retryable: false });
     }
 
