@@ -386,3 +386,11 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Source CI #42431530685 SUCCESS para commit `6059822896987fc618c479d53117354e1a785144`: frozen install, migraciones/idempotencia, build, typecheck, pruebas unitarias e integraciones PostgreSQL/RabbitMQ.
 - La suite de `apps/api` prueba el `DatabaseService` real con pool de una conexión, misma conexión física (`pg_backend_pid`) para tenant A→B, GUC de tenant/usuario limpios tras COMMIT y tras ROLLBACK provocado por excepción.
 - Pool reuse A→B y cleanup transaccional se consideran verificados. Carga concurrente y configuración en deployment siguen pendientes. TASK-003 continúa in_progress por replay/audit, métricas, crash/redelivery/fencing ampliado, handlers reales, secretos/deployment y revisión independiente.
+
+## Handoff — aislamiento concurrente de tenants (2026-11-08)
+
+- Se amplió `apps/api/src/platform/database/database.context.integration.spec.ts` con una prueba de dos transacciones simultáneas usando el `DatabaseService` real y un pool worker de dos conexiones.
+- La prueba sincroniza ambas transacciones para mantenerlas abiertas en paralelo; comprueba `pg_backend_pid()` distintos, GUC `app.tenant_id`/`app.user_id` correctos durante toda la ejecución y aislamiento RLS (cada actor solo ve su tenant).
+- Commit de código: `9b497d0805b53f79e658fd874d0ebfbec3863b12`. Source CI correspondiente pendiente de lectura al momento de este handoff; no declarar la regresión verificada todavía.
+- A→B secuencial y cleanup tras COMMIT/ROLLBACK sí están verificados por Source CI #42431530685 en commit `6059822896987fc618c479d53117354e1a785144`.
+- TASK-003 sigue `in_progress`. Siguientes pendientes: replay administrativo con permission/approval/audit, replay seguro de broker DLQ, métricas/alertas, crash/redelivery/fencing, handlers de negocio reales, validación de infraestructura RabbitMQ, secretos/deployment y revisión independiente.
