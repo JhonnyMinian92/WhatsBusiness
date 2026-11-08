@@ -52,6 +52,11 @@ export interface RequestApprovalInput {
   readonly subject: TenantAccessContext;
   readonly binding: ApprovalActionBinding;
   readonly idempotencyKey: string;
+  /** Stages the immutable review snapshot in the same transaction as approval creation. */
+  readonly stageRequest?: (
+    client: PoolClient,
+    approval: ApprovalRequestSummary,
+  ) => Promise<void>;
 }
 
 export interface DecideApprovalInput {
@@ -184,7 +189,11 @@ export class ApprovalWorkflowService {
         }
 
         const counts = await this.approvalCounts(client, request.id, subject.tenantId);
-        return this.toSummary(request, counts.approved_count);
+        const summary = this.toSummary(request, counts.approved_count);
+        if (input.stageRequest) {
+          await input.stageRequest(client, summary);
+        }
+        return summary;
       },
     );
   }
