@@ -181,3 +181,37 @@ test("metrics collection errors do not prevent recovery or dispatch", async () =
     "dispatch",
   ]);
 });
+
+
+test("slow aggregate metrics sampling never holds recovery or dispatch", async () => {
+  const calls: string[] = [];
+  const controller = new AbortController();
+  let resolveSnapshot!: (snapshot: TenantJobRuntimeMetricsSnapshot) => void;
+  const reader: TenantJobRuntimeMetricsReader = {
+    readSnapshot() {
+      calls.push("sample");
+      return new Promise<TenantJobRuntimeMetricsSnapshot>((resolve) => {
+        resolveSnapshot = resolve;
+      });
+    },
+  };
+  const dispatcher: TenantJobOutboxDispatcher = {
+    async dispatchBatch() {
+      calls.push("dispatch");
+      controller.abort();
+      resolveSnapshot(EMPTY_SNAPSHOT);
+      return { claimed: 0, published: 0, scheduledForRetry: 0, blocked: 0, lostLease: 0 };
+    },
+  } as unknown as TenantJobOutboxDispatcher;
+  const supervisor = new TenantJobRuntimeSupervisor(
+    supervisorRepository(calls),
+    dispatcher,
+    { recovered() { calls.push("recovered"); }, failed(code) { calls.push("failed:" + code); } },
+    supervisorOptions,
+    metricsRecorder(calls),
+    reader,
+  );
+
+  await supervisor.run(controller.signal);
+  assert.deepEqual(calls, ["sample", "recover", "recovered", "dispatch", "snapshot:3"]);
+});
