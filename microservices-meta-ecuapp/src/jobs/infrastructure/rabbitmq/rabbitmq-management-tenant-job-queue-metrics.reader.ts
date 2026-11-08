@@ -188,6 +188,7 @@ function isQueueStatistics(value: unknown): value is RabbitMqQueueStatistics {
   return typeof value === "object"
     && value !== null
     && "messages_ready" in value
+    && "messages_unacknowledged" in value
     && "consumers" in value;
 }
 
