@@ -825,3 +825,13 @@ La implementación de TASK-004 y TASK-005 fue publicada y verificada por CI en c
 - Sin migración, cambio de endpoint o modificación del envelope RabbitMQ: el contexto complementario sigue protegido en el payload cifrado del inbox. No se expone PII en el mensaje broker.
 
 **Estado de US-014:** avance de implementación; TASK-027/028 continúan `in_progress`, no `verified` ni `accepted`. Siguen pendientes handlers reales de cada bounded context, CR-0016 (retención y ventana/condiciones de replay), replay webhook con aprobaciones/audit cuando la política esté aprobada, KMS/Secret Manager y rotación, rate limit/WAF/TLS en perímetro, fixtures oficiales por producto/cuenta Meta elegible, wiring/despliegue operativo, SLO/alertas, carga/DR, review independiente y Product Owner acceptance.
+
+
+## Handoff de implementación — TASK-026 / US-013 (2026-11-08)
+
+- Estado: `in_progress`; se implementó un slice puro de dominio, no el gateway productivo completo.
+- Paths: `apps/api/src/marketing/conversions/domain/conversion-event.ts`, `conversion-measurement-report.ts`, `apps/api/src/marketing/conversions/application/conversion-consent-verifier.port.ts` y sus suites unitarias, incluidas en `api:test`.
+- Comportamientos: event_id caller-supplied y compartido con Pixel/SDK; identidad dataset/event_name/event_id; action_source allowlist; requisitos website; consentimiento fail-closed y evaluación temporal/tenant/subject/purpose; reportes sin inferencia local de match quality ni atribución.
+- AC-013-01/02/03 continúan parciales. No hay repositorio/constraint DB, endpoint, outbox/worker, adapter Meta ni observaciones reales del proveedor.
+- Dependencias abiertas: TASK-023, TASK-031 y TASK-032 (consent evidence). CR-0015 y CAPI-001..004 no están cerrados. Ver docs/72.
+- No declarar verified/accepted hasta Source CI verde, Contract CI/fixtures cuando el contrato se congele, revisión independiente, pruebas externas permitidas y aceptación del Product Owner.
