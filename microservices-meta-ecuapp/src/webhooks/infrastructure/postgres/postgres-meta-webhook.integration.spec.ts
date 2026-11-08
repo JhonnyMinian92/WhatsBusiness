@@ -91,8 +91,8 @@ test("PostgreSQL webhook inbox persists idempotently, fences tenant processing a
       await ingressClient.query("BEGIN");
       await ingressClient.query("SELECT set_config('app.tenant_id', $1, true)", [tenantId]);
       const storedEvents = await ingressClient.query<{ id: string }>(
-        "SELECT id::text FROM platform.meta_webhook_inbox WHERE tenant_id = $1 AND idempotency_key = $2",
-        [tenantId, idempotencyKey],
+        "SELECT id::text FROM platform.meta_webhook_inbox WHERE idempotency_key = $1",
+        [idempotencyKey],
       );
       assert.equal(storedEvents.rows.length, 1);
       await ingressClient.query("SELECT set_config('app.tenant_id', $1, true)", [otherTenantId]);
