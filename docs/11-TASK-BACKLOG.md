@@ -661,3 +661,15 @@ La integración PostgreSQL se reordenó para no llamar a la operación batch `cl
 - CRM-005/006 ContactIdentity: commit `215ab46c725cef73aeb2e602328531896abf8354`, Source CI #575 SUCCESS y CodeQL #110 SUCCESS. Esto valida el primer slice de consulta/enlace namespaced, no cierre de TASK-043/053.
 - TASK-027 Lead Ads: commit `eab842c699e41a6a0099eab343111042ec6aa94d`, Source CI #583 SUCCESS y CodeQL #118 SUCCESS. El decoder lee `leadgen_id` y `created_time` desde `changes[].value`; obtener `field_data` sigue requiriendo Graph API independiente y permisos autorizados. Aún no existe módulo CRM Leads ni consumer que materialice el lead en el CRM.
 - CRM-007: se añade motor de dominio puro de candidatos por identidad provider-namespaced, procedencia y nombre normalizado. Sin endpoint ni merge automático; revisión humana obligatoria. Source CI pendiente.
+
+
+### Cierre de verificación CRM-007 — 2026-11-08
+
+- Commit 82eff584655212c16a4f59bce9542aeedf978bc4: Source CI #585 SUCCESS y CodeQL #120 SUCCESS.
+- El target api:test ejecutó las nueve pruebas específicas del detector. Se validan identidad namespaced, referencia de origen, nombre normalizado, colisiones cross-tenant, ownership de identidades, tipos/estados, ranking y límites.
+- Source CI #584 falló por un fixture que omitía la identidad del perfil origen; #585 pasó tras corregir la preparación, sin cambiar la lógica del dominio.
+- CRM-007 queda implementado y CI-verified a nivel de dominio. API/query, contrato, auditoría operativa y aceptación independiente siguen pendientes; TASK-043/053 permanecen in_progress.
+
+### Corrección de estado Lead Ads — 2026-11-08
+
+La nota anterior que señalaba Source CI pendiente quedó supersedida: commit eab842c699e41a6a0099eab343111042ec6aa94d pasó Source CI #583 y CodeQL #118. El decoder procesa leadgen_id/created_time dentro de changes[].value. Aún no existe el bounded context CRM Leads ni la materialización del lead/lectura de field_data.

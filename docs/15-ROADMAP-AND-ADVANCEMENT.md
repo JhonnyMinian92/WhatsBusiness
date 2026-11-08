@@ -266,3 +266,8 @@ El primer commit CRM Identity superó build/typecheck, migraciones y Contract CI
 - CRM Identity está validado como slice de código/contrato, no como CRM completo. TASK-043/053 siguen in_progress.
 - El catálogo tenant-role es declarativo; hasta completar TASK-004 no existen grants persistidos automáticos para las plantillas. Mantener fail-closed y no prometer acceso a los usuarios existentes.
 - Las métricas de antigüedad de ejecución quedan implementadas y validadas; el fixture de integración se corrigió para no reclamar accidentalmente leases por un query batch.
+
+
+### Evidencia CRM-007 — 2026-11-08
+
+El motor de candidatos duplicados de contactos quedó CI-verified a nivel de dominio en commit 82eff584655212c16a4f59bce9542aeedf978bc4 (Source CI #585, CodeQL #120). El estado global de TASK-043/053 sigue in_progress: faltan consulta tenant-scoped paginada, contrato HTTP, audit/review, reversible merge/undo, asociaciones Asset Registry y aceptación.

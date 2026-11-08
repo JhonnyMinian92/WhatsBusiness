@@ -126,3 +126,8 @@ El umbral por defecto es 70, por lo que un nombre común por sí solo no genera 
 El componente recibe candidatos ya recuperados por un repositorio tenant-scoped. No se publica endpoint nuevo: CRM-007 necesita completar su contrato de búsqueda/paginación y revisión antes de habilitar API. Las identidades provider-scoped no equivalen a un email/teléfono universal; los identificadores opacos son case-sensitive y la namespace forma parte de la igualdad.
 
 **Estado:** motor de dominio y pruebas unitarias registrados en target `api:test`; el commit debe pasar Source CI antes de considerar verificado el slice. TASK-043 sigue `in_progress`.
+
+
+## Evidencia CRM-007 — 2026-11-08
+
+ContactDuplicateCandidateDetector quedó CI-verified en commit 82eff584655212c16a4f59bce9542aeedf978bc4 (Source CI #585 y CodeQL #120 SUCCESS). Esto verifica únicamente el motor de dominio y sus pruebas. TASK-043/053 siguen in_progress por query adapter paginado tenant-scoped, contrato HTTP, auditoría/review, reversible merge/undo, Asset Registry associations y aceptación independiente.

@@ -31,7 +31,7 @@ El score se limita a 100. Umbral predeterminado: 70. Una puntuación 90–100 es
 
 ## Verificación pendiente para completar CRM-007
 
-El slice actual implementa señales de dominio y pruebas puras. Aún se requieren contrato HTTP congelado, repositorio/query eficiente tenant-scoped con paginación, auditoría de consulta cuando proceda, pruebas PostgreSQL de aislamiento/rendimiento, revisión de umbrales con datos sintéticos representativos y aceptación independiente. No usar nombres iguales como criterio autónomo de fusión.
+El slice de dominio y nueve pruebas puras quedó verificado en Source CI #585 y CodeQL #120 (commit 82eff584655212c16a4f59bce9542aeedf978bc4). Aún se requieren contrato HTTP congelado, repositorio/query eficiente tenant-scoped con paginación, auditoría de consulta cuando proceda, pruebas PostgreSQL de aislamiento/rendimiento, revisión de umbrales con datos sintéticos representativos y aceptación independiente. No usar nombres iguales como criterio autónomo de fusión.
 
 ## Fuera de alcance
 
@@ -43,3 +43,10 @@ No se incluye scoring ML, normalización de teléfonos desde texto sin país, b�
 Source CI #584 validó install, validación de observabilidad, migraciones/idempotencia, build y typecheck; falló una aserción de la prueba "candidate ranking and result cap are deterministic". El fixture había dado una ContactIdentity al perfil candidato, pero no al perfil de origen, así que no existía una colisión namespaced y el score observado de 75 era el comportamiento correcto.
 
 Se corrige el fixture para que origen y candidato compartan la misma identidad completa (provider/product/channel/identifierType/externalId); ahora ese candidato debe puntuar 100 y los dos restantes 75, comprobando orden y límite de resultados. No cambia el algoritmo ni se relaja la validación.
+
+
+## Evidencia de CI — 2026-11-08
+
+- Commit 82eff584655212c16a4f59bce9542aeedf978bc4: Source CI #585 SUCCESS y CodeQL #120 SUCCESS.
+- Source CI #584 había detectado un fixture incompleto para la estrategia de identidad; el fixture fue corregido antes de la validación satisfactoria, sin modificar el algoritmo.
+- El resultado valida el dominio y sus nueve pruebas específicas, no el endpoint, repositorio tenant-scoped, merge reversible, aceptación o despliegue.
