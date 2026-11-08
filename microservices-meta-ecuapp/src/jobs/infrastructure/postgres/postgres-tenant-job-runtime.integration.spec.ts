@@ -141,6 +141,51 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
       [tenantId, actorUserId, otherTenantId, otherActorUserId],
     );
 
+    // Sequential tenant A -> B execution must safely reuse one physical worker
+    // connection without leaking transaction-local identity across pool checkout.
+    const tenantASession = await withTenantContext(
+      workerPool,
+      actorUserId,
+      tenantId,
+      async (client) => {
+        const result = await client.query<{
+          backend_pid: number;
+          actor_id: string;
+          active_tenant_id: string;
+        }>(
+          "SELECT pg_backend_pid()::int AS backend_pid, current_setting('app.user_id', true) AS actor_id, current_setting('app.tenant_id', true) AS active_tenant_id",
+        );
+        return result.rows[0];
+      },
+    );
+    const tenantBSession = await withTenantContext(
+      workerPool,
+      otherActorUserId,
+      otherTenantId,
+      async (client) => {
+        const result = await client.query<{
+          backend_pid: number;
+          actor_id: string;
+          active_tenant_id: string;
+        }>(
+          "SELECT pg_backend_pid()::int AS backend_pid, current_setting('app.user_id', true) AS actor_id, current_setting('app.tenant_id', true) AS active_tenant_id",
+        );
+        return result.rows[0];
+      },
+    );
+    assert.equal(tenantBSession.backend_pid, tenantASession.backend_pid,
+      "The test must exercise the same physical pooled connection.");
+    assert.deepEqual(
+      { actor_id: tenantASession.actor_id, tenant_id: tenantASession.active_tenant_id },
+      { actor_id: actorUserId, tenant_id: tenantId },
+    );
+    assert.deepEqual(
+      { actor_id: tenantBSession.actor_id, tenant_id: tenantBSession.active_tenant_id },
+      { actor_id: otherActorUserId, tenant_id: otherTenantId },
+    );
+    assert.notEqual(tenantBSession.active_tenant_id, tenantASession.active_tenant_id,
+      "Tenant A context must never survive checkout for tenant B.");
+
     const completionJobId = await stageJob(
       runtimePool, tenantId, actorUserId, correlationId,
       "inbox.message.process", { messageId: "synthetic-message-1", version: 1 },
