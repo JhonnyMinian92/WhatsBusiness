@@ -426,3 +426,15 @@ Commit 966edff; Source CI #42513964425 y CodeQL #42513964419 success. 191/191 AP
 | US-002 — production assurance | Real IdP ACR/AMR/freshness and independent review/PO acceptance not exercised by synthetic CI | CI green is not production IdP evidence | Pending |
 
 Source CI #42513964425: migrations/idempotency, build, typecheck, API/PostgreSQL 191/191 and Meta 87/87 all SUCCESS; CodeQL #42513964419 SUCCESS. US-002 is technically verified, not yet formally accepted. GO-PRODUCTION remains NO-GO.
+
+
+## 11. Evidencia incremental — US-014 / TASK-027..028 (2026-11-08)
+
+| TEST ID | Criterio / riesgo | Implementación y prueba | Estado de evidencia |
+|---|---|---|---|
+| TEST-WEBHOOK-014 | AC-014-02 — no perder contexto al normalizar un webhook con varios eventos | `microservices-meta-ecuapp/src/webhooks/domain/meta-webhook-event.ts`; `meta-webhook-event.spec.ts`: `preserves WhatsApp metadata and emits both message and status arrays from one change` | Implementado; Source CI pendiente |
+| TEST-WEBHOOK-015 | AC-014-02 — metadata de entrega no debe romper deduplicación del evento | `meta-webhook-event.ts`; `meta-webhook-event.spec.ts`: `provider context does not change a message's stable idempotency key` | Implementado; Source CI pendiente |
+
+Las pruebas anteriores se suman a la evidencia preexistente de firma HMAC sobre bytes originales, límite de payload, persistencia inbox/outbox, confirmación antes del ACK, consumer receipt idempotente, tenant isolation, retry y DLQ. Los commits del nuevo slice son `96506d956c4af70b061d02623fd42c0749f12fea` y `5b7374ef39113d4a264bd1c0ccf9d8cda8428948`; Source CI #42527271340 y CodeQL #42527271448 se encontraban en ejecución al crear esta entrada.
+
+No se cierra AC-014-03: replay webhooks permanece sujeto a CR-0016, handler/product side-effect idempotency, doble aprobación, step-up y auditoría. No se convierte CI sintético en evidencia de callbacks Meta reales ni de despliegue.
