@@ -245,9 +245,14 @@ Estado actual:
 
 ## Actualización — CRM ContactIdentity slice / 2026-11-08
 
-- Se incorporó en environment/local el slice de CRM-005 (list identities) y CRM-006 (link identity), junto con migración 0024 y contratos design-frozen.
+- Se incorporó en environment/local el slice de CRM-005 (list identities) y CRM-006 (link identity), junto con migraciones 0024/0025 y contratos design-frozen.
 - El OpenAPI conserva 296 operaciones HTTP: 11 design-frozen/implementation-allowed y 285 catalog-only. El allowlist exacto se amplía solo a CRM-001..006 + PLT-001..005.
 - El modelo impone identidad namespaced por tenant; teléfono no es PK universal, colisiones no revelan el otro contacto y no existe merge automático.
 - Código/tests/contrato ya están en el cambio; Source CI y Contract CI del nuevo commit todavía deben confirmar build, typecheck, migraciones repetidas, pruebas unitarias/PostgreSQL y validez OpenAPI.
 - TASK-043/053 permanecen in_progress: no cubre candidatos, merge reversible, asociaciones Asset Registry ni verificación real de cuentas Meta. TASK-042 permanece pendiente de revisión independiente/aceptación.
 - GO-PRODUCTION permanece NO-GO. No se declara porcentaje global hasta reconciliar criterios de producto con evidencia.
+
+
+### Corrección de Source CI #574 — 2026-11-08
+
+El primer commit CRM Identity superó build/typecheck, migraciones y Contract CI/CodeQL. Source CI detectó que las nuevas claves de permiso solo estaban declaradas en TypeScript y que dos asserts del nuevo test de controlador no correspondían a llamadas síncronas. Se añadió la migración API 0025 para sincronizar platform.permissions y se corrigió el test a assert.throws. El commit correctivo aún debe pasar Source CI y revalidación de contratos antes de aceptar el slice.

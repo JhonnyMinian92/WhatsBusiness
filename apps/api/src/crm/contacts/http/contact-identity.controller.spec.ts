@@ -75,12 +75,12 @@ test("link forwards the idempotency key and rejects route tenant/context mismatc
   assert.deepEqual(received, {
     receivedSubject: subject, receivedContactId: contactId, body, key: "identity-link-0000001",
   });
-  await assert.rejects(
-    sut.list("ffffffff-ffff-4fff-8fff-ffffffffffff", contactId, undefined, undefined, request()),
+  assert.throws(
+    () => sut.list("ffffffff-ffff-4fff-8fff-ffffffffffff", contactId, undefined, undefined, request()),
     error => error instanceof BadRequestException,
   );
-  await assert.rejects(
-    sut.list(tenantId, contactId, undefined, undefined, {} as TenantAuthenticatedRequest),
+  assert.throws(
+    () => sut.list(tenantId, contactId, undefined, undefined, {} as TenantAuthenticatedRequest),
     error => error instanceof InternalServerErrorException,
   );
 });

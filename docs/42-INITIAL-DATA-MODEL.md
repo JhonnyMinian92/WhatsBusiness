@@ -124,3 +124,8 @@ La migración microservices-meta-ecuapp/migrations/0024-crm-contact-identities.s
 El registro conserva source_type, source_reference, observed_at, verified_at, confidence, visibility y created_by. El endpoint CRM-006 fija source_type=api, registra el momento observado en DB y deja verified_at/confidence como NULL: vincular desde el CRM no acredita que Meta haya verificado la identidad. visibility=tenant_only es explícito.
 
 La tabla reutiliza crm.contact_command_idempotency extendiendo su operación permitida con link_identity; el mismo repositorio de contactos presta la reserva/finalización genérica del comando. El índice único evita colisiones dentro del tenant, mientras dos tenants distintos pueden tener el mismo identificador namespaced.
+
+
+## Addendum — catálogo RBAC CRM Identity / migración 0025 (2026-11-08)
+
+La prueba identity.slice.spec.ts valida que las filas persistidas en platform.permissions coincidan con el catálogo TypeScript. La ampliación del permission catalog requiere, por tanto, una migración de vocabulario independiente: apps/api/migrations/0025-crm-contact-identity-permissions.sql registra crm.contacts.identities.read y crm.contacts.identities.link, ambas de riesgo sensitive. Esta migración no asigna permisos a ningún usuario ni rol; las concesiones siguen en el catálogo tenant-role y las políticas de tenant.

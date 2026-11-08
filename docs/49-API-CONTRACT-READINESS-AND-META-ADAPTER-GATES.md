@@ -9,11 +9,11 @@
 El catálogo docs/47 contiene **288 operaciones REST activas y 8 rutas de ingress de webhook** (296 operaciones HTTP). LEAD-010 es un alias histórico retirado y superseded by SALES-014, con ID no reutilizable.
 
 El OpenAPI incluye las 296 operaciones activas: 11 design-frozen y 285 catalog-only.
-- **5 operaciones de plataforma** conservan schemas de diseño concretos: PLT-001..005 (health, identidad y tenant context). Su estado design-frozen no levanta G0 ni autoriza scaffold productivo.
-- **291 operaciones** se registran como catalog-only: tienen route, method, operationId/API ID y trazabilidad, pero no tienen request/response schema de negocio congelado.
+- **11 operaciones** conservan contratos design-frozen: PLT-001..005 (health, identidad y tenant context) y CRM-001..006 (Contact + ContactIdentity). Este estado congela sus schemas de negocio; no equivale a revisión independiente, aceptación de producto ni GO-PRODUCTION.
+- **285 operaciones** se registran como catalog-only: tienen route, method, operationId/API ID y trazabilidad, pero no tienen request/response schema de negocio congelado.
 - Las 8 rutas WH-* llevan autenticación/handshake específico del producto Meta; no deben heredar Bearer Auth del usuario.
 
-**Regla:** que una ruta aparezca en OpenAPI no significa que ya se pueda implementar. El agente debe comprobar x-contract-status, x-contract-ready, x-implementation-allowed y x-required-gate. design-frozen significa que el diseño de contrato está congelado; no levanta el gate G0. PLT-001 y PLT-002 tienen x-implementation-allowed=true por autorización G0-CODE limitada al health foundation. PLT-003..005 y los otros endpoints design-frozen siguen bloqueados hasta autorización de su slice; catalog-only permanece bloqueado hasta congelar schemas y controles. Las operaciones catalog-only tampoco pueden implementarse hasta congelar request/response/error schema, authorization scope, idempotency, audit, tenant boundary y pruebas. Nunca completar schemas por intuición.
+**Regla:** que una ruta aparezca en OpenAPI no significa que ya se pueda implementar. El agente debe comprobar x-contract-status, x-contract-ready, x-implementation-allowed y x-required-gate. El allowlist de implementación queda limitado exactamente a PLT-001..005 y CRM-001..006; el freeze de CRM ContactIdentity y la autorización de este slice están registrados en docs/67. Los 285 endpoints catalog-only y cualquier operación fuera del allowlist siguen bloqueados hasta congelar request/response/error schema, authorization scope, idempotency, audit, tenant boundary y pruebas. Design-frozen no equivale a aceptación independiente ni a GO-PRODUCTION. Nunca completar schemas por intuición.
 
 ## 2. Procedimiento de congelación por operación
 
@@ -113,7 +113,7 @@ Los tenantId internos en path se tipan UUID; los IDs externos Meta permanecen st
 
 - El inventario OpenAPI incluye todas las operaciones y marca las no congeladas.
 - La capa común de errores y el tipo UUID de tenantId están normalizados; el plan de cierre por bounded context está en docs/55.
-- Las 291 operaciones catalog-only siguen sin requestBody ni response schema de negocio congelados; no deben pasar a design-frozen por tener errores comunes.
+- Las 285 operaciones catalog-only siguen sin requestBody ni response schema de negocio congelados; no deben pasar a design-frozen por tener errores comunes.
 - No hay todavía contrato Meta completo para cada operación/version ni fixtures de app/cuenta reales.
 - No se verificó App Review, scopes concedidos, account access, país/eligibility, Marketing API Access Tier de la app ni acceso a Meta Business.
 - El validator CI de contratos es un control estructural; los contract tests de runtime siguen pendientes. No confundir validación de catálogo con endpoints implementados.

@@ -581,3 +581,12 @@ Entregables del slice:
 - Pruebas añadidas: dominio, metadatos de guards, PostgreSQL con idempotencia, colisión dentro de tenant, mismo ID entre tenants, RLS y audit stream.
 
 Fuera de este cierre parcial: CRM-007 candidatos de duplicación, CRM-008..010 merge/undo, asociaciones de activos WAAC/PMA/WABA, importadores de Lead Ads, deduplicación, verificación del proveedor, unlink y eventos de negocio. No marcar TASK-043/053 como verified/accepted hasta completar sus criterios restantes y validación independiente.
+
+
+## Revisión correctiva Source CI #574 — CRM ContactIdentity (2026-11-08)
+
+- Source CI #574 completó build, typecheck, aplicación y replay del historial de migraciones; la suite API detectó dos fallos.
+- Fallo 1: identity.slice.spec.ts comparó platform.permissions con el catálogo TS; el esquema SQL aún no tenía las dos nuevas claves. Corrección: apps/api/migrations/0025-crm-contact-identity-permissions.sql.
+- Fallo 2: el test de ContactIdentityController usaba assert.rejects para una excepción síncrona lanzada al validar tenant; corrección a assert.throws.
+- Contract CI #30 y CodeQL #109 pasaron en el commit anterior, pero el cierre técnico requiere que Source CI vuelva a pasar en el commit correctivo y que Contract CI vuelva a validar la documentación/contrato reconciliados.
+- TASK-043 y TASK-053 permanecen in_progress; no marcar aceptación ni GO-PRODUCTION por este slice.
