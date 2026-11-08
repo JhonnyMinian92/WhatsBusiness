@@ -12,6 +12,7 @@ import { Reflector } from "@nestjs/core";
 import { randomUUID } from "node:crypto";
 import type { Response } from "express";
 import type { OidcAuthenticatedRequest } from "./oidc-auth.guard.js";
+import type { DeveloperApiClientPrincipal } from "../developer/application/oidc-or-api-client.guard.js";
 import { IdentityService } from "./identity.service.js";
 import type { TenantAccessContext } from "./tenant-access-context.js";
 
@@ -24,6 +25,7 @@ const PURPOSE_PATTERN = /^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*){2,7}$/;
 export interface TenantAuthenticatedRequest extends OidcAuthenticatedRequest {
   correlationId?: string;
   tenantAccessContext?: TenantAccessContext;
+  developerApiClientContext?: DeveloperApiClientPrincipal;
 }
 
 export function TenantAccessPurpose(purpose: string): MethodDecorator {
@@ -54,10 +56,6 @@ export class TenantContextGuard implements CanActivate {
 
   async canActivate(execution: ExecutionContext): Promise<boolean> {
     const request = execution.switchToHttp().getRequest<TenantAuthenticatedRequest>();
-    const claims = request.oidcClaims;
-    if (!claims) {
-      throw new UnauthorizedException("A verified OIDC principal is required.");
-    }
 
     const tenantId = request.params["tenantId"];
     if (typeof tenantId !== "string" || !UUID_PATTERN.test(tenantId)) {
@@ -80,12 +78,31 @@ export class TenantContextGuard implements CanActivate {
     const response = execution.switchToHttp().getResponse<Response>();
     response.setHeader("X-Correlation-ID", correlationId);
 
-    const context = await this.identity.authorizeTenantAccess(
-      claims,
-      tenantId,
-      purpose,
-      correlationId,
-    );
+    const clientPrincipal = request.developerApiClientContext;
+    let context: TenantAccessContext;
+    if (clientPrincipal) {
+      if (clientPrincipal.tenantId !== tenantId) {
+        throw new NotFoundException({
+          code: "TENANT_CONTEXT_NOT_FOUND",
+          detail: "La credencial no pertenece al tenant solicitado.",
+        });
+      }
+      context = await this.identity.authorizeTenantAccessForActor(
+        clientPrincipal.ownerUserId,
+        tenantId,
+        purpose,
+        correlationId,
+      );
+      const allowedScopes = new Set(clientPrincipal.scopes);
+      context = Object.freeze({
+        ...context,
+        permissionKeys: Object.freeze(context.permissionKeys.filter((permission) => allowedScopes.has(permission))),
+      });
+    } else {
+      const claims = request.oidcClaims;
+      if (!claims) throw new UnauthorizedException("A verified OIDC or developer API principal is required.");
+      context = await this.identity.authorizeTenantAccess(claims, tenantId, purpose, correlationId);
+    }
 
     request.tenantAccessContext = Object.freeze({
       ...context,
