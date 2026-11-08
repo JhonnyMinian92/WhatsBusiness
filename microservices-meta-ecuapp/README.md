@@ -68,3 +68,9 @@ La raíz HTTP legacy sigue en `apps/api` durante la migración gradual de contex
 - Métricas: Prometheus counters/histograms in-memory con outcomes allowlisted y sin datos tenant/personales en labels. Todavía no hay servidor HTTP de scrape ni gauges de cola/outbox/leases/DLQ, alertas o SLO.
 - Replay administrativo conserva two-person approval, step-up, hash binding y audit; el policy registry sigue vacío y fail-closed hasta que handlers reales demuestren idempotencia de efectos externos.
 - El runtime no se declara listo para producción. Pendientes: handlers reales y replay end-to-end, DLQ operator runbook/retención, endpoint/gauges/alerts/SLO, broker deployment validation, Secret Manager/rotación, TLS/AMQPS reales, carga/DR, revisión independiente y aprobación del propietario. TASK-003 permanece `in_progress`; GO-PRODUCTION NO-GO.
+
+## Observabilidad del runtime de jobs
+
+El proceso expone las métricas Prometheus en `GET /metrics` cuando `TenantJobRuntimeProcess.run()` está activo. El listener usa `127.0.0.1:9464` por defecto y no añade labels de tenant, actor, job ni payload.
+
+Para scraping desde otro contenedor/host, configura `TENANT_JOB_METRICS_HOST=0.0.0.0`, un puerto accesible solo desde la red privada y `TENANT_JOB_METRICS_BEARER_TOKEN` con al menos 32 bytes aleatorios. El secreto debe proceder del Secret Manager; Prometheus debe enviarlo como `Authorization: Bearer`. No expongas el endpoint a Internet ni lo publiques detrás de un proxy sin autenticación.
