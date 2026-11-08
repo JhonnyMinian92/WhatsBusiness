@@ -443,3 +443,9 @@ Se añadió una regresión de integración a `microservices-meta-ecuapp/src/jobs
 - Source CI [#42444781572](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42444781572) estaba en ejecución para commit `168c3fa40514998a17a0df8d94e8b97e2767208e`; el código no se marca `verified` hasta SUCCESS en el HEAD que contiene la suite completa.
 - TASK-003 permanece `in_progress`: wrappers tenant-scoped y runtime están implementados, pero adapters concretos Valkey/object storage, validación de observabilidad desplegada, replay E2E con handlers reales, medición autoritativa de lag, SLO/RPO/RTO, carga/DR y revisión independiente no están cerrados.
 - TASK-027/028 permanecen `in_progress`: faltan handlers reales por producto, fixtures/conformance oficiales Meta, Secret Manager/KMS productivo, rate limiting/WAF, freeze contractual, replay aprobado por CR-0016, retención/privacidad y aceptación operativa.
+
+### Handoff incremental — contrato de evento Meta webhook (2026-11-08)
+
+- Se agregó `meta.webhook.received.v1` al catálogo AsyncAPI y el schema cerrado `MetaWebhookReceived` al union JSON Schema. El broker transporta únicamente receipt ID, tenant, producto, correlation ID y hash; el ciphertext/PII permanece en PostgreSQL.
+- El validador de contratos ahora espera 70 eventos, 140 operaciones AsyncAPI y 70 schemas, con fixture positivo y rechazos de tenant nulo/campos extra. Contract CI [#42445047626](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42445047626) falló por instalación npm en la raíz del workspace; el workflow se corrigió y la nueva ejecución está pendiente de resultado.
+- La instalación de validadores usa un directorio aislado en `RUNNER_TEMP` y el script resuelve los módulos desde una ruta explícita, evitando el error `EUNSUPPORTEDPROTOCOL workspace:`.
