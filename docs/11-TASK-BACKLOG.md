@@ -523,3 +523,10 @@ Se añadió una regresión de integración a `microservices-meta-ecuapp/src/jobs
 - Se añade migración 0023 para imponer en PostgreSQL `organization => first_name IS NULL AND last_name IS NULL`, manteniendo la validación ya presente en el agregado de dominio.
 - La integración intenta una inserción inválida con el login runtime dentro del tenant y comprueba SQLSTATE `23514`, recuperándose mediante SAVEPOINT/ROLLBACK TO SAVEPOINT.
 - **Estado:** pendiente Source CI (migración idempotente + suite real PostgreSQL). TASK-042 permanece `in_progress`; los endpoints CRM siguen fuera de `AppModule` y `x-implementation-allowed=false` hasta superar los gates.
+
+
+### Handoff incremental — fixture auditor para RLS de auditoría (2026-11-08)
+
+- Source CI #558 ejecutó migraciones 0001–0023, build y typecheck; la suite API registró 101 pruebas aprobadas y una falla en la verificación del stream de auditoría del slice CRM. La migración 0023 y su rechazo SQLSTATE 23514 sí fueron ejecutados antes de esa aserción.
+- La causa es el fixture: el actor tenía membresía activa pero no una asignación real a un rol con `audit.read`; la política RLS ocultaba los eventos de forma correcta. La prueba incorpora `compliance_auditor` independiente por tenant, aristas tenant-scoped `role_permissions`, asignaciones `membership_roles` y captura posterior del `authz_version`.
+- No se relaja la política de auditoría. TASK-042 permanece `in_progress`; Source CI/Contract CI y habilitación HTTP siguen siendo gates separados.

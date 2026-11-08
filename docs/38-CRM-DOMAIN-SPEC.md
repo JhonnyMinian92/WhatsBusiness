@@ -128,3 +128,12 @@ La migración `0023-crm-contact-organization-name-invariant.sql` aplica un `CHEC
 La integración usa el rol de API dentro de `withTenantContextAtVersion`, abre un savepoint y verifica SQLSTATE `23514` para el INSERT inválido, revirtiendo el savepoint sin abortar el resto de la transacción.
 
 **Estado:** migración y prueba añadidas; pendiente Source CI con migración 0023 e integración PostgreSQL. TASK-042 sigue `in_progress`.
+
+
+## 16. Fixture de auditoría respetando RLS (2026-11-08)
+
+Source CI #558 y la siguiente repetición mostraron que el agregado, la idempotencia y el CHECK de la migración 0023 pasaban, pero la aserción de verificación de auditoría obtenía un stream incompleto. No era evidencia de corrupción del hash: la política `platform.audit_events_read` oculta los eventos a un miembro sin `audit.read`.
+
+La integración ahora aprovisiona, solo en sus tenants sintéticos, un rol `compliance_auditor`, la arista tenant-scoped `role_permissions(audit.read)` y su asignación `membership_roles`. El snapshot `authz_version` se consulta después de estas escrituras, porque los triggers invalidan los contextos antiguos. Así, `verifyStream` se ejecuta con permiso de auditoría real en la base. No se debilita RLS ni se concede `audit.read` al rol runtime global.
+
+**Estado:** fixture corregido; pendiente Source CI completo. TASK-042 continúa `in_progress`.

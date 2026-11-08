@@ -65,6 +65,24 @@ test("PostgreSQL CRM contacts enforce tenant RLS, idempotency, audit and optimis
       "INSERT INTO platform.memberships (id, tenant_id, user_id, status) VALUES ($1, $2, $3, 'active'), ($4, $5, $3, 'active')",
       [membershipA, tenantA, actorId, membershipB, tenantB],
     );
+    const auditorRoleA = randomUUID();
+    const auditorRoleB = randomUUID();
+    await admin.query(
+      [
+        "INSERT INTO platform.roles (id, tenant_id, role_key, display_name)",
+        "VALUES ($1, $2, 'compliance_auditor', 'CRM Integration Auditor A'),",
+        "       ($3, $4, 'compliance_auditor', 'CRM Integration Auditor B')",
+      ].join(" "),
+      [auditorRoleA, tenantA, auditorRoleB, tenantB],
+    );
+    await admin.query(
+      "INSERT INTO platform.role_permissions (role_id, tenant_id, permission_key) VALUES ($1, $2, 'audit.read'), ($3, $4, 'audit.read')",
+      [auditorRoleA, tenantA, auditorRoleB, tenantB],
+    );
+    await admin.query(
+      "INSERT INTO platform.membership_roles (membership_id, role_id, tenant_id) VALUES ($1, $2, $3), ($4, $5, $6)",
+      [membershipA, auditorRoleA, tenantA, membershipB, auditorRoleB, tenantB],
+    );
     const authorizationVersions = await admin.query<{ id: string; authz_version: number }>(
       "SELECT id::text, authz_version FROM platform.tenants WHERE id = ANY($1::uuid[])",
       [[tenantA, tenantB]],
