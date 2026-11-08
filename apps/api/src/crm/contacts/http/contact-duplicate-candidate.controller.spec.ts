@@ -7,7 +7,7 @@ import type { ContactDuplicateCandidateService } from "../application/contact-du
 import { AuthorizationGuard, REQUIRED_TENANT_PERMISSION } from "../../../platform/identity/authorization/authorization.guard.js";
 import { TenantContextGuard, TENANT_ACCESS_PURPOSE, type TenantAuthenticatedRequest } from "../../../platform/identity/tenant-context.guard.js";
 import type { TenantAccessContext } from "../../../platform/identity/tenant-access-context.js";
-import { OidcAuthGuard } from "../../../platform/identity/oidc-auth.guard.js";
+import { OidcOrApiClientGuard } from "../../../platform/developer/application/oidc-or-api-client.guard.js";
 
 const tenantId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const sourceContactId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
@@ -34,7 +34,7 @@ function controller(service: Partial<ContactDuplicateCandidateService> = {}): Co
 
 test("candidate route requires OIDC, tenant context and sensitive identity-read permission", () => {
   const reflector = Reflect as unknown as { getMetadata(key: string, target: object): unknown };
-  assert.deepEqual(reflector.getMetadata("__guards__", ContactDuplicateCandidateController), [OidcAuthGuard]);
+  assert.deepEqual(reflector.getMetadata("__guards__", ContactDuplicateCandidateController), [OidcOrApiClientGuard]);
   assert.deepEqual(reflector.getMetadata("__guards__", ContactDuplicateCandidateController.prototype.findCandidates), [
     TenantContextGuard, AuthorizationGuard,
   ]);
