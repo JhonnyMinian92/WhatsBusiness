@@ -348,3 +348,12 @@ TASK-004 (RBAC/ABAC y asignación persistente) y TASK-005 (step-up, approvals y 
 - La integración específica de asignaciones PostgreSQL cubre requester owner, aprobador independiente, step-up sintético, snapshot exacto, permisos persistidos, idempotencia, revocación, protección del último propietario, rollback y audit hash-chain.
 - Estado global US-002: implemented + verified técnicamente, aún in_progress para aceptación formal. Falta reviewer independiente y Product Owner acceptance.
 - Gaps: bootstrap de primer tenant_owner mediante provisioning confiable; ACR/AMR/freshness reales del IdP; contract freeze de APIs IAM catalog-only; outbox/consumer de efectos de negocio y revisión de auditoría externa/operativa según alcance. No alterar GO-PRODUCTION (NO-GO).
+
+
+## Avance de fase — Leads, Ads y CAPI / US-013 (2026-11-08)
+
+- CAPI avanzó de backlog sin código a slice de dominio implementado: validación de action_source/event time/website fields, evidencia de consentimiento fail-closed, identidad dedupe compartible con Pixel/SDK y reporte de match quality/attribution exclusivamente desde el proveedor.
+- Las pruebas unitarias se integraron a api:test; el resultado real de Source CI posterior al cambio debe añadirse antes de afirmar verificación.
+- TASK-026 y US-013 siguen in_progress, no verified ni accepted. Falta TASK-023/031, adapter de consentimiento TASK-032, persistencia/dedupe, outbox/worker, contrato congelado y cuenta Meta autorizada.
+- CAPI-001..004 siguen catalog-only; no se habilitaron endpoints ni envío externo. CR-0015 continúa abierto. GO-PRODUCTION sigue NO-GO.
+- Detalle: docs/72-CAPI-EVENT-GATEWAY.md.
