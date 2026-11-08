@@ -33,7 +33,6 @@ export function parseAdsMoney(value: unknown): AdsMoney {
     throw new AdsMoneyValidationError("ADS_MONEY_CURRENCY_PRECISION_INVALID");
   }
   const units = toUnits(amount);
-  if (units <= 0n) throw new AdsMoneyValidationError("ADS_MONEY_MUST_BE_POSITIVE");
   return Object.freeze({ amount: fromUnits(units), currency });
 }
 
@@ -87,6 +86,11 @@ export function exceedsAdsMoneyBaselinePercent(
   const requestedUnits = toUnits(requested.amount);
   return requestedUnits > baselineUnits
     && (requestedUnits - baselineUnits) * 100n > baselineUnits * BigInt(maximumPercent);
+}
+
+export function isAdsMoneyPositive(value: AdsMoney): boolean {
+  const parsed = parseAdsMoney(value);
+  return toUnits(parsed.amount) > 0n;
 }
 
 export function isAdsMoneyEqual(left: AdsMoney, right: AdsMoney): boolean {
