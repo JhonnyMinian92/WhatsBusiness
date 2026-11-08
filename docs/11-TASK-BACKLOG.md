@@ -978,3 +978,8 @@ La tabla kickoff de TASK-034..041 se conserva como registro histórico. Esta fil
 Se incorporó una policy de dominio reutilizable para grants agency/reseller/provider hacia tenant cliente en apps/api/src/platform/identity/partners/partner-tenant-grant.policy.ts. Quedó registrada/exportada por IdentityModule y su spec de 22 casos se añadió al target api:test. Detalle y criterios: docs/77-US-025-PARTNER-ACCESS-FOUNDATION.md.
 
 **Estado: in_progress.** El slice aún no es acceso productivo de partner: faltan almacenamiento y transacciones de grants, context partner explícito, predicate SQL/RLS de alcance exacto, use cases/repository, consumo durable de aprobación, audit/outbox, invalidación de sesiones/cache/jobs y pruebas PostgreSQL/BOLA/concurrencia. No se relaja can_use_tenant, no se inventa membership cliente y no se mezcla con el soporte JIT interno de TASK-052. PAR-001..007 siguen catalog-only hasta API contract freeze + G0.
+
+
+## Resultado de validación — US-025 PR #4 (2026-11-08)
+
+En el SHA aef477cc15ad860da4b0e27f829d46585b241e3f, build, typecheck y validación de migraciones SUCCESS; Source Workspace global FAILURE con 402 tests (399 pass/3 fail). Ninguno de los 22 tests partner grant está entre los tres fallos. Los errores son 2 expectativas de Creative Lab y 1 integración Platform Administration por RLS al insertar platform.usage_ledger. CodeQL SUCCESS. Mantener TASK-058/US-025 in_progress; no marcar la suite global como verde.

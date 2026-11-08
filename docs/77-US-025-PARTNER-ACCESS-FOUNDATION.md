@@ -93,3 +93,13 @@ TASK-052 añadió SupportGrantPolicy, PlatformAdministrationPort/Service y migra
 El slice actual no modifica base de datos, no publica eventos y no efectúa llamadas a Meta. Para revertirlo: retirar la policy y spec, eliminar su registro en apps/api/project.json y provider/export en IdentityModule, y revertir este documento y las referencias de documentación. Las siguientes fases deberán desplegar primero una migración compatible, probar RLS y tener rollback específico antes de habilitar acceso delegado.
 
 **Conclusión:** se entrega la policy estricta del dominio con pruebas registradas; no es todavía acceso de partner operativo ni cierre completo de US-025/TASK-058.
+
+
+## Resultado de Source CI / CodeQL — SHA aef477cc15ad860da4b0e27f829d46585b241e3f (2026-11-08)
+
+- Build y typecheck: SUCCESS.
+- Validación de migraciones PostgreSQL e idempotencia: SUCCESS.
+- Suite API: 402 tests, 399 pass, 3 fail. Los 22 casos de partner grant no aparecen entre los fallidos.
+- Los tres fallos detectados son ajenos a US-025: dos expectativas de validación de Creative Lab (observaciones stale/low-sample y evidencia/unsafe storage keys) y una integración de Platform Administration que recibe RLS violation al insertar en platform.usage_ledger.
+- CodeQL: SUCCESS en el SHA de este PR.
+- Resultado global de Source Workspace: FAILURE por los tres tests anteriores. No declarar suite global verde ni US-025 aceptada por Product Owner.

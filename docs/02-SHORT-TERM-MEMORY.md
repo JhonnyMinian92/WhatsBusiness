@@ -734,3 +734,11 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - TASK-052 support JIT es interno; platform.support_grants no satisface can_use_tenant ni se reutiliza para agencies.
 - PAR-001..007 siguen catalog-only y x-implementation-allowed=false hasta API contract freeze + G0. No hay controllers, persistencia partner, outbox/consumer ni invalidadores runtime en este slice.
 - US-025/TASK-058 continúan in_progress. Falta persistencia/RLS/partner context, approval consumeAndStage, audit/outbox atómicos, revocación durable, pruebas PostgreSQL/BOLA/concurrencia, contract freeze/G0, revisión independiente y aceptación PO.
+
+
+## CI final de US-025 — SHA aef477cc15ad860da4b0e27f829d46585b241e3f
+
+- Source Workspace: build/typecheck y migraciones PostgreSQL SUCCESS. Suite API: 402 pruebas, 399 aprobadas y 3 fallidas de otros módulos; los 22 tests de partner grant no aparecen entre los fallidos.
+- Fallos pendientes de baseline: 2 expectativas Creative Lab y 1 integración TASK-052/Platform Administration por RLS de platform.usage_ledger.
+- CodeQL: SUCCESS. Source Workspace global: FAILURE. No declarar la CI global verde.
+- PR #4 permanece abierto para revisión; US-025/TASK-058 siguen in_progress porque partner grants aún no tienen persistencia/RLS/partner runtime context, audit/outbox ni propagación de revocación.

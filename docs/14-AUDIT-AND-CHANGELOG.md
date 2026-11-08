@@ -788,8 +788,11 @@ La ejecución de CI anterior pasó build/typecheck y 355/356 API tests; el fallo
 |---|---|---|
 | AUD-219 | PartnerTenantGrantPolicy integrada en IdentityModule: creación aprobada, subject/partner/tenant exactos, roles versionados, action/asset scopes, purpose y ventana temporal. | Código integrado; runtime/RLS pendientes |
 | AUD-220 | Evaluación fail-closed, reducción monotónica de alcance y revocación idempotente tenant-scoped. | Dominio implementado; persistencia e invalidación durable pendientes |
-| AUD-221 | 22 pruebas unitarias registradas en api:test; memoria, backlog, roadmap, trazabilidad, work package e índice actualizados. | Spec registrado; Source CI del SHA final pendiente |
+| AUD-221 | 22 pruebas unitarias registradas en api:test; los 22 casos pasan en el job API del SHA aef477c; Source Workspace global 399/402. | Casos partner sin fallos; Source global FAILURE por 3 tests ajenos; CodeQL SUCCESS |
 
 La primera Source CI del PR #3 encontró un fixture partner defectuoso y cuatro fallos de baseline (tres assertions CRM y un UUID validator de TASK-052). El fixture fue corregido; la rama base actual environment/local contiene fixes CRM/Platform Administration. El nuevo PR debe ejecutar Source CI y CodeQL; CodeQL pasó en SHA 04c56a0b9220e601383df1574529b48baa34be70, pero no sustituye la validación del SHA final.
 
 TASK-058/US-025 siguen in_progress: no existe persistencia/RLS o partner runtime context, ni audit/outbox transaccional, invalidadores/consumers o API PAR habilitada. Support JIT de TASK-052 permanece separado. Sin revisión independiente, Product Owner acceptance ni GO-PRODUCTION.
+
+
+| AUD-222 | Resultado de Source Workspace en SHA aef477cc15ad860da4b0e27f829d46585b241e3f: build/typecheck/migraciones SUCCESS; API 399/402; CodeQL SUCCESS. | Tres fallos ajenos a US-025: dos casos Creative Lab y un RLS violation de platform.usage_ledger en TASK-052. |
