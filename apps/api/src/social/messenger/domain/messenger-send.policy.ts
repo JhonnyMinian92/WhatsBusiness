@@ -60,6 +60,10 @@ export function evaluateMessengerSendEligibility(
   if (input.currentOwner === "unassigned" || input.currentOwner !== input.senderType) {
     reasons.push("CONVERSATION_NOT_OWNED");
   }
+  if (input.messageTag === "HUMAN_AGENT") {
+    if (input.senderType !== "human") reasons.push("HUMAN_AGENT_REQUIRES_HUMAN");
+    if (input.currentOwner !== "human") reasons.push("HUMAN_AGENT_REQUIRES_HUMAN_OWNER");
+  }
   if (!input.lastRecipientMessageAt) reasons.push("INBOUND_MESSAGE_REQUIRED");
   else if (!isIsoInstant(input.lastRecipientMessageAt)) reasons.push("INBOUND_TIMESTAMP_INVALID");
   else if (Date.parse(input.lastRecipientMessageAt) > input.now.getTime()) {
@@ -83,9 +87,6 @@ export function evaluateMessengerSendEligibility(
   } else if (input.messageTag !== "HUMAN_AGENT") {
     reasons.push("STANDARD_MESSAGING_WINDOW_CLOSED");
   } else {
-    if (input.senderType !== "human") reasons.push("HUMAN_AGENT_REQUIRES_HUMAN");
-    if (input.currentOwner !== "human") reasons.push("HUMAN_AGENT_REQUIRES_HUMAN_OWNER");
-
     const expiresAt = input.humanAgentWindowExpiresAt;
     if (!expiresAt) reasons.push("HUMAN_AGENT_WINDOW_EVIDENCE_UNKNOWN");
     else if (!isIsoInstant(expiresAt)) reasons.push("HUMAN_AGENT_WINDOW_INVALID");
