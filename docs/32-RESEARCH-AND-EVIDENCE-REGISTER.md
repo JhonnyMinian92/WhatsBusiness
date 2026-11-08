@@ -143,6 +143,24 @@
 - **Hecho:** en julio de 2025, 80,1% de personas de 5 años o más utilizó internet en los últimos 12 meses; 71,3% de hogares reportó acceso a internet.
 - **Límite:** son indicadores de personas/hogares, no de adopción digital de empresas ni del uso comercial de WhatsApp/Meta. No usarlos como tasa de adopción del ICP.
 
+### MKT-OBS-003 — ENESEM 2024, TIC y medios de comunicación empresarial
+- **Fuente oficial — resultados ENESEM 2024:** INEC, “Encuesta a Empresas”: https://www.ecuadorencifras.gob.ec/encuesta-a-empresas/
+- **Fuente oficial — formulario 2024:** https://www.ecuadorencifras.gob.ec/documentos/web-inec/Estadisticas_Economicas/Encuesta_Estructural_Empresarial/2024/2024_ENESEM_Formulario.pdf
+- **Fuente oficial — diccionario TIC y microdatos:** https://anda.inec.gob.ec/anda5/index.php/catalog/1325/data-dictionary/F79?file_name=2024_ENESEM_BDD_TIC
+- **Hecho:** ENESEM 2024 informa 17.325 empresas grandes y medianas. El cuestionario empresarial pregunta por medios de comunicación utilizados con clientes/proveedores, incluidos servicios de mensajería (ejemplos: SMS y WhatsApp) y redes sociales; también recoge Internet, comercio electrónico y obstáculos.
+- **Alcance:** el universo publicado corresponde a empresas grandes y medianas; no es una muestra representativa de micro y pequeñas empresas y no debe extrapolarse a ellas.
+- **Uso permitido:** diseñar variables y preguntas de entrevista para el discovery; contrastar definiciones empresariales de canal y comercio electrónico.
+- **Uso prohibido:** afirmar un porcentaje nacional de PYMES que usa WhatsApp, estimar demanda de WhatsBusiness o disposición a pagar con esta fuente sin la tabla/variable/denominador apropiados.
+- **Confianza:** alta para el universo y la existencia de preguntas del cuestionario; limitada para inferir adopción específica de WhatsApp en el ICP primario.
+- **Estado:** evidencia de instrumento y marco de grandes/medianas; no sustituye el trabajo de campo de US-028.
+
+### MKT-OBS-004 — TIC Empresas INEC, antecedente histórico
+- **Fuente oficial:** https://www.ecuadorencifras.gob.ec/tecnologias-de-la-informacion-y-comunicacion-empresas/
+- **Hecho:** la página pública accesible en el corte presenta resultados de TIC de empresas obtenidos de Encuestas Industriales 2015.
+- **Límite:** la antigüedad y cobertura de esa operación no representan la adopción digital empresarial de 2026. No usar sus porcentajes como parámetro actual de SAM o SOM.
+- **Uso permitido:** referencia histórica y orientación de categorías.
+- **Estado:** no se utiliza como evidencia cuantitativa vigente para el ICP.
+
 ### Implicaciones de producto/mercado
 1. Priorizar flujos para pequeños equipos de servicios y comercio: onboarding simple, Inbox, CRM liviano, multiusuario, plantillas y seguimiento de leads.
 2. Hacer que agencias sean canal secundario con partner access explícito y multiempresa.
