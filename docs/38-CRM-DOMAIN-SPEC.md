@@ -107,3 +107,16 @@ Security: cross-tenant, export authorization, identity collision y consent revok
 ## 12. Límites y dependencias
 
 Los campos de CRM, pipeline y etapas son configurables por tenant. No se presume un sector ni un proceso comercial universal. Los conectores ERP/ecommerce y las reglas fiscales requieren decisión posterior por demanda real. El modelo de identity debe respetar TASK-053 y el asset model WAAC/PMA/WABA.
+
+## 13. CRM Intelligence — predicción y clasificación
+
+El CRM puede consumir modelos estadísticos/ML para lead scoring, probabilidad de conversión, churn, propensión, forecasting, segmentación, LTV, ranking de siguiente acción, asignación asistida y deduplicación asistida. Los scores son señales versionadas con fecha, horizonte, modelo/versión, features y reason codes; no sustituyen el estado comercial fuente de verdad.
+
+- CRM es dueño de labels y outcomes comerciales, no de internals Meta ni de Inbox.
+- Las features se construyen desde contratos/eventos públicos y snapshots temporales, preservando provenance y evitando data leakage.
+- No se fusionan contactos automáticamente por score; se mantiene el flujo auditable y reversible de la sección 3.
+- No se introduce LLM, RAG, generación de texto ni agente autónomo dentro de CRM.
+- Las predicciones no alteran permisos, consentimiento, supresión, asignaciones privilegiadas ni realizan escrituras Meta.
+- Toda capacidad tiene fallback sin ML, métricas adecuadas al problema y monitoreo de drift/calibración.
+
+Diseño, algoritmos, contratos de salida, aislamiento y pruebas: [docs/62](62-CRM-MACHINE-LEARNING-STRATEGY.md).
