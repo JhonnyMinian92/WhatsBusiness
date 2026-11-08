@@ -73,6 +73,7 @@ function parseOptionalDate(value: unknown, code: string): string | null {
 function normalizeConfiguration(value: unknown): Readonly<Record<string, JsonSnapshot>> {
   if (value === undefined || value === null) return Object.freeze({});
   if (!isPlainRecord(value)) throw invalid("ADS_CAMPAIGN_CONFIGURATION_INVALID");
+  assertJsonTree(value);
   let serialized: string | undefined;
   try { serialized = JSON.stringify(value); }
   catch { throw invalid("ADS_CAMPAIGN_CONFIGURATION_INVALID"); }
