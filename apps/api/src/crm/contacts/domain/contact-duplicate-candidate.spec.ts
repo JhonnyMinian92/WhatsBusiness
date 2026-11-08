@@ -152,7 +152,7 @@ test("candidate ranking and result cap are deterministic", () => {
   const high = contact();
   const mediumA = contact({ sourceType: "webhook", sourceReference: "leadgen:123", displayName: "Nombre distinto" });
   const mediumB = contact({ sourceType: "webhook", sourceReference: "leadgen:123", displayName: "Otra persona" });
-  const result = detector.findCandidates(profile(source), [
+  const result = detector.findCandidates(profile(source, [identity(source)]), [
     profile(mediumB), profile(high, [identity(high)]), profile(mediumA),
   ], { limit: 2 });
 

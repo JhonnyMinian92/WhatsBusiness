@@ -36,3 +36,10 @@ El slice actual implementa señales de dominio y pruebas puras. Aún se requiere
 ## Fuera de alcance
 
 No se incluye scoring ML, normalización de teléfonos desde texto sin país, búsqueda difusa, auto-merge ni acceso a datos de leads. Los modelos de ML de CRM pertenecen a TASK-081..087 y dependen de outcomes/features y etiquetas con provenance aprobadas.
+
+
+## Corrección post-CI #584 — fixture de ranking (2026-11-08)
+
+Source CI #584 validó install, validación de observabilidad, migraciones/idempotencia, build y typecheck; falló una aserción de la prueba "candidate ranking and result cap are deterministic". El fixture había dado una ContactIdentity al perfil candidato, pero no al perfil de origen, así que no existía una colisión namespaced y el score observado de 75 era el comportamiento correcto.
+
+Se corrige el fixture para que origen y candidato compartan la misma identidad completa (provider/product/channel/identifierType/externalId); ahora ese candidato debe puntuar 100 y los dos restantes 75, comprobando orden y límite de resultados. No cambia el algoritmo ni se relaja la validación.
