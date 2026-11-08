@@ -235,7 +235,7 @@ test("evalúa acceso únicamente para subject, partner, tenant, purpose, acción
     subject: { ...access().subject, userId: randomUUID() },
   })).reason, "GRANT_SUBJECT_MISMATCH");
   assert.equal(policy.evaluateAccess(access({
-    partner: { id: randomUUID(), type: "agency", status: "active" },
+    grant: grant({ partnerOrganizationId: randomUUID() }),
   })).reason, "GRANT_PARTNER_MISMATCH");
   assert.equal(policy.evaluateAccess(access({
     tenant: { id: randomUUID(), organizationType: "customer", status: "active" },
