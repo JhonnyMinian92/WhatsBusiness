@@ -54,8 +54,10 @@ const RUNTIME_GAUGES = [
 
 const BROKER_GAUGES = [
   { name: "tenant_job_rabbitmq_worker_queue_ready_messages", help: "Ready messages in the worker queue; excludes unacknowledged deliveries.", key: "workerQueueReadyMessages" },
+  { name: "tenant_job_rabbitmq_worker_queue_unacknowledged_messages", help: "Unacknowledged deliveries in the worker queue.", key: "workerQueueUnacknowledgedMessages" },
   { name: "tenant_job_rabbitmq_worker_queue_consumers", help: "Consumers registered on the worker queue.", key: "workerQueueConsumers" },
   { name: "tenant_job_rabbitmq_dead_letter_queue_ready_messages", help: "Ready messages in the dead-letter queue; excludes unacknowledged deliveries.", key: "deadLetterQueueReadyMessages" },
+  { name: "tenant_job_rabbitmq_dead_letter_queue_unacknowledged_messages", help: "Unacknowledged deliveries in the dead-letter queue.", key: "deadLetterQueueUnacknowledgedMessages" },
   { name: "tenant_job_rabbitmq_dead_letter_queue_consumers", help: "Consumers registered on the dead-letter queue.", key: "deadLetterQueueConsumers" },
 ] as const satisfies ReadonlyArray<{
   readonly name: string;
