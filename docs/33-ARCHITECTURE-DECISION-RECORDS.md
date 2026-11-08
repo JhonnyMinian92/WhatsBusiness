@@ -173,3 +173,16 @@
 - **Seguridad/consistencia:** nunca es source of truth; no almacenar PII/token; tenant namespaces; TTL bounded; invalidación al revocar grants; PostgreSQL y RabbitMQ conservan datos durables.
 - **Revisión:** comando/feature requerido ausente, incompatibilidad real o benchmark/coste no satisfactorio; cualquier retorno a Redis necesita revisión legal de licencia y decisión documentada.
 - **Fuentes:** https://valkey.io/download/releases/ ; https://valkey.io/ ; https://redis.io/legal/licenses/ ; docs/51.
+
+## ADR-026 — CRM Intelligence con machine learning clásico y CPU-first
+
+- Estado: accepted as direction (decisión del propietario, 2026-11-07; implementación aún no realizada).
+- Contexto: transformar historial comercial y outcomes observables en scoring, clasificación, predicción, segmentación y ranking sin depender de LLM ni agentes de IA.
+- Decisión: CRM Intelligence pertenece al bounded context CRM y expone ports para feature snapshots, predictor, evaluator, model registry y artifact store. Entrenamiento offline reproducible; inferencia CPU-first detrás de una abstracción. Reusar PostgreSQL/RLS, outbox/RabbitMQ, worker runtime y observabilidad existentes.
+- Algoritmos: comparar regresión lineal/logística y baselines estadísticos; evaluar árboles, Random Forest y XGBoost/gradient boosting para datos tabulares; usar clustering, series temporales, supervivencia, ranking o MLP ligeras cuando la evidencia lo justifique.
+- Alternativas rechazadas para CRM: LLM/agentes generativos, entrenamiento dentro del proceso HTTP, un microservicio por algoritmo y modelo global cross-tenant por defecto.
+- Consecuencias: labels, snapshots temporales, feature provenance, métricas por problema, calibración, registry, checksums, promoción/rollback, monitoreo y fallback sin ML.
+- Seguridad/privacidad: datasets/artefactos/predicciones aislados por tenant; no entrenar entre tenants por defecto; controlar minimización, purpose/consent y retención. Scores no cambian permisos ni ejecutan acciones externas.
+- Rendimiento: presupuesto explícito de CPU/RAM/latencia y tamaño de artefacto; batch scoring cuando convenga. Redes neuronales solo si superan baselines con evidencia reproducible.
+- Revisión: benchmark en hardware objetivo, inventario de datos/outcomes y revisión de seguridad/privacidad antes de producción.
+- Especificación: [docs/62](62-CRM-MACHINE-LEARNING-STRATEGY.md).
