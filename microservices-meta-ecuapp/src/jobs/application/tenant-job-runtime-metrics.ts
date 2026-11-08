@@ -37,8 +37,10 @@ export interface TenantJobRuntimeMetricsReader {
 
 export interface TenantJobBrokerMetricsSnapshot {
   readonly workerQueueReadyMessages: number;
+  readonly workerQueueUnacknowledgedMessages: number;
   readonly workerQueueConsumers: number;
   readonly deadLetterQueueReadyMessages: number;
+  readonly deadLetterQueueUnacknowledgedMessages: number;
   readonly deadLetterQueueConsumers: number;
 }
 
