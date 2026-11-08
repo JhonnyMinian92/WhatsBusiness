@@ -646,3 +646,11 @@ La integración PostgreSQL se reordenó para no llamar a la operación batch `cl
 - Commit `d4051c718de19016afd6e52b7803de903e4c5fba`: Source CI #581 y CodeQL #116 SUCCESS. Se añade validador estructural del dashboard/reglas a Source CI y comprueba panel IDs, targets, reglas y nombres de métricas exportadas.
 - Las alertas (>100 jobs durante 5 min; edad >300 s durante 2 min) son guardrails iniciales, no SLO/SLA. El despliegue/alert routing real y pruebas de notificación aún no se han ejecutado.
 - TASK-003 permanece `in_progress`; GO-PRODUCTION sigue NO-GO hasta los gates de operación, seguridad, carga/DR, revisión y aceptación.
+
+
+### Handoff — TASK-027: Meta Lead Ads nested change.value (2026-11-08)
+
+- El decoder ahora lee leadgen_id y created_time desde changes[].value, además de los campos top-level existentes.
+- La regresión prueba idempotencia estable en la redelivery del mismo lead y diferenciación entre lead IDs.
+- La notificación contiene IDs/metadatos; obtener field_data sigue siendo una lectura Graph API separada con permisos y token autorizados.
+- **Estado:** parche implementado y pendiente de Source CI; TASK-027/028 siguen in_progress, sin handler CRM Leads ni despliegue productivo.

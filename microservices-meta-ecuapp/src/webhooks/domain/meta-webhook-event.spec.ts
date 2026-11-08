@@ -73,3 +73,57 @@ test("parses numeric Meta timestamps and preserves status transitions by event t
   assert.equal(events[2]?.occurredAt, new Date(1_800_000_002_000).toISOString());
   assert.notEqual(events[0]?.idempotencyKey, events[1]?.idempotencyKey);
 });
+
+
+test("extracts Meta Lead Ads identity and event time from nested change value", () => {
+  const input = {
+    object: "page",
+    entry: [{
+      id: "page-1",
+      time: 1_800_000_000,
+      changes: [
+        {
+          field: "leadgen",
+          value: {
+            leadgen_id: "lead-123",
+            page_id: "page-1",
+            form_id: "form-1",
+            ad_id: "ad-1",
+            created_time: 1_800_000_001,
+          },
+        },
+        {
+          field: "leadgen",
+          value: {
+            leadgen_id: "lead-123",
+            page_id: "page-1",
+            form_id: "form-1",
+            ad_id: "ad-1",
+            created_time: 1_800_000_002,
+          },
+        },
+        {
+          field: "leadgen",
+          value: {
+            leadgen_id: "lead-456",
+            page_id: "page-1",
+            form_id: "form-1",
+            created_time: "1800000003",
+          },
+        },
+      ],
+    }],
+  };
+
+  const events = decodeMetaWebhookPayload("leadgen", input, new Date("2026-01-01T00:00:00.000Z"));
+  assert.equal(events.length, 3);
+  assert.equal(events[0]?.eventType, "leadgen");
+  assert.equal(events[0]?.providerEventId, "lead-123");
+  assert.equal(events[0]?.occurredAt, new Date(1_800_000_001 * 1_000).toISOString());
+  assert.equal(events[1]?.occurredAt, new Date(1_800_000_002 * 1_000).toISOString());
+  assert.equal(events[0]?.idempotencyKey, events[1]?.idempotencyKey,
+    "A redelivered Lead Ads notification must retain the same identity even if delivery metadata differs.");
+  assert.equal(events[2]?.providerEventId, "lead-456");
+  assert.equal(events[2]?.occurredAt, new Date(1_800_000_003 * 1_000).toISOString());
+  assert.notEqual(events[0]?.idempotencyKey, events[2]?.idempotencyKey);
+});

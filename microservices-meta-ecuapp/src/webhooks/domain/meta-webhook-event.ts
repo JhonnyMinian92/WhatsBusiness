@@ -148,7 +148,15 @@ function idempotencyBasis(
 
 function extractProviderEventId(payload: Readonly<Record<string, unknown>>): string | null {
   const message = isRecord(payload["message"]) ? payload["message"] : payload;
-  const candidates = [message["id"], message["mid"], payload["leadgen_id"], payload["id"]];
+  const value = isRecord(payload["value"]) ? payload["value"] : null;
+  const candidates = [
+    message["id"],
+    message["mid"],
+    payload["leadgen_id"],
+    value?.["leadgen_id"],
+    value?.["id"],
+    payload["id"],
+  ];
   const found = candidates.find(isSafeIdentifier);
   if (found) return found;
   const delivery = isRecord(payload["delivery"]) ? payload["delivery"] : null;
@@ -161,7 +169,15 @@ function extractOccurredAt(
   fallback: string,
   now: Date,
 ): string {
-  const candidates = [payload["timestamp"], payload["created_time"], payload["time"]];
+  const value = isRecord(payload["value"]) ? payload["value"] : null;
+  const candidates = [
+    payload["timestamp"],
+    payload["created_time"],
+    payload["time"],
+    value?.["timestamp"],
+    value?.["created_time"],
+    value?.["time"],
+  ];
   for (const candidate of candidates) {
     const occurredAt = parseTimestamp(candidate);
     if (occurredAt) return occurredAt;

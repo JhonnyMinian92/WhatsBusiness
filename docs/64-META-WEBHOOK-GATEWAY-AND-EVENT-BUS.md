@@ -159,3 +159,10 @@ La inspección del decoder encontró un patrón regex escapado doblemente para t
 La suite agrega un caso de regresión en el que el mismo WAMID recibe dos estados `delivered` en segundos distintos: deben conservar fechas y claves idempotentes diferentes. Un evento repetido con el mismo estado y la misma fecha continúa deduplicándose. La modificación no cambia la identidad del contacto ni procesa payloads de negocio.
 
 **Verificación:** Source CI #579 y CodeQL #114 terminaron SUCCESS en `8b96bd97c7fcd5cc816fbd933bd1c3bb236b3dd4`, incluyendo la regresión de timestamps del decoder y las suites backend PostgreSQL/RabbitMQ. TASK-027/028 siguen `in_progress`; handlers reales por bounded context, replay aprobado, KMS/rotación, operación desplegada, fixtures de conformance con cuentas Meta y review permanecen pendientes.
+
+
+## Corrección de estructura Lead Ads — 2026-11-08
+
+Los eventos Meta Lead Ads usan object=page, field=leadgen y colocan leadgen_id, page_id, form_id y created_time dentro de changes[].value. El decoder ahora extrae el identificador y la hora de ese objeto anidado, conserva leadgen_id como providerEventId y utiliza la identidad del lead como base de idempotencia. Una redelivery del mismo lead no genera un segundo evento, aunque cambie metadata de entrega.
+
+La prueba cubre dos notificaciones del mismo lead y una notificación de un lead distinto, incluyendo created_time en epoch seconds numérico y textual. La carga de datos del lead (field_data) sigue siendo una llamada Graph API independiente y no se presume contenida en la notificación. Este slice no registra todavía el lead en un módulo CRM Leads porque ese bounded context aún no existe en código.
