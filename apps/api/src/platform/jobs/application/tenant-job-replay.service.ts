@@ -123,7 +123,7 @@ export class TenantJobReplayService {
         return record;
       },
     );
-    const approval = await this.findApprovalSummary(subject, request);
+    const approval = this.findApprovalSummary(request);
     return Object.freeze({ approval, request });
   }
 
@@ -170,6 +170,15 @@ export class TenantJobReplayService {
       request.sourceJobType,
       request.replayPolicyVersion,
     );
+    if (request.replayJobId) {
+      return Object.freeze({
+        approvalId,
+        sourceJobId: request.sourceJobId,
+        replayJobId: request.replayJobId,
+        status: "queued" as const,
+      });
+    }
+    const sourceSnapshot = this.snapshotSource(request);
     const binding = this.createBinding(
       sourceSnapshot,
       request.reasonCode as TenantJobReplayReasonCode,
@@ -216,7 +225,6 @@ export class TenantJobReplayService {
   }
 
   private findApprovalSummary(
-    _subject: TenantAccessContext,
     request: TenantJobReplayRequestRecord,
   ): ApprovalRequestSummary {
     const binding = this.createBinding(
