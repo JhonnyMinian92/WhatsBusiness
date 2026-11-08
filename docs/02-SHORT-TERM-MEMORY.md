@@ -528,3 +528,11 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Investigación: la fuente oficial de Meta sobre Max Pricing (16-06-2026) explica que el máximo por entrega es un techo y el cargo real puede ser inferior: https://developers.meta.com/resources/videos/whatsapp-max-pricing/. No se copiaron contratos de proveedores terceros ni se inventaron tarifas, scopes o elegibilidad.
 - Se inspeccionaron los patrones existentes `DatabaseService`, `IdentityModule`, `AppModule` y Source CI para preparar reutilización. No se modificó runtime ni se ejecutaron pruebas de US-008; no declarar TASK-017/018 implementadas o verificadas.
 - Documentación sincronizada en docs/11 y docs/19. Próximo paso técnico: cerrar prerequisitos de capability/version registry y contract freeze WAMK-001..007; después implementar adapter independiente + policies + rate-card/cost ledger con decimal exacto, idempotencia, auditoría, RLS y conciliación, sin habilitar envíos reales.
+
+
+## Handoff — CRM-007 API/query tenant-scoped verificada (2026-11-08)
+
+- Se cerró el cableado de CRM-007: controller OIDC/tenant/RBAC, request estricto, use case transaccional, query PostgreSQL por identidad namespaced/teléfono verificado/procedencia, lecturas bulk tenant-scoped, límites fail-closed, auditoría append-only e índices en migración 0026.
+- La respuesta expone únicamente IDs/versiones/score/reasons y manual_review_required; no hay PII ni merge automático.
+- Source CI #596 (42512027909) y CodeQL #131 (42512027905) SUCCESS en abab9fe88abe0dfce9741cf6794d45c48ff15373; Contract CI #31 (42511475181) SUCCESS en f0ebaae6c57d7821641e18331c7d7c42cf12cb5b. Commits posteriores en la misma rama no alteraron CRM ni OpenAPI.
+- CRM-007 queda CI-verified; TASK-043/TASK-053 siguen in_progress hasta review independiente, calibración con datos sintéticos y aceptación. CRM-008..010 pendientes. TASK-003/027/028 continúan in_progress; GO-PRODUCTION NO-GO.

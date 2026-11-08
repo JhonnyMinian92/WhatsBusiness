@@ -712,8 +712,9 @@ CRM-007 continúa implementado a nivel dominio, sin endpoint de producción ni m
 - Se añadieron lecturas bulk en los repositorios Contact/ContactIdentity y un adapter PostgreSQL de candidatos que prefiltra por identidad exacta, teléfono E.164 verificado y procedencia; la comparación por nombre queda como señal débil del detector y no causa full scan.
 - Migración `0026-crm-duplicate-candidate-indexes.sql` agrega índices parciales para teléfono verificado y sourceReference activa. Batch máximo 10.000; si se supera, la consulta falla cerrada, nunca calcula resultados parciales.
 - La respuesta solo expone IDs/versiones/score/reasons y `manual_review_required`. No fusiona, verifica ni muta contactos.
-- Se agregaron parser/controller/service tests y extensión a la integración PostgreSQL/RLS A/B. Aún requiere ejecutar el Source CI/Contract CI exacto del commit, revisión independiente, calibración de reglas con datos sintéticos y aceptación del Product Owner.
-- CRM-007 queda implementado en código sujeto a CI; TASK-043/TASK-053 no se marcan verified ni accepted. Merge reversible CRM-008..010 sigue sin implementar.
+- Se agregaron parser/controller/service tests, pruebas del validador de auditoría y extensión a la integración PostgreSQL/RLS A/B. La migración 0026 pasó aplicación e idempotencia.
+- Source CI [#596](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42512027909) SUCCESS y CodeQL [#131](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42512027905) SUCCESS sobre abab9fe88abe0dfce9741cf6794d45c48ff15373; Contract CI [#31](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42511475181) SUCCESS sobre f0ebaae6c57d7821641e18331c7d7c42cf12cb5b. Los commits posteriores de esta rama no modificaron archivos CRM/OpenAPI.
+- CRM-007 queda implementado y CI-verified. TASK-043/TASK-053 siguen in_progress por revisión independiente, calibración con datos sintéticos y aceptación del Product Owner. Merge reversible CRM-008..010 sigue sin implementar.
 
 
 ## Ejecución de US-008 — WhatsApp Marketing Messages y costes (2026-11-08)

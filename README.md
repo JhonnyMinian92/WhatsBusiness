@@ -115,12 +115,12 @@ API local: http://localhost:3000. Angular dev server: http://localhost:4200.
 
 **La aceptación final del producto sigue perteneciendo al propietario.**
 
-## CRM Contacts — estado del primer slice (2026-11-08)
+## CRM Contacts e Identity Resolution — estado del slice HTTP (2026-11-08)
 
-- CRM-001..004 están implementadas y habilitadas en HTTP: listar, crear, consultar y actualizar contactos tenant-scoped.
-- `CrmContactsModule` está registrado en `AppModule`. El controller combina OIDC, tenant context, propósitos estables y RBAC; el caso de uso revalida el contexto/autorización dentro de la transacción.
-- El contrato usa ETag/If-Match, idempotencia por tenant/actor/operación, cursor estable, provenance inmutable, auditoría append-only y RLS ENABLE/FORCE. La migración 0023 añade el CHECK de organization sin first/last name.
-- Seis pruebas de controller cubren guardas/metadata/tenant mismatch/ETag/If-Match; la integración PostgreSQL cubre aislamiento A/B, RLS, idempotencia, concurrency y audit chain.
-- Source CI [#570](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42497391908), Contract CI [#29](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42497491129) y CodeQL [#105](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42497391953) terminaron SUCCESS.
-- El allowlist permite exactamente PLT-001..005 y CRM-001..004. Las 287 operaciones restantes siguen catalog-only. CRM-005..017 (identities, merge, custom fields y otros agregados) no están habilitados.
-- TASK-042 permanece `in_progress`, no `accepted`: falta revisión independiente y aceptación del Product Owner. La publicación de eventos CRM espera el cierre operativo de TASK-028; retención/exportación/eliminación legal sigue en TASK-059.
+- CRM-001..004: listar, crear, consultar y actualizar contactos tenant-scoped; CRM-005/006: consultar y vincular identidades namespaced; CRM-007: detectar candidatos de duplicación con revisión humana obligatoria.
+- CrmContactsModule está registrado en AppModule. Los controllers exigen OIDC, tenant context, propósito estable y RBAC. Los casos de uso revalidan authzVersion dentro de transacciones tenant-scoped.
+- Contact mantiene ETag/If-Match, idempotencia, cursor estable, provenance inmutable, auditoría append-only y RLS. Identity añade namespace provider/product/channel/type y unicidad por tenant. Identity resolution usa señales de identidad exacta, teléfono E.164 verificado o procedencia; no devuelve PII ni fusiona automáticamente.
+- CRM-007: consulta limitada a 100 resultados, máximo 10.000 candidatos previos a scoring (falla cerrado al excederlo), índices parciales en migración 0026 y auditoría de consulta.
+- Contract CI [#31](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42511475181) SUCCESS validó OpenAPI/IDs/schemas del contrato CRM-007 en f0ebaae6. Source CI [#596](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42512027909) y CodeQL [#131](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42512027905) SUCCESS en abab9fe8, incluyendo migraciones/idempotencia, build, typecheck, pruebas API/PostgreSQL y backend PostgreSQL/RabbitMQ. Los commits posteriores de esta rama no cambiaron estos archivos CRM.
+- El allowlist de implementación permite exactamente PLT-001..005 y CRM-001..007: 12 operaciones design-frozen; las otras 284 permanecen catalog-only.
+- TASK-042/043/053 siguen `in_progress` hasta revisión independiente, calibración con datos sintéticos representativos y aceptación del Product Owner. CRM-008..010 (merge-preview, merge reversible y undo), event publishing de TASK-028 y retención/exportación/eliminación legal de TASK-059 siguen pendientes. GO-PRODUCTION continúa NO-GO.

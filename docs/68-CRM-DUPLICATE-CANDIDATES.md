@@ -30,9 +30,9 @@ El score se limita a 100. Umbral predeterminado: 70. Una puntuación 90–100 es
 - El detector devuelve `manual_review_required`; no realiza merge, unlink ni mutación.
 - El orden es score descendente y UUID ascendente, con límite máximo 100 resultados.
 
-## Verificación pendiente para completar CRM-007
+## Verificación y estado actual de CRM-007
 
-El slice de dominio y nueve pruebas puras quedó verificado en Source CI #585 y CodeQL #120 (commit 82eff584655212c16a4f59bce9542aeedf978bc4). Aún se requieren contrato HTTP congelado, repositorio/query eficiente tenant-scoped con paginación, auditoría de consulta cuando proceda, pruebas PostgreSQL de aislamiento/rendimiento, revisión de umbrales con datos sintéticos representativos y aceptación independiente. No usar nombres iguales como criterio autónomo de fusión.
+El dominio quedó verificado primero en Source CI #585 y CodeQL #120 (commit 82eff584). Posteriormente se integró el contrato HTTP, query PostgreSQL tenant-scoped, lecturas bulk, auditoría de consulta, límites e índices y pruebas PostgreSQL de aislamiento. Source CI #596 y CodeQL #131 terminaron SUCCESS sobre el commit abab9fe88abe0dfce9741cf6794d45c48ff15373; Contract CI #31 SUCCESS validó el OpenAPI sobre f0ebaae6c57d7821641e18331c7d7c42cf12cb5b. Los commits posteriores de environment/local no modificaron el slice CRM. La revisión independiente, calibración de reglas con datasets sintéticos representativos y aceptación del Product Owner siguen pendientes. No usar nombres iguales como criterio autónomo de fusión.
 
 ## Fuera de alcance
 
@@ -87,4 +87,14 @@ Se implementó el endpoint:
 
 ### Límites que no se declaran resueltos
 
-CRM-007 no fusiona contactos, no verifica identidades frente a Meta y no altera `verifiedAt`/confidence. La cobertura real de matching depende de que existan identidades verificadas o procedencia confiable. Los pesos son reglas deterministas sin calibración probabilística; revisión independiente, validación con datasets sintéticos representativos, Contract CI/Source CI del commit y aceptación del Product Owner siguen pendientes. TASK-043 y TASK-053 permanecen `in_progress`.
+CRM-007 no fusiona contactos, no verifica identidades frente a Meta y no altera `verifiedAt`/confidence. La cobertura real de matching depende de que existan identidades verificadas o procedencia confiable. Los pesos son reglas deterministas sin calibración probabilística. Source CI #596, CodeQL #131 y Contract CI #31 verificaron código y contrato de CRM-007; revisión independiente, calibración con datasets sintéticos representativos y aceptación del Product Owner siguen pendientes. TASK-043 y TASK-053 permanecen `in_progress`.
+
+
+## Cierre técnico CRM-007 — API/query/contrato (2026-11-08)
+
+- API: POST /v1/tenants/{tenantId}/identity-resolution/candidates, body estricto, limit 1–100, response sin PII y manual_review_required.
+- Seguridad: OIDC, tenant context, RBAC/purpose crm.contacts.identities.read, revalidación de authzVersion y audit append-only.
+- Datos: query por identidad namespaced, teléfono E.164 verificado o source reference; bulk reads tenant-scoped; batch mayor a 10.000 falla cerrado; migración 0026 indexa los predicados fuertes.
+- Tests: parser/controller/service unit; PostgreSQL/RLS A/B integration; audit validation de dotted identifiers; las suites API y backend finalizaron SUCCESS.
+- Evidencia: Source CI #596 (https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42512027909), CodeQL #131 (https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42512027905), Contract CI #31 (https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42511475181).
+- CRM-007 queda implementado y CI-verified. No se declara accepted: faltan reviewer independiente, evaluación de precisión/recall con datos sintéticos etiquetados y aceptación del Product Owner. TASK-043/TASK-053 global permanecen in_progress; CRM-008..010 siguen pendientes.
