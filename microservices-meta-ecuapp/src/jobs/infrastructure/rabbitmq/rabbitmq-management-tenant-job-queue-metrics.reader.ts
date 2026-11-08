@@ -143,18 +143,15 @@ export class RabbitMqManagementTenantJobQueueMetricsReader implements TenantJobB
       if (isAbortError(error)) throw error;
       throw new Error("RabbitMQ Management API metrics response is not valid JSON.");
     }
-    const missingCounters = missingQueueCounterFields(body);
-    if (missingCounters.length > 0) {
-      throw new Error(
-        "RabbitMQ Management API metrics response is missing queue counters: "
-          + missingCounters.join(", ") + ".",
-      );
-    }
+    const statistics = parseQueueStatistics(body);
 
     return Object.freeze({
-      readyMessages: safeCount(body.messages_ready, "messages_ready"),
-      unacknowledgedMessages: safeCount(body.messages_unacknowledged, "messages_unacknowledged"),
-      consumers: safeCount(body.consumers, "consumers"),
+      readyMessages: safeCount(statistics["messages_ready"], "messages_ready"),
+      unacknowledgedMessages: safeCount(
+        statistics["messages_unacknowledged"],
+        "messages_unacknowledged",
+      ),
+      consumers: safeCount(statistics["consumers"], "consumers"),
     });
   }
 }
@@ -188,12 +185,23 @@ function isLoopbackHost(host: string): boolean {
     || normalized === "[::1]";
 }
 
-function missingQueueCounterFields(value: unknown): string[] {
+function parseQueueStatistics(value: unknown): Record<string, unknown> {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
-    return ["object"];
+    throw new Error("RabbitMQ Management API metrics response is missing queue counters: object.");
   }
-  return ["messages_ready", "messages_unacknowledged", "consumers"]
-    .filter((field) => !(field in value));
+
+  const statistics = value as Record<string, unknown>;
+  const requiredFields = ["messages_ready", "messages_unacknowledged", "consumers"];
+  const missingFields = requiredFields.filter(
+    (field) => !Object.prototype.hasOwnProperty.call(statistics, field),
+  );
+  if (missingFields.length > 0) {
+    throw new Error(
+      "RabbitMQ Management API metrics response is missing queue counters: "
+        + missingFields.join(", ") + ".",
+    );
+  }
+  return statistics;
 }
 
 function safeCount(value: unknown, field: string): number {
