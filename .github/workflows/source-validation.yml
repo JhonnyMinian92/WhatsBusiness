@@ -190,6 +190,18 @@ jobs:
         if: always()
         run: pnpm exec nx run api:inbox-domain-test
 
+      - name: Run Agent tool policy tests independently
+        id: agent_tool_tests
+        if: always() && steps.install.outcome == 'success'
+        run: >-
+          pnpm exec tsx --tsconfig apps/api/tsconfig.app.json --test
+          apps/api/src/agents/domain/agent-tool-input-validator.spec.ts
+          apps/api/src/agents/domain/agent-tool-policy.spec.ts
+          apps/api/src/agents/application/agent-tool-gateway.service.spec.ts
+          apps/api/src/agents/application/postgres-agent-tool-infrastructure.spec.ts
+          apps/api/src/agents/application/meta-ads-mcp.adapter.spec.ts
+          apps/api/src/agents/transport/mcp/agent-tools-mcp.server.spec.ts
+
       - name: Typecheck all applications
         run: pnpm typecheck
 
@@ -211,11 +223,13 @@ jobs:
           API_TEST_OUTCOME: ${{ steps.api_tests.outcome }}
           META_BACKEND_TEST_OUTCOME: ${{ steps.meta_backend_tests.outcome }}
           INBOX_DOMAIN_TEST_OUTCOME: ${{ steps.inbox_domain_tests.outcome }}
+          AGENT_TOOL_TEST_OUTCOME: ${{ steps.agent_tool_tests.outcome }}
         run: |
-          if [[ "$API_TEST_OUTCOME" != "success" || "$META_BACKEND_TEST_OUTCOME" != "success" || "$INBOX_DOMAIN_TEST_OUTCOME" != "success" ]]; then
+          if [[ "$API_TEST_OUTCOME" != "success" || "$META_BACKEND_TEST_OUTCOME" != "success" || "$INBOX_DOMAIN_TEST_OUTCOME" != "success" || "$AGENT_TOOL_TEST_OUTCOME" != "success" ]]; then
             echo "::error::API, Inbox domain and Meta backend suites are independent gates; all must pass."
             echo "API test outcome: $API_TEST_OUTCOME"
             echo "Inbox domain test outcome: $INBOX_DOMAIN_TEST_OUTCOME"
+            echo "Agent tool test outcome: $AGENT_TOOL_TEST_OUTCOME"
             echo "Meta backend test outcome: $META_BACKEND_TEST_OUTCOME"
             exit 1
           fi
