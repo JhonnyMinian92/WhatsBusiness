@@ -66,6 +66,17 @@ test("requires a bearer token when configured and never leaks renderer errors", 
   }
 });
 
+test("accepts only literal IP addresses or localhost as bind hosts", () => {
+  assert.throws(
+    () => new TenantJobMetricsHttpServer(metrics, {
+      host: "metrics.internal.example",
+      port: 9464,
+      bearerToken: "0123456789abcdef0123456789abcdef",
+    }),
+    /listener configuration is invalid/,
+  );
+});
+
 test("requires a strong token for non-loopback binding and validates listener settings", () => {
   assert.throws(
     () => new TenantJobMetricsHttpServer(metrics, { host: "0.0.0.0", port: 9464 }),
