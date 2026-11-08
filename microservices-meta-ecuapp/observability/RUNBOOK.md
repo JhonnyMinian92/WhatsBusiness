@@ -4,7 +4,7 @@
 
 Este runbook cubre el dispatcher/outbox PostgreSQL, worker RabbitMQ, recuperación por leases y scraping Prometheus del backend `microservices-meta-ecuapp`. Los contadores/histogramas del proceso son in-memory y se reinician al reiniciar el worker. Los gauges PostgreSQL/RabbitMQ son snapshots agregados; no exponen tenant, actor, job ni payload.
 
-RabbitMQ `checkQueue` informa mensajes listos y consumidores. No informa deliveries unacknowledged ni consumer lag. No interpretar `ready_messages` como backlog total. Los objetivos SLO de `docs/13-OPERATIONS-AND-OBSERVABILITY.md` son candidatos de planificación, no SLA ni evidencia de capacidad.
+RabbitMQ Management API informa `messages_ready`, `messages_unacknowledged` y consumidores. `ready` excluye entregas ya asignadas; `unacknowledged` cuenta entregas pendientes de ACK, pero ninguno mide por sí solo consumer lag ni edad del mensaje. No interpretar `ready_messages` como backlog total. Los objetivos SLO de `docs/13-OPERATIONS-AND-OBSERVABILITY.md` son candidatos de planificación, no SLA ni evidencia de capacidad.
 
 ## 1. Scraping no disponible
 
@@ -31,7 +31,13 @@ RabbitMQ `checkQueue` informa mensajes listos y consumidores. No informa deliver
 4. Si hay jobs bloqueados, identificar el código de fallo y seguir el procedimiento de reparación autorizado.
 5. Verificar que el backlog disminuya y que no existan publicaciones duplicadas con efectos laterales.
 
-## 4. Worker sin consumers / mensajes en DLQ
+## 4. Deliveries unacknowledged / worker sin consumers / mensajes en DLQ
+
+1. Revisar `tenant_job_rabbitmq_worker_queue_unacknowledged_messages` junto con prefetch, consumers, leases activos y duración de handlers.
+2. Un valor sostenido puede indicar handlers lentos, pausas de proceso o ACK retrasados; correlacionar con histogramas y logs antes de intervenir.
+3. No cerrar workers ni reencolar manualmente solo por observar unacked; primero verificar idempotencia/inbox y estado durable en PostgreSQL.
+
+## 5. Worker sin consumers / mensajes en DLQ
 
 1. Revisar despliegue del worker, handlers registrados, AMQPS, prefetch y límites de recursos.
 2. Para DLQ, preservar mensajes y evidencias; determinar si el envelope es inválido, el job durable es desconocido o hubo fallo transitorio.
@@ -39,14 +45,14 @@ RabbitMQ `checkQueue` informa mensajes listos y consumidores. No informa deliver
 4. Replay permanece fail-closed mientras el registro de políticas no demuestre idempotencia de los handlers y efectos externos.
 5. Confirmar la salud de inbox/dedupe y el resultado terminal en PostgreSQL.
 
-## 5. Incidente de aislamiento multi-tenant
+## 6. Incidente de aislamiento multi-tenant
 
 1. Declarar incidente de seguridad y detener el procesamiento afectado mediante el mecanismo operativo aprobado.
 2. Preservar audit trail y logs redactados; no exportar payloads o PII a sistemas de observabilidad.
 3. Revisar tenant context, membership vigente, RLS, conexión/pool reuse A→B y fencing.
 4. No restaurar el tráfico hasta revisión independiente y evidencia de pruebas negativas cross-tenant.
 
-## 6. Recuperación y cierre
+## 7. Recuperación y cierre
 
 Registrar timestamps UTC, impacto por tenant pseudonimizado, códigos de error, acciones, jobs afectados por identificadores protegidos, redelivery/commit outcome y validación posterior. Un incidente se cierra con evidencia de estado durable, ausencia de pérdida/duplicación no reconciliada y acciones correctivas asignadas.
 
