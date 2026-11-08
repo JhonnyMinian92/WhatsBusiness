@@ -28,6 +28,10 @@ export function parseAdsMoney(value: unknown): AdsMoney {
   if (typeof currency !== "string" || !CURRENCY_PATTERN.test(currency)) {
     throw new AdsMoneyValidationError("ADS_MONEY_CURRENCY_INVALID");
   }
+  const fractionDigits = amount.split(".")[1]?.length ?? 0;
+  if (fractionDigits > currencyFractionDigits(currency)) {
+    throw new AdsMoneyValidationError("ADS_MONEY_CURRENCY_PRECISION_INVALID");
+  }
   const units = toUnits(amount);
   if (units <= 0n) throw new AdsMoneyValidationError("ADS_MONEY_MUST_BE_POSITIVE");
   return Object.freeze({ amount: fromUnits(units), currency });
@@ -89,7 +93,18 @@ export function isAdsMoneyEqual(left: AdsMoney, right: AdsMoney): boolean {
   return compareAdsMoney(left, right) === 0;
 }
 
+function currencyFractionDigits(currency: string): number {
+  try {
+    return new Intl.NumberFormat("en-US", { style: "currency", currency })
+      .resolvedOptions().maximumFractionDigits;
+  } catch {
+    throw new AdsMoneyValidationError("ADS_MONEY_CURRENCY_UNSUPPORTED");
+  }
+}
+
 function assertSameCurrency(left: AdsMoney, right: AdsMoney): void {
+  parseAdsMoney(left);
+  parseAdsMoney(right);
   if (left.currency !== right.currency || !CURRENCY_PATTERN.test(left.currency)) {
     throw new AdsMoneyValidationError("ADS_MONEY_CURRENCY_MISMATCH");
   }
