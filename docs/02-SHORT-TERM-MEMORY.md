@@ -365,3 +365,12 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - TASK-003 sigue in_progress: pool reuse A→B, replay administrativo auditado, observabilidad, crash/redelivery/fencing tests, handlers de negocio reales, secret manager/deployment y review independiente siguen pendientes.
 - El propietario aclaró que CRM con IA significa machine learning tradicional y estadística, no LLM ni agentes. Ver [docs/62](62-CRM-MACHINE-LEARNING-STRATEGY.md), PD-005 y ADR-026.
 - Se agregaron tareas propuestas TASK-081..087 para labels/features, datasets reproducibles, baselines, registry, serving CPU-first, MLOps y casos predictivos. No se afirma que CRM Intelligence esté implementada.
+
+## Handoff — TASK-003: pool reuse A→B (2026-11-07)
+
+- Rama: `environment/local`.
+- Cambio: se amplió `microservices-meta-ecuapp/src/jobs/infrastructure/postgres/postgres-tenant-job-runtime.integration.spec.ts` para forzar dos ejecuciones secuenciales con tenant A y tenant B sobre el mismo `workerPool`.
+- La prueba comprueba que `pg_backend_pid()` sea el mismo y que `app.user_id`/ `app.tenant_id` reflejen exclusivamente el tenant de cada transacción; evita falsos positivos por conexiones distintas.
+- Commit: `bcedfab0538f5ee82a06ffe2480f41e3378bab7e`.
+- Estado: código de prueba implementado; no se ha consultado aún resultado de CI de este commit. No declarar pool reuse verificado ni TASK-003 completa.
+- Siguiente: confirmar Source CI; después implementar replay administrativo con autorización/approval/audit, métricas/alertas y pruebas de crash/redelivery/fencing; mantener handlers de negocio y deployment como pendientes.
