@@ -151,6 +151,7 @@ test("rejects invalid broker gauges without replacing the last valid snapshot", 
   const metrics = new PrometheusTenantJobRuntimeMetrics();
   metrics.recordBrokerRuntimeSnapshot({
     workerQueueReadyMessages: 1,
+    workerQueueUnacknowledgedMessages: 0,
     workerQueueConsumers: 1,
     deadLetterQueueReadyMessages: 0,
     deadLetterQueueConsumers: 0,
