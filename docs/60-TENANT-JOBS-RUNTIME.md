@@ -102,7 +102,7 @@ Suites fuente registradas en Nx:
 - PostgreSQL gated: roles separados, claims, fencing, renovación de lease con token válido/obsoleto, inbox/rollback, retry, dead-letter, lease expiry y denegación de acceso directo al payload.
 - RabbitMQ gated: quorum queue, confirm, mandatory return y DLX.
 
-Source CI declara PostgreSQL 18.6 y RabbitMQ 4.4 para pruebas de integración. Al documentar esta revisión no hay un resultado SUCCESS comprobado de la última iteración; debe verificarse el run asociado al commit más reciente. La ausencia de errores de TypeScript en esta documentación no equivale a build pass.
+Source CI declara PostgreSQL 18.6 y RabbitMQ 4.4 para pruebas de integración. Al documentar esta revisión, Source CI del commit d9d9b10 falló en build: errores de tipado del adapter amqplib 2.2.1 (heartbeat enviado como socket option y tipo Connection en lugar de ChannelModel) y abstracción TenantPseudonymizer ausente/importada desde módulo incorrecto. Se corrigieron el adapter RabbitMQ (heartbeat en URI, ChannelModel), el port TenantPseudonymizer y su import. Source CI del commit 489b8cd está pendiente; no se declara build/typecheck/test SUCCESS hasta que finalice. La ausencia de errores de TypeScript en esta documentación no equivale a build pass.
 
 ## 9. Pendientes reales para cerrar TASK-003
 
