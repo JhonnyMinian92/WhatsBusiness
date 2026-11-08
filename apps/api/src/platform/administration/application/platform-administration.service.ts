@@ -5,7 +5,6 @@ import {
   SupportGrantPolicy,
   TenantLifecyclePolicy,
   UsageEntryPolicy,
-  type TenantLifecycleStatus,
 } from "../domain/platform-administration.policy.js";
 import {
   PLATFORM_ADMINISTRATION_PORT,
