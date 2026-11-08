@@ -1,4 +1,4 @@
-import type { ClaimedMetaWebhookEvent, MetaWebhookEventRepository, MetaWebhookPayloadProtector, Clock, RandomSource } from "./meta-webhook-ports.js";
+import type { ClaimedMetaWebhookEvent, MetaWebhookEventRepository, MetaWebhookPayloadProtector, MetaWebhookClock, MetaWebhookRandomSource } from "./meta-webhook-ports.js";
 import { MetaWebhookEventHandlerRegistry } from "./meta-webhook-handler.registry.js";
 import { MetaWebhookRetryPolicy } from "../domain/meta-webhook-retry-policy.js";
 export type MetaWebhookProcessOutcome = "processed" | "retry_scheduled" | "dead_letter" | "not_claimed";
@@ -11,8 +11,8 @@ export class MetaWebhookEventProcessor {
     private readonly protector: MetaWebhookPayloadProtector,
     private readonly handlers: MetaWebhookEventHandlerRegistry,
     private readonly retryPolicy: MetaWebhookRetryPolicy,
-    private readonly clock: Clock,
-    private readonly random: RandomSource,
+    private readonly clock: MetaWebhookClock,
+    private readonly random: MetaWebhookRandomSource,
     private readonly consumerName: string,
   ) {
     if (!/^[a-z][a-z0-9.-]{1,95}$/.test(consumerName)) throw new Error("Meta webhook consumer name is invalid.");

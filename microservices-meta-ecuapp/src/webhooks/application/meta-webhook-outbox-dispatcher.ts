@@ -1,8 +1,8 @@
-import type { MetaWebhookEventRepository, MetaWebhookEventPublisher, Clock, RandomSource } from "./meta-webhook-ports.js";
+import type { MetaWebhookEventRepository, MetaWebhookEventPublisher, MetaWebhookClock, MetaWebhookRandomSource } from "./meta-webhook-ports.js";
 export class MetaWebhookOutboxDispatcher {
   constructor(
     private readonly repository: MetaWebhookEventRepository, private readonly publisher: MetaWebhookEventPublisher,
-    private readonly clock: Clock, private readonly random: RandomSource, private readonly batchSize = 100, private readonly leaseSeconds = 30,
+    private readonly clock: MetaWebhookClock, private readonly random: MetaWebhookRandomSource, private readonly batchSize = 100, private readonly leaseSeconds = 30,
   ) {
     if (!Number.isInteger(batchSize) || batchSize < 1 || batchSize > 500 || !Number.isInteger(leaseSeconds) || leaseSeconds < 5 || leaseSeconds > 900) {
       throw new Error("Meta webhook dispatcher bounds are invalid.");

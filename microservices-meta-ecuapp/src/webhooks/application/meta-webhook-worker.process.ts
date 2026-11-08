@@ -1,7 +1,7 @@
 import type { Pool } from "pg";
 import type { RabbitMqWorkerChannels } from "../../jobs/infrastructure/rabbitmq/rabbitmq-connection.factory.js";
 import { MetaWebhookRetryPolicy } from "../domain/meta-webhook-retry-policy.js";
-import type { MetaWebhookEventHandler, MetaWebhookPayloadProtector, Clock, RandomSource } from "./meta-webhook-ports.js";
+import type { MetaWebhookEventHandler, MetaWebhookPayloadProtector, MetaWebhookClock, MetaWebhookRandomSource } from "./meta-webhook-ports.js";
 import { MetaWebhookEventHandlerRegistry } from "./meta-webhook-handler.registry.js";
 import { MetaWebhookEventProcessor } from "./meta-webhook-event-processor.js";
 import { MetaWebhookOutboxDispatcher } from "./meta-webhook-outbox-dispatcher.js";
@@ -46,8 +46,8 @@ export class MetaWebhookWorkerProcess {
     if (!Number.isInteger(poll) || poll < 100 || poll > 60_000) throw new Error("Meta webhook poll interval is invalid.");
     const repository = new PostgresMetaWebhookRepository(options.database);
     await new RabbitMqMetaWebhookTopology(options.channels.publisher, options.channels.consumer).initialize();
-    const clock: Clock = Object.freeze({ now: () => new Date() });
-    const random: RandomSource = Object.freeze({ next: () => Math.random() });
+    const clock: MetaWebhookClock = Object.freeze({ now: () => new Date() });
+    const random: MetaWebhookRandomSource = Object.freeze({ next: () => Math.random() });
     const publisher = new RabbitMqMetaWebhookEventPublisher(options.channels.publisher);
     const dispatcher = new MetaWebhookOutboxDispatcher(repository, publisher, clock, random, batch, Math.min(900, Math.max(5, lease / 2)));
     const processor = new MetaWebhookEventProcessor(

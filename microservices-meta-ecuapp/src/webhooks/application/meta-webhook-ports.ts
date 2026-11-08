@@ -104,9 +104,9 @@ export interface MetaWebhookEventHandler {
   readonly eventType: string;
   handle(client: PoolClient, event: ClaimedMetaWebhookEvent, payload: Readonly<Record<string, unknown>>): Promise<void>;
 }
-export interface Clock {
+export interface MetaWebhookClock {
   now(): Date;
 }
-export interface RandomSource {
+export interface MetaWebhookRandomSource {
   next(): number;
 }
