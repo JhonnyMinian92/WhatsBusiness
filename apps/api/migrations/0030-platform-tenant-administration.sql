@@ -217,7 +217,7 @@ SET search_path=pg_catalog,platform AS $$
       AND g.revoked_at IS NULL AND g.valid_from<=clock_timestamp()
       AND g.expires_at>clock_timestamp() AND t.status='active'
       AND platform.has_platform_role(p_operator_id,'support_jit')
-      AND p_scope=ANY(g.scopes)
+      AND (p_scope IS NULL OR p_scope=ANY(g.scopes))
   )
 $$;
 REVOKE ALL ON FUNCTION platform.has_active_support_grant(uuid,uuid,text) FROM PUBLIC;
