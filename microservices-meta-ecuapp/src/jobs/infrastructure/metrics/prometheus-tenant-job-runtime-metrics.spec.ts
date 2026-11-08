@@ -114,3 +114,42 @@ test("rejects invalid aggregate gauges without replacing the last valid snapshot
   );
   assert.match(metrics.renderPrometheus(), /^tenant_job_dispatch_pending 1$/m);
 });
+
+
+test("renders RabbitMQ ready-message and consumer gauges without tenant labels", () => {
+  const metrics = new PrometheusTenantJobRuntimeMetrics();
+  metrics.recordBrokerRuntimeSnapshot({
+    workerQueueReadyMessages: 14,
+    workerQueueConsumers: 3,
+    deadLetterQueueReadyMessages: 2,
+    deadLetterQueueConsumers: 0,
+  });
+
+  const output = metrics.renderPrometheus();
+  assert.match(output, /# TYPE tenant_job_rabbitmq_worker_queue_ready_messages gauge/);
+  assert.match(output, /^tenant_job_rabbitmq_worker_queue_ready_messages 14$/m);
+  assert.match(output, /^tenant_job_rabbitmq_worker_queue_consumers 3$/m);
+  assert.match(output, /^tenant_job_rabbitmq_dead_letter_queue_ready_messages 2$/m);
+  assert.match(output, /^tenant_job_rabbitmq_dead_letter_queue_consumers 0$/m);
+  assert.equal(/tenant_job_rabbitmq_.*\\{/.test(output), false);
+});
+
+test("rejects invalid broker gauges without replacing the last valid snapshot", () => {
+  const metrics = new PrometheusTenantJobRuntimeMetrics();
+  metrics.recordBrokerRuntimeSnapshot({
+    workerQueueReadyMessages: 1,
+    workerQueueConsumers: 1,
+    deadLetterQueueReadyMessages: 0,
+    deadLetterQueueConsumers: 0,
+  });
+  assert.throws(
+    () => metrics.recordBrokerRuntimeSnapshot({
+      workerQueueReadyMessages: -1,
+      workerQueueConsumers: 1,
+      deadLetterQueueReadyMessages: 0,
+      deadLetterQueueConsumers: 0,
+    }),
+    /invalid/,
+  );
+  assert.match(metrics.renderPrometheus(), /^tenant_job_rabbitmq_worker_queue_ready_messages 1$/m);
+});
