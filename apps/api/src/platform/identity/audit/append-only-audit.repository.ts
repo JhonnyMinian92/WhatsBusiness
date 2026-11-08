@@ -215,12 +215,12 @@ export class AppendOnlyAuditRepository {
     if (!uuid.test(input.actorUserId)) invalidFields.push("actorUserId");
     if (!uuid.test(input.correlationId)) invalidFields.push("correlationId");
     if (input.approvalId !== undefined && !uuid.test(input.approvalId)) invalidFields.push("approvalId");
-    if (!/^[a-z][a-z0-9]*(?:\\.[a-z][a-z0-9]*){1,7}$/.test(input.actionKey)) invalidFields.push("actionKey");
+    if (!/^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*){1,7}$/.test(input.actionKey)) invalidFields.push("actionKey");
     if (!/^[a-z][a-z0-9_]{1,63}$/.test(input.resourceType)) invalidFields.push("resourceType");
     if (typeof input.resourceId !== "string" || input.resourceId.trim().length === 0 || input.resourceId.length > 255) {
       invalidFields.push("resourceId");
     }
-    if (!/^[a-z][a-z0-9]*(?:\\.[a-z][a-z0-9]*){2,7}$/.test(input.purpose)) invalidFields.push("purpose");
+    if (!/^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*){2,7}$/.test(input.purpose)) invalidFields.push("purpose");
     if (!outcomes.includes(input.outcome)) invalidFields.push("outcome");
     if (input.reasonCode !== undefined && !/^[A-Z][A-Z0-9_]{1,95}$/.test(input.reasonCode)) invalidFields.push("reasonCode");
     if (input.requestHash !== undefined && !/^[0-9a-f]{64}$/.test(input.requestHash)) invalidFields.push("requestHash");
