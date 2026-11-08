@@ -8,6 +8,7 @@ import {
 } from "@nestjs/common";
 import { DatabaseService } from "../../../platform/database/database.module.js";
 import type { TenantAccessContext } from "../../../platform/identity/tenant-access-context.js";
+import type { PermissionKey } from "../../../platform/identity/authorization/permission-catalog.js";
 import {
   ApprovalWorkflowService,
   type ApprovalRequestSummary,
@@ -24,10 +25,11 @@ import {
   type AdsCampaignCommand,
 } from "../domain/campaign-lifecycle.js";
 import { validateAdsCampaignDraft } from "../domain/campaign-validation.js";
-import type {
-  AdsCampaignCommandRecord,
-  AdsCampaignRecord,
-  AdsCampaignRepository,
+import {
+  ADS_CAMPAIGN_REPOSITORY,
+  type AdsCampaignCommandRecord,
+  type AdsCampaignRecord,
+  type AdsCampaignRepository,
 } from "./ads-campaign.repository.js";
 import {
   ADS_CAMPAIGN_EXECUTION_EVIDENCE_PROVIDER,
@@ -555,7 +557,7 @@ function auditEvent(
   };
 }
 
-function requirePermission(subject: TenantAccessContext, permission: string): void {
+function requirePermission(subject: TenantAccessContext, permission: PermissionKey): void {
   if (!subject.permissionKeys.includes(permission)) {
     throw new ForbiddenException({
       code: "ADS_CAMPAIGN_PERMISSION_DENIED",
