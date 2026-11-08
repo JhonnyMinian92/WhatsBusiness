@@ -1,4 +1,4 @@
-import type { TenantPseudonymizer } from "./tenant-hmac-pseudonymizer.js";
+import type { TenantPseudonymizer } from "./tenant-pseudonymizer.js";
 
 export interface TenantTelemetryIdentity {
   readonly tenantId: string;
