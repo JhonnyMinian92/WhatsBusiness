@@ -835,3 +835,18 @@ La implementación de TASK-004 y TASK-005 fue publicada y verificada por CI en c
 - AC-013-01/02/03 continúan parciales. No hay repositorio/constraint DB, endpoint, outbox/worker, adapter Meta ni observaciones reales del proveedor.
 - Dependencias abiertas: TASK-023, TASK-031 y TASK-032 (consent evidence). CR-0015 y CAPI-001..004 no están cerrados. Ver docs/72.
 - No declarar verified/accepted hasta Source CI verde, Contract CI/fixtures cuando el contrato se congele, revisión independiente, pruebas externas permitidas y aceptación del Product Owner.
+
+
+## Handoff — US-014: composition root dedicado de Meta webhook worker (2026-11-08)
+
+**TASK relacionadas:** TASK-027 (durable ingress) y TASK-028 (dispatch/worker/DLQ). Se corrigió el gap entre los componentes `MetaWebhookWorkerProcess`/`MetaWebhookWorkerSupervisor` existentes y su composición de runtime.
+
+- Nuevo `microservices-meta-ecuapp/src/webhooks/infrastructure/bootstrap/meta-webhook-worker.runtime.ts`: `MetaWebhookWorkerRuntime.create({handlers, reporter})` es la raíz de composición. Recibe handlers reales del bounded context dueño, crea el pool aislado con `DATABASE_WEBHOOK_WORKER_URL`, arma supervisor/protector y configura consumer/reconnect/lease/prefetch/batch.
+- Fail-closed temprano: lista vacía, handlers duplicados o incompatibles y nombre de consumer inválido se rechazan antes de abrir infraestructura. No se crean handlers noop.
+- Seguridad: valida URLs PostgreSQL/AMQP; en production exige `DB_SSL=true` y `amqps://`; `EnvironmentMetaWebhookPayloadProtector.validateConfiguration()` carga/valida keyring AES-GCM antes del pool y cualquier consumo; la configuración de worker no lee secretos de aplicación Meta.
+- Ciclo de vida: `run(AbortSignal)` mantiene el host vivo; al cancelar drena el supervisor, deja que el consumer termine deliveries en curso y cierra el pool dedicado. El cierre es single-flight. Si la configuración de supervisor falla tras abrir pool, se ejecuta cleanup con `Pool.end()`.
+- La abstracción permite inyectar `poolFactory`, `protectorFactory` y `supervisorFactory`; el runtime no importa reglas de CRM/Inbox.
+- `meta-webhook-worker.runtime.spec.ts` queda agregado al target `test` Nx y verifica: registry vacío/duplicado, consumer inválido, TLS/AMQPS, orden keyring→pool→supervisor, cierre tras abort y cleanup por configuración inválida. Se actualizó el export público `src/index.ts`, `.env.example` y README del backend.
+- Commits: `b2fae18c07b1ede450a7ee8248df1ceceb3c0fd2` runtime; `65e173921ff83461a22bce86198305b21816b252` eager keyring validation; `7daebb92507e51a3f2e6316bee592fa2e4edb583` registry/consumer validation; `7d6e33c10ceb19a4f4f68af3fb932c8783f1ed5b` regressions; `12cabafa446e1b1408e42a219e0f5638838dbba2` public export; `d6d1e015d01b9810f7b92a047f5a5ed51ab097bf` Nx test registration.
+
+**Estado global:** TASK-027/028/US-014 siguen `in_progress`; CI del último commit de código debe inspeccionarse antes de elevar este slice a `CI verified`. No se ha creado entrypoint de deployment con handlers de CRM/Inbox porque esos consumers de dominio siguen pendientes. Replay no se habilita hasta CR-0016, handlers idempotentes y flujo de aprobación con step-up/audit; KMS/Secret Manager, WAF/rate limit/TLS, health/liveness, topología/alertas, carga/DR, callbacks reales, revisión independiente y aceptación del Product Owner permanecen abiertos.
