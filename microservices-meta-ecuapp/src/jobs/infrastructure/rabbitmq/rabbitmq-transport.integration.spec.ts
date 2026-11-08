@@ -117,13 +117,13 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
     assert.deepEqual(parseTenantJobMessage(delivered.content), job);
     await waitForQueueMetric(
       "rabbitmq_detailed_queue_messages_unacked",
-      TENANT_JOB_RABBITMQ_TOPOLOGY.queue,
+      queue,
       1,
     );
     channels.consumer.ack(delivered, false);
     await waitForQueueMetric(
       "rabbitmq_detailed_queue_messages_unacked",
-      TENANT_JOB_RABBITMQ_TOPOLOGY.queue,
+      queue,
       0,
     );
 
@@ -136,7 +136,7 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
     );
 
     await publisher.publish(job, "jobs.integration.dead-letter");
-    const poison = await channels.consumer.get(TENANT_JOB_RABBITMQ_TOPOLOGY.queue, false);
+    const poison = await channels.consumer.get(queue, false);
     assert.ok(poison, "The persistent message should be ready in the quorum source queue.");
     channels.consumer.nack(poison, false, false);
 
@@ -148,13 +148,13 @@ test("RabbitMQ confirms, mandatory routing, manual ACK and quorum at-least-once 
     );
     const deadLetter = await waitForUnackedDelivery(
       channels.consumer,
-      TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue,
+      deadLetterQueue,
       5_000,
     );
     assert.deepEqual(parseTenantJobMessage(deadLetter.content), job);
     await waitForQueueMetric(
       "rabbitmq_detailed_queue_messages_unacked",
-      TENANT_JOB_RABBITMQ_TOPOLOGY.deadLetterQueue,
+      deadLetterQueue,
       1,
     );
     channels.consumer.ack(deadLetter, false);
