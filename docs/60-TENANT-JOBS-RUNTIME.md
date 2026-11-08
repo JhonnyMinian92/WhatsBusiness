@@ -176,13 +176,13 @@ La configuración usa `TENANT_JOB_METRICS_HOST=127.0.0.1` y `TENANT_JOB_METRICS_
 
 El nuevo test cubre GET/404/405, headers, bearer token, binding remoto sin token, renderer fallido, doble startup y cierre idempotente. Está agregado a `microservices-meta-ecuapp:test`. Source CI [#42434224485](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42434224485) terminó SUCCESS para commit `abbc86cfbd72e89ab5db82b0e3207159a66eba71`, incluyendo build, typecheck y esta suite.
 
-El endpoint sirve los counters e histogramas existentes, que siguen siendo in-memory. Todavía faltan gauges de outbox/cola/consumer lag/leases/DLQ/replay, reglas de alertas, SLO cuantificados, dashboards y validación de scraping en la topología desplegada. TASK-003 sigue `in_progress`; GO-PRODUCTION permanece NO-GO.
+El endpoint sirve counters/histograms in-memory y los gauges agregados PostgreSQL ya descritos. Todavía faltan métricas de broker (queue depth, consumer lag y DLQ depth), reglas de alertas, SLO cuantificados, dashboards y validación de scraping en la topología desplegada. TASK-003 sigue `in_progress`; GO-PRODUCTION permanece NO-GO.
 
 ## 14. Gauges operativos agregados desde PostgreSQL
 
 La migración `microservices-meta-ecuapp/migrations/0015-tenant-job-runtime-metrics.sql` crea `platform.read_tenant_job_runtime_metrics()`. Es una función `SECURITY DEFINER` con `search_path` fijado y devuelve únicamente agregados globales: dispatch pending/blocked, leases de dispatcher y worker activos/expirados, jobs dead-letter, edad del pending más antiguo y jobs replayed. Nunca devuelve tenant ID, actor ID, correlation ID, job ID ni payload.
 
-El único rol con `EXECUTE` es `whatsbusiness_job_dispatcher_role`. `whatsbusiness_app` y `whatsbusiness_job_worker_role` no pueden ejecutar la función; el dispatcher tampoco tiene `SELECT` directo de `platform.tenant_job_records`. El diseño usa el pool dedicado de dispatcher, sin ampliar permisos de API o worker.
+El único rol con `EXECUTE` es `whatsbusiness_job_dispatcher_role`. `whatsbusiness_app` y `whatsbusiness_job_worker_role` no pueden ejecutar la función; el dispatcher tampoco tiene `SELECT` directo de `platform.tenant_job_records`. El diseño usa un pool independiente de métricas con una sola conexión y timeouts de conexión/consulta, autenticado con el rol dispatcher; no compite con el pool de despacho y no amplía permisos de API o worker.
 
 `PostgresTenantJobRuntimeMetricsReader` valida contadores como enteros seguros y el valor de antigüedad como número finito no negativo. `TenantJobRuntimeSupervisor` actualiza el snapshot cada 15 s por defecto (`TENANT_JOB_METRICS_POLL_INTERVAL_MS`); un fallo de lectura se registra y nunca impide recovery/dispatch. Los gauges se exponen sin labels y permanecen cacheados entre scrapes.
 
