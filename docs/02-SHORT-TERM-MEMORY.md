@@ -651,3 +651,12 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Tests nuevos registrados en Nx: registry vacío/duplicado, consumer inválido, TLS/AMQPS, eager keyring, cancelación y cleanup del pool. TEST IDs: TEST-WEBHOOK-017..022.
 - Commits del runtime: `b2fae18c07b1ede450a7ee8248df1ceceb3c0fd2`, `65e173921ff83461a22bce86198305b21816b252`, `7daebb92507e51a3f2e6316bee592fa2e4edb583`, `7d6e33c10ceb19a4f4f68af3fb932c8783f1ed5b`, `12cabafa446e1b1408e42a219e0f5638838dbba2`, `d6d1e015d01b9810f7b92a047f5a5ed51ab097bf`. `docs/64`, `docs/11`, `docs/19`, `docs/14`, `.env.example` y README reflejan el estado.
 - El host de Inbox/CRM aún debe suministrar handlers reales y entrypoint. Replay sigue bloqueado por CR-0016, side-effect idempotency y approval/step-up/audit. Sin KMS/Secret Manager, health/liveness ni deployment verification, los handlers de negocio y CI verde final, US-014/TASK-027/028 siguen `in_progress`. GO-PRODUCTION NO-GO.
+
+
+## Handoff — US-012 Ads Campaign Lifecycle (2026-11-08)
+
+- Rama de trabajo: `environment/local`; se añadió el núcleo de dominio Ads bajo `apps/api/src/ads/campaigns/domain`.
+- Componentes: aritmética exacta con BigInt; política PD-024 (20% por operación y rolling baseline 24h); máquina de estados de campaña; preflight que exige catálogo y evidencia Meta versionados/vigentes; policy central de ejecución/approval/quorum/kill switch.
+- Cinco suites de dominio, con 24 casos unitarios focalizados, añadidas al target `api:test`. No declarar PASS hasta revisar Source CI del commit que incorpora estos archivos.
+- No se registraron controllers Ads ni rutas públicas porque ADS API contracts siguen catalog-only según docs/49/55; tampoco se afirma que TASK-010/TASK-029 o Meta permissions/tier/account estén resueltos.
+- TASK-024 y TASK-025 permanecen `in_progress`. Faltan persistencia/RLS, application use cases, approval consumption/outbox, worker, Marketing API adapter, pause/kill switch remoto, reconciler, insights/spend ledger, contract freeze + review independiente. Evidencia y estado AC en docs/72-US-012-ADS-CAMPAIGN-IMPLEMENTATION.md.
