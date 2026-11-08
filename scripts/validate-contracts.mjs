@@ -17,6 +17,7 @@ const assert = (condition, message) => {
   if (!condition) throw new Error(message);
 };
 
+
 const read = (path) => fs.readFileSync(path, "utf8");
 const parseYaml = (path) => YAML.parse(read(path), { uniqueKeys: true });
 const openapi = parseYaml("contracts/openapi/platform-v1.yaml");
