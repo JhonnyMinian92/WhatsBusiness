@@ -43,7 +43,7 @@ npm run clean
 npm run typecheck
 npm test
 ```
-En la copia de desarrollo con el conjunto extendido de pruebas: **32 pruebas, 32 aprobadas, 0 fallidas**. Esta PR añade una suite de 8 pruebas contractuales y el workflow `.github/workflows/ci.yml` para Node 22; la primera ejecución automática todavía no aparece en GitHub Actions al momento de esta revisión.
+En la copia de desarrollo con el conjunto extendido de pruebas: **32 pruebas, 32 aprobadas, 0 fallidas**. Esta PR añade una suite de 8 pruebas contractuales y el workflow `.github/workflows/ci.yml` para Node 22; la ejecución GitHub Actions #4 para el commit 8252adc terminó correctamente (instalación, typecheck y pruebas).
 
 ## Pendientes de integración real
 1. Provisionar Redis y conectarlo desde el composition root de API/workers.
