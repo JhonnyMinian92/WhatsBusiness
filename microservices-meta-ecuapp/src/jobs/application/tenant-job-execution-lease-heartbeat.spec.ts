@@ -5,9 +5,14 @@ import { TenantJobExecutionLeaseHeartbeat } from "./tenant-job-execution-lease-h
 
 test("renews long-running execution before lease expiration", async () => {
   let renewals = 0;
+  let resolveSecondRenewal!: () => void;
+  const secondRenewal = new Promise<void>((resolve) => {
+    resolveSecondRenewal = resolve;
+  });
   const heartbeat = new TenantJobExecutionLeaseHeartbeat({
     async renewExecutionLease() {
       renewals += 1;
+      if (renewals >= 2) resolveSecondRenewal();
       return new Date(Date.now() + 10_000);
     },
   }, () => 5);
@@ -16,14 +21,13 @@ test("renews long-running execution before lease expiration", async () => {
     "d7d8d4cf-1d23-4dcb-80fb-1a7a2e0c4b15",
     "e7d8d4cf-1d23-4dcb-80fb-1a7a2e0c4b15",
     5,
-    async (signal) => {
-      await new Promise<void>((resolve) => {
-        const timer = setTimeout(resolve, 24);
-        signal.addEventListener("abort", () => {
-          clearTimeout(timer);
-          resolve();
-        }, { once: true });
-      });
+    async () => {
+      await Promise.race([
+        secondRenewal,
+        new Promise<never>((_resolve, reject) => {
+          setTimeout(() => reject(new Error("Heartbeat did not perform two renewals.")), 5_000);
+        }),
+      ]);
       return "completed";
     },
   );
