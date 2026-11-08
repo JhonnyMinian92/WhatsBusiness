@@ -113,7 +113,9 @@ export class PrometheusTenantJobRuntimeMetrics implements TenantJobRuntimeMetric
       if (!Number.isFinite(value) || value < 0) {
         throw new Error("Tenant job runtime gauge value is invalid: " + gauge.key + ".");
       }
-      if (gauge.key !== "oldestPendingDispatchAgeSeconds" && !Number.isSafeInteger(value)) {
+      const isAgeGauge = gauge.key === "oldestPendingDispatchAgeSeconds"
+        || gauge.key === "oldestPendingExecutionAgeSeconds";
+      if (!isAgeGauge && !Number.isSafeInteger(value)) {
         throw new Error("Tenant job runtime count gauge must be a safe integer: " + gauge.key + ".");
       }
     }

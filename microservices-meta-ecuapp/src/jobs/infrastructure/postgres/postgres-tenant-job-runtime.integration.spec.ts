@@ -188,9 +188,12 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
 
     const metricsBefore = await dispatcherPool.query<{
       pending_dispatch_jobs: string;
-    }>("SELECT pending_dispatch_jobs::text FROM platform.read_tenant_job_runtime_metrics()");
+      pending_execution_jobs: string;
+    }>("SELECT pending_dispatch_jobs::text, pending_execution_jobs::text FROM platform.read_tenant_job_runtime_metrics()");
     const pendingBefore = Number(metricsBefore.rows[0]?.pending_dispatch_jobs);
+    const executionPendingBefore = Number(metricsBefore.rows[0]?.pending_execution_jobs);
     assert.ok(Number.isSafeInteger(pendingBefore) && pendingBefore >= 0);
+    assert.ok(Number.isSafeInteger(executionPendingBefore) && executionPendingBefore >= 0);
 
     await assert.rejects(
       runtimePool.query("SELECT * FROM platform.read_tenant_job_runtime_metrics()"),
@@ -223,13 +226,13 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
       "SELECT pending_dispatch_jobs::text, pending_execution_jobs::text, oldest_pending_dispatch_age_seconds, oldest_pending_execution_age_seconds FROM platform.read_tenant_job_runtime_metrics()",
     );
     assert.equal(Number(metricsAfterStage.rows[0]?.pending_dispatch_jobs), pendingBefore + 1);
-    assert.equal(Number(metricsAfterStage.rows[0]?.pending_execution_jobs), 0);
+    assert.equal(Number(metricsAfterStage.rows[0]?.pending_execution_jobs), executionPendingBefore);
     assert.ok((metricsAfterStage.rows[0]?.oldest_pending_dispatch_age_seconds ?? -1) >= 0);
-    assert.equal(metricsAfterStage.rows[0]?.oldest_pending_execution_age_seconds, 0);
+    assert.ok((metricsAfterStage.rows[0]?.oldest_pending_execution_age_seconds ?? -1) >= 0);
 
     const pendingExecutionMetricsJobId = await stageJob(
       runtimePool, tenantId, actorUserId, correlationId,
-      "inbox.metrics.execution-backlog", { messageId: "synthetic-message-metrics" },
+      "inbox.metrics.executionbacklog", { messageId: "synthetic-message-metrics" },
     );
     insertedJobs.push(pendingExecutionMetricsJobId);
     const metricsDispatch = await dispatcherPool.query<{ lease_token: string }>(
@@ -249,7 +252,7 @@ test("PostgreSQL outbox dispatch, execution fencing, inbox and recovery are atom
     }>(
       "SELECT pending_execution_jobs::text, oldest_pending_execution_age_seconds FROM platform.read_tenant_job_runtime_metrics()",
     );
-    assert.ok(Number(metricsAfterPublish.rows[0]?.pending_execution_jobs) >= 1);
+    assert.equal(Number(metricsAfterPublish.rows[0]?.pending_execution_jobs), executionPendingBefore + 1);
     assert.ok((metricsAfterPublish.rows[0]?.oldest_pending_execution_age_seconds ?? -1) >= 0);
 
     await assert.rejects(

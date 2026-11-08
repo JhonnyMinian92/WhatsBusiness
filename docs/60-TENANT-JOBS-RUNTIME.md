@@ -242,3 +242,13 @@ Se amplía la función agregada de PostgreSQL mediante la migración `0025-tenan
 La migración reemplaza la función porque PostgreSQL no permite cambiar el tipo de fila `RETURNS TABLE` mediante `CREATE OR REPLACE FUNCTION`. Reaplica el mismo `SECURITY DEFINER`, `search_path` fijo, revocaciones y EXECUTE exclusivo de `whatsbusiness_job_dispatcher_role`.
 
 **Estado de esta iteración:** código, migración, pruebas y documentación preparados; Source CI en el commit que introduce la migración debe confirmar instalación, segunda ejecución idempotente, build, typecheck y suites unitarias/PostgreSQL/RabbitMQ antes de declarar el slice verificado. TASK-003 permanece `in_progress`; GO-PRODUCTION continúa NO-GO.
+
+
+## Corrección post-CI (2026-11-08) — validación de edad y fixture
+
+Source CI #576 del commit 1140d35b confirmó build, typecheck, migraciones idempotentes y pruebas API, pero identificó dos defectos en el nuevo slice:
+- El exporter trataba oldestPendingExecutionAgeSeconds como contador entero. Se corrigió para validar ambas métricas AgeSeconds como valores numéricos finitos no negativos, permitiendo fracciones.
+- El fixture PostgreSQL usaba un segmento jobType con guion, prohibido por el contrato real de platform.tenant_job_records.job_type. Se reemplazó por inbox.metrics.executionbacklog, compatible con la expresión de segmentos.
+
+También se cambió la prueba a comparar contra el backlog de ejecución medido antes del fixture, evitando asumir que la base de integración está vacía.
+**Estado:** corrección preparada para publicar; requiere Source CI del commit sucesor para verificación.

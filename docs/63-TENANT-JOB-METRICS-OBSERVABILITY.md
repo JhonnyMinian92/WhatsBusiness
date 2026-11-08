@@ -88,3 +88,9 @@ Esto no sustituye los gauges RabbitMQ. Los gauges de broker describen ready, una
 La migración `0025-tenant-job-execution-backlog-metrics.sql` conserva el único permiso EXECUTE en `whatsbusiness_job_dispatcher_role`; API y worker siguen sin permiso de lectura del agregado ni de payload. La suite PostgreSQL comprueba staging → publicación → métrica antes del claim del worker.
 
 **Verificación:** pendiente de Source CI para el commit de esta ampliación. Los cambios son candidatos implementados, no todavía un slice CI-verified ni cierre de TASK-003.
+
+
+## Corrección post-CI (2026-11-08)
+
+Source CI #576 detectó dos defectos corregibles en el slice de backlog de ejecución: validación de edad decimal confundida con gauge contador y un jobType sintético no válido (execution-backlog contenía un guion). El exporter ahora permite valores fraccionarios en las dos métricas AgeSeconds y el test utiliza el jobType válido inbox.metrics.executionbacklog. El test PostgreSQL mide el backlog previo y verifica incremento exacto de uno tras publicación.
+La corrección necesita Source CI verde antes de marcar esta ampliación verificada; CodeQL sobre el commit anterior ya pasó.

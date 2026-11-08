@@ -598,3 +598,11 @@ Fuera de este cierre parcial: CRM-007 candidatos de duplicación, CRM-008..010 m
 - Migración `0025-tenant-job-execution-backlog-metrics.sql`: reemplazo controlado de función `RETURNS TABLE`, `SECURITY DEFINER`, `search_path` fijo y EXECUTE únicamente para `whatsbusiness_job_dispatcher_role`. No concede SELECT directo ni expone IDs/payloads.
 - Unit tests del reader/exporter y PostgreSQL integration test cubren mapping, validación de contadores/edad, staging sin publicar y job publicado antes del claim.
 - **Estado:** implementación añadida; Source CI del commit resultante pendiente. TASK-003/027/028 siguen `in_progress`; no se declara producción ni aceptación del propietario.
+
+
+### Handoff post-CI — correcciones de métricas runtime (2026-11-08)
+
+- Source CI #576 sobre 1140d35b: build, typecheck, instalación/versionado de migraciones e idempotencia, y pruebas API pasaron; falló Meta backend por dos casos introducidos en el nuevo slice.
+- El exporter ahora acepta edad fraccionaria en oldestPendingDispatchAgeSeconds y oldestPendingExecutionAgeSeconds, manteniendo los demás gauges como contadores enteros seguros.
+- El fixture PostgreSQL usa inbox.metrics.executionbacklog, jobType que respeta el regex de la base; se compara el backlog posterior con el valor previo, no con un supuesto de base vacía.
+- **Estado:** corrección preparada; TASK-003 y GO-PRODUCTION continúan sin cierre ni aceptación.
