@@ -3,7 +3,7 @@
 **Fecha:** 2026-11-07  
 **Rama:** `environment/local`  
 **Tarea primaria:** TASK-003 / REQ-0001 / REQ-0010  
-**Estado:** código fuente parcial implementado. Source CI #42430605576 terminó SUCCESS para commit `be9d3dc14aa26b38c20013b98ff5238bac564a4e`: instalación frozen, migraciones/idempotencia (incluida 0011), build, typecheck, unit y las integraciones PostgreSQL/RabbitMQ pasaron. TASK-003 continúa in_progress y no es GO-PRODUCTION.
+**Estado:** runtime durable parcialmente implementado; Source CI #42432745586 terminó SUCCESS en commit `6c93efdfea0cef7f1819402ab872e439ef858ccd`, incluyendo migraciones 0001–0013/idempotencia, build, typecheck, unit e integraciones PostgreSQL/RabbitMQ. Pool A→B, cleanup tras COMMIT/ROLLBACK y aislamiento concurrente están verificados. Se añadió el backend de replay autorizado/auditado, pero su policy registry está vacío (fail-closed): todavía no se puede ejecutar replay real hasta registrar handlers con idempotencia de efecto externo y validar el flujo end-to-end. TASK-003 permanece in_progress; GO-PRODUCTION NO-GO.
 
 ## 1. Objetivo y límites
 
@@ -109,12 +109,15 @@ Source CI declara PostgreSQL 18.6 y RabbitMQ 4.4 para pruebas de integración. R
 - [x] Source CI #42430605576 SUCCESS en commit `be9d3dc14aa26b38c20013b98ff5238bac564a4e`: instalación frozen, migraciones 0001–0011/idempotencia, build, typecheck, unit, PostgreSQL y RabbitMQ.
 - [x] Source CI #42431419028 SUCCESS en commit `bcedfab0538f5ee82a06ffe2480f41e3378bab7e`: prueba A→B con el `DatabaseService` real y misma conexión física pasó.
 - [x] Source CI #42431530685 SUCCESS para commit `6059822896987fc618c479d53117354e1a785144`: cleanup de `app.tenant_id` y `app.user_id` tras ROLLBACK también pasó, además de A→B sobre el mismo `pg_backend_pid()`.
+- [x] Source CI #42432745586 SUCCESS para commit `6c93efdfea0cef7f1819402ab872e439ef858ccd`: prueba simultánea de tenant A/B con dos conexiones físicas, GUC aislados y RLS; migraciones 0012/0013; policy registry fail-closed; privilegios API restringidos; build, typecheck e integraciones completas.
 - [x] Source CI #42431419028 SUCCESS para commit `bcedfab0538f5ee82a06ffe2480f41e3378bab7e`: `DatabaseService` real, `Pool.max=1`, mismo `pg_backend_pid()` en tenant A→B y GUC limpios tras COMMIT.
 - [x] Source CI #42431530685 SUCCESS para commit `6059822896987fc618c479d53117354e1a785144`: la prueba anterior también fuerza ROLLBACK por excepción y verifica que `app.user_id`/`app.tenant_id` quedan limpios.
 - [ ] Regresión de transacciones concurrentes A/B añadida en commit `9b497d0805b53f79e658fd874d0ebfbec3863b12`; valida conexiones físicas distintas, GUC independientes y visibilidad RLS de un único tenant. Source CI de este commit pendiente de verificación.
 - [x] Implementar heartbeat/renew del execution lease mediante token de fencing y PostgreSQL; el worker cancela cooperativamente el handler si pierde el lease. La suite unitaria e integración quedan sujetas a Source CI.
 - [x] Añadir deadline configurable `TENANT_JOB_HANDLER_TIMEOUT_MS` (1–900 s; default 300 s), abortar el handler y rechazar el procesamiento al perder lease o exceder el deadline. La cancelación exige cooperación del handler mediante AbortSignal; JavaScript no puede terminar forzosamente una promesa no cooperativa. Build/typecheck de #42428439526 pasaron; integración posterior pendiente.
-- [ ] Implementar replay administrativo de DLQ/job dead-letter, con permission/approval/audit; no crear bypass SQL público.
+- [x] Implementar plumbing de replay administrativo con permiso crítico, aprobación de dos personas y step-up, request hash-bound, registro append-only, auditoría, creación de child job inmutable y SQL SECURITY DEFINER que clona payload sin exponerlo al rol API. Source CI #42432745586 SUCCESS (migraciones 0012–0013, build, typecheck, unit e integraciones).
+- [ ] Registrar policies de replay solo para handlers reales que prueben idempotencia mediante stable domain-effect key; el registry de producción permanece vacío y rechaza por defecto todos los tipos.
+- [ ] Validar el flujo end-to-end de replay con un handler real registrado, approvals quorum, consumo, auditoría, publicación al broker y efecto de negocio idempotente.
 - [ ] Implementar lease/lock y replay seguro de broker DLQ, retención, acceso restringido y audit.
 - [ ] Agregar métricas/alertas: age de outbox, publishing leases expired, queue depth, consumer lag, failed/blocked/dead-letter y replays.
 - [ ] Añadir pruebas de crash entre publish/confirm/mark, ACK perdido, redelivery, lease expiry concurrente y fencing token obsoleto.
@@ -137,3 +140,12 @@ La prueba API `apps/api/src/platform/database/database.context.integration.spec.
 Source CI #42430321770 (commit `7b6e2a180a9049054245fa34f2d649269930bd8f`) pasó la aserción cross-tenant SQLSTATE `40001` y luego encontró SQLSTATE `42702`: la variable RECORD local `job` colisionaba con alias SQL `job` dentro de las CTE de recuperación. La migración `0011-tenant-job-recovery-variable-ambiguity.sql` cambió el nombre de la variable a `execution_row` y conservó los permisos gestionados por la migración 0008.
 
 Source CI #42430605576 terminó SUCCESS en commit `be9d3dc14aa26b38c20013b98ff5238bac564a4e`; las integraciones PostgreSQL y RabbitMQ pasaron.
+### Replay administrativo con aprobación y auditoría (2026-11-08)
+
+Se incorporaron las migraciones `0012-tenant-job-approved-replay.sql` y `0013-tenant-job-approved-replay-boundary.sql`. La solicitud captura un snapshot inmutable de source job y policy version dentro de la misma transacción de aprobación. Se exige permiso crítico `jobs.replay.request`, quorum de dos aprobadores independientes y step-up, binding hash exacto de tenant/acción/purpose/job/estado/error/intentos/policy version, consumo de aprobación y audit event `approval_consumed` coincidentes. El replay crea una nueva fila ligada por FK compuesta a source y approval, sin reabrir/modificar el job terminal original.
+
+El rol `whatsbusiness_app` no puede leer `payload` ni insertar genealogía de replay. La función SQL `SECURITY DEFINER` verifica tenant/actor, source exhausted dead-letter, snapshot, approval consumida, hash y audit event, y clona el payload internamente en PostgreSQL. El repositorio TypeScript usa un port e invoca esa función; idempotencia evita crear un segundo replay por la misma aprobación. Routes agregadas en `apps/api/src/platform/jobs/tenant-job-replay.controller.ts`.
+
+**Límite deliberado:** `TenantJobReplayPolicyRegistry` se instancia vacío. El test unitario verifica que solicitudes sin policy explícita para un handler que use stable domain-effect idempotency se rechazan antes de crear una aprobación. No hay aún handlers reales elegibles; por ello el replay está implementado como capacidad controlada, pero no habilitado para jobs de negocio.
+
+Source CI #42432745586 SUCCESS para commit `6c93efdfea0cef7f1819402ab872e439ef858ccd`: migraciones 0012–0013/idempotencia, build, typecheck, pruebas unitarias y suites PostgreSQL/RabbitMQ. Incluye verificación con el rol API real de que payload y genealogía no son accesibles/escribibles, pero sí puede ejecutarse la función aprobada.

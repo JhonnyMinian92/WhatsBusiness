@@ -325,3 +325,14 @@ Source CI #42431530685 terminó SUCCESS para el commit `6059822896987fc618c479d5
 |---|---|---|
 | AUD-098 | Transacciones tenant A/B concurrentes | Commit `9b497d0805b53f79e658fd874d0ebfbec3863b12` amplía `apps/api/src/platform/database/database.context.integration.spec.ts`: mantiene dos transacciones simultáneas, exige dos `pg_backend_pid()` distintos, valida GUC tenant/actor en cada conexión y consulta RLS para asegurar que cada sesión solo ve su tenant. Source CI exacto pendiente de verificación; no se marca como prueba aprobada. |
 
+
+## 28. Replay administrativo protegido — TASK-003 (AUD-099..104; 2026-11-08)
+
+| ID | Cambio | Evidencia / resultado |
+|---|---|---|
+| AUD-099 | Persistencia de replay | Migración 0012: requests append-only, reason codes, snapshot de source, policy version, unique idempotency, FK compuestas same-tenant, lineage inmutable y RLS. |
+| AUD-100 | Consumo de aprobación como frontera SQL | Migración 0013: API no lee payload ni inserta lineage; función SECURITY DEFINER valida tenant/actor/source/approval/hash/audit y crea child job copiando payload dentro de PostgreSQL. |
+| AUD-101 | Servicio y rutas | `TenantJobReplayService`, repository port/adapter y controller con request/status/decision/execute; request/approval staging atómico y consumeAndStage comparte transacción con replay + audit. |
+| AUD-102 | Aprobación y autorización | `jobs.replay.request` crítico, two-person quorum=2 y step-up; hash incluye snapshot y version de policy; source job original permanece terminal. |
+| AUD-103 | Policy fail-closed y pruebas | Registry vacío por defecto; solo acepta handler con versión `tenant-job-replay.v1` y garantía `stable-domain-effect-key`. Tests cubren registry, ausencia de policy y privilegios reales del rol API. |
+| AUD-104 | Source CI | Run #42432745586 SUCCESS para commit `6c93efdfea0cef7f1819402ab872e439ef858ccd`, incluyendo migraciones 0012/0013/idempotencia, build, typecheck, unit y PostgreSQL/RabbitMQ integration. No hay handler real registrado; el replay no queda habilitado en producción. |

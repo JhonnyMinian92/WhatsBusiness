@@ -394,3 +394,11 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Commit de código: `9b497d0805b53f79e658fd874d0ebfbec3863b12`. Source CI correspondiente pendiente de lectura al momento de este handoff; no declarar la regresión verificada todavía.
 - A→B secuencial y cleanup tras COMMIT/ROLLBACK sí están verificados por Source CI #42431530685 en commit `6059822896987fc618c479d53117354e1a785144`.
 - TASK-003 sigue `in_progress`. Siguientes pendientes: replay administrativo con permission/approval/audit, replay seguro de broker DLQ, métricas/alertas, crash/redelivery/fencing, handlers de negocio reales, validación de infraestructura RabbitMQ, secretos/deployment y revisión independiente.
+
+## Handoff — replay seguro y CI verde (2026-11-08)
+
+- Source CI #42432745586 SUCCESS para commit `6c93efdfea0cef7f1819402ab872e439ef858ccd`: migraciones 0012/0013/idempotencia, build, typecheck, pruebas unitarias y PostgreSQL/RabbitMQ integration.
+- Se añadió replay API con permiso `jobs.replay.request`, aprobación de dos personas y step-up, hash binding exacto, audit `approval_consumed`, request snapshot append-only, genealogía/FK same-tenant, y child job inmutable. La función SQL SECURITY DEFINER verifica la autorización y clona payload dentro de PostgreSQL; el rol API carece SELECT(payload) e INSERT lineage.
+- Repository port separado de adapter. Policy registry vacío y fail-closed; test verifica que sin handler con stable domain-effect idempotency no se crea una aprobación. No hay todavía handler productivo habilitado ni replay e2e; no anunciarlo como operativo.
+- Se verificó prueba de aislamiento concurrente A/B con pool worker: dos transacciones simultáneas en conexiones físicas diferentes mantienen actor/tenant propios y RLS rechaza el otro tenant. La secuencia A→B y cleanup tras COMMIT/ROLLBACK también siguen verdes.
+- TASK-003 sigue in_progress; quedan handler real/policy idempotente, flujo replay e2e broker, DLQ operacional, métricas/alertas, crash/redelivery/fencing ampliado, secrets/deployment y review independiente.

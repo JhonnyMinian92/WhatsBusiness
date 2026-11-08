@@ -367,3 +367,12 @@ Se añadió una regresión de integración a `microservices-meta-ecuapp/src/jobs
 - Commit: `9b497d0805b53f79e658fd874d0ebfbec3863b12`. Estado: implementación de test añadida; Source CI exacto aún pendiente de verificar, por lo que no marcar como verified.
 - Evidencia previa: Source CI #42431530685 SUCCESS para commit `6059822896987fc618c479d53117354e1a785144`, con A→B secuencial en la misma conexión y cleanup tras COMMIT/ROLLBACK.
 - TASK-003 permanece `in_progress`; no aceptar hasta completar controles de replay/DLQ, observabilidad, crash/redelivery/fencing, handlers de negocio, deployment y review independiente.
+
+## Handoff — replay administrativo fail-closed (2026-11-08)
+
+- Migraciones `0012-tenant-job-approved-replay.sql` y `0013-tenant-job-approved-replay-boundary.sql`: persistencia tenant-scoped de requests, genealogía inmutable, FK compuestas, policy RLS, append-only y función SQL SECURITY DEFINER; clona payload internamente sin SELECT de payload ni INSERT de lineage para el API.
+- API `apps/api/src/platform/jobs`: controller, service y repository port/adaptador PostgreSQL; ApprovalWorkflowService stages request+approval en una transacción; consumo exige hash exacto, dos aprobadores/step-up y audit `approval_consumed`; child replay idempotente.
+- `TenantJobReplayPolicyRegistry` queda vacío por defecto; `crm.contact.sync` solo es un ejemplo de nombre en tests, no hay handler registrado en producción. Ningún job puede replayarse hasta probar idempotencia de efectos externos con stable domain key y registrar policy version compatible. El flujo end-to-end con broker/handler real sigue pendiente.
+- Tests nuevos: registro fail-closed/validaciones de policies; servicio rechaza sin policy antes de crear approval; permisos efectivos del rol `whatsbusiness_app` no permiten SELECT(payload) ni INSERT(replay lineage), sí EXECUTE a la función SQL autorizada.
+- Source CI #42432745586 SUCCESS para commit `6c93efdfea0cef7f1819402ab872e439ef858ccd`: migraciones 0001–0013/idempotencia, build, typecheck, unit, PostgreSQL/RabbitMQ integration.
+- TASK-003 continúa in_progress por handlers reales, replay e2e, broker DLQ operativo, métricas/alertas, crash/redelivery/fencing extendido, secretos/deployment y revisión independiente.
