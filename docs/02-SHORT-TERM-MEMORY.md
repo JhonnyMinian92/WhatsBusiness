@@ -340,3 +340,11 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - [ ] Obtener Source CI SUCCESS para el commit `d9d9b10a5ef80e744e4480d541c4a01e9bb539de`.
 - Límite explícito: AbortSignal es cooperativo. El runtime rechaza y revierte la transacción al vencer el deadline, pero no puede terminar por fuerza una promesa JS arbitraria. Los handlers deben atender cancelación y no hacer efectos externos dentro de la transacción.
 - Próximo: replay administrativo auditado y métricas/alertas; luego pruebas de crash/redelivery y pool reuse A→B.
+
+
+## Handoff — TASK-003: correcciones encontradas por Source CI (2026-11-07)
+
+- Source CI #42428255833 ejecutó instalación frozen, provisioning PostgreSQL, migraciones 0001–0009, idempotencia de migraciones y configuración RabbitMQ DLX correctamente.
+- Build falló en el adapter RabbitMQ por tipos de amqplib 2.2.1: heartbeat es tuning parameter de URI, no socket option; `connect` devuelve `ChannelModel`, no `Connection`. Se corrigió con heartbeat en query AMQP y tipo ChannelModel.
+- Build también falló por abstracción `TenantPseudonymizer` ausente y dependencia desde adapter concreto. Se restauró el port y se corrigió el import.
+- Source CI del commit `489b8cd3d84b057d2bdc40c8fa740008b4ac4bbc` pendiente. Próximo criterio: build verde; luego typecheck y suites unitarias + PostgreSQL/RabbitMQ.
