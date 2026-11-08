@@ -70,3 +70,63 @@ test("does not start a heartbeat after a short handler has completed", async () 
   assert.equal(result, "fast");
   assert.equal(renewals, 0);
 });
+
+
+test("aborts a cooperative handler and rejects when its execution deadline expires", async () => {
+  const heartbeat = new TenantJobExecutionLeaseHeartbeat({
+    async renewExecutionLease() { return new Date(Date.now() + 10_000); },
+  }, () => 1_000, 15);
+
+  await assert.rejects(
+    heartbeat.execute(
+      "d7d8d4cf-1d23-4dcb-80fb-1a7a2e0c4b15",
+      "e7d8d4cf-1d23-4dcb-80fb-1a7a2e0c4b15",
+      5,
+      async (signal) => new Promise<void>((_resolve, reject) => {
+        signal.addEventListener("abort", () => reject(new Error("cooperative cancellation")), { once: true });
+      }),
+    ),
+    (error: unknown) => error instanceof TenantJobFailureError
+      && error.failure.code === "JOB_EXECUTION_TIMEOUT",
+  );
+});
+
+test("deadline rejects even if a handler ignores AbortSignal", async () => {
+  const heartbeat = new TenantJobExecutionLeaseHeartbeat({
+    async renewExecutionLease() { return new Date(Date.now() + 10_000); },
+  }, () => 1_000, 15);
+
+  await assert.rejects(
+    heartbeat.execute(
+      "d7d8d4cf-1d23-4dcb-80fb-1a7a2e0c4b15",
+      "e7d8d4cf-1d23-4dcb-80fb-1a7a2e0c4b15",
+      5,
+      async () => new Promise<void>(() => undefined),
+    ),
+    (error: unknown) => error instanceof TenantJobFailureError
+      && error.failure.code === "JOB_EXECUTION_TIMEOUT",
+  );
+});
+
+test("lease loss rejects a non-cooperative handler without waiting for it to settle", async () => {
+  const heartbeat = new TenantJobExecutionLeaseHeartbeat({
+    async renewExecutionLease() { return null; },
+  }, () => 1, 100);
+
+  await assert.rejects(
+    heartbeat.execute(
+      "d7d8d4cf-1d23-4dcb-80fb-1a7a2e0c4b15",
+      "e7d8d4cf-1d23-4dcb-80fb-1a7a2e0c4b15",
+      5,
+      async () => new Promise<void>(() => undefined),
+    ),
+    (error: unknown) => error instanceof TenantJobFailureError
+      && error.failure.code === "JOB_EXECUTION_LEASE_LOST",
+  );
+});
+
+test("rejects unsafe maximum execution durations", () => {
+  assert.throws(() => new TenantJobExecutionLeaseHeartbeat({
+    async renewExecutionLease() { return null; },
+  }, undefined, 900_001));
+});
