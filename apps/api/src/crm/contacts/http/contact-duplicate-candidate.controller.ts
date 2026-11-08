@@ -1,7 +1,7 @@
 import {
   BadRequestException, Body, Controller, HttpCode, HttpStatus, Param, Post, Req, UseGuards,
 } from "@nestjs/common";
-import { OidcAuthGuard } from "../../../platform/identity/oidc-auth.guard.js";
+import { OidcOrApiClientGuard } from "../../../platform/developer/application/oidc-or-api-client.guard.js";
 import {
   requireTenantAccessContext, type TenantAuthenticatedRequest,
 } from "../../../platform/identity/tenant-context.guard.js";
@@ -9,7 +9,7 @@ import { RequireTenantPermission } from "../../../platform/identity/authorizatio
 import { ContactDuplicateCandidateService } from "../application/contact-duplicate-candidate.service.js";
 
 @Controller("v1/tenants/:tenantId/identity-resolution/candidates")
-@UseGuards(OidcAuthGuard)
+@UseGuards(OidcOrApiClientGuard)
 export class ContactDuplicateCandidateController {
   constructor(private readonly candidates: ContactDuplicateCandidateService) {}
 
