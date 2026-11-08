@@ -12,6 +12,7 @@ import type { TenantDatabaseTransactionBoundary } from "../postgres/postgres-ten
 import { TenantJobContextAuthority } from "../../application/tenant-job-context.authority.js";
 import { TenantJobHandlerRegistry } from "../../application/tenant-job-handler.registry.js";
 import { TenantJobConsumer } from "../../application/tenant-job-consumer.js";
+import { TenantJobExecutionLeaseHeartbeat } from "../../application/tenant-job-execution-lease-heartbeat.js";
 import { TenantJobOutboxDispatcher } from "../../application/tenant-job-outbox-dispatcher.js";
 import { TenantJobRuntimeSupervisor } from "../../application/tenant-job-runtime-supervisor.js";
 import type { TenantJobRuntimeSession, TenantJobRuntimeSessionFactory } from "../../application/tenant-job-runtime.application.js";
@@ -39,6 +40,7 @@ export interface RabbitMqPostgresTenantJobRuntimeSessionFactoryOptions {
   readonly consumerName: string;
   readonly consumerLeaseSeconds: number;
   readonly consumerPrefetch: number;
+  readonly handlerExecutionTimeoutMs: number;
   readonly retryInitialDelayMs: number;
   readonly retryMaximumDelayMs: number;
   readonly retryMultiplier: number;
@@ -104,6 +106,7 @@ export class RabbitMqPostgresTenantJobRuntimeSessionFactory implements TenantJob
       clock,
       random,
       options.consumerName,
+      new TenantJobExecutionLeaseHeartbeat(workerRepository, undefined, options.handlerExecutionTimeoutMs),
     );
     const adapter = new RabbitMqTenantJobConsumerAdapter(
       channels.consumer,
