@@ -110,6 +110,12 @@ export interface AdsCampaignRepository {
     idempotencyKey: string,
     requestHash: string,
   ): Promise<AdsCampaignCommandRecord | null>;
+  findPauseCommand(
+    client: PoolClient,
+    tenantId: string,
+    idempotencyKey: string,
+    requestHash: string,
+  ): Promise<AdsCampaignCommandRecord | null>;
   stagePublication(
     client: PoolClient,
     input: {
