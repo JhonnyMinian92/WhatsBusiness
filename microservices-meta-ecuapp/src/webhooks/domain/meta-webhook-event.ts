@@ -163,29 +163,40 @@ function extractOccurredAt(
 ): string {
   const candidates = [payload["timestamp"], payload["created_time"], payload["time"]];
   for (const candidate of candidates) {
-    if (typeof candidate === "number" && Number.isFinite(candidate) && candidate > 0) {
-      const millis = candidate > 10_000_000_000 ? candidate : candidate * 1_000;
-      const date = new Date(millis);
-      if (Number.isFinite(date.getTime())) return date.toISOString();
-    }
-    if (typeof candidate === "string") {
-      if (/^\\d{10,13}$/.test(candidate)) {
-        const numeric = Number(candidate);
-        const date = new Date(candidate.length === 13 ? numeric : numeric * 1_000);
-        if (Number.isFinite(date.getTime())) return date.toISOString();
-      }
-      const date = new Date(candidate);
-      if (Number.isFinite(date.getTime())) return date.toISOString();
-    }
+    const occurredAt = parseTimestamp(candidate);
+    if (occurredAt) return occurredAt;
   }
-  const fallbackDate = new Date(fallback);
-  return Number.isFinite(fallbackDate.getTime()) ? fallbackDate.toISOString() : now.toISOString();
+  return parseTimestamp(fallback) ?? now.toISOString();
+}
+
+/**
+ * Meta represents event times as Unix seconds (often strings for WhatsApp),
+ * Unix milliseconds, or ISO-8601 values depending on the product/event.
+ * Keep parsing centralized so the fallback and payload timestamps use the
+ * same unit and validation rules.
+ */
+function parseTimestamp(value: unknown): string | null {
+  if (typeof value === "number") {
+    if (!Number.isFinite(value) || value <= 0) return null;
+    const millis = value > 10_000_000_000 ? value : value * 1_000;
+    const date = new Date(millis);
+    return Number.isFinite(date.getTime()) ? date.toISOString() : null;
+  }
+  if (typeof value !== "string") return null;
+
+  const candidate = value.trim();
+  if (!candidate) return null;
+  if (/^\d{10}(?:\d{3})?$/.test(candidate)) {
+    const numeric = Number(candidate);
+    const date = new Date(candidate.length === 13 ? numeric : numeric * 1_000);
+    return Number.isFinite(date.getTime()) ? date.toISOString() : null;
+  }
+  const date = new Date(candidate);
+  return Number.isFinite(date.getTime()) ? date.toISOString() : null;
 }
 
 function parseEpoch(value: unknown, now: Date): string {
-  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) return now.toISOString();
-  const date = new Date(value > 10_000_000_000 ? value : value * 1_000);
-  return Number.isFinite(date.getTime()) ? date.toISOString() : now.toISOString();
+  return parseTimestamp(value) ?? now.toISOString();
 }
 
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {

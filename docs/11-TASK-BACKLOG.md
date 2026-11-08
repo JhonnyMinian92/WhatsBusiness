@@ -624,3 +624,10 @@ La integración PostgreSQL se reordenó para no llamar a la operación batch `cl
 - El test de integración conserva jobType sintético conforme al contrato de persistencia y lo publica explícitamente; la secuencia de completion usa publishAndClaim antes de crear el fixture métrico.
 - Dependencia de acceso: las plantillas TENANT_ROLE_CATALOG no se materializan automáticamente a platform.roles/platform.role_permissions. TASK-004 permanece abierto; nuevas rutas de identidad siguen protegidas fail-closed para memberships sin grants persistidos. La migration 0025 solo añade vocabulario en platform.permissions.
 - TASK-003, TASK-004, TASK-027/028, TASK-042, TASK-043 y TASK-053 permanecen in_progress o requieren revisión/aceptación. No declarar finalización del backend ni GO-PRODUCTION.
+
+
+### Handoff — TASK-027: timestamps Meta y deduplicación de estados (2026-11-08)
+
+- El decoder centraliza conversión de timestamps numéricos y textuales: epoch seconds, epoch milliseconds e ISO-8601. Se corrige un regex de doble escape que impedía reconocer epoch strings.
+- La regresión cubre el mismo WAMID con estado `delivered` a dos timestamps distintos (claves distintas) y el mismo timestamp repetido (misma clave), además de epoch milliseconds.
+- **Estado:** implementado; Source CI pendiente. No declarar TASK-027/028 cerradas ni habilitar replay.

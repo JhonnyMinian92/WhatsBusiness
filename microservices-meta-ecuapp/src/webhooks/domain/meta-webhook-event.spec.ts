@@ -46,3 +46,30 @@ test("does not collapse distinct WhatsApp delivery status transitions into one i
   assert.notEqual(events[0]?.idempotencyKey, events[1]?.idempotencyKey);
   assert.equal(events[1]?.idempotencyKey, events[2]?.idempotencyKey);
 });
+
+test("parses numeric Meta timestamps and preserves status transitions by event time", () => {
+  const input = {
+    object: "whatsapp_business_account",
+    entry: [{
+      id: "waba-1",
+      time: 1_800_000_000,
+      changes: [{
+        field: "messages",
+        value: {
+          statuses: [
+            { id: "wamid.timestamp", status: "delivered", timestamp: "1800000000", recipient_id: "555" },
+            { id: "wamid.timestamp", status: "delivered", timestamp: "1800000001", recipient_id: "555" },
+            { id: "wamid.milliseconds", status: "read", timestamp: "1800000002000", recipient_id: "555" },
+          ],
+        },
+      }],
+    }],
+  };
+
+  const events = decodeMetaWebhookPayload("whatsapp", input, new Date("2026-01-01T00:00:00.000Z"));
+  assert.equal(events.length, 3);
+  assert.equal(events[0]?.occurredAt, new Date(1_800_000_000 * 1_000).toISOString());
+  assert.equal(events[1]?.occurredAt, new Date(1_800_000_001 * 1_000).toISOString());
+  assert.equal(events[2]?.occurredAt, new Date(1_800_000_002_000).toISOString());
+  assert.notEqual(events[0]?.idempotencyKey, events[1]?.idempotencyKey);
+});

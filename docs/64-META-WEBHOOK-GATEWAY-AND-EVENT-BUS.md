@@ -150,3 +150,12 @@ La suite verifica que los dos outbox fueron publicados, que solo se ejecutó una
 La prueba de transporte RabbitMQ valida routing y ACK/DLX con entregas AMQP directas; ya no usa scraping de métricas asíncronas como señal de entrega. El exporter y sus métricas siguen teniendo suites separadas.
 
 **Estado:** la secuencia de código, persistencia, dispatch, consumo, terminal dead-letter y lectura tenant-scoped está verificada por CI sintético. TASK-027/028 continúan `in_progress`, no `accepted`: no existen handlers reales de negocio conectados a los bounded contexts Meta/CRM, fixtures/conformance probados con una app/cuenta Meta elegible, Secret Manager/KMS y rotación operativa, limitación de abuso perimetral, política de retención y replay aprobado por CR-0016, despliegue de topología/alertas/SLO, carga/DR ni review independiente. GO-PRODUCTION continúa NO-GO.
+
+
+## Actualización 2026-11-08 — normalización de timestamps y deduplicación de estados
+
+La inspección del decoder encontró un patrón regex escapado doblemente para timestamps epoch recibidos como texto. El parser ahora centraliza la normalización para valores numéricos, strings de Unix seconds (10 dígitos), Unix milliseconds (13 dígitos) e ISO-8601, y devuelve el mismo fallback seguro cuando el valor no es válido.
+
+La suite agrega un caso de regresión en el que el mismo WAMID recibe dos estados `delivered` en segundos distintos: deben conservar fechas y claves idempotentes diferentes. Un evento repetido con el mismo estado y la misma fecha continúa deduplicándose. La modificación no cambia la identidad del contacto ni procesa payloads de negocio.
+
+**Estado:** cambio implementado; requiere Source CI del commit y su suite backend antes de considerarlo verificado. TASK-027/028 siguen `in_progress`; handlers reales por bounded context, replay aprobado, KMS/rotación, operación desplegada, pruebas de conformance con cuentas Meta y review permanecen pendientes.
