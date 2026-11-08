@@ -89,10 +89,13 @@ export class PostgresMetaWebhookRepository implements MetaWebhookEventRepository
         );
         const eventId = inserted.rows[0]?.id;
         if (!eventId) { duplicates += 1; continue; }
-        await client.query(
-          "INSERT INTO platform.meta_webhook_event_outbox (event_id, tenant_id) VALUES ($1,$2) ON CONFLICT (event_id) DO NOTHING",
-          [eventId, input.tenantId],
+        const staged = await client.query<{ staged: boolean }>(
+          "SELECT platform.stage_meta_webhook_event_outbox($1) AS staged",
+          [eventId],
         );
+        if (staged.rows[0]?.staged !== true) {
+          throw new Error("META_WEBHOOK_OUTBOX_STAGE_REJECTED");
+        }
         accepted += 1;
       }
       await client.query("COMMIT");
