@@ -14,7 +14,10 @@ import {
   ApprovalWorkflowService,
   type ApprovalRequestSummary,
 } from "../../../platform/identity/approvals/approval-workflow.service.js";
-import type { ApprovalActionBinding } from "../../../platform/identity/approvals/approval-request-hash.js";
+import {
+  calculateApprovalRequestHash,
+  type ApprovalActionBinding,
+} from "../../../platform/identity/approvals/approval-request-hash.js";
 import {
   creativeVariantReadiness,
   creativeVariantSnapshot,
@@ -486,15 +489,48 @@ export class CreativeLabApplicationService {
     if (variant.status !== "approval_pending" || !variant.approvalRequestId || !variant.approvalTarget) {
       return variant;
     }
-    const summary = await this.approvals.getApprovalSummary(subject, variant.approvalRequestId);
+    if (!variant.approvalPreviousStatus) {
+      throw new ConflictException({ code: "CREATIVE_VARIANT_APPROVAL_ORIGIN_MISSING" });
+    }
+
+    // Reconstruct the exact immutable state that was bound when approval
+    // started. A status label alone is not proof that this snapshot was approved.
+    const originalVariant: CreativeVariantRecord = Object.freeze({
+      ...variant,
+      status: variant.approvalPreviousStatus,
+      version: variant.version - 1,
+      approvalRequestId: null,
+      approvalTarget: null,
+      approvalPreviousStatus: null,
+    });
+    const binding = approvalBinding(
+      subject,
+      variant.id,
+      creativeVariantSnapshot(originalVariant),
+      variant.approvalTarget,
+    );
+    const expectedRequestHash = calculateApprovalRequestHash(binding);
+    const [summary, evidence] = await Promise.all([
+      this.approvals.getApprovalSummary(subject, variant.approvalRequestId),
+      this.approvals.getApprovalEvidence(subject, variant.approvalRequestId, binding),
+    ]);
     if (summary.status === "pending") return variant;
     if (summary.status !== "approved" && summary.status !== "rejected" && summary.status !== "expired") {
       throw new ConflictException({ code: "CREATIVE_VARIANT_APPROVAL_NOT_SYNCHRONIZABLE" });
     }
+    const expectedEvidenceStatus = summary.status === "approved" ? "approved" : "rejected";
+    const snapshotHashMatches = summary.requestHash === expectedRequestHash
+      && evidence.status === expectedEvidenceStatus;
+    if (!snapshotHashMatches) {
+      throw new ConflictException({
+        code: "CREATIVE_VARIANT_APPROVAL_SNAPSHOT_MISMATCH",
+        detail: "La decisión no corresponde al snapshot inmutable de esta variante.",
+      });
+    }
 
     const target: CreativeLifecycle = summary.status === "approved"
       ? variant.approvalTarget
-      : variant.approvalPreviousStatus ?? "preview_ready";
+      : variant.approvalPreviousStatus;
     if (summary.status === "approved") {
       if (target === "approved") {
         this.assertDomainReadiness(variant);
@@ -503,10 +539,8 @@ export class CreativeLabApplicationService {
       transitionCreativeVariant(
         variant,
         target,
-        { approvalId: summary.approvalId, status: "approved", snapshotHashMatches: true },
+        { approvalId: summary.approvalId, status: "approved", snapshotHashMatches },
       );
-    } else if (!variant.approvalPreviousStatus) {
-      throw new ConflictException({ code: "CREATIVE_VARIANT_APPROVAL_ORIGIN_MISSING" });
     }
     return this.database.withTenantContextAtVersion(
       subject.actorId,
