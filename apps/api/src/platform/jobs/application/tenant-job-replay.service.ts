@@ -8,7 +8,10 @@ import {
 import type { PoolClient } from "pg";
 import type { TenantAccessContext } from "../../identity/tenant-access-context.js";
 import type { OidcClaims } from "../../identity/oidc-auth.guard.js";
-import type { ApprovalActionBinding } from "../../identity/approvals/approval-request-hash.js";
+import {
+  calculateApprovalRequestHash,
+  type ApprovalActionBinding,
+} from "../../identity/approvals/approval-request-hash.js";
 import {
   ApprovalWorkflowService,
   type ApprovalRequestSummary,
@@ -133,21 +136,27 @@ export class TenantJobReplayService {
     }
     const request = await this.loadRequest(input.subject, input.approvalId);
     const source = this.snapshotSource(request);
-    const binding = this.createBinding(source, request.reasonCode as TenantJobReplayReasonCode, request.replayPolicyVersion);
+    const binding = this.createBinding(
+      source,
+      request.reasonCode as TenantJobReplayReasonCode,
+      request.replayPolicyVersion,
+    );
+    const evidence = await this.approvals.getApprovalEvidence(
+      input.subject,
+      input.approvalId,
+      binding,
+    );
+    if (evidence.status === "unknown") {
+      throw new ConflictException({
+        code: "JOB_REPLAY_APPROVAL_BINDING_MISMATCH",
+        detail: "La aprobación no corresponde al snapshot exacto del job.",
+      });
+    }
     return this.approvals.decideApproval({
       subject: input.subject,
       claims: input.claims,
       approvalId: input.approvalId,
       decision: input.decision,
-    }).then((approval) => {
-      if (approval.actionKey !== TENANT_JOB_REPLAY_ACTION
-          || approval.requestHash !== this.hashFor(binding)) {
-        throw new ConflictException({
-          code: "JOB_REPLAY_APPROVAL_BINDING_MISMATCH",
-          detail: "La aprobación no corresponde al snapshot exacto del job.",
-        });
-      }
-      return approval;
     });
   }
 
@@ -157,8 +166,10 @@ export class TenantJobReplayService {
   ): Promise<TenantJobReplayResult> {
     this.assertReplayPermission(subject);
     const request = await this.loadRequest(subject, approvalId);
-    const sourceSnapshot = this.snapshotSource(request);
-    const policy = this.requireReplayPolicyForSnapshot(sourceSnapshot, request.replayPolicyVersion);
+    const policy = this.requireReplayPolicyForSnapshot(
+      request.sourceJobType,
+      request.replayPolicyVersion,
+    );
     const binding = this.createBinding(
       sourceSnapshot,
       request.reasonCode as TenantJobReplayReasonCode,
@@ -204,20 +215,16 @@ export class TenantJobReplayService {
     });
   }
 
-  private async findApprovalSummary(
-    subject: TenantAccessContext,
+  private findApprovalSummary(
+    _subject: TenantAccessContext,
     request: TenantJobReplayRequestRecord,
-  ): Promise<ApprovalRequestSummary | null> {
-    // The approved evidence is deliberately not fetched for a pending/rejected request.
-    if (!["pending", "approved"].includes(request.approvalStatus)) return null;
-    const source = this.snapshotSource(request);
+  ): ApprovalRequestSummary {
     const binding = this.createBinding(
-      source,
+      this.snapshotSource(request),
       request.reasonCode as TenantJobReplayReasonCode,
       request.replayPolicyVersion,
     );
-    const evidence = await this.approvals.getApprovalEvidence(subject, request.approvalId, binding);
-    return {
+    return Object.freeze({
       approvalId: request.approvalId,
       tenantId: request.tenantId,
       requesterUserId: request.requesterUserId,
@@ -226,12 +233,12 @@ export class TenantJobReplayService {
       resourceType: "tenant_job",
       resourceId: request.sourceJobId,
       requestHash: this.hashFor(binding),
-      status: request.approvalStatus as ApprovalRequestSummary["status"],
-      requiredApprovals: evidence.status === "approved" ? evidence.requiredApprovals : 2,
-      approvedCount: evidence.status === "approved" ? evidence.approverIds.length : 0,
-      expiresAt: "",
-      createdAt: "",
-    };
+      status: request.approvalStatus,
+      requiredApprovals: request.requiredApprovals,
+      approvedCount: request.approvedCount,
+      expiresAt: request.expiresAt,
+      createdAt: request.createdAt,
+    });
   }
 
   private async loadRequest(
@@ -283,10 +290,16 @@ export class TenantJobReplayService {
   }
 
   private requireReplayPolicyForSnapshot(
-    source: TenantJobReplaySource,
+    jobType: string,
     version: string,
   ): TenantJobReplayPolicy {
-    const policy = this.requireReplayPolicy(source);
+    const policy = this.policies.resolve(jobType);
+    if (!policy) {
+      throw new UnprocessableEntityException({
+        code: "JOB_REPLAY_NOT_SAFE",
+        detail: "El tipo de job ya no tiene una política explícita de replay.",
+      });
+    }
     if (policy.version !== version) {
       throw new ConflictException({
         code: "JOB_REPLAY_POLICY_CHANGED",
@@ -387,9 +400,7 @@ export class TenantJobReplayService {
   }
 
   private hashFor(binding: ApprovalActionBinding): string {
-    // ApprovalWorkflowService is the authority for hashing and validating bindings.
-    // Reproduce the canonical hash locally through the shared hash utility.
-    return calculateTenantJobReplayBindingHash(binding);
+    return calculateApprovalRequestHash(binding);
   }
 
   private assertReplayPermission(subject: TenantAccessContext): void {
@@ -427,8 +438,3 @@ export class TenantJobReplayService {
   }
 }
 
-import { calculateApprovalRequestHash } from "../../identity/approvals/approval-request-hash.js";
-
-function calculateTenantJobReplayBindingHash(binding: ApprovalActionBinding): string {
-  return calculateApprovalRequestHash(binding);
-}
