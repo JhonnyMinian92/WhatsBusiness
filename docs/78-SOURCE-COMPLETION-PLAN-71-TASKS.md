@@ -67,7 +67,7 @@ Los frentes se ordenan por dependencias del DAG. Los conteos de esta tabla suman
 
 Orden interno recomendado:
 
-1. Completar TASK-001 y TASK-003: tenancy, ownership, RLS, contextos de request/worker, aislamiento de jobs/cache/storage/telemetry y lifecycle durable.
+1. Completar TASK-001 y TASK-003: tenancy, ownership, RLS, contextos de request/worker, aislamiento de jobs/cache/storage/telemetry y lifecycle durable. Evaluar el [PR #1](https://github.com/JhonnyMinian92/WhatsBusiness/pull/1) como referencia para resilience/rate limiting/checkpoints, pero no fusionarlo a ciegas: actualmente apunta a `master` y debe reconciliarse con el stack, contratos y arquitectura de `environment/local`.
 2. Completar TASK-006 y TASK-007: OAuth state/PKCE, callback, token vault, KMS/secret-manager ports, rotación, revocación y reconciliación.
 3. Completar TASK-008: onboarding saga y pasos de Embedded Signup, dejando proveedores externos configurables y fail-closed.
 4. Completar TASK-028: event bus, outbox/inbox, consumers, dedupe, retry, DLQ y replay con autorización.
@@ -170,7 +170,7 @@ Reglas obligatorias:
 4. El integrador revisa cada diff y commit, integra paquetes uno por uno y actualiza la rama `environment/local`; no se permiten commits concurrentes sobre el mismo ref.
 5. Antes de crear código se busca reutilización en Nx graph, modules, ports, use cases, repositories, validators, policies, adapters y componentes UI.
 6. No se divide artificialmente una tarea para mostrar progreso; cada paquete cierra todos sus criterios de código fuente.
-7. Los PR #4 y #5 son trabajo en curso que debe completarse/revisarse e integrarse; no se duplican sus módulos.
+7. Los PR #4 y #5 son trabajo en curso sobre `environment/local` que debe completarse/revisarse e integrarse; no se duplican sus módulos. El PR #1 es un branch antiguo hacia `master`: se inspeccionan y portan únicamente las piezas compatibles con TASK-029/060, sin fusionarlo directamente.
 8. No se afirmará que se usaron agentes independientes si la herramienta/equipo no los proporciona. La revisión propia se etiqueta como self-review, no como independiente.
 
 ## 6. Documentación y estado durante la ejecución
