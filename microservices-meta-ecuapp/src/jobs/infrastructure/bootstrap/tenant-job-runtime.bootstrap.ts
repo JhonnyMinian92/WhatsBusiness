@@ -1,6 +1,5 @@
 import { randomInt } from "node:crypto";
 import { Pool } from "pg";
-import type { TenantJobRuntimeMetrics } from "../../application/tenant-job-runtime-metrics.js";
 import { PrometheusTenantJobRuntimeMetrics } from "../metrics/prometheus-tenant-job-runtime-metrics.js";
 import { TenantJobRuntimeApplication } from "../../application/tenant-job-runtime.application.js";
 import type { TenantJobHandler } from "../../application/tenant-job-ports.js";
