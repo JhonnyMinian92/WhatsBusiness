@@ -104,8 +104,9 @@ test("validates encryption before pool creation and drains the worker before shu
     order.push("database-close");
   });
 
+  const handlers = [handler] as const;
   const runtime = await MetaWebhookWorkerRuntime.create({
-    handlers: [handler],
+    handlers,
     reporter: { report() {} },
     environment,
     protectorFactory: () => createProtector(() => order.push("keyring-validated")),
@@ -137,7 +138,7 @@ test("validates encryption before pool creation and drains the worker before shu
   assert.ok(supervisorConfiguration);
   assert.equal(supervisorConfiguration.consumerName, "meta-webhook-inbox");
   assert.equal(supervisorConfiguration.leaseSeconds, 120);
-  assert.equal(supervisorConfiguration.handlers, [handler]);
+  assert.equal(supervisorConfiguration.handlers, handlers);
   assert.deepEqual(order.slice(0, 3), ["keyring-validated", "pool-created", "supervisor-created"]);
 
   const abort = new AbortController();
