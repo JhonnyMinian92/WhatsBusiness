@@ -319,3 +319,14 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Se añadió `docs/60-TENANT-JOBS-RUNTIME.md`. La migración 0007 se consolidó completa tras detectar SQL duplicado/incompleto por readback.
 - Estado de calidad: falta corrida final Source CI para el último commit; no declarar build/typecheck/tests verdes. TASK-003 in_progress, GO-PRODUCTION NO-GO.
 - Siguientes pendientes: replay autorizado con approval/audit, pool reuse A→B, crash/fencing tests, observabilidad y handlers Meta reales. El heartbeat de lease se añadió en `0009` y debe quedar CI-verified.
+
+
+## Handoff — evaluación CRM vs ARM (2026-11-07)
+
+- [x] Revisar la especificación CRM vigente (`docs/38-CRM-DOMAIN-SPEC.md`), modelo de datos (`docs/42-INITIAL-DATA-MODEL.md`), contratos y arquitectura.
+- [x] Investigar usos públicos de ARM; el término no tiene una expansión universal. La hipótesis más relevante para WhatsBusiness es Agent Relationship Management / Agentic Relationship Management.
+- [x] Crear `docs/61-ARM-STRATEGY-AND-ARCHITECTURE-ASSESSMENT.md`.
+- [x] Actualizar el índice documental.
+- Recomendación provisional: NO reemplazar ni eliminar CRM. Mantener contactos, identidades, leads, oportunidades, pipeline, actividades y provenance como bounded context CRM; añadir una capa Agent Management & Orchestration para registro de agentes, tools, delegación, runtime, supervisión humana, evaluación y auditoría.
+- No se cambia el naming público ni se alteran contratos/migraciones CRM hasta que el propietario confirme qué significa ARM y apruebe el posicionamiento.
+- Siguiente trabajo técnico: retomar TASK-003 desde el último commit de `environment/local`, comprobar CI real y cerrar los pendientes de timeout/cancelación, replay autorizado, métricas, crash tests, pool reuse A→B y handlers de negocio.
