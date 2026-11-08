@@ -28,6 +28,7 @@ export class DefaultApprovalPolicyResolver implements ApprovalPolicyResolver {
     "crm.leads.export",
     "privacy.export.request",
     "privacy.deletion.request",
+    "jobs.replay.request",
   ]);
 
   resolve(actionKey: PermissionKey): ApprovalActionPolicy | null {
