@@ -131,7 +131,14 @@ test("renders RabbitMQ ready-message and consumer gauges without tenant labels",
   assert.match(output, /^tenant_job_rabbitmq_worker_queue_consumers 3$/m);
   assert.match(output, /^tenant_job_rabbitmq_dead_letter_queue_ready_messages 2$/m);
   assert.match(output, /^tenant_job_rabbitmq_dead_letter_queue_consumers 0$/m);
-  assert.equal(/tenant_job_rabbitmq_.*\\{/.test(output), false);
+  for (const metric of [
+    "tenant_job_rabbitmq_worker_queue_ready_messages",
+    "tenant_job_rabbitmq_worker_queue_consumers",
+    "tenant_job_rabbitmq_dead_letter_queue_ready_messages",
+    "tenant_job_rabbitmq_dead_letter_queue_consumers",
+  ]) {
+    assert.equal(output.includes(metric + "{"), false);
+  }
 });
 
 test("rejects invalid broker gauges without replacing the last valid snapshot", () => {
