@@ -421,3 +421,10 @@ Se incorpora `rabbitmq-management-tenant-job-queue-metrics.integration.spec.ts` 
 El lector consulta la Management HTTP API con un usuario `monitoring` independiente. El workflow lo provisiona con permisos de recurso vacíos (`configure/read/write = ^$`), por lo que la credencial no puede declarar, publicar ni consumir por AMQP; solo inspecciona estadísticas. La contraseña es sintética y exclusiva del contenedor efímero de CI. En producción, la credencial debe inyectarse desde Secret Manager y el endpoint remoto debe usar HTTPS.
 
 **Estado:** test, target Nx y provisioning CI implementados; Source CI/CodeQL del nuevo commit pendiente. No sustituye Prometheus/Grafana ni mide consumer lag.
+
+
+## 18. Reparación del workflow RabbitMQ Management API (2026-11-08)
+
+Source CI #540, #541 y #549–#552 no llegaron a crear jobs por un bloque YAML `run` truncado al provisionar el usuario RabbitMQ `monitoring`. Se reconstruyó el step completo, calculando `^$` con `printf` dentro de una variable shell y dejando una única llamada `set_permissions` con configure/read/write vacíos y un único tag `monitoring`; se retiró el comando duplicado fuera del step.
+
+**Estado:** workflow corregido en el HEAD actual; pendiente nueva ejecución CI y validación funcional de la integración live. Los runs anteriores no validan el backend ni los tests.

@@ -503,3 +503,10 @@ Se añadió una regresión de integración a `microservices-meta-ecuapp/src/jobs
 - Se añade `rabbitmq-management-tenant-job-queue-metrics.integration.spec.ts` para probar el reader contra el Management HTTP API del broker real: dos colas efímeras, mensajes confirmados, consumidores manual-ACK y seis gauges de worker/DLQ en estados ready, in-flight e idle.
 - La workflow crea un usuario independiente con tag `monitoring` y permisos AMQP vacíos; el test se registra en el target Nx backend. La credencial es efímera y exclusivamente de CI.
 - **Estado:** implementación pendiente de Source CI/CodeQL en el commit resultante. La evidencia previa #539/#77 permanece SUCCESS. TASK-003 sigue `in_progress`; esta prueba no cierra SLO/alertas, despliegue ni aceptación.
+
+
+### Handoff incremental — reparación YAML de Source CI (2026-11-08)
+
+- Source CI #540, #541 y #549–#552 fallaron antes de crear jobs por un `run` YAML truncado al provisionar el usuario RabbitMQ `monitoring`; no ejecutaron build, typecheck ni tests.
+- Se reconstruyó el step con `empty_permission_regex` generado por `printf`, una sola llamada `set_permissions` con los tres patrones vacíos y un único `set_user_tags` dentro del step.
+- **Estado:** corrección de workflow pendiente de CI. La integración live del Management API no está aún verificada; TASK-042 ya tiene migración y slice API/servicio/repositorio, a validar por CI.
