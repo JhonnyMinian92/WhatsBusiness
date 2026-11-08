@@ -36,6 +36,7 @@ export const TENANT_ROLE_CATALOG = [
     version: 1,
     permissions: [
       "tenant.read",
+      "webhooks.dead_letters.read",
       "tenant.settings.manage",
       "tenant.members.read",
       "tenant.members.invite",
@@ -153,6 +154,7 @@ export const TENANT_ROLE_CATALOG = [
       "tenant.members.read",
       "roles.read",
       "approvals.read",
+      "webhooks.dead_letters.read",
       "meta.connections.read",
       "meta.assets.read",
       "meta.capabilities.read",

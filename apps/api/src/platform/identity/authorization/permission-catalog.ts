@@ -7,6 +7,12 @@ export interface PermissionDefinition {
 }
 
 export const PERMISSION_CATALOG = {
+  "webhooks.dead_letters.read": {
+    description: "Read tenant-scoped metadata for unresolved Meta webhook dead letters",
+    riskClass: "sensitive",
+    requiresIndependentApproval: false,
+  },
+
   "tenant.read": {
     description: "Read permitted tenant context and settings",
     riskClass: "normal",

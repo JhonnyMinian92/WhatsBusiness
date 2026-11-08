@@ -52,10 +52,10 @@ El evento broker `meta.webhook.received` solo expone ID/receipt ID, schemaVersio
 - Los handlers de negocio de cada producto deben registrarse; el worker falla al arrancar con registry vacío y los tipos sin handler terminan en DLQ. No se debe crear un handler no-op.
 - Falta la integración desplegable del supervisor como proceso de worker con handlers reales, configuración de pool con rol dedicado y shutdown/liveness de producción.
 - El adapter actual de secretos lee variables de entorno para desarrollo/pruebas. Falta un adapter real para Secret Manager/KMS, gestión de IAM, rotación y despliegue de claves.
-- Falta la API administrativa tenant-scoped de consulta de DLQ y replay con doble aprobación, step-up, request hash y audit append-only. No hay replay manual permitido. CR-0016 debe definir retención, ventana y autorización.
+- Ya está añadida una API tenant-scoped de solo lectura `GET /v1/tenants/:tenantId/webhooks/dead-letters` que devuelve metadatos paginados y excluye ciphertext/payloads. La función SQL exige coincidencia exacta de `app.tenant_id`; el permiso RBAC `webhooks.dead_letters.read` queda en tenant_admin y compliance_auditor, sin conceder asignaciones automáticamente. Falta todavía replay con doble aprobación, step-up, request hash y audit append-only. No hay replay manual permitido. CR-0016 debe definir retención, ventana y autorización.
 - OpenAPI WH-001..WH-007 y AsyncAPI necesitan freeze formal y validación de compatibilidad por producto/versión. WH-008 no es parte de esta implementación.
 - Se necesitan fixtures de conformance de WhatsApp, Facebook, Instagram, Leadgen y Ads contra payloads oficiales de cada suscripción real. El decoder común no es una certificación de compatibilidad integral de Meta.
-- Falta prueba de integración completa con PostgreSQL/RabbitMQ reales, fault injection de publish/ACK/lease, carga, observabilidad y alertas específicas (TASK-029), seguridad de perímetro (rate limiting/WAF/TLS) y aceptación operativa.
+- La consulta de DLQ tiene pruebas unitarias de paginación, tenant context y ausencia de payload. Falta prueba de integración completa con PostgreSQL/RabbitMQ reales, fault injection de publish/ACK/lease, carga, observabilidad y alertas específicas (TASK-029), seguridad de perímetro (rate limiting/WAF/TLS) y aceptación operativa.
 - La retención y borrado del ciphertext no se deben implementar por TTL arbitrario hasta que CR-0016 y obligaciones de privacidad definan el calendario.
 
 ## 6. Runbook de diagnóstico (solo lectura)
