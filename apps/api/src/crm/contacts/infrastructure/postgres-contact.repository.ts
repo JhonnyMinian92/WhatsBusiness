@@ -1,4 +1,4 @@
-import type { PoolClient, QueryResult } from "pg";
+import type { PoolClient, QueryResult, QueryResultRow } from "pg";
 import type {
   ContactCursor, ContactListQuery, ContactPage, ContactRecord,
   CreateContactCommand, UpdateContactCommand,
@@ -179,7 +179,7 @@ export class PostgresContactRepository {
   }
 }
 
-function requireRow<T>(result: QueryResult<T>): T {
+function requireRow<T extends QueryResultRow>(result: QueryResult<T>): T {
   const row = result.rows[0];
   if (!row) throw new Error("CRM_CONTACT_INSERT_RETURNED_NO_ROW");
   return row;
