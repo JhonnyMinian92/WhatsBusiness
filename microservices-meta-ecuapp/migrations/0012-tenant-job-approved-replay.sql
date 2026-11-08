@@ -90,7 +90,73 @@ CREATE TABLE platform.tenant_job_replay_requests (
     'CONFIGURATION_CORRECTED',
     'OPERATOR_REVIEWED'
   )),
-  source_job_type text NOT NULL CHECK (source_job_type ~ '^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*){1,7}$'),
+  source_job_type text NOT NULL CHECK (source_job_type ~ '^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*){1,7}
+  source_request_sha256 char(64) NOT NULL CHECK (source_request_sha256 ~ '^[0-9a-f]{64}$'),
+  source_dead_letter_reason text NOT NULL CHECK (source_dead_letter_reason = 'attempts_exhausted'),
+  source_error_code text,
+  source_attempts integer NOT NULL CHECK (source_attempts > 0),
+  source_max_attempts integer NOT NULL CHECK (source_max_attempts BETWEEN 1 AND 32),
+  replay_policy_version text NOT NULL CHECK (replay_policy_version ~ '^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$'),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT tenant_job_replay_request_pk PRIMARY KEY (tenant_id, approval_id),
+  CONSTRAINT tenant_job_replay_request_approval_fk
+    FOREIGN KEY (approval_id, tenant_id)
+    REFERENCES platform.approval_requests(id, tenant_id) ON DELETE RESTRICT,
+  CONSTRAINT tenant_job_replay_request_source_fk
+    FOREIGN KEY (source_job_id, tenant_id)
+    REFERENCES platform.tenant_job_records(id, tenant_id) ON DELETE RESTRICT,
+  CONSTRAINT tenant_job_replay_request_source_exhausted CHECK (
+    source_attempts >= source_max_attempts
+  ),
+  CONSTRAINT tenant_job_replay_request_idempotency_unique
+    UNIQUE (tenant_id, requester_user_id, idempotency_key)
+);
+
+CREATE INDEX tenant_job_replay_requests_source_idx
+  ON platform.tenant_job_replay_requests (tenant_id, source_job_id, created_at DESC);
+
+ALTER TABLE platform.tenant_job_replay_requests ENABLE ROW LEVEL SECURITY;
+ALTER TABLE platform.tenant_job_replay_requests FORCE ROW LEVEL SECURITY;
+
+CREATE POLICY tenant_job_replay_requests_read ON platform.tenant_job_replay_requests
+  FOR SELECT USING (
+    tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
+    AND (
+      platform.has_permission(tenant_id, 'approvals.read')
+      OR platform.has_permission(tenant_id, 'approvals.decide')
+      OR (
+        requester_user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
+        AND platform.has_permission(tenant_id, 'jobs.replay.request')
+      )
+    )
+  );
+
+CREATE POLICY tenant_job_replay_requests_create ON platform.tenant_job_replay_requests
+  FOR INSERT WITH CHECK (
+    tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
+    AND requester_user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
+    AND platform.has_permission(tenant_id, 'approvals.create')
+    AND platform.has_permission(tenant_id, 'jobs.replay.request')
+  );
+
+CREATE OR REPLACE FUNCTION platform.prevent_tenant_job_replay_request_mutation()
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path = pg_catalog, platform
+AS $function$
+BEGIN
+  RAISE EXCEPTION 'Tenant job replay requests are append-only'
+    USING ERRCODE = '55000';
+END;
+$function$;
+
+CREATE TRIGGER tenant_job_replay_requests_append_only
+  BEFORE UPDATE OR DELETE ON platform.tenant_job_replay_requests
+  FOR EACH ROW
+  EXECUTE FUNCTION platform.prevent_tenant_job_replay_request_mutation();
+
+GRANT SELECT, INSERT ON platform.tenant_job_replay_requests TO whatsbusiness_app;
+),
   source_request_sha256 char(64) NOT NULL CHECK (source_request_sha256 ~ '^[0-9a-f]{64}$'),
   source_dead_letter_reason text NOT NULL CHECK (source_dead_letter_reason = 'attempts_exhausted'),
   source_error_code text,
