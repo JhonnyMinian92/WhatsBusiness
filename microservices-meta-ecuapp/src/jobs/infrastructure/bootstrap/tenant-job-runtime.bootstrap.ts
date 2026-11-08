@@ -1,5 +1,7 @@
 import { randomInt } from "node:crypto";
 import { Pool } from "pg";
+import type { TenantJobRuntimeMetrics } from "../../application/tenant-job-runtime-metrics.js";
+import { PrometheusTenantJobRuntimeMetrics } from "../metrics/prometheus-tenant-job-runtime-metrics.js";
 import { TenantJobRuntimeApplication } from "../../application/tenant-job-runtime.application.js";
 import type { TenantJobHandler } from "../../application/tenant-job-ports.js";
 import type { TenantJobRuntimeSessionLogger } from "../rabbitmq/rabbitmq-postgres-tenant-job-runtime-session.factory.js";
@@ -11,6 +13,7 @@ export interface TenantJobRuntimeBootstrapOptions {
   readonly handlers: readonly TenantJobHandler[];
   readonly logger: TenantJobRuntimeSessionLogger;
   readonly environment?: NodeJS.ProcessEnv;
+  readonly metrics?: PrometheusTenantJobRuntimeMetrics;
 }
 
 export class TenantJobRuntimeProcess {
@@ -20,6 +23,7 @@ export class TenantJobRuntimeProcess {
     private readonly application: TenantJobRuntimeApplication,
     private readonly dispatcherPool: Pool,
     private readonly workerPool: Pool,
+    private readonly metrics: PrometheusTenantJobRuntimeMetrics,
   ) {}
 
   static async create(options: TenantJobRuntimeBootstrapOptions): Promise<TenantJobRuntimeProcess> {
@@ -39,6 +43,7 @@ export class TenantJobRuntimeProcess {
     }
 
     const poolMaximum = boundedInteger(environment, "DATABASE_POOL_MAX", 10, 1, 50);
+    const metrics = options.metrics ?? new PrometheusTenantJobRuntimeMetrics();
     const poolOptions = {
       max: poolMaximum,
       connectionTimeoutMillis: 5_000,
@@ -72,6 +77,7 @@ export class TenantJobRuntimeProcess {
         database: options.databaseFactory(workerPool),
         handlers: options.handlers,
         logger: options.logger,
+        metrics,
         consumerName: environment["TENANT_JOB_CONSUMER_NAME"]?.trim() || "inbox-worker",
         consumerLeaseSeconds: boundedInteger(environment, "TENANT_JOB_CONSUMER_LEASE_SECONDS", 120, 5, 900),
         consumerPrefetch: boundedInteger(environment, "TENANT_JOB_CONSUMER_PREFETCH", 16, 1, 1_000),
@@ -102,7 +108,7 @@ export class TenantJobRuntimeProcess {
         },
       );
 
-      return new TenantJobRuntimeProcess(application, dispatcherPool, workerPool);
+      return new TenantJobRuntimeProcess(application, dispatcherPool, workerPool, metrics);
     } catch (error) {
       await Promise.allSettled([dispatcherPool.end(), workerPool.end()]);
       throw error;
@@ -116,6 +122,11 @@ export class TenantJobRuntimeProcess {
     } finally {
       await this.close();
     }
+  }
+
+  /** Prometheus text exposition without tenant, actor, job or payload labels. */
+  renderMetrics(): string {
+    return this.metrics.renderPrometheus();
   }
 
   async close(): Promise<void> {
