@@ -95,8 +95,9 @@ export function isAdsMoneyEqual(left: AdsMoney, right: AdsMoney): boolean {
 
 function currencyFractionDigits(currency: string): number {
   try {
-    return new Intl.NumberFormat("en-US", { style: "currency", currency })
+    const fractionDigits = new Intl.NumberFormat("en-US", { style: "currency", currency })
       .resolvedOptions().maximumFractionDigits;
+    return fractionDigits ?? 2;
   } catch {
     throw new AdsMoneyValidationError("ADS_MONEY_CURRENCY_UNSUPPORTED");
   }
