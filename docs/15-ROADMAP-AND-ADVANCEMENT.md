@@ -357,3 +357,12 @@ TASK-004 (RBAC/ABAC y asignación persistente) y TASK-005 (step-up, approvals y 
 - TASK-026 y US-013 siguen in_progress, no verified ni accepted. Falta TASK-023/031, adapter de consentimiento TASK-032, persistencia/dedupe, outbox/worker, contrato congelado y cuenta Meta autorizada.
 - CAPI-001..004 siguen catalog-only; no se habilitaron endpoints ni envío externo. CR-0015 continúa abierto. GO-PRODUCTION sigue NO-GO.
 - Detalle: docs/72-CAPI-EVENT-GATEWAY.md.
+
+
+## US-012 — núcleo de dominio Ads (2026-11-08)
+
+- Se añadieron evaluadores puros y pruebas para importes decimales exactos, catálogo objetivo versionado, preflight fail-closed, máquina de estados draft/approval/submit/pause/reconcile, límite PD-024 y policy de ejecución con kill switch.
+- Los cinco archivos spec se registraron en el target oficial `api:test`; el resultado CI de este HEAD se mantiene pendiente hasta inspeccionar la ejecución.
+- TASK-024 y TASK-025 siguen `in_progress`: no hay controller Ads, repositorio/migración de campañas, outbox/worker ni adapter Marketing API conectado.
+- Contratos ADS continúan catalog-only bajo docs/49/55; TASK-010 (Meta capability evidence) y TASK-029 (observabilidad operativa) son dependencias abiertas. No se declara US-012 verified/accepted ni se realizan escrituras Meta.
+- Detalle: docs/72-US-012-ADS-CAMPAIGN-IMPLEMENTATION.md.
