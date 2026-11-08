@@ -19,7 +19,9 @@ import {
 import { AppendOnlyAuditRepository } from "../../identity/audit/append-only-audit.repository.js";
 import { DatabaseService } from "../../database/database.module.js";
 import {
+  TENANT_JOB_REPLAY_POLICY_VERSION,
   TenantJobReplayPolicyRegistry,
+  type TenantJobReplayMetadata,
   type TenantJobReplayPolicy,
 } from "../domain/tenant-job-replay-policy.registry.js";
 import {
@@ -28,7 +30,7 @@ import {
   type TenantJobReplaySource,
 } from "../infrastructure/postgres/postgres-tenant-job-replay.repository.js";
 
-export const TENANT_JOB_REPLAY_PURPOSE = "jobs.replay.manage";
+export const TENANT_JOB_REPLAY_PURPOSE = "platform.tenant.jobs.replay.request";
 export const TENANT_JOB_REPLAY_ACTION = "jobs.replay.request" as const;
 
 export const TENANT_JOB_REPLAY_REASON_CODES = [
@@ -191,14 +193,11 @@ export class TenantJobReplayService {
         const source = await this.requireSource(client, subject.tenantId, request.sourceJobId, true);
         this.assertSourceMatchesRequest(source, request);
         this.assertPolicyAcceptsSource(policy, source);
-        const childId = await this.repository.createReplay(client, {
-          source,
-          tenantId: subject.tenantId,
-          actorUserId: subject.actorId,
-          correlationId: subject.correlationId,
-          approvalId: approval.approvalId,
-          reasonCode: request.reasonCode,
-        });
+        const childId = await this.repository.createApprovedReplay(
+          client,
+          source.id,
+          approval.approvalId,
+        );
         await this.audit.append(client, {
           tenantId: subject.tenantId,
           actorUserId: subject.actorId,
@@ -288,7 +287,11 @@ export class TenantJobReplayService {
 
   private requireReplayPolicy(source: TenantJobReplaySource): TenantJobReplayPolicy {
     const policy = this.policies.resolve(source.jobType);
-    if (!policy || !this.policyAcceptsPayload(policy, source.payload)) {
+    if (
+      !policy
+      || policy.version !== TENANT_JOB_REPLAY_POLICY_VERSION
+      || !this.policyAcceptsMetadata(policy, this.toReplayMetadata(source))
+    ) {
       throw new UnprocessableEntityException({
         code: "JOB_REPLAY_NOT_SAFE",
         detail: "El tipo de job no tiene una política explícita de replay e idempotencia de efectos.",
@@ -321,20 +324,36 @@ export class TenantJobReplayService {
     policy: TenantJobReplayPolicy,
     source: TenantJobReplaySource,
   ): void {
-    if (policy.version.length === 0 || !this.policyAcceptsPayload(policy, source.payload)) {
+    if (
+      policy.version !== TENANT_JOB_REPLAY_POLICY_VERSION
+      || !this.policyAcceptsMetadata(policy, this.toReplayMetadata(source))
+    ) {
       throw new ConflictException({
         code: "JOB_REPLAY_POLICY_REJECTED",
-        detail: "El payload ya no cumple la política de replay.",
+        detail: "El metadata del job ya no cumple la política de replay vigente.",
       });
     }
   }
 
-  private policyAcceptsPayload(
+  private toReplayMetadata(source: TenantJobReplaySource): TenantJobReplayMetadata {
+    return Object.freeze({
+      jobType: source.jobType,
+      status: "dead_letter",
+      deadLetterReason: "attempts_exhausted",
+      attempts: source.attempts,
+      maxAttempts: source.maxAttempts,
+      errorCode: source.errorCode,
+      requestSha256: source.requestSha256,
+    });
+  }
+
+  private policyAcceptsMetadata(
     policy: TenantJobReplayPolicy,
-    payload: Readonly<Record<string, unknown>>,
+    metadata: TenantJobReplayMetadata,
   ): boolean {
     try {
-      return policy.isPayload(payload) && policy.canReplay(payload);
+      return policy.idempotencyGuarantee === "stable-domain-effect-key"
+        && policy.canReplay(metadata);
     } catch {
       return false;
     }
@@ -371,10 +390,9 @@ export class TenantJobReplayService {
       id: request.sourceJobId,
       tenantId: request.tenantId,
       actorUserId: request.requesterUserId,
-      purpose: "jobs.replay.manage",
+      purpose: TENANT_JOB_REPLAY_PURPOSE,
       correlationId: "",
       jobType: request.sourceJobType,
-      payload: Object.freeze({}),
       requestSha256: request.sourceRequestSha256,
       status: "dead_letter",
       attempts: request.sourceAttempts,
