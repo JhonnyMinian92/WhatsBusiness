@@ -36,14 +36,20 @@ export class RabbitMqConnectionFactory {
       const publisher = await connection.createConfirmChannel();
       const consumer = await connection.createChannel();
       const metrics = await connection.createChannel();
+      let closing: Promise<void> | null = null;
       return Object.freeze({
         connection,
         publisher,
         consumer,
         metrics,
-        async close(): Promise<void> {
-          await Promise.allSettled([publisher.close(), consumer.close(), metrics.close()]);
-          await connection.close();
+        close(): Promise<void> {
+          if (!closing) {
+            closing = (async () => {
+              await Promise.allSettled([publisher.close(), consumer.close(), metrics.close()]);
+              await connection.close();
+            })();
+          }
+          return closing;
         },
       });
     } catch (error) {
