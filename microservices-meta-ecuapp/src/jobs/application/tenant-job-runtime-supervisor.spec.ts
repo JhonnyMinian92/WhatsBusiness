@@ -131,7 +131,7 @@ const supervisorOptions = {
   metricsPollIntervalMs: 15_000,
 };
 
-test("samples aggregate gauges before recovery without delaying durable dispatch", async () => {
+test("records an immediate aggregate snapshot while recovery proceeds", async () => {
   const calls: string[] = [];
   const controller = new AbortController();
   const reader: TenantJobRuntimeMetricsReader = {
@@ -150,7 +150,7 @@ test("samples aggregate gauges before recovery without delaying durable dispatch
   );
 
   await supervisor.run(controller.signal);
-  assert.deepEqual(calls, ["sample", "snapshot:3", "recover", "recovered", "dispatch"]);
+  assert.deepEqual(calls, ["sample", "recover", "snapshot:3", "recovered", "dispatch"]);
 });
 
 test("metrics collection errors do not prevent recovery or dispatch", async () => {
@@ -174,9 +174,9 @@ test("metrics collection errors do not prevent recovery or dispatch", async () =
   await supervisor.run(controller.signal);
   assert.deepEqual(calls, [
     "sample",
+    "recover",
     "failed:TENANT_JOB_METRICS_SNAPSHOT_FAILED",
     "metrics-error",
-    "recover",
     "recovered",
     "dispatch",
   ]);
