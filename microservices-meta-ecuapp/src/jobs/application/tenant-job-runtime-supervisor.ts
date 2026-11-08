@@ -3,6 +3,10 @@ import type {
 } from "./tenant-job-ports.js";
 import type { TenantJobOutboxDispatcher } from "./tenant-job-outbox-dispatcher.js";
 import { classifyTenantJobFailure } from "../domain/tenant-job-failure.js";
+import {
+  NOOP_TENANT_JOB_RUNTIME_METRICS,
+  type TenantJobRuntimeMetrics,
+} from "./tenant-job-runtime-metrics.js";
 
 export interface TenantJobRuntimeLogger {
   recovered(stats: {
@@ -31,6 +35,7 @@ export class TenantJobRuntimeSupervisor {
     private readonly dispatcher: TenantJobOutboxDispatcher,
     private readonly logger: TenantJobRuntimeLogger,
     private readonly options: TenantJobRuntimeSupervisorOptions,
+    private readonly metrics: TenantJobRuntimeMetrics = NOOP_TENANT_JOB_RUNTIME_METRICS,
   ) {
     validateOptions(options);
   }
@@ -47,6 +52,7 @@ export class TenantJobRuntimeSupervisor {
             this.options.stalePublishSeconds,
           );
           this.logger.recovered(recovered);
+          this.metrics.recordRecovery(recovered);
           await this.dispatcher.dispatchBatch(
             this.options.dispatchBatchSize,
             this.options.dispatchLeaseSeconds,
@@ -54,6 +60,7 @@ export class TenantJobRuntimeSupervisor {
           );
         } catch (error) {
           this.logger.failed(classifyTenantJobFailure(error).code);
+          this.metrics.recordRuntimeError();
           delay = this.options.failureBackoffMs;
         }
         await wait(delay, signal);
