@@ -75,6 +75,7 @@ export class TenantJobRuntimeProcess {
         consumerName: environment["TENANT_JOB_CONSUMER_NAME"]?.trim() || "inbox-worker",
         consumerLeaseSeconds: boundedInteger(environment, "TENANT_JOB_CONSUMER_LEASE_SECONDS", 120, 5, 900),
         consumerPrefetch: boundedInteger(environment, "TENANT_JOB_CONSUMER_PREFETCH", 16, 1, 1_000),
+        handlerExecutionTimeoutMs: boundedInteger(environment, "TENANT_JOB_HANDLER_TIMEOUT_MS", 300_000, 1_000, 900_000),
         retryInitialDelayMs: boundedInteger(environment, "TENANT_JOB_RETRY_INITIAL_DELAY_MS", 1_000, 1, 86_400_000),
         retryMaximumDelayMs: boundedInteger(environment, "TENANT_JOB_RETRY_MAXIMUM_DELAY_MS", 300_000, 1, 86_400_000),
         retryMultiplier: boundedNumber(environment, "TENANT_JOB_RETRY_MULTIPLIER", 2, 1, 10),
