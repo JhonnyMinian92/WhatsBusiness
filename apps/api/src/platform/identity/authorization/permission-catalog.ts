@@ -213,6 +213,16 @@ export const PERMISSION_CATALOG = {
     riskClass: "normal",
     requiresIndependentApproval: false,
   },
+  "ads.draft.update": {
+    description: "Update a campaign draft using optimistic concurrency",
+    riskClass: "sensitive",
+    requiresIndependentApproval: false,
+  },
+  "ads.pause.request": {
+    description: "Request a spend-reducing pause of an advertising campaign",
+    riskClass: "sensitive",
+    requiresIndependentApproval: false,
+  },
   "ads.publish.request": {
     description: "Request campaign publication",
     riskClass: "critical",
