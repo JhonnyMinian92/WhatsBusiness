@@ -233,6 +233,11 @@ export const PERMISSION_CATALOG = {
     riskClass: "critical",
     requiresIndependentApproval: true,
   },
+  "billing.usage.read": {
+    description: "Read source-separated Meta, infrastructure and AI usage records for the tenant",
+    riskClass: "sensitive",
+    requiresIndependentApproval: false,
+  },
   "audit.read": {
     description: "Read tenant audit records",
     riskClass: "sensitive",
