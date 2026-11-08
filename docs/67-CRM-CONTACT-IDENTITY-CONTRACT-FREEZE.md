@@ -112,3 +112,17 @@ La migración apps/api/migrations/0025-crm-contact-identity-permissions.sql inse
 ## 10. Dependencia operativa de TASK-004 (RBAC)
 
 TENANT_ROLE_CATALOG y TenantRoleAssignmentPolicy son plantillas y una política de evaluación; actualmente no existe un caso de uso/controller que materialice las plantillas por tenant en platform.roles/platform.role_permissions ni una operación HTTP para asignar/revocar esos permisos. Por tanto, las filas globales de platform.permissions y la matriz declarativa de roles no conceden por sí mismas acceso a tenant_admin/compliance_auditor en tenants existentes. CRM-005/006 se mantienen protegidos por RBAC fail-closed; la habilitación de usuarios reales requiere cerrar el flujo de provisión/administración de roles de TASK-004 con auditoría, aprobación, versionado y pruebas de no escalamiento. TASK-004 sigue in_progress.
+
+
+## 11. CRM-007 — candidatos deterministas de duplicación (2026-11-08)
+
+Se incorpora `ContactDuplicateCandidateDetector` como componente puro del dominio CRM. La puntuación se compone mediante estrategias polimórficas y explicables:
+- Identidad exacta dentro de la misma namespace provider/product/channel/identifierType: 100.
+- Mismo sourceType + sourceReference: 75.
+- Nombre normalizado exacto (NFKD, sin marcas diacríticas, espacios/puntuación normalizados): 35.
+
+El umbral por defecto es 70, por lo que un nombre común por sí solo no genera candidato. Los resultados exponen score, nivel de confianza y reason codes; nunca nombre, teléfono ni PII. La lista exige perfiles del mismo tenant, valida que cada identidad pertenezca al contacto/tenant indicado, omite contactos archivados y tipos incompatibles, y ordena de forma determinista. Todas las coincidencias devuelven `manual_review_required`; no existe merge automático ni se muta el aggregate.
+
+El componente recibe candidatos ya recuperados por un repositorio tenant-scoped. No se publica endpoint nuevo: CRM-007 necesita completar su contrato de búsqueda/paginación y revisión antes de habilitar API. Las identidades provider-scoped no equivalen a un email/teléfono universal; los identificadores opacos son case-sensitive y la namespace forma parte de la igualdad.
+
+**Estado:** motor de dominio y pruebas unitarias registrados en target `api:test`; el commit debe pasar Source CI antes de considerar verificado el slice. TASK-043 sigue `in_progress`.

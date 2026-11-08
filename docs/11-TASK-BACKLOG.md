@@ -654,3 +654,10 @@ La integración PostgreSQL se reordenó para no llamar a la operación batch `cl
 - La regresión prueba idempotencia estable en la redelivery del mismo lead y diferenciación entre lead IDs.
 - La notificación contiene IDs/metadatos; obtener field_data sigue siendo una lectura Graph API separada con permisos y token autorizados.
 - **Estado:** parche implementado y pendiente de Source CI; TASK-027/028 siguen in_progress, sin handler CRM Leads ni despliegue productivo.
+
+
+### Actualización de evidencia y handoff — CRM / Lead Ads (2026-11-08)
+
+- CRM-005/006 ContactIdentity: commit `215ab46c725cef73aeb2e602328531896abf8354`, Source CI #575 SUCCESS y CodeQL #110 SUCCESS. Esto valida el primer slice de consulta/enlace namespaced, no cierre de TASK-043/053.
+- TASK-027 Lead Ads: commit `eab842c699e41a6a0099eab343111042ec6aa94d`, Source CI #583 SUCCESS y CodeQL #118 SUCCESS. El decoder lee `leadgen_id` y `created_time` desde `changes[].value`; obtener `field_data` sigue requiriendo Graph API independiente y permisos autorizados. Aún no existe módulo CRM Leads ni consumer que materialice el lead en el CRM.
+- CRM-007: se añade motor de dominio puro de candidatos por identidad provider-namespaced, procedencia y nombre normalizado. Sin endpoint ni merge automático; revisión humana obligatoria. Source CI pendiente.
