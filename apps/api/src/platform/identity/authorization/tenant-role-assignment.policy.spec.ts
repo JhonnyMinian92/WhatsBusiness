@@ -32,6 +32,8 @@ function request(overrides: {
   readonly actor?: TenantAccessContext;
   readonly targetUserId?: string;
   readonly targetTenantId?: string;
+  readonly targetMembershipId?: string;
+  readonly targetMembershipStatus?: "invited" | "active" | "suspended" | "revoked";
   readonly roleKey?: string;
   readonly approval?: { readonly status: "approved" | "pending" | "rejected" | "unknown"; readonly approverId?: string };
 } = {}) {
@@ -40,7 +42,8 @@ function request(overrides: {
     target: {
       userId: overrides.targetUserId ?? randomUUID(),
       tenantId: overrides.targetTenantId ?? tenantId,
-      membershipId: randomUUID(),
+      membershipId: overrides.targetMembershipId ?? randomUUID(),
+      membershipStatus: overrides.targetMembershipStatus ?? "active",
     },
     roleKey: overrides.roleKey ?? "agent",
     approval: overrides.approval,
@@ -111,4 +114,45 @@ test("requesting tenant owner assignment remains an independently approved actio
   }));
   assert.equal(decision.allowed, true);
   assert.equal(decision.roleKey, "tenant_owner");
+});
+
+
+test("role assignment permits an invited membership when repository facts are valid", () => {
+  const decision = policy.evaluate(request({
+    targetMembershipStatus: "invited",
+    approval: { status: "approved", approverId: randomUUID() },
+  }));
+  assert.deepEqual(decision, { allowed: true, roleKey: "agent" });
+});
+
+test("role assignment rejects suspended and revoked target memberships", () => {
+  for (const membershipStatus of ["suspended", "revoked"] as const) {
+    const decision = policy.evaluate(request({
+      targetMembershipStatus: membershipStatus,
+      approval: { status: "approved", approverId: randomUUID() },
+    }));
+    assert.equal(decision.allowed, false);
+    assert.equal(decision.reason, "TARGET_MEMBERSHIP_NOT_ASSIGNABLE");
+  }
+});
+
+test("role assignment rejects malformed resolved membership identifiers", () => {
+  const decision = policy.evaluate(request({
+    targetMembershipId: "not-a-uuid",
+    approval: { status: "approved", approverId: randomUUID() },
+  }));
+  assert.equal(decision.allowed, false);
+  assert.equal(decision.reason, "TARGET_MEMBERSHIP_INVALID");
+});
+
+test("role assignment rejects an unsupported membership state at runtime", () => {
+  const decision = policy.evaluate({
+    ...request({ approval: { status: "approved", approverId: randomUUID() } }),
+    target: {
+      ...request().target,
+      membershipStatus: "disabled" as never,
+    },
+  });
+  assert.equal(decision.allowed, false);
+  assert.equal(decision.reason, "TARGET_MEMBERSHIP_NOT_ASSIGNABLE");
 });

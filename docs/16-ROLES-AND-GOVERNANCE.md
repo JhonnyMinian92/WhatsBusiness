@@ -59,3 +59,8 @@ El autor de una entrega no puede ser su revisor independiente ni aprobar sus pro
 
 ### Ampliación de departamentos
 Además de los roles iniciales, el modelo contempla Product/Program Management, Business Analysis, Marketing/Growth, UX/Accessibility, Finance/Cost Analysis, Support/Customer Success y Technical Writing/Developer Experience. Cada paquete asigna un Accountable único; roles adicionales son Responsible, Consulted o Informed según RACI. Los agentes pueden adoptar varios roles secuencialmente, sin adquirir autoridad humana reservada.
+
+
+## Validación de membresía destino — actualización 2026-11-08
+
+La política de asignación de roles requiere hechos de membresía resueltos por un adapter tenant-scoped; no debe recibir un objeto construido desde el body HTTP. Antes de autorizar, valida UUID de membership/user/tenant y acepta solo estados `invited` y `active`. Los estados `suspended` y `revoked` se deniegan. Se conserva la regla de que solo `tenant_owner` puede asignar templates tenant y el permiso `roles.assign` requiere aprobación independiente. La política no persiste grants ni habilita una ruta HTTP.

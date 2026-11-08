@@ -163,3 +163,7 @@ No bloquean el diseño ni los tests sintéticos: nombres comerciales, tarifas fi
 - Source CI run #112 [42387272987](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42387272987) pasó con integración PostgreSQL efímera activa: idempotencia, dos aprobadores, step-up, consumo exacto, rollback, audit chain y UPDATE/DELETE denial.
 - No hay endpoints HTTP IAM-018..020 habilitados; permanecen catalog-only hasta freeze docs/49. `consumeAndStage` aún no se conecta a outbox/consumer de negocio y no ejecuta Meta, mensajes, ads, export o delete externo.
 - Revisión independiente de seguridad/arquitectura y aceptación del Product Owner siguen pendientes; GO-PRODUCTION continúa NO-GO.
+
+## Addendum TASK-004 — estado de membership destino (2026-11-08)
+
+La política `TenantRoleAssignmentPolicy` ahora valida que la evidencia de destino represente una membresía resuelta por el repositorio (UUID de membership, user y tenant) y que su estado sea asignable. `invited` puede recibir un rol antes de aceptar la invitación; `active` puede recibir una asignación normal; `suspended` y `revoked` no pueden recibir nuevos roles. La comprobación ocurre antes de evaluar autorización y approval. Los hechos de membership no se aceptan como datos autoritativos del cliente.

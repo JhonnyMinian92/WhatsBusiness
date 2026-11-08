@@ -4,16 +4,23 @@ import { findTenantRole } from "./tenant-role-catalog.js";
 
 export type RoleAssignmentDenyReason =
   | AuthorizationDenyReason
+  | "TARGET_MEMBERSHIP_INVALID"
+  | "TARGET_MEMBERSHIP_NOT_ASSIGNABLE"
   | "TARGET_TENANT_MISMATCH"
   | "SELF_ASSIGNMENT_FORBIDDEN"
   | "ROLE_TEMPLATE_NOT_FOUND"
   | "TENANT_OWNER_ROLE_REQUIRED"
   | "ROLE_PRIVILEGES_EXCEED_ACTOR";
 
+/**
+ * Authoritative membership facts loaded by a tenant-scoped repository adapter.
+ * This object must never be copied directly from an HTTP request body.
+ */
 export interface RoleAssignmentTarget {
   readonly userId: string;
   readonly tenantId: string;
   readonly membershipId: string;
+  readonly membershipStatus: "invited" | "active" | "suspended" | "revoked";
 }
 
 export interface RoleAssignmentEvaluation {
@@ -45,6 +52,16 @@ export class TenantRoleAssignmentPolicy {
       reason,
     });
 
+    if (
+      !isUuid(input.target.membershipId)
+      || !isUuid(input.target.userId)
+      || !isUuid(input.target.tenantId)
+    ) {
+      return deny("TARGET_MEMBERSHIP_INVALID");
+    }
+    if (input.target.membershipStatus !== "invited" && input.target.membershipStatus !== "active") {
+      return deny("TARGET_MEMBERSHIP_NOT_ASSIGNABLE");
+    }
     if (input.actor.tenantId !== input.target.tenantId) {
       return deny("TARGET_TENANT_MISMATCH");
     }
@@ -77,4 +94,9 @@ export class TenantRoleAssignmentPolicy {
 
     return { allowed: true, roleKey: role.roleKey };
   }
+}
+
+
+function isUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 }
