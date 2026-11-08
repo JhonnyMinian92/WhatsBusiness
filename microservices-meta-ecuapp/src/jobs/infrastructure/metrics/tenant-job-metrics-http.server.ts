@@ -1,6 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
-import type { AddressInfo } from "node:net";
+import { isIP, type AddressInfo } from "node:net";
 
 export interface PrometheusMetricsRenderer {
   renderPrometheus(): string;
@@ -15,7 +15,8 @@ export interface TenantJobMetricsHttpServerOptions {
 /**
  * Exposes only the bounded Prometheus exposition over a deliberately small
  * HTTP surface. Remote binding requires a strong bearer token; loopback is the
- * safe default for sidecar or same-host scraping.
+ * safe default for sidecar or same-host scraping. Remote HTTP traffic must be
+ * protected by a TLS/mTLS service mesh or trusted reverse proxy.
  */
 export class TenantJobMetricsHttpServer {
   private server: Server | null = null;
@@ -32,7 +33,8 @@ export class TenantJobMetricsHttpServer {
     this.port = options.port;
     const token = options.bearerToken?.trim() ?? "";
 
-    if (!this.host || !Number.isInteger(this.port) || this.port < 0 || this.port > 65_535) {
+    if (!this.host || (this.host.toLowerCase() !== "localhost" && isIP(this.host) === 0)
+      || !Number.isInteger(this.port) || this.port < 0 || this.port > 65_535) {
       throw new Error("Tenant job metrics listener configuration is invalid.");
     }
     if (token && Buffer.byteLength(token, "utf8") < 32) {
@@ -61,7 +63,13 @@ export class TenantJobMetricsHttpServer {
         socket.end("HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n");
       }
     });
-    server.on("error", this.onServerError);
+    server.on("error", (error: Error) => {
+      try {
+        this.onServerError(error);
+      } catch {
+        // A logging failure must never become an unhandled server error.
+      }
+    });
     this.server = server;
 
     try {
