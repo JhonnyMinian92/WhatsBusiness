@@ -3,11 +3,21 @@ import type { TenantJobRuntimeRepository } from "./tenant-job-ports.js";
 
 export type TenantJobSignalWork<T> = (signal: AbortSignal) => Promise<T>;
 
+const DEFAULT_MAX_EXECUTION_MS = 300_000;
+const MAX_EXECUTION_MS = 900_000;
+
 export class TenantJobExecutionLeaseHeartbeat {
   constructor(
     private readonly repository: Pick<TenantJobRuntimeRepository, "renewExecutionLease">,
     private readonly intervalForLease: (leaseSeconds: number) => number = (seconds) => Math.max(250, Math.floor(seconds * 1_000 / 3)),
-  ) {}
+    private readonly maximumExecutionMs = DEFAULT_MAX_EXECUTION_MS,
+  ) {
+    if (!Number.isSafeInteger(maximumExecutionMs)
+      || maximumExecutionMs < 1
+      || maximumExecutionMs > MAX_EXECUTION_MS) {
+      throw new Error("Tenant job maximum execution duration is invalid.");
+    }
+  }
 
   async execute<T>(
     jobId: string,
@@ -40,17 +50,39 @@ export class TenantJobExecutionLeaseHeartbeat {
       (error) => { renewalFailure = error; },
     );
 
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    const workPromise = Promise.resolve().then(() => work(cancellation.signal));
+    // A non-cooperative handler must not create an unhandled rejection after the
+    // transaction has been rolled back because its deadline or lease was lost.
+    void workPromise.catch(() => undefined);
+
+    const cancellationPromise = new Promise<T>((_resolve, reject) => {
+      const rejectOnAbort = (): void => {
+        reject(cancellation.signal.reason ?? new Error("Tenant job execution was cancelled."));
+      };
+      if (cancellation.signal.aborted) rejectOnAbort();
+      else cancellation.signal.addEventListener("abort", rejectOnAbort, { once: true });
+    });
+
+    timeout = setTimeout(() => {
+      cancellation.abort(new TenantJobFailureError({
+        code: "JOB_EXECUTION_TIMEOUT",
+        retryable: false,
+      }));
+    }, this.maximumExecutionMs);
+
     try {
-      const result = await work(cancellation.signal);
+      const result = await Promise.race([workPromise, cancellationPromise]);
       if (renewalFailure !== undefined) throw renewalFailure;
       return result;
     } catch (error) {
       if (renewalFailure !== undefined) throw renewalFailure;
       throw error;
     } finally {
+      if (timeout !== undefined) clearTimeout(timeout);
       stopped = true;
       stopHeartbeat.abort();
-      cancellation.abort();
+      if (!cancellation.signal.aborted) cancellation.abort();
       await heartbeat;
     }
   }
@@ -72,7 +104,7 @@ export class TenantJobExecutionLeaseHeartbeat {
       try {
         const expiry = await this.repository.renewExecutionLease(jobId, leaseToken, leaseSeconds);
         // PostgreSQL performs the authoritative expiry check using its own clock.
-        // Do not compare the returned timestamp against the worker host clock. 
+        // Do not compare the returned timestamp against the worker host clock.
         if (!expiry || !Number.isFinite(expiry.getTime())) {
           throw new TenantJobFailureError({
             code: "JOB_EXECUTION_LEASE_LOST",
@@ -81,7 +113,7 @@ export class TenantJobExecutionLeaseHeartbeat {
         }
       } catch (error) {
         setFailure(error);
-        cancellation.abort();
+        cancellation.abort(error);
         return;
       }
     }
