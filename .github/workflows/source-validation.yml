@@ -91,6 +91,7 @@ jobs:
       RUN_RABBITMQ_INTEGRATION_TESTS: "true"
       RUN_RABBITMQ_METRICS_INTEGRATION_TESTS: "true"
       RUN_META_WEBHOOK_INTEGRATION_TESTS: "true"
+      RUN_CRM_CONTACTS_INTEGRATION_TESTS: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v5
