@@ -633,3 +633,14 @@ No existe integración HTTP ni escritura externa real. TASK-020/021 siguen in_pr
 | AUD-187 | Suites adapter, policy, transport, capability bridge y asset registry registradas en Nx; nueva guía docs/74 e índice actualizado. | Código/docs añadidos; CI del HEAD pendiente. |
 
 No se añadieron rutas HTTP públicas porque TH-001..006 siguen catalog-only; el webhook gateway no se declara handler de negocio Threads. No hubo acceso, publicación, lectura live de Insights, despliegue o aceptación formal. TASK-033 y US-017 siguen `in_progress`.
+
+
+## 47. US-012 — validación monetaria y límites seguros (AUD-190..192; 2026-11-08)
+
+| ID | Cambio / control | Resultado al registrar |
+|---|---|---|
+| AUD-190 | Ads Money modela importes no negativos de forma decimal exacta; la precisión fraccionaria se rige por moneda ISO 4217. Los presupuestos de campaña deben ser estrictamente positivos. | Implementado en ads-money y campaign-validation; suites actualizadas. |
+| AUD-191 | Budget guardrail rechaza presupuesto cero como sustituto de pause y permite reducciones aun cuando caduque el baseline que solo habilita incrementos. | Implementado en budget-guardrail; regresiones añadidas. |
+| AUD-192 | Corrección de policy Messenger para conservar el motivo específico HUMAN_AGENT_REQUIRES_HUMAN_OWNER cuando el ownership no es humano, además del rechazo general por ownership. | Implementado; regresión existente recuperada para que api:test no quede bloqueado por este cambio concurrente. |
+
+Estado de validación al registrar: Source CI #662 ejecuta build, typecheck y las suites completas; #653 había superado build/typecheck y detectado dos assertions, corregidas por los commits posteriores. CodeQL del HEAD pendiente.
