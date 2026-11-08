@@ -55,6 +55,25 @@ test("PostgreSQL webhook inbox persists idempotently, fences tenant processing a
     protectedRawBody: protector.protect(rawBody, context + ":raw"),
     protectedEventPayload: protector.protect(Buffer.from(JSON.stringify(payload)), context + ":" + idempotencyKey),
   };
+  const statusPayload = {
+    id: "wamid.synthetic-status-" + tenantId.slice(0, 8),
+    status: "delivered",
+  };
+  const statusEvent = Object.freeze({
+    ...event,
+    eventType: "messages.status",
+    providerEventId: statusPayload.id,
+    payload: Object.freeze(statusPayload),
+    idempotencyKey: createHash("sha256").update("status:" + tenantId).digest("hex"),
+  });
+  const statusInput: PersistMetaWebhookEvent = {
+    ...input,
+    event: statusEvent,
+    protectedEventPayload: protector.protect(
+      Buffer.from(JSON.stringify(statusPayload)),
+      context + ":" + statusEvent.idempotencyKey,
+    ),
+  };
 
   try {
     await admin.query(
@@ -83,8 +102,8 @@ test("PostgreSQL webhook inbox persists idempotently, fences tenant processing a
     );
 
     const ingressRepository = new PostgresMetaWebhookRepository(ingress);
-    const first = await ingressRepository.persistBatch([input]);
-    assert.deepEqual(first, { accepted: 1, duplicates: 0 });
+    const first = await ingressRepository.persistBatch([input, statusInput]);
+    assert.deepEqual(first, { accepted: 2, duplicates: 0 });
 
     const ingressClient = await ingress.connect();
     try {
@@ -139,8 +158,8 @@ test("PostgreSQL webhook inbox persists idempotently, fences tenant processing a
       "The API login must not assume the shared ingress group role.",
     );
 
-    const duplicate = await ingressRepository.persistBatch([input]);
-    assert.deepEqual(duplicate, { accepted: 0, duplicates: 1 });
+    const duplicate = await ingressRepository.persistBatch([input, statusInput]);
+    assert.deepEqual(duplicate, { accepted: 0, duplicates: 2 });
     await assert.rejects(
       ingress.query("SELECT payload_ciphertext FROM platform.meta_webhook_inbox WHERE tenant_id = $1", [tenantId]),
       (error: unknown) => (error as { code?: string }).code === "42501",
@@ -181,26 +200,76 @@ test("PostgreSQL webhook inbox persists idempotently, fences tenant processing a
       });
       await workerProcess.start();
 
-      let state: { status: string; receipts: string; outbox_status: string } | undefined;
-      for (let attempt = 0; attempt < 100; attempt += 1) {
-        const result = await admin.query<{ status: string; receipts: string; outbox_status: string }>(
+      let state: {
+        processed: string;
+        dead_letters: string;
+        receipts: string;
+        outbox_published: string;
+      } | undefined;
+      for (let attempt = 0; attempt < 150; attempt += 1) {
+        const result = await admin.query<{
+          processed: string;
+          dead_letters: string;
+          receipts: string;
+          outbox_published: string;
+        }>(
           [
-            "SELECT event.status,",
-            "(SELECT count(*)::text FROM platform.meta_webhook_consumer_inbox receipt WHERE receipt.event_id = event.id) AS receipts,",
-            "outbox.status AS outbox_status",
+            "SELECT",
+            "count(*) FILTER (WHERE event.status = 'processed')::text AS processed,",
+            "count(*) FILTER (WHERE event.status = 'dead_letter')::text AS dead_letters,",
+            "(SELECT count(*)::text FROM platform.meta_webhook_consumer_inbox receipt JOIN platform.meta_webhook_inbox source ON source.id = receipt.event_id WHERE source.tenant_id = $1) AS receipts,",
+            "(SELECT count(*)::text FROM platform.meta_webhook_event_outbox outbox WHERE outbox.tenant_id = $1 AND outbox.status = 'published') AS outbox_published",
             "FROM platform.meta_webhook_inbox event",
-            "JOIN platform.meta_webhook_event_outbox outbox ON outbox.event_id = event.id",
             "WHERE event.tenant_id = $1",
           ].join(" "),
           [tenantId],
         );
         state = result.rows[0];
-        if (state?.status === "processed" && state.receipts === "1" && state.outbox_status === "published") break;
+        if (state?.processed === "1" && state.dead_letters === "1" && state.receipts === "1" && state.outbox_published === "2") break;
         await delay(100);
       }
-      assert.deepEqual(state, { status: "processed", receipts: "1", outbox_status: "published" });
-      assert.equal(handlerCalls, 1, "The real RabbitMQ consumer must invoke the registered business handler once.");
-      assert.deepEqual(diagnostics, [], "A healthy end-to-end delivery must not emit worker failure diagnostics.");
+      assert.deepEqual(state, { processed: "1", dead_letters: "1", receipts: "1", outbox_published: "2" });
+      assert.equal(handlerCalls, 1, "Only the registered messages.message handler may execute.");
+      assert.deepEqual(diagnostics, [], "A valid handled and terminal-unhandled event must not interrupt the worker.");
+
+      const deadLetterClient = await ingress.connect();
+      try {
+        await deadLetterClient.query("BEGIN");
+        await deadLetterClient.query("SELECT set_config('app.tenant_id', $1, true)", [tenantId]);
+        const deadLetters = await deadLetterClient.query<{
+          dead_letter_id: string;
+          event_id: string;
+          provider_product: string;
+          event_type: string;
+          reason_code: string;
+          attempts: number;
+          created_at: string;
+          replay_count: number;
+        }>(
+          "SELECT * FROM platform.list_meta_webhook_dead_letters($1, $2, $3, $4)",
+          [tenantId, 10, null, null],
+        );
+        assert.equal(deadLetters.rows.length, 1);
+        assert.equal(deadLetters.rows[0]?.provider_product, "whatsapp");
+        assert.equal(deadLetters.rows[0]?.event_type, "messages.status");
+        assert.equal(deadLetters.rows[0]?.reason_code, "META_WEBHOOK_HANDLER_NOT_REGISTERED");
+        assert.equal(deadLetters.rows[0]?.attempts, 1);
+        await deadLetterClient.query("SELECT set_config('app.tenant_id', $1, true)", [otherTenantId]);
+        await assert.rejects(
+          deadLetterClient.query(
+            "SELECT * FROM platform.list_meta_webhook_dead_letters($1, $2, $3, $4)",
+            [tenantId, 10, null, null],
+          ),
+          (error: unknown) => (error as { code?: string }).code === "42501",
+          "The dead-letter reader must reject another tenant's transaction context.",
+        );
+        await deadLetterClient.query("ROLLBACK");
+      } catch (error) {
+        await deadLetterClient.query("ROLLBACK").catch(() => undefined);
+        throw error;
+      } finally {
+        deadLetterClient.release();
+      }
     } finally {
       await workerProcess?.stop();
     }
