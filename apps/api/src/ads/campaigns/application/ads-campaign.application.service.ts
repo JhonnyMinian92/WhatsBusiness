@@ -6,7 +6,6 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import type { PoolClient } from "pg";
 import { DatabaseService } from "../../../platform/database/database.module.js";
 import type { TenantAccessContext } from "../../../platform/identity/tenant-access-context.js";
 import {
