@@ -89,3 +89,24 @@ test("audit validation reports invalid field names without disclosing values", a
       && !error.message.includes(unsafePurpose),
   );
 });
+
+
+test("append accepts Meta asset sync outcomes in the same hash-chained audit ledger", async () => {
+  const client = {
+    query: async (sql: string) => sql.startsWith("SELECT last_sequence")
+      ? { rows: [{ last_sequence: "0", last_hash: "0".repeat(64) }], rowCount: 1 }
+      : { rows: [], rowCount: 1 },
+  } as unknown as PoolClient;
+  const record = await new AppendOnlyAuditRepository().append(client, {
+    tenantId: event.tenantId,
+    actorUserId: event.actorUserId,
+    actionKey: "meta.assets.sync",
+    resourceType: "meta_asset_inventory",
+    resourceId: "connection-0001",
+    purpose: "meta.connections.manage",
+    outcome: "meta_assets_synced",
+    correlationId: event.correlationId,
+    requestHash: "b".repeat(64),
+  });
+  assert.equal(record.outcome, "meta_assets_synced");
+});
