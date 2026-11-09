@@ -605,6 +605,6 @@ Evidencia adicional: build/typecheck SUCCESS, CodeQL SUCCESS y suite Meta SUCCES
 | Pareja V1 original/V2 alternativa y assignment válido | US-036 | TASK-087 | Snapshot hashes, variable primaria, stable randomization/native split, SRM y stop rules | proposed |
 | Feature/event store con señales de delivery, creative, contexto y CRM | US-036 | TASK-088 | Provenance, normalized metrics, time/currency/attribution, retention and quality checks | proposed |
 | Recomendaciones y nuevas variantes draft con evidencia | US-036 | TASK-089 | Evaluation, confidence/uncertainty, model lineage, rights/brand/claim validation y approvals | proposed |
-| Capabilities/deprecations y hardening multicanal | US-034..036 | TASK-090,091 | API/policy source registry, spend ledger, observability, security/privacy and independent review | proposed |
+| Capabilities/deprecations y hardening multicanal | US-034..036 | TASK-090, TASK-091 | API/policy source registry, spend ledger, observability, security/privacy and independent review | proposed |
 
 La especificación se encuentra en [docs/95](95-EXPANSION-TIKTOK-OPENAI-ADS-AND-AUTOMATED-LEARNING.md). La presencia de estas filas no declara endpoints implementados, cuenta conectada, evento recibido, A/B ejecutado ni producto aceptado.
