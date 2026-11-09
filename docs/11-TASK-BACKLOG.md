@@ -1023,3 +1023,10 @@ El restore de CI es una evidencia acotada de restauración de catálogo/schema y
 La lectura de `docs/60-TENANT-JOBS-RUNTIME.md` y del código vigente confirma que las métricas `messages_ready`, `messages_unacked` y `consumers` para worker y DLQ están implementadas y probadas en RabbitMQ real. La integración mantiene deliveries sin ACK y consumidores activos, valida los gauges y confirma el drenaje hasta cero. Source CI [42597892008](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42597892008) terminó SUCCESS, y la suite Meta backend/PostgreSQL/RabbitMQ pasó 112/112. Se corrige así el estado histórico que marcaba `unacked` como pendiente.
 
 **Pendiente real:** consumer lag temporal con semántica independiente, thresholds de carga, dashboards/alert rules desplegados, alert routing/SLO y revisión operativa. El smoke restore cifrado de CI también pasó, pero no sustituye DR con datos, WAL/PITR, KMS ni RPO/RTO en infraestructura real. TASK-003 permanece `in_progress`, no `accepted`.
+
+
+## TASK-003 — rescate selectivo de adaptadores Valkey/S3 — 2026-11-09
+
+Se trasladó el código fuente de la PR #9 al HEAD actual de `environment/local`, sin fusionar su base antigua. Se añadieron adapters RESP/Valkey y S3 SigV4, pruebas, tokens de infraestructura y providers en `IsolationModule`. El target `api:test` registra ambas suites y `.env.example` incluye configuración vacía, sin secretos.
+
+La antigua PR #9 falló durante la migración `0031-ads-creative-lab` en su snapshot histórico; no se copia ese runner ni su historial documental. Source CI del nuevo SHA debe verificar migraciones, build, typecheck y suites API/Inbox/Meta. TASK-003 permanece `in_progress` hasta la validación integrada y el despliegue seguro de los proveedores reales.

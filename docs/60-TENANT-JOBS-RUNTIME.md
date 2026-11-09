@@ -271,3 +271,14 @@ Evidencia:
 - Source CI [42597892008](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42597892008) terminó SUCCESS, incluida la suite Meta backend/PostgreSQL/RabbitMQ 112/112.
 
 **No confundir:** mensajes unacknowledged son entregas en vuelo; no son consumer lag temporal. La métrica física queda implementada y CI-verified. Queda por definir una medida de lag/latencia de cola con semántica explícita, validar umbrales con carga y desplegar dashboards, alert rules, alert routing y SLO en la topología real.
+
+
+## 19. Adaptadores tenant-scoped de Valkey y S3 — 2026-11-09
+
+Se incorporan implementaciones concretas de `CacheStore` y `ObjectStorage`:
+- Valkey implementa RESP binario, pool acotado, autenticación ACL, TLS para endpoints remotos, timeouts, límites de respuesta y cierre de recursos.
+- S3-compatible implementa AWS SigV4, PUT/GET/DELETE, checksums SHA-256, límites de tamaño, claves sin traversal, TLS remoto y SSE-S3/SSE-KMS.
+- `IsolationModule` registra `CACHE_STORE` y `OBJECT_STORAGE` y exporta `TenantScopedCache` / `TenantScopedObjectStorage`.
+- Las suites RESP y S3 se registran en `api:test`; la configuración vacía/sintética se documenta en `.env.example`.
+
+**Pendiente:** Source CI de este HEAD, conectividad con servicios gestionados, IAM/policies de bucket, KMS/rotación, ciclo de vida y pruebas de carga/DR. Sin providers configurados, las operaciones fallan cerrado; no se simula almacenamiento durable. TASK-003 sigue `in_progress`.

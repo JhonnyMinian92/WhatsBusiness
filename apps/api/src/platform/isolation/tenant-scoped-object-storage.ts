@@ -6,6 +6,8 @@ export interface ObjectStorageMetadata {
   readonly checksumSha256: string;
 }
 
+export const OBJECT_STORAGE = Symbol("OBJECT_STORAGE");
+
 export interface ObjectStorage {
   put(key: string, body: Uint8Array, metadata: ObjectStorageMetadata): Promise<void>;
   get(key: string): Promise<Uint8Array | null>;

@@ -901,3 +901,10 @@ El nuevo gate de backup/restore completó dump custom PostgreSQL 18, cifrado AES
 El reader `RabbitMqPrometheusTenantJobQueueMetricsReader` obtiene seis gauges físicos: ready, unacknowledged y consumers para worker queue y DLQ, mediante `/metrics/detailed` y las familias permitidas del plugin. Usa identidad monitoring separada y no requiere permisos AMQP de lectura/publicación/configuración.
 
 La integración live crea mensajes en ambas colas, mantiene cada delivery sin ACK y ambos consumers activos, verifica `messages_unacked=1`, luego libera ACK y comprueba que ready/unacknowledged/consumers regresen a cero. Source CI [42597892008](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42597892008) terminó SUCCESS: suite backend Meta/PostgreSQL/RabbitMQ 112/112. Los seis gauges están CI-verified; el consumer lag temporal no se infiere de `messages_unacked` y sigue pendiente. También continúan pendientes el despliegue real de dashboards/alert routing/SLO, review independiente y aceptación de TASK-003.
+
+
+## 67. Rescate selectivo de la PR #9 — TASK-003 Valkey/S3 — 2026-11-09
+
+Se trasladan al HEAD canónico los adapters nuevos de Valkey RESP, pool, cache store y S3 SigV4, junto con sus pruebas y el wiring DI. Se conserva el módulo actual de aislamiento y su runtime de jobs; solo se añaden tokens y providers del cache/storage. El target Nx `api:test` incluye las suites y `.env.example` documenta placeholders sin credenciales.
+
+El run antiguo de la PR #9 falló en migración `0031-ads-creative-lab`, sobre un snapshot anterior al HEAD actual. Esta integración no se considera verificada hasta que Source CI del nuevo HEAD complete todas las migraciones, build, typecheck y suites.

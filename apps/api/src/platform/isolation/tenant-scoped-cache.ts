@@ -1,5 +1,7 @@
 import { TenantResourceNamespace } from "./tenant-resource-namespace.js";
 
+export const CACHE_STORE = Symbol("CACHE_STORE");
+
 export interface CacheStore {
   get(key: string): Promise<Uint8Array | null>;
   set(key: string, value: Uint8Array, ttlSeconds: number): Promise<void>;
