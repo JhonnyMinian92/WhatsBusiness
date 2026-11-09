@@ -959,3 +959,17 @@ La primera ejecución del Agent Tool Gateway había expuesto dos fallos de limpi
 La revisión posterior a la consolidación confirma `environment/local` como única rama de trabajo. El repositorio todavía tiene 26 ramas y la rama predeterminada continúa siendo `master`; no hay PR abiertas. El inventario de las 25 referencias que deben retirarse, su análisis de contenido y los pasos de cierre están en [docs/94](94-REPOSITORY-CLEANUP-STATUS.md).
 
 No se borraron referencias ni se cambió la configuración de rama predeterminada: las operaciones GitHub disponibles en esta sesión no exponen PATCH de configuración del repositorio ni DELETE de referencias. No declarar la limpieza completa hasta verificar que `default_branch=environment/local` y que la única rama remota restante sea `environment/local`.
+
+
+
+## 74. Especificación de expansión multicanal — TikTok, OpenAI Ads y Campaign Learning — 2026-11-09
+
+Se crea [docs/95-EXPANSION-TIKTOK-OPENAI-ADS-AND-AUTOMATED-LEARNING.md](95-EXPANSION-TIKTOK-OPENAI-ADS-AND-AUTOMATED-LEARNING.md) y se registra el alcance propuesto US-033..036 / TASK-081..091.
+
+**Auditoría del repositorio:** `apps/` contiene tanto `apps/api` como `apps/web`; por ello el rename solicitado aplica solo al frontend Angular, que debe mudarse a `app-meta-ecuapp/` y renombrarse en Nx/Angular. `apps/api` permanece. `microservices-meta-ecuapp` se conserva Meta-specific. Se encontró un primer slice de campañas/Creative Lab/experimentos con `creative-variant.ts`, `creative-experiment.ts` y `creative-provider.adapter.ts`; la propuesta amplía estas capacidades y no declara que el experimento end-to-end esté resuelto.
+
+**Investigación de proveedores:** se identifican las familias TikTok API for Business (Marketing, Organic y Business Messaging), Login Kit, Content Posting, Display y capacidades sujetas a elegibilidad. Se documenta la migración de workflows afectados de Legacy Manual Flow hacia Upgraded Smart+ antes del 2027-01-01. Para ChatGPT se especifica OpenAI Advertiser API, Pixel/Conversions API, reporting, assets y conversion setup; no se confunde con la API de modelos.
+
+**A/B y aprendizaje:** se exige V1 original y V2 alternativa inmutables, asignación persistente y auditable, split nativo o audiencia disjunta demostrable, detección SRM, preregistro estadístico y separación entre delivery reportado, outcomes CRM y causal lift. Se mantiene draft-first y los guardrails de presupuesto/approval vigentes.
+
+**Estado:** documentación y backlog propuestos; no se movió el frontend, no se implementaron adapters TikTok/OpenAI, no se conectaron cuentas, no se ejecutaron campañas y no se incurrió en gasto publicitario. Tareas nuevas permanecen `proposed` hasta que exista código y evidencia por commit. La disponibilidad real de APIs, scopes, review, cuenta y país debe comprobarse por operación antes de declarar cualquier integración verificada.
