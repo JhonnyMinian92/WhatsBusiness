@@ -26,7 +26,7 @@ Los cambios se escribieron en la rama autorizada \`environment/local\` del repos
 - Ante indisponibilidad de KMS o del proveedor remoto, la conexión queda en \`reauthorization_required\`, el resultado remoto se conserva como \`unknown\` y se exige seguimiento manual.
 - El ledger de auditoría acepta el nuevo outcome de sincronización de activos; la bóveda sigue usando un port.
 
-**Estado:** \`in_progress\`. \`UnconfiguredCredentialEnvelopeProvider\` continúa fail-closed. No se configuró KMS/secret manager, key rotation real, envelope encryption con claves operativas, rotación con proveedor ni drill de recuperación. Los cambios del AAD requieren un plan de compatibilidad/reencriptado de sobres preexistentes antes de una migración con conexiones reales.
+**Estado:** \`in_progress\`. \`UnconfiguredCredentialEnvelopeProvider\` continúa fail-closed. No se configuró KMS/secret manager, key rotation real, envelope encryption con claves operativas, rotación con proveedor ni drill de recuperación. **Compatibilidad de sobres antiguos sí implementada:** el descifrado intenta primero el AAD estable y luego el AAD histórico ligado al creador; los refresh re-cifran con el AAD estable. La suite Meta prueba renovación y revocación de sobres legacy. Sigue pendiente un rollout controlado que contabilice/migre conexiones que nunca vuelvan a renovarse, además de KMS y key rotation reales.
 
 ### TASK-008 — Embedded Signup y onboarding
 
@@ -78,7 +78,7 @@ También se amplió \`append-only-audit.repository.spec.ts\` para verificar \`me
 ## Gates externos y de integración que siguen abiertos
 
 1. Configurar Meta App por entorno, App ID/secret, redirect URI exactos, hosts de autorización, Facebook Login for Business y el \`config_id\` de Embedded Signup v4.
-2. Provisionar KMS/secret manager, rotación de claves y compatibilidad/re-encriptado de sobres de credenciales ya persistidos.
+2. Provisionar KMS/secret manager y rotación de claves; desplegar/monitorizar la migración lazy de sobres legacy (refresh re-cifra con AAD estable) y completar re-encriptado controlado de conexiones que no se renueven normalmente.
 3. Verificar App Review, Advanced Access, Business Verification, Tech Provider (cuando aplique), scopes concedidos, business eligibility, país y cuenta real/sandbox autorizada.
 4. Implementar/revisar provider OAuth HTTP y discovery Graph con allowlist de hosts, versión por operación/producto, paginación, rate limit, timeouts, retries controlados y manejo de respuestas parciales.
 5. Congelar schemas de request/response/error, autorización, idempotencia, auditoría y tenant boundary por META operation bajo docs/49 y G0 antes de habilitar endpoints.
