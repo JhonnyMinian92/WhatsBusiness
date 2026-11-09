@@ -127,6 +127,12 @@ jobs:
             echo "lockfile_changed=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Scan tracked files for exposed credentials
+        run: node scripts/scan-secrets.mjs
+
+      - name: Audit production dependencies for high-severity advisories
+        run: pnpm audit --prod --audit-level high
+
       - name: Validate Grafana and Prometheus observability assets
         run: node scripts/validate-observability-assets.mjs
 
