@@ -213,9 +213,16 @@ test("un actor sin permiso no puede iniciar ni consultar el onboarding",async()=
   assert.equal(harness.counts().beginCalls,0);
 });
 
-test("un actor distinto no puede consultar una saga ajena",async()=>{
-  const harness=createHarness();
+test("otro administrador del mismo tenant puede consultar el progreso pero no apropiarse del callback",async()=>{
+  const harness=createHarness({initial:record({
+    status:"ready",connectionId,discoveredAssets:3,missingCapabilities:[],
+  })});
   const other={...subject(),actorId:"a2cbecb4-bda0-4cf4-a43b-ecb34c11b025"};
-  await assert.rejects(harness.service.getProgress(other,sagaId),
-    (error:unknown)=>error instanceof UnauthorizedException);
+  const progress=await harness.service.getProgress(other,sagaId);
+  assert.equal(progress.status,"ready");
+  assert.equal(progress.discoveredAssets,3);
+  await assert.rejects(
+    harness.service.retryAssetSync(other,sagaId),
+    (error:unknown)=>error instanceof UnauthorizedException,
+  );
 });

@@ -107,7 +107,8 @@ export class MetaOnboardingService {
 
   async getProgress(subjectInput:TenantAccessContext,sagaId:string):Promise<MetaOnboardingProgress>{
     const subject=this.requireManager(subjectInput);
-    const saga=await this.requireOwnedSaga(subject,sagaId);
+    const saga=await this.repository.get(subject,sagaId);
+    if(!saga)throw new NotFoundException({code:"META_ONBOARDING_SAGA_NOT_FOUND"});
     return this.toProgress(saga);
   }
 
