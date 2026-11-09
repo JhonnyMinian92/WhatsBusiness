@@ -117,7 +117,12 @@ CREATE TABLE platform.meta_asset_sync_runs (
   UNIQUE (id,tenant_id),
   FOREIGN KEY (connection_id,tenant_id)
     REFERENCES platform.meta_connections(id,tenant_id) ON DELETE RESTRICT,
-  CHECK (cardinality(complete_for)<=10)
+  CHECK (cardinality(complete_for)<=10),
+  CHECK (complete_for <@ ARRAY[
+    'business_portfolio','whatsapp_account','whatsapp_messaging_account',
+    'whatsapp_phone_number','facebook_page','instagram_professional_account',
+    'ad_account','lead_form','dataset','threads_profile'
+  ]::text[])
 );
 CREATE INDEX meta_asset_sync_runs_history_idx
   ON platform.meta_asset_sync_runs (tenant_id,connection_id,observed_at DESC);
