@@ -1040,3 +1040,8 @@ La antigua PR #9 falló durante la migración `0031-ads-creative-lab` en su snap
 - PR #9 TASK-003: Valkey/S3 adapters trasladados y test RESP corregido mediante frame binario explícito.
 
 Todos estos cambios se aplicaron sobre el HEAD canónico `environment/local`; no se mergearon snapshots antiguos de ramas.
+
+
+## US-025 / TASK-058 — política de dominio partner integrada — 2026-11-09
+
+Se trasladó a `environment/local` la política pura `PartnerTenantGrantPolicy` y sus 22 casos de dominio. IdentityModule la registra/exporta y `api:test` incluye el spec. El traslado conserva el límite de arquitectura: no crea memberships en el tenant cliente, no relaja `can_use_tenant`, no añade persistence ni endpoints. Faltan modelo SQL/RLS, approval consumption atómico, contexto partner en IdentityService/DatabaseService/worker, invalidación de grants revocados, audit/outbox, pruebas BOLA PostgreSQL, contract freeze, revisión y aceptación.

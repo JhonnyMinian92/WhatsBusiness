@@ -3,6 +3,7 @@ import { DatabaseModule } from "../database/database.module.js";
 import { IdentityController } from "./identity.controller.js";
 import { IdentityRepository } from "./identity.repository.js";
 import { IdentityService } from "./identity.service.js";
+import { PartnerTenantGrantPolicy } from "./partners/partner-tenant-grant.policy.js";
 import { OidcAuthGuard, OidcJwtVerifier } from "./oidc-auth.guard.js";
 import { TenantContextGuard } from "./tenant-context.guard.js";
 import { AuthorizationGuard } from "./authorization/authorization.guard.js";
@@ -33,6 +34,7 @@ import {
   providers: [
     IdentityRepository,
     IdentityService,
+    PartnerTenantGrantPolicy,
     OidcJwtVerifier,
     OidcAuthGuard,
     OidcJwtVerifier,
@@ -67,6 +69,7 @@ import {
     },
   ],
   exports: [
+    PartnerTenantGrantPolicy,
     ApprovalWorkflowService,
     AppendOnlyAuditRepository,
     TenantAuditReportService,

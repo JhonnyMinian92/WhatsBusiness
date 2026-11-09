@@ -920,3 +920,8 @@ Commit de implementación: `e5832088fc8bb406dcd0e33d77b3199c43001e34`.
 - PR #9: fixture de Valkey RESP corregido para representar bytes `0x00,0xFF` reales; las pruebas no manipulan bytes a través de UTF-8.
 
 CI del nuevo HEAD `e583208` pendiente. No declarar estos paquetes verificados hasta que Source CI, CodeQL y el workflow supply-chain completen.
+
+
+## 70. PR #4 — traslado de política de acceso delegado de partners — 2026-11-09
+
+Se integra en `environment/local` `PartnerTenantGrantPolicy` y sus pruebas de dominio, con registro/export en IdentityModule y test en `api:test`. Se conserva el estado parcial: la política valida grants y decisiones, pero no crea acceso de runtime ni persistencia. No se modifican `platform.can_use_tenant`, memberships ni controllers. Persistencia/RLS, aprobación/audit/outbox atómicos, revalidación de sesión/jobs, pruebas BOLA y revisión siguen pendientes.
