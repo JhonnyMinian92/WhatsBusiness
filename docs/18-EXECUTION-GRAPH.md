@@ -191,3 +191,20 @@ TASK-069/070/073/079 pasan de proposed a in_progress por el slice registrado en 
 - TASK-029/031/032/059/071/080 + TASK-082..089 → TASK-091 multichannel security, privacy, spend ledger and operations hardening.
 
 These are proposed dependencies. They do not advance task states or prove provider access. No autonomous publication or spending is authorized by this DAG.
+
+
+
+## 11. Omnichannel Experimentation and Contact Channels (proposed 2026-11-09)
+
+- TASK-092 Experiment Registry → TASK-093 stable assignment/native split/SRM → TASK-095 Journey Orchestrator.
+- TASK-027/028 + TASK-084/086 → TASK-094 event ingestion, raw evidence, normalization and replay.
+- TASK-094 + TASK-103 consent/suppression → TASK-096 Email, TASK-097 SMS/Voice, TASK-098 Telegram and TASK-099 Google Ads/YouTube.
+- TASK-072/078/088 + TASK-094 → TASK-100 Metric Registry/semantic layer and dashboards.
+- TASK-068/077/086 + TASK-092/094 → TASK-101 attribution, holdouts and incrementality.
+- TASK-088 + TASK-094 → TASK-102 feature store and temporal snapshots.
+- TASK-032/059 + TASK-094/095 → TASK-103 cross-channel consent/preferences/suppression; it is a dispatch gate for every marketing channel.
+- TASK-056/065/090 → TASK-104 Channel Registry/Business Case.
+- TASK-100/101/102 + TASK-092/093 → TASK-105 statistical analyzer; TASK-105 output informs TASK-089 draft recommendations.
+- TASK-095/096/097/098/099/100 → TASK-106 omnichannel dashboard and operations.
+
+All TASK-092..106 remain proposed. These dependencies do not imply that a provider API, native split, account or live campaign is available.
