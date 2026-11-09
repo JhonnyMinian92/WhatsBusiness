@@ -836,3 +836,12 @@ El diagnóstico del Source CI `42555054762` confirmó que la única suite API fa
 La corrección añade la función `platform.record_usage_entry` como única frontera de escritura: exige coincidencia estricta entre actor/tenant enviados y `app.user_id`/`app.tenant_id` transaccionales, rol `usage_ingestor`, tenant en estado medible e idempotencia por tenant/categoría/clave. El runtime pierde el permiso directo INSERT y mantiene lectura protegida por RLS. La API registra auditoría solo para una inserción nueva y devuelve el resultado previo únicamente al mismo actor/tenant/categoría.
 
 **Estado:** cambio implementado en código y migración; CI del nuevo SHA y revisión independiente pendientes. No se declara TASK-052, G1 ni G2 cerrados hasta contar con evidencia positiva.
+
+
+## 61. Desambiguación del resultado de ingesta del Usage Ledger — 2026-11-09
+
+El Source CI `42594594079` validó migraciones (incluida idempotencia), build y typecheck, y ejecutó 404/405 pruebas API con una única falla en `platform.record_usage_entry`: SQLSTATE `42702`, porque el nombre de salida `payload_hash` de `RETURNS TABLE` colisionó con la columna homónima en `RETURNING`. Las 112/112 pruebas del backend Meta y las políticas Inbox pasaron; el gate global correctamente quedó en FAILURE.
+
+Se añadió migración incremental `0041-platform-usage-ledger-returning-qualification.sql`. La función usa un alias explícito de tabla y retorna `ledger_entry.id` y `ledger_entry.payload_hash`, conservando las validaciones de actor/tenant/rol, la idempotencia y los privilegios mínimos de `0040`. No se reescribe la migración ya versionada.
+
+**Estado:** corrección publicada; nueva ejecución Source CI pendiente. La fase 1 no se declara aceptada hasta que el test de PostgreSQL y el agregador de suites pasen.

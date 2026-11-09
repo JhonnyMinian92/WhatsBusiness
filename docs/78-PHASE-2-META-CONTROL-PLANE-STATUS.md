@@ -104,3 +104,12 @@ La revisión del run Source CI `42555054762` (job `validate`) identificó un ún
 Se reemplazó la escritura directa desde el repositorio por `platform.record_usage_entry`, función SQL de privilegios mínimos que comprueba los GUC transaccionales actor/tenant, el rol de ingesta y el estado medible del tenant. El rol API no conserva permiso directo `INSERT` sobre el ledger y la tabla mantiene RLS habilitada para las lecturas. La clave idempotente sigue acotada a tenant/categoría y la reconciliación solo devuelve datos de la misma identidad. La integración añade una aserción que verifica que el rol API no posee INSERT directo.
 
 **Estado de evidencia:** cambio preparado en código/migración; Source CI del nuevo SHA aún pendiente. No declarar TASK-052, G1 ni G2 cerrados hasta que el run final pase y exista revisión/aceptación correspondiente.
+
+
+## Actualización 2026-11-09 — segunda iteración de Usage Ledger
+
+La migración `0040` superó instalación SQL e idempotencia, y el cambio superó build/typecheck; las suites Inbox y Meta terminaron SUCCESS. La suite API reportó 404/405: el test de Platform Administration detectó SQLSTATE `42702` por una referencia `payload_hash` ambigua entre la columna de la tabla y la columna de retorno PL/pgSQL.
+
+La migración incremental `0041-platform-usage-ledger-returning-qualification.sql` vuelve a definir la función con alias `ledger_entry` y referencias calificadas en `RETURNING`. Se mantiene RLS para la aplicación, sin INSERT directo, la validación estricta de contexto y la resolución idempotente limitada al mismo actor.
+
+**Estado de evidencia:** nuevo Source CI pendiente. TASK-052, G1 y G2 continúan sin cierre ni aceptación. La integración real de Meta y los despliegues externos no se infieren de pruebas locales.
