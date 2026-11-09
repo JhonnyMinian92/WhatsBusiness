@@ -284,12 +284,12 @@ export class MetaOAuthService {
       throw new ServiceUnavailableException({code:"META_TOKEN_ENVELOPE_INVALID"});
     }
     const data = parsed as Record<string,unknown>;
-    if (typeof data.accessToken !== "string" || !data.accessToken
-      || !(data.refreshToken === null || typeof data.refreshToken === "string")
-      || data.tokenType !== "bearer") {
+    if (typeof data["accessToken"] !== "string" || !data["accessToken"]
+      || !(data["refreshToken"] === null || typeof data["refreshToken"] === "string")
+      || data["tokenType"] !== "bearer") {
       throw new ServiceUnavailableException({code:"META_TOKEN_ENVELOPE_INVALID"});
     }
-    return {accessToken:data.accessToken,refreshToken:data.refreshToken,tokenType:"bearer"};
+    return {accessToken:data["accessToken"],refreshToken:data["refreshToken"],tokenType:"bearer"};
   }
 
   private digest(value: string): string {
