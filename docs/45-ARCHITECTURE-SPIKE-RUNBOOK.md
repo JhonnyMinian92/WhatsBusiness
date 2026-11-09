@@ -133,3 +133,10 @@ A 2026-11-06 la rama inspeccionada de GitHub contiene documentación, contracts/
 La inspección de esta sesión está registrada en [docs/54](54-TASK-039-EXECUTION-AND-CONSISTENCY-REPORT.md). Resultado: **TASK-039 bloqueada para ejecución SP-01..10; G0 no verificado**. Se pudo auditar documentalmente baseline, APIs/eventos y grafo de tareas, pero no se ejecutaron servicios ni benchmarks: no hay Node 26, pnpm, Docker/Compose, PostgreSQL, RabbitMQ, Keycloak ni workspace ejecutable del proyecto. No se reporta PASS de runtime.
 
 Auditoría estática: 80/80 TASK en backlog y matriz individual; 297 operationIds/API IDs únicos; 5 design-frozen + 292 catalog-only; 55 canales/payloads y 55 definiciones JSON Schema. No hay dependencias TASK inexistentes ni ciclos en el grafo declarado. Se detectaron mapeos obsoletos SP-01..07/ADR-011..020 en docs/46 y docs/47, y FE-FOUNDATION no normalizado para TASK-046/064; ver docs/53 y docs/54. El envelope genérico permite tenantId null, pero los 55 eventos de dominio exigen UUID no nulo.
+
+
+## 13. Resultado parcial SP-06 — backup cifrado y restore de schema en Source CI — 2026-11-09
+
+La ejecución [Source CI 42597892008](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42597892008) del HEAD `f6660440771e3b9212f1fede4d9025ee6e68181b` completó el paso "Verify encrypted PostgreSQL backup and clean restore" con SUCCESS. El pipeline utiliza PostgreSQL 18, dump custom, cifrado AES-256-GCM con clave efímera, restore en DB vacía y comparación del catálogo (migraciones, relaciones, constraints, RLS/policies y privilegios críticos). También pasan build/typecheck y suites 36 Inbox, 414 API/PostgreSQL y 112 Meta backend.
+
+**Este resultado satisface una parte automatizable de SP-06, no el experimento completo.** Quedan backup con datos representativos y volumen, WAL/PITR, almacenamiento externo, KMS/custodia/rotación, restauración en host limpio/entorno alterno, medición de restore completo y pérdida de datos, RPO/RTO, informe reproducible de hardware/imagen y review independiente. TASK-039/G0 sigue pendiente.

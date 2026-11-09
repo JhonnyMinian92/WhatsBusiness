@@ -883,3 +883,14 @@ El HEAD `1a41984bca97aa2bc7fd64d5f9076e04b4b7c343` añade:
 **Evidencia:** Source CI [42596385580](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42596385580) y CodeQL [42596385533](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42596385533) SUCCESS. Pruebas: API/PostgreSQL 414/414, Meta backend/PostgreSQL/RabbitMQ 112/112, Inbox 36/36; build, typecheck, migrations/idempotency y security checks PASS.
 
 **Estado final de TASK-008: `in_progress`.** Los providers OAuth, credential envelope/KMS y asset discovery permanecen fail-closed/unconfigured; no se ha ejecutado un alta real con Meta. La implementación v4 debe usar Facebook Login for Business y un `config_id` obtenido de la app configurada, no una URL OAuth genérica; la app requiere App Review/Advanced Access según los productos/permisos solicitados. META-010..015 permanecen catalog-only y no se habilitaron rutas públicas. G2, revisión independiente, aceptación del propietario y GO-PRODUCTION siguen abiertos. <Cite ref="turn806502search3"/> <Cite ref="turn806502search0"/>
+
+
+## 64. Backup cifrado y restore de catálogo/schema: resultado CI — 2026-11-09
+
+El HEAD `f6660440771e3b9212f1fede4d9025ee6e68181b` pasó Source workspace validation [42597892008](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42597892008) y CodeQL [42597891682](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42597891682), ambos SUCCESS.
+
+Las suites ejecutadas terminaron: Inbox 36/36, API/PostgreSQL 414/414 y Meta backend/PostgreSQL/RabbitMQ 112/112. También fueron SUCCESS build, typecheck, las migraciones e idempotencia, secret scan, dependency audit, validación de activos de observabilidad y el agregador independiente.
+
+El nuevo gate de backup/restore completó dump custom PostgreSQL 18, cifrado AES-256-GCM con clave temporal, restauración en base limpia y comparación de esquema/catalogo, constraints, RLS, policies y privilegios de ingesta. La primera implementación de comparación fue corregida con regresiones para expresiones CHECK; en el HEAD actual el paso completo pasó.
+
+**Límite de la evidencia:** se restaura el esquema/catalogo presente en CI; no es un DR drill con datos de tenant, WAL/PITR ni backup fuera del host. La clave temporal no es integración KMS. No se reporta RPO/RTO productivo.

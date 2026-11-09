@@ -147,3 +147,10 @@ El código de onboarding del HEAD `1a41984bca97aa2bc7fd64d5f9076e04b4b7c343` inc
 | TASK-010 | `in_progress`; evaluator explicable y fail-closed existente. | Catálogo completo por operación/versión, evidence providers y consumidores/guards; META-014..015 catalog-only. |
 
 No se abre ningún controller ni ruta de operación catalog-only. El resultado verde no demuestra conexión real con Meta ni aprobación G2. La implementación de Embedded Signup v4 requiere configuración de Facebook Login for Business y un `config_id` real de App Dashboard; las guías actuales describen `FB.login` con `config_id`, `response_type: code` y `override_default_response_type: true`. [documentación oficial de Embedded Signup en Postman](https://www.postman.com/meta/whatsapp-business-platform/documentation/du6gzjv/embedded-signup) y [guía de migración a Embedded Signup v4](https://help.twilio.com/articles/54890520784027-How-to-update-your-Meta-configuration-for-Embedded-Signup-ESU-v4).
+
+
+## Validación de fase 2 actualizada — HEAD f666044 — 2026-11-09
+
+El HEAD de código `f6660440771e3b9212f1fede4d9025ee6e68181b` incluye el onboarding con snapshot persistido de activos/capacidades y pasó Source CI [42597892008](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42597892008) y CodeQL [42597891682](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42597891682). Resultado: API/PostgreSQL 414/414, Meta backend/PostgreSQL/RabbitMQ 112/112, Inbox 36/36; build, typecheck, migraciones/idempotencia, backup/restore smoke AES-256-GCM, security scans, observabilidad y agregador PASS.
+
+TASK-008/009/010 permanecen `in_progress`: los adapters OAuth, credential envelope/KMS y Graph asset discovery no se encuentran configurados. META-010..015 siguen catalog-only; no se publicaron endpoints no aprobados. G2 necesita Meta App/config ID v4, Advanced Access/App Review, cuenta de negocio/activos autorizados, tokens y KMS reales, webhook subscriptions, contract freeze, E2E real, revisión independiente y aceptación del propietario. El restore smoke de CI no prueba los servicios ni credenciales Meta ni completa G1.

@@ -108,3 +108,18 @@ El workflow `source-validation.yml` incorpora `scripts/verify-postgres-backup-re
 El script registra tamaño del backup y tiempo de restauración, limpia los archivos temporales y elimina la base restaurada al finalizar. La suite falla ante dump vacío, migración ausente, privilegio INSERT inesperado, función de ingesta faltante o divergencia del catálogo.
 
 **Límite:** el key es efímero y existe solo para probar cifrado/descifrado del pipeline; no sustituye KMS/Secret Manager, rotación, custodia de claves, backups externos, WAL/PITR, restore fuera de la misma máquina ni medición de RPO/RTO de producción. Esta prueba de CI es un smoke restore determinista, no la aceptación completa del gate G1 ni del Architecture Spike TASK-039.
+
+
+## 13. Evidencia ejecutada de backup cifrado y restore smoke en CI — 2026-11-09
+
+El Source CI [42597892008](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42597892008), sobre HEAD `f6660440771e3b9212f1fede4d9025ee6e68181b`, ejecutó exitosamente `scripts/verify-postgres-backup-restore.mjs`.
+
+El paso:
+1. Lee el catálogo PostgreSQL ya migrado.
+2. Ejecuta `pg_dump --format=custom` dentro del servicio PostgreSQL 18.
+3. Cifra el stream con AES-256-GCM usando clave efímera de 256 bits, nonce de 96 bits y AAD ligada al nombre de base.
+4. Descifra y restaura con `pg_restore --exit-on-error` en una base limpia.
+5. Compara versiones de migración, relaciones, políticas RLS, flags FORCE RLS, constraints (incluye comparación canónica de conjunciones CHECK), función del ledger y ausencia del privilegio INSERT directo del runtime.
+6. Elimina DB y artefactos temporales y borra la clave efímera en memoria.
+
+**Resultado: PASS en CI.** No se versiona ni persiste la clave. Esto verifica el procedimiento criptográfico en un runner efímero y la restauración del esquema/controles. No incluye datos productivos/sintéticos de tenant, WAL/PITR, copias fuera del host, KMS/Secret Manager, rotación/custodia ni una medición RPO/RTO. No declarar G1 ni TASK-039 aceptados por este smoke test aislado.

@@ -243,3 +243,10 @@ El HEAD de código `1a41984bca97aa2bc7fd64d5f9076e04b4b7c343` pasó Source works
 TASK-052 incluye ahora la frontera segura del usage ledger: función SQL con contexto transaccional actor/tenant, rol de ingesta, lifecycle e idempotencia, sin permiso INSERT directo del runtime. Se preserva RLS de lectura y la integración comprueba el privilegio efectivo.
 
 **Alcance:** este resultado verifica los componentes y gates automatizados ejecutados en CI. No completa por sí solo TASK-003/TASK-052 ni acepta G1. Continúan pendientes el bootstrap operacional desde cero, restore/DR real, revisión independiente y aceptación del propietario, secret/KMS/Valkey/object storage gestionados, handlers reales y configuración operativa de alertas/SLO, despliegue y pruebas de carga según los documentos específicos. GO-PRODUCTION permanece NO-GO.
+
+
+## 14. Evidencia CI de restore smoke — G1 parcialmente cubierto — 2026-11-09
+
+En HEAD `f6660440771e3b9212f1fede4d9025ee6e68181b`, Source CI [42597892008](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42597892008) y CodeQL [42597891682](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42597891682) terminaron SUCCESS. Se completan las tres suites (Inbox 36/36, API/PostgreSQL 414/414, Meta backend/PostgreSQL/RabbitMQ 112/112), build/typecheck, migraciones/idempotencia, security scans y restore smoke de PostgreSQL cifrado.
+
+Este resultado refuerza la evidencia G1 del runtime y persistencia, pero no declara G1 aceptado. Pendientes: DR con datos, backup/WAL externo, KMS/rotación, restore en infraestructura real, RPO/RTO medidos, startup/bootstrap de producción, handlers de negocio, despliegue de alertas/SLO, Valkey/object storage gestionados, benchmark TASK-039, review independiente y aceptación del propietario.

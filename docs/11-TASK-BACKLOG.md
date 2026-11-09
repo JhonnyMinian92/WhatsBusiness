@@ -999,3 +999,20 @@ Fuente de fase vigente: `docs/31-MASTER-DELIVERY-PLAN.md` (Fase 2 = Meta Control
 - **Verificación del HEAD:** Source workspace validation [42596385580](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42596385580) SUCCESS; CodeQL [42596385533](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42596385533) SUCCESS; Inbox 36/36, API/PostgreSQL 414/414, Meta backend/PostgreSQL/RabbitMQ 112/112; build, typecheck, migraciones/idempotencia, secret scan, dependency audit, assets de observabilidad y agregador independiente PASS.
 
 **Estado de tareas:** TASK-008 y TASK-052 siguen `in_progress`, no `accepted`: el primero aún necesita Meta App/configuración, KMS, Embedded Signup v4 y cuenta autorizada; el segundo mantiene dependencias de planes/entitlements, telemetría real, contratos y aceptación indicadas en docs/76. G1/G2 y GO-PRODUCTION no se infieren de esta validación de código.
+
+
+## Reconciliación de gates de Fase 1/2 — Source CI 42597892008 — 2026-11-09
+
+HEAD de código verificado: `f6660440771e3b9212f1fede4d9025ee6e68181b` (`environment/local`).
+
+La validación completa de workspace y CodeQL terminó SUCCESS:
+- Build, typecheck y lockfile frozen: PASS.
+- Migraciones de ambas aplicaciones e idempotencia: PASS.
+- Secret scanning, dependency audit de severidad alta y assets de observabilidad: PASS.
+- Backup PostgreSQL custom dump cifrado AES-256-GCM, restore en DB nueva y comparación de relaciones, migraciones, CHECK/FK/UNIQUE, RLS/policies y privilegios críticos: PASS.
+- Inbox domain: 36/36 PASS.
+- API/PostgreSQL integrations: 414/414 PASS.
+- Meta backend/PostgreSQL/RabbitMQ: 112/112 PASS.
+- Agregador independiente y CodeQL: PASS.
+
+El restore de CI es una evidencia acotada de restauración de catálogo/schema y controles; no prueba restauración de datos de tenants, backup externo, WAL/PITR, KMS/rotación ni RPO/RTO de producción. TASK-003/TASK-052, G1 y G2 continúan `in_progress` hasta completar también sus entregables operativos, pruebas externas, revisión y aceptación en los documentos específicos.
