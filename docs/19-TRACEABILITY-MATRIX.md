@@ -608,3 +608,21 @@ Evidencia adicional: build/typecheck SUCCESS, CodeQL SUCCESS y suite Meta SUCCES
 | Capabilities/deprecations y hardening multicanal | US-034..036 | TASK-090, TASK-091 | API/policy source registry, spend ledger, observability, security/privacy and independent review | proposed |
 
 La especificación se encuentra en [docs/95](95-EXPANSION-TIKTOK-OPENAI-ADS-AND-AUTOMATED-LEARNING.md). La presencia de estas filas no declara endpoints implementados, cuenta conectada, evento recibido, A/B ejecutado ni producto aceptado.
+
+
+
+## 17. US-037..045 — Omnichannel experimentation, journeys and analytics (2026-11-09)
+
+| Resultado | Historia | Tareas | Evidencia esperada | Estado |
+|---|---|---|---|---|
+| Experiment registry/preregistration and stable assignment | US-037 | TASK-092,093,105 | Uniqueness/race tests, SRM, power/sample/analysis reproducibility | proposed |
+| Omnichannel journey/frequency/stop policies | US-038 | TASK-095,106 | Cross-channel assignment consistency, quiet-hours, opt-out and replay tests | proposed |
+| Email ESP/deliverability | US-039 | TASK-096 | Event/webhook contracts, SPF/DKIM/DMARC readiness, bounce/complaint/unsub | proposed |
+| SMS/Voice delivery and call outcomes | US-040 | TASK-097 | Provider callbacks, cost/segments, voice disposition and consent tests | proposed |
+| Telegram Bot/Business capabilities | US-041 | TASK-098 | Official capability, update dedupe, rights, rate/loop and metric semantics | proposed |
+| Google Ads/YouTube | US-042 | TASK-099 | Account/API version evidence, native experiments, conversions and reporting | proposed |
+| Metric Registry and channel semantic layer | US-043 | TASK-094,100,101,102 | Raw evidence, denominator, freshness, currency/timezone, attribution and data quality | proposed |
+| Cross-channel consent/preferences/suppression | US-044 | TASK-103 | Revocation propagation, pre-dispatch deny, audit and jurisdiction policies | proposed |
+| Channel Registry/business-case prioritization | US-045 | TASK-104 | Demand/cost/access/measurement scorecard, source and review date | proposed |
+
+La especificación completa y los límites por canal constan en docs/95, addendum §§23–42. No se declaran adapters ni ejecución externa implementados.
