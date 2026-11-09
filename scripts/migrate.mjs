@@ -77,8 +77,22 @@ try {
   }
 } catch (error) {
   console.error("Database migration failed. Check the migration role and database logs.");
-  if (process.env["MIGRATION_DEBUG"] === "true" && error instanceof Error) {
-    console.error(error.message);
+  if (error instanceof Error) {
+    const databaseError = error;
+    console.error("Migration error:", databaseError.message);
+    const diagnostic = databaseError as Error & {
+      code?: string; position?: string; schema?: string; table?: string; column?: string; constraint?: string;
+    };
+    for (const [key, value] of Object.entries({
+      code: diagnostic.code,
+      position: diagnostic.position,
+      schema: diagnostic.schema,
+      table: diagnostic.table,
+      column: diagnostic.column,
+      constraint: diagnostic.constraint,
+    })) {
+      if (value !== undefined) console.error(`  ${key}: ${value}`);
+    }
   }
   process.exitCode = 1;
 } finally {
