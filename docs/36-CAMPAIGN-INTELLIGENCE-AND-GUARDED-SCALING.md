@@ -206,3 +206,9 @@ El primer slice interno conserva lineage/provenance de assets y variantes, finge
 El pipeline propuesto es: asset ingest/rights → brand review → policy/claims review → preview por placement → approval → experiment/control cells → lectura de Insights → fatigue assessment → refresh brief draft → aprobación independiente. Las variantes no se activan automáticamente ni sustituyen una ganadora. El spend cap sigue sujeto al guardrail TASK-025 y el command gateway de TASK-080.
 
 Al corte, TASK-069/070/073/079 están in_progress. Faltan TASK-067/072, providers confiables de derechos/brand/audiencias/capabilities, adaptación oficial Marketing API por versión, ingestión de Insights/Performance Recommendations, calibración de thresholds, contract freeze, revisión independiente y Source CI del commit exacto. No se habilitan endpoints públicos ni acciones externas.
+
+
+
+## Addendum — Experimentación omnicanal y canales propios (2026-11-09)
+
+La especificación ampliada [docs/95](95-EXPANSION-TIKTOK-OPENAI-ADS-AND-AUTOMATED-LEARNING.md), §§23–42, extiende Campaign Intelligence y Creative Lab al experimento omnicanal: assignment estable por persona, journeys cross-channel, email/SMS/voz/Telegram/Google Ads, Metric Registry, atribución e incrementalidad. La regla de campañas comerciales API conserva V1/V2; si no hay split aleatorio válido, no se afirma A/B causal. Las nuevas historias US-037..045 y tareas TASK-092..106 permanecen proposed y no sustituyen los gates de Ads, CAPI, privacidad, approvals y producción existentes.
