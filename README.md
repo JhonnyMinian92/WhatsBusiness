@@ -61,6 +61,7 @@ Las rutas de negocio requieren Bearer JWT verificado con JWKS. Cada operación c
 ## Documentación
 
 - [Estado, alcance y criterios de cierre de la fase 1](docs/PHASE_1_FOUNDATIONS.md)
+- [ADR-001: fundaciones multi-tenant y plano de control Meta](docs/architecture/ADR-001-multi-tenant-meta-control-plane.md)
 - [Configuración de Meta App, Business Login y Embedded Signup v4](docs/operations/META_APP_SETUP.md)
 - [Investigación y especificación integral de Meta](META_SERVICES.md)
 

@@ -1,7 +1,8 @@
 # Fase 1 — Fundaciones y acceso a Meta
 
 **Branch:** `feat/phase-1-foundations-meta-access`  
-**Estado de implementación:** código desarrollado y agrupado por dominio en el branch; el cierre de validación requiere CI y una ejecución sobre PostgreSQL real.  
+**Pull request:** [#11 — Fase 1: Fundaciones multi-tenant y acceso a Meta](https://github.com/JhonnyMinian92/WhatsBusiness/pull/11)  
+**Estado de implementación:** código desarrollado y agrupado por dominio en el branch; cierre de validación requiere CI y una ejecución sobre PostgreSQL real.  
 **Dependencias externas:** Meta App, Business Login v4, OIDC/JWKS, URLs públicas y KMS de producción.
 
 ## Alcance y entregables
@@ -39,6 +40,25 @@
 10. Dedupe es persistente; fan-out soporta que un mismo activo esté autorizado por más de un tenant.
 11. Consentimiento se registra por tenant, sujeto, canal y finalidad, con eventos de concesión/revocación append-only.
 12. Credenciales, activos y grants no se comparten entre tenants por coincidencia de IDs.
+
+## Rutas del producto incluidas en la fase
+
+- `POST /v1/tenants`
+- `POST /v1/tenants/:tenantId/meta/business-login/url`
+- `POST /v1/tenants/:tenantId/meta/embedded-signup/session`
+- `POST /v1/tenants/:tenantId/meta/embedded-signup/complete`
+- `GET /v1/meta/oauth/callback`
+- `GET /v1/tenants/:tenantId/meta/connections`
+- `POST /v1/tenants/:tenantId/meta/connections/:connectionId/verify`
+- `POST /v1/tenants/:tenantId/meta/connections/:connectionId/rotate-token`
+- `POST /v1/tenants/:tenantId/meta/connections/:connectionId/disconnect`
+- `POST /v1/tenants/:tenantId/meta/connections/:connectionId/assets/synchronize`
+- `POST /v1/tenants/:tenantId/meta/connections/:connectionId/webhooks/synchronize`
+- `GET /v1/tenants/:tenantId/meta/assets`
+- `POST /v1/tenants/:tenantId/consents`
+- `GET|POST /v1/webhooks/meta`
+- `POST /v1/meta/data-deletion`
+- `GET /v1/meta/data-deletion/status`
 
 ## Criterios para declarar 100% del código de la fase
 
