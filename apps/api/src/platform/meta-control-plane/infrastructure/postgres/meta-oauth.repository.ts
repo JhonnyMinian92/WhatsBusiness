@@ -11,6 +11,7 @@ import type {
 interface ConsumedStateRow {
   tenant_id: string;
   initiated_by_user_id: string;
+  authz_version: string | number;
   provider_product: ConsumedMetaOAuthState["product"];
   authorization_mode: ConsumedMetaOAuthState["authorizationMode"];
   pkce_verifier_envelope: ConsumedMetaOAuthState["verifierEnvelope"];
@@ -25,14 +26,14 @@ export class PostgresMetaOAuthRepository implements MetaOAuthRepositoryPort {
   constructor(private readonly database: DatabaseService) {}
 
   async createState(input: CreateMetaOAuthState): Promise<void> {
-    await this.database.withTenantContext(input.actorUserId, input.tenantId, async (client) => {
+    await this.database.withTenantContextAtVersion(input.actorUserId, input.tenantId, input.authzVersion, async (client) => {
       await client.query(
         `INSERT INTO platform.meta_oauth_states
-          (tenant_id,initiated_by_user_id,provider_product,authorization_mode,state_hash,nonce_hash,
+          (tenant_id,initiated_by_user_id,authz_version,provider_product,authorization_mode,state_hash,nonce_hash,
            pkce_verifier_envelope,redirect_uri,requested_scopes,return_path,expires_at)
-         VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8,$9::text[],$10,$11)`,
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9,$10::text[],$11,$12)`,
         [
-          input.tenantId, input.actorUserId, input.product, input.authorizationMode,
+          input.tenantId, input.actorUserId, input.authzVersion, input.product, input.authorizationMode,
           input.stateHash, input.nonceHash, JSON.stringify(input.verifierEnvelope),
           input.redirectUri, input.requestedScopes, input.returnPath, input.expiresAt,
         ],
@@ -43,7 +44,7 @@ export class PostgresMetaOAuthRepository implements MetaOAuthRepositoryPort {
   async consumeState(stateHash: string): Promise<ConsumedMetaOAuthState | null> {
     const result = await this.database.transaction((client) =>
       client.query<ConsumedStateRow>(
-        `SELECT tenant_id::text,initiated_by_user_id::text,provider_product,authorization_mode,
+        `SELECT tenant_id::text,initiated_by_user_id::text,authz_version,provider_product,authorization_mode,
                 pkce_verifier_envelope,redirect_uri,requested_scopes,return_path
            FROM platform.consume_meta_oauth_state($1)`,
         [stateHash],
@@ -53,6 +54,7 @@ export class PostgresMetaOAuthRepository implements MetaOAuthRepositoryPort {
     return row ? {
       tenantId: row.tenant_id,
       actorUserId: row.initiated_by_user_id,
+      authzVersion: Number(row.authz_version),
       product: row.provider_product,
       authorizationMode: row.authorization_mode,
       verifierEnvelope: row.pkce_verifier_envelope,
@@ -64,7 +66,7 @@ export class PostgresMetaOAuthRepository implements MetaOAuthRepositoryPort {
 
   async saveConnection(input: SaveMetaConnection): Promise<{ readonly connectionId: string }> {
     const connectionId = randomUUID();
-    const result = await this.database.withTenantContext(input.actorUserId, input.tenantId, (client) =>
+    const result = await this.database.withTenantContextAtVersion(input.actorUserId, input.tenantId, input.authzVersion, (client) =>
       client.query<ConnectionRow>(
         `INSERT INTO platform.meta_connections
           (id,tenant_id,provider_product,authorization_mode,status,provider_user_id,encrypted_token,
