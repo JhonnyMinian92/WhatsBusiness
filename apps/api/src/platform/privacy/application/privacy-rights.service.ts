@@ -40,6 +40,7 @@ export class PrivacyRightsService {
         tenantId: subject.tenantId,
         requesterUserId: subject.actorId,
         purpose: subject.purpose,
+        correlationId: subject.correlationId,
       });
     } catch (error) {
       if (error instanceof PrivacyRightsPolicyViolation) {
