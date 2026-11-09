@@ -15,7 +15,11 @@ export type AuditOutcome =
   | "privacy_request_completed"
   | "privacy_request_failed"
   | "privacy_retention_policy_changed"
-  | "privacy_retention_batch_executed";
+  | "privacy_retention_batch_executed"
+  | "meta_connection_created"
+  | "meta_connection_rotated"
+  | "meta_connection_revocation_requested"
+  | "meta_connection_revoked";
 
 export interface AppendAuditEvent {
   readonly tenantId: string;
@@ -218,6 +222,10 @@ export class AppendOnlyAuditRepository {
       "privacy_request_failed",
       "privacy_retention_policy_changed",
       "privacy_retention_batch_executed",
+      "meta_connection_created",
+      "meta_connection_rotated",
+      "meta_connection_revocation_requested",
+      "meta_connection_revoked",
     ];
     const invalidFields: string[] = [];
 
