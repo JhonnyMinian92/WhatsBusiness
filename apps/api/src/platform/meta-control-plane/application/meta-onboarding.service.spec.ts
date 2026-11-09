@@ -167,8 +167,7 @@ test("conserva los grants y capabilities faltantes cuando el inventario todavía
 });
 
 test("rechaza resultados de discovery mal formados sin persistirlos como capabilities válidas",async()=>{
-  const malformed={requiredAssetsReady:true,discoveredAssets:-1,missingCapabilities:["bad capability"]}
-    as unknown as MetaAssetDiscoveryResult;
+  const malformed={requiredAssetsReady:true,discoveredAssets:-1,missingCapabilities:["bad capability"]} as unknown as MetaAssetDiscoveryResult;
   const harness=createHarness({initial:record({status:"oauth_pending"}),discovery:malformed});
   const progress=await harness.service.complete(subject(),{
     sagaId,state:"s".repeat(40),code:"authorization-code",redirectUri:command.redirectUri,
