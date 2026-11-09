@@ -16,6 +16,6 @@ export interface PrivacyRightsRepositoryPort {
   findByIdempotency(input: Pick<PrivacyRightsRequestInput,"tenantId"|"requesterUserId"|"idempotencyKey"> & { readonly authzVersion: number }): Promise<PrivacyRequestSummary | null>;
   create(input: ValidatedPrivacyRightsRequest, requestId: string, authzVersion: number): Promise<PrivacyRequestSummary>;
   stageWithApproval(client: PoolClient, input: ValidatedPrivacyRightsRequest, requestId: string, approvalId: string): Promise<void>;
-  get(tenantId: string, requestId: string): Promise<PrivacyRequestSummary | null>;
+  get(actorUserId: string, tenantId: string, authzVersion: number, requestId: string): Promise<PrivacyRequestSummary | null>;
 }
 export const PRIVACY_RIGHTS_REPOSITORY = Symbol("PRIVACY_RIGHTS_REPOSITORY");
