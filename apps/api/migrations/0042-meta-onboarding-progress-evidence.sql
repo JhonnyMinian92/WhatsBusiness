@@ -24,6 +24,6 @@ ALTER TABLE platform.audit_events ADD CONSTRAINT audit_events_outcome_check
     'privacy_retention_policy_changed','privacy_retention_batch_executed',
     'meta_connection_created','meta_connection_rotated',
     'meta_connection_revocation_requested','meta_connection_revoked',
-    'meta_onboarding_started','meta_onboarding_asset_sync_started',
+    'meta_onboarding_started','meta_onboarding_asset_sync_started','meta_assets_synced',
     'meta_onboarding_asset_sync_failed','meta_onboarding_ready','meta_onboarding_blocked'
   ));
