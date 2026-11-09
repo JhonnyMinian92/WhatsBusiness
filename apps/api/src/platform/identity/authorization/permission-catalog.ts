@@ -128,6 +128,31 @@ export const PERMISSION_CATALOG = {
     riskClass: "sensitive",
     requiresIndependentApproval: false,
   },
+  "crm.contacts.custom_fields.read": {
+    description: "Read tenant-visible typed CRM contact fields and values",
+    riskClass: "sensitive",
+    requiresIndependentApproval: false,
+  },
+  "crm.contacts.custom_fields.write": {
+    description: "Write tenant-visible typed CRM contact field values",
+    riskClass: "sensitive",
+    requiresIndependentApproval: false,
+  },
+  "crm.contacts.custom_fields.manage": {
+    description: "Create and version typed CRM contact field definitions",
+    riskClass: "sensitive",
+    requiresIndependentApproval: false,
+  },
+  "crm.contacts.custom_fields.read_restricted": {
+    description: "Read restricted CRM contact fields and values",
+    riskClass: "sensitive",
+    requiresIndependentApproval: false,
+  },
+  "crm.contacts.custom_fields.write_restricted": {
+    description: "Write restricted CRM contact field values",
+    riskClass: "sensitive",
+    requiresIndependentApproval: false,
+  },
   "crm.contacts.identities.link": {
     description: "Link a namespaced external identity to a tenant contact",
     riskClass: "sensitive",
