@@ -41,14 +41,21 @@ export class PostgresMetaOAuthRepository implements MetaOAuthRepositoryPort {
     });
   }
 
-  async consumeState(stateHash: string): Promise<ConsumedMetaOAuthState | null> {
-    const result = await this.database.transaction((client) =>
-      client.query<ConsumedStateRow>(
-        `SELECT tenant_id::text,initiated_by_user_id::text,authz_version,provider_product,authorization_mode,
-                pkce_verifier_envelope,redirect_uri,requested_scopes,return_path
-           FROM platform.consume_meta_oauth_state($1)`,
-        [stateHash],
-      ),
+  async consumeState(input: {
+    readonly stateHash: string; readonly tenantId: string; readonly actorUserId: string; readonly authzVersion: number;
+  }): Promise<ConsumedMetaOAuthState | null> {
+    const result = await this.database.withTenantContextAtVersion(
+      input.actorUserId,input.tenantId,input.authzVersion,(client) =>
+        client.query<ConsumedStateRow>(
+          `UPDATE platform.meta_oauth_states
+              SET consumed_at=clock_timestamp()
+            WHERE tenant_id=$1 AND initiated_by_user_id=$2 AND authz_version=$3
+              AND state_hash=$4 AND consumed_at IS NULL AND failed_at IS NULL
+              AND expires_at>clock_timestamp()
+          RETURNING tenant_id::text,initiated_by_user_id::text,authz_version,provider_product,authorization_mode,
+                    pkce_verifier_envelope,redirect_uri,requested_scopes,return_path`,
+          [input.tenantId,input.actorUserId,input.authzVersion,input.stateHash],
+        ),
     );
     const row = result.rows[0];
     return row ? {
