@@ -114,7 +114,8 @@ CREATE POLICY privacy_requests_read ON platform.privacy_requests
     AND (
       platform.has_permission(tenant_id,'privacy.subject.request')
       OR (requester_user_id=NULLIF(current_setting('app.user_id',true),'')::uuid
-        AND (platform.has_permission(tenant_id,'privacy.export.request')
+        AND (platform.has_permission(tenant_id,'privacy.subject.request')
+          OR platform.has_permission(tenant_id,'privacy.export.request')
           OR platform.has_permission(tenant_id,'privacy.deletion.request')))
     )
   );
@@ -124,7 +125,9 @@ CREATE POLICY privacy_requests_create ON platform.privacy_requests
     AND requester_user_id=NULLIF(current_setting('app.user_id',true),'')::uuid
     AND status='requested'
     AND (
-      (action IN ('access','portability','rectification','restriction','objection','withdrawal')
+      (action IN ('access','portability')
+        AND platform.has_permission(tenant_id,'privacy.export.request'))
+      OR (action IN ('rectification','restriction','objection','withdrawal')
         AND platform.has_permission(tenant_id,'privacy.subject.request'))
       OR (action='erasure' AND platform.has_permission(tenant_id,'privacy.deletion.request'))
     )
