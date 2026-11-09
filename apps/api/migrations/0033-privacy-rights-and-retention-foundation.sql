@@ -100,7 +100,7 @@ BEGIN
   END IF;
   NEW.updated_at:=clock_timestamp();
   RETURN NEW;
-END
+END;
 $function$;
 CREATE TRIGGER privacy_request_transition
   BEFORE INSERT OR UPDATE ON platform.privacy_requests
@@ -223,7 +223,7 @@ BEGIN
   END IF;
   NEW.updated_at:=clock_timestamp();
   RETURN NEW;
-END
+END;
 $function$;
 CREATE TRIGGER privacy_retention_policy_guard
   BEFORE INSERT OR UPDATE ON platform.privacy_retention_policies

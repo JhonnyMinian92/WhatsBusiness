@@ -83,7 +83,7 @@ BEGIN
   END IF;
   NEW.updated_at:=clock_timestamp();
   RETURN NEW;
-END
+END;
 $function$;
 CREATE TRIGGER meta_onboarding_saga_guard
   BEFORE INSERT OR UPDATE ON platform.meta_onboarding_sagas

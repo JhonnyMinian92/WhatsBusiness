@@ -55,7 +55,7 @@ BEGIN
   IF v_approved_count<v_approval.required_approvals THEN
     RAISE EXCEPTION 'Privacy erasure approval quorum is incomplete' USING ERRCODE='42501';
   END IF;
-END
+END;
 $function$;
 REVOKE ALL ON FUNCTION platform.assert_consumed_privacy_erasure(uuid,uuid,text,uuid) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION platform.assert_consumed_privacy_erasure(uuid,uuid,text,uuid) TO whatsbusiness_app;
@@ -128,7 +128,7 @@ BEGIN
   END IF;
   NEW.updated_at:=clock_timestamp();
   RETURN NEW;
-END
+END;
 $function$;
 GRANT UPDATE (approval_request_id,status,approved_by_user_id,effective_from,review_due_at,updated_at)
   ON platform.privacy_retention_policies TO whatsbusiness_app;
@@ -192,7 +192,7 @@ BEGIN
     RAISE EXCEPTION 'Retention execution approval quorum is incomplete' USING ERRCODE='42501';
   END IF;
   RETURN v_policy.retention_seconds;
-END
+END;
 $function$;
 REVOKE ALL ON FUNCTION platform.assert_consumed_privacy_retention_approval(uuid,uuid,uuid,text) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION platform.assert_consumed_privacy_retention_approval(uuid,uuid,uuid,text) TO whatsbusiness_app;
@@ -210,7 +210,7 @@ BEGIN
     RAISE EXCEPTION 'Privacy user tenant context mismatch' USING ERRCODE='42501';
   END IF;
   RETURN platform.apply_privacy_user_subject_action(p_tenant_id,p_user_id,'erasure');
-END
+END;
 $function$;
 REVOKE ALL ON FUNCTION platform.apply_privacy_user_subject_erasure(uuid,uuid,uuid,uuid) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION platform.apply_privacy_user_subject_erasure(uuid,uuid,uuid,uuid) TO whatsbusiness_app;
@@ -223,7 +223,7 @@ AS $function$
 BEGIN
   PERFORM platform.assert_consumed_privacy_erasure(p_request_id,p_approval_id,'contact',p_contact_id);
   RETURN crm.apply_contact_privacy_erasure(p_contact_id);
-END
+END;
 $function$;
 REVOKE ALL ON FUNCTION crm.apply_contact_privacy_erasure(uuid,uuid,uuid) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION crm.apply_contact_privacy_erasure(uuid,uuid,uuid) TO whatsbusiness_app;
@@ -242,7 +242,7 @@ BEGIN
   IF v_contact_id IS NULL THEN RETURN false; END IF;
   PERFORM platform.assert_consumed_privacy_erasure(p_request_id,p_approval_id,'contact_identity',p_identity_id);
   RETURN crm.erase_contact_identity_privacy(p_identity_id);
-END
+END;
 $function$;
 REVOKE ALL ON FUNCTION crm.erase_contact_identity_privacy(uuid,uuid,uuid) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION crm.erase_contact_identity_privacy(uuid,uuid,uuid) TO whatsbusiness_app;
@@ -255,7 +255,7 @@ AS $function$
 BEGIN
   PERFORM platform.assert_consumed_privacy_erasure(p_request_id,p_approval_id,'user',p_user_id);
   RETURN platform.apply_privacy_meta_credential_action(p_tenant_id,p_user_id,'erasure');
-END
+END;
 $function$;
 REVOKE ALL ON FUNCTION platform.apply_privacy_meta_credential_erasure(uuid,uuid,uuid,uuid) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION platform.apply_privacy_meta_credential_erasure(uuid,uuid,uuid,uuid) TO whatsbusiness_app;
@@ -276,7 +276,7 @@ BEGIN
     clock_timestamp()-make_interval(secs=>v_retention_seconds::double precision),
     p_batch_size,true);
   RETURN v_affected;
-END
+END;
 $function$;
 REVOKE ALL ON FUNCTION crm.purge_expired_contact_privacy(uuid,uuid,uuid,integer) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION crm.purge_expired_contact_privacy(uuid,uuid,uuid,integer) TO whatsbusiness_app;
@@ -295,7 +295,7 @@ BEGIN
     p_tenant_id,clock_timestamp()-make_interval(secs=>v_retention_seconds::double precision),
     p_batch_size,true);
   RETURN v_affected;
-END
+END;
 $function$;
 REVOKE ALL ON FUNCTION platform.purge_expired_meta_credentials(uuid,uuid,uuid,integer) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION platform.purge_expired_meta_credentials(uuid,uuid,uuid,integer) TO whatsbusiness_app;
@@ -314,7 +314,7 @@ BEGIN
     p_tenant_id,clock_timestamp()-make_interval(secs=>v_retention_seconds::double precision),
     p_batch_size,true);
   RETURN v_affected;
-END
+END;
 $function$;
 REVOKE ALL ON FUNCTION platform.purge_expired_privacy_user_profiles(uuid,uuid,uuid,integer) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION platform.purge_expired_privacy_user_profiles(uuid,uuid,uuid,integer) TO whatsbusiness_app;

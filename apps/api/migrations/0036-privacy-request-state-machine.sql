@@ -109,7 +109,7 @@ BEGIN
   END IF;
   NEW.updated_at:=clock_timestamp();
   RETURN NEW;
-END
+END;
 $function$;
 
 DROP POLICY privacy_requests_update ON platform.privacy_requests;

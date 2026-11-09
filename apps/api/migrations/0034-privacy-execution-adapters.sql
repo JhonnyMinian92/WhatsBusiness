@@ -170,7 +170,7 @@ BEGIN
     END IF;
   END IF;
   RETURN result_code;
-END
+END;
 $function$;
 REVOKE ALL ON FUNCTION platform.apply_privacy_user_subject_action(uuid,uuid,text) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION platform.apply_privacy_user_subject_action(uuid,uuid,text) TO whatsbusiness_app;
@@ -203,7 +203,7 @@ BEGIN
     source_reference=NULL,verified_at=NULL,confidence=NULL
   WHERE identity_record.tenant_id=v_tenant_id AND identity_record.contact_id=p_contact_id;
   RETURN true;
-END
+END;
 $function$;
 REVOKE ALL ON FUNCTION crm.apply_contact_privacy_erasure(uuid) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION crm.apply_contact_privacy_erasure(uuid) TO whatsbusiness_app;
@@ -223,7 +223,7 @@ BEGIN
     source_reference=NULL,verified_at=NULL,confidence=NULL
   WHERE identity_record.tenant_id=v_tenant_id AND identity_record.id=p_identity_id;
   RETURN FOUND;
-END
+END;
 $function$;
 REVOKE ALL ON FUNCTION crm.erase_contact_identity_privacy(uuid) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION crm.erase_contact_identity_privacy(uuid) TO whatsbusiness_app;
@@ -266,7 +266,7 @@ BEGIN
     affected:=affected+1;
   END LOOP;
   RETURN affected;
-END
+END;
 $function$;
 REVOKE ALL ON FUNCTION crm.purge_expired_contact_privacy(timestamptz,integer,boolean) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION crm.purge_expired_contact_privacy(timestamptz,integer,boolean) TO whatsbusiness_app;
@@ -316,7 +316,7 @@ BEGIN
   WHERE tenant_id=p_tenant_id AND created_by_user_id=p_user_id AND status<>'revoked';
   GET DIAGNOSTICS affected=ROW_COUNT;
   RETURN affected;
-END
+END;
 $function$;
 REVOKE ALL ON FUNCTION platform.apply_privacy_meta_credential_action(uuid,uuid,text) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION platform.apply_privacy_meta_credential_action(uuid,uuid,text) TO whatsbusiness_app;
@@ -350,7 +350,7 @@ BEGIN
   FROM expired WHERE connection.id=expired.id AND connection.tenant_id=p_tenant_id;
   GET DIAGNOSTICS affected=ROW_COUNT;
   RETURN affected;
-END
+END;
 $function$;
 REVOKE ALL ON FUNCTION platform.purge_expired_meta_credentials(uuid,timestamptz,integer,boolean) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION platform.purge_expired_meta_credentials(uuid,timestamptz,integer,boolean) TO whatsbusiness_app;
@@ -385,7 +385,7 @@ BEGIN
   FROM expired WHERE user_record.id=expired.id;
   GET DIAGNOSTICS affected=ROW_COUNT;
   RETURN affected;
-END
+END;
 $function$;
 REVOKE ALL ON FUNCTION platform.purge_expired_privacy_user_profiles(uuid,timestamptz,integer,boolean) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION platform.purge_expired_privacy_user_profiles(uuid,timestamptz,integer,boolean) TO whatsbusiness_app;

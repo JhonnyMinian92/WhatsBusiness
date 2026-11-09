@@ -177,7 +177,7 @@ BEGIN
   END IF;
   NEW.updated_at:=clock_timestamp();
   RETURN NEW;
-END
+END;
 $function$;
 CREATE TRIGGER meta_connection_write_context
   BEFORE INSERT OR UPDATE ON platform.meta_connections
@@ -223,7 +223,7 @@ GRANT SELECT,INSERT,UPDATE ON platform.meta_connections TO whatsbusiness_app;
     oauth_state.provider_product,oauth_state.authorization_mode,
     oauth_state.pkce_verifier_envelope,oauth_state.redirect_uri,
     oauth_state.requested_scopes,oauth_state.return_path;
-END
+END;
 $function$;
 REVOKE ALL ON FUNCTION platform.consume_meta_oauth_state(text) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION platform.consume_meta_oauth_state(text) TO whatsbusiness_app;
@@ -310,7 +310,7 @@ BEGIN
   END IF;
   NEW.updated_at:=clock_timestamp();
   RETURN NEW;
-END
+END;
 $function$;
 CREATE TRIGGER meta_connection_write_context
   BEFORE INSERT OR UPDATE ON platform.meta_connections
