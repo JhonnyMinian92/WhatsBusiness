@@ -22,6 +22,7 @@ const ALLOWED_OPERATIONS = new Set([
   "storage.delete",
   "webhook.process",
   "outbox.publish",
+  "meta.request",
 ]);
 const ALLOWED_COMPONENTS = new Set([
   "api",
@@ -30,13 +31,11 @@ const ALLOWED_COMPONENTS = new Set([
   "storage",
   "webhook",
   "outbox",
+  "meta",
 ]);
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-/**
- * Separates high-cardinality tenant identity from metric dimensions.
- * Logs carry a keyed HMAC pseudonym; raw tenant IDs never become metric labels.
- */
+/** Separates tenant identity from telemetry labels; raw tenant IDs never become metric labels. */
 export class TenantTelemetryContext {
   constructor(private readonly pseudonymizer: TenantPseudonymizer) {}
 
@@ -48,10 +47,7 @@ export class TenantTelemetryContext {
     if (tenantRef === identity.tenantId || !/^hmacv1_[0-9a-f]{64}$/.test(tenantRef)) {
       throw new Error("Tenant telemetry must use a versioned HMAC pseudonym.");
     }
-    return Object.freeze({
-      tenant_ref: tenantRef,
-      correlation_id: identity.correlationId,
-    });
+    return Object.freeze({ tenant_ref: tenantRef, correlation_id: identity.correlationId });
   }
 
   metricDimensions(dimensions: SafeMetricDimensions): Readonly<SafeMetricDimensions> {
