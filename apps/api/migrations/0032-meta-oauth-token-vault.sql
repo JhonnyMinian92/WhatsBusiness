@@ -66,7 +66,6 @@ CREATE POLICY meta_oauth_states_consume ON platform.meta_oauth_states
   FOR UPDATE USING (
     tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
     AND initiated_by_user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
-    AND authz_version = NULLIF(current_setting('app.authz_version', true), '')::bigint
     AND consumed_at IS NULL
     AND failed_at IS NULL
     AND expires_at > clock_timestamp()
@@ -75,7 +74,6 @@ CREATE POLICY meta_oauth_states_consume ON platform.meta_oauth_states
   WITH CHECK (
     tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
     AND initiated_by_user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
-    AND authz_version = NULLIF(current_setting('app.authz_version', true), '')::bigint
     AND consumed_at IS NOT NULL
     AND platform.has_permission(tenant_id, 'meta.connections.manage')
   );
