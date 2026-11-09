@@ -43,6 +43,7 @@ export const META_OAUTH_PROVIDER = Symbol("META_OAUTH_PROVIDER");
 export interface CreateMetaOAuthState {
   readonly tenantId: string;
   readonly actorUserId: string;
+  readonly authzVersion: number;
   readonly product: MetaOAuthProduct;
   readonly authorizationMode: MetaAuthorizationMode;
   readonly stateHash: string;
@@ -56,6 +57,7 @@ export interface CreateMetaOAuthState {
 export interface ConsumedMetaOAuthState {
   readonly tenantId: string;
   readonly actorUserId: string;
+  readonly authzVersion: number;
   readonly product: MetaOAuthProduct;
   readonly authorizationMode: MetaAuthorizationMode;
   readonly verifierEnvelope: CredentialEnvelope;
@@ -66,6 +68,7 @@ export interface ConsumedMetaOAuthState {
 export interface SaveMetaConnection {
   readonly tenantId: string;
   readonly actorUserId: string;
+  readonly authzVersion: number;
   readonly product: MetaOAuthProduct;
   readonly authorizationMode: MetaAuthorizationMode;
   readonly providerUserId: string;
