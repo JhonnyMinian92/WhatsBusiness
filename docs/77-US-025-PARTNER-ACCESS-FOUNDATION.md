@@ -21,7 +21,7 @@ Las decisiones cubiertas son:
 
 ## Pruebas
 
-`partner-tenant-grant.policy.spec.ts` se añade a `api:test`. Los 22 casos de la rama de origen habían pasado en su suite API; la validación final debe repetirse sobre el HEAD canónico.
+`partner-tenant-grant.policy.spec.ts` se añade a `api:test`. Los 22 casos de la rama de origen habían pasado en su suite API; la validación final en el HEAD canónico [42602093160](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42602093160) terminó SUCCESS; la suite API/PostgreSQL fue 481/481 y la política partner está dentro de ella.
 
 ## Límites explícitos
 

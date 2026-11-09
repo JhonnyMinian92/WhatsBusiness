@@ -1053,3 +1053,21 @@ Se trasladó a `environment/local` la política pura `PartnerTenantGrantPolicy` 
 - PR #5: se trasladó Agent Tool Gateway/MCP, validación de inputs, policy tenant/purpose/scope, facts resolver, Ads campaign handler, rate limit, idempotencia y auditoría PostgreSQL, catálogo read-only Meta Ads, coordinación Inbox y pruebas. La migración se publicó como `0044-agent-tool-runtime.sql` porque `0032` y `0043` ya pertenecen a Meta OAuth/connection identity.
 - El gateway comienza con políticas `enabled=false` y `kill_switch_active=true`; no se añadieron controllers/transportes HTTP ni rutas MCP públicas. El catálogo y las pruebas no implican que Meta Ads OAuth, capabilities o App Review reales estén configurados.
 - Source CI, CodeQL y supply-chain del HEAD `19cb7da` deben terminar antes de considerar verificado el traslado. TASK-074/075/080 y TASK-058 permanecen `in_progress`.
+
+
+## Consolidación de ocho PR y validación del HEAD canónico — 2026-11-09
+
+La única rama de integración del trabajo activo es `environment/local`. Se rescataron paquetes únicos de PR #4..#9 y se cerraron como integradas después de pasar Source CI/CodeQL/supply-chain:
+- #4 → PartnerTenantGrantPolicy + 22 tests de dominio.
+- #5 → Agent Tool Gateway/MCP core, Ads handler, rate limit/idempotency/audit, Inbox coordination, migration `0044`; sin transport HTTP público.
+- #6 → Gitleaks/Trivy/CycloneDX + Dependabot.
+- #7 → HTTP read-only benchmark y test target.
+- #8 → migration incremental `0043` de unique partial index de conexión Meta activa.
+- #9 → adaptadores Valkey/S3 y tests; se corrigió el fixture binario RESP.
+- #10 y #11 → cerradas como supersedidas por basarse en snapshots/arquitectura obsoletos y presentar errores strict TypeScript. No se fusionaron.
+
+**Evidencia del HEAD de código `788450a`:** Source workspace validation [42602093160](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42602093160) SUCCESS; CodeQL [42602093143](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42602093143) SUCCESS; Supply-chain security [42602093310](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42602093310) SUCCESS. Suites: HTTP benchmark 4/4, Inbox 36/36, API/PostgreSQL 481/481, Meta backend/PostgreSQL/RabbitMQ 112/112. Build, typecheck, migraciones 0001–0044/idempotencia, backup cifrado/restore, secret scan, dependency/IaC scan, SBOM CycloneDX, observabilidad y agregador independiente: PASS.
+
+La migración 0044 fue corregida para que la fila de configuración `agent_tool_runtime_policies` se elimine en cascada con el tenant (solo esa tabla de configuración, no audit/idempotency/rate buckets). Las dos integraciones PostgreSQL que eliminan tenants sintéticos ya pasan. La política nace disabled + kill-switch activo.
+
+**Límite de ramas:** el cierre de PR no elimina las referencias de rama de GitHub. El conector usado en esta sesión permite cerrar PR y actualizar refs existentes, pero no ofrece operación de borrar refs/branches; las ramas históricas siguen listadas hasta que se eliminen en GitHub Settings → Branches. No se reescribió ni borró código/historial de esas ramas.

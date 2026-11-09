@@ -89,7 +89,7 @@ Las nuevas suites se registraron en `apps/api/project.json` (`api:test` e `inbox
 
 Los tests cubren validación de schema, tenant/scope/purpose/provider, aprobación ligada a fingerprint y recurso, self-approval, kill switch, idempotencia/replay, resultado ambiguo sin retry, redacción, rate limits, metadata MCP, capability Meta desconocida y prevención de loops/double replies.
 
-Las siete suites de dominio/aplicación se integraron en `apps/api/project.json` y se ejecutan como parte de `api:test`. Source CI del HEAD `19cb7da` está ejecutándose; no se declarará PASS hasta que el pipeline termine y las tres suites independientes queden verdes.
+Las siete suites de dominio/aplicación se integraron en `apps/api/project.json` y se ejecutan como parte de `api:test`. **CI final del código integrado:** Source workspace validation [42602093160](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42602093160) SUCCESS; CodeQL [42602093143](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42602093143) SUCCESS. Meta backend/PostgreSQL/RabbitMQ 112/112; API/PostgreSQL 481/481; Inbox 36/36; build/typecheck/migrations/restore/security/supply-chain PASS. La primera ejecución detectó tenant cleanup bloqueado por la FK de configuración; migration 0044 usa ahora ON DELETE CASCADE solo para la fila de política del tenant y ambas integraciones pasan.
 
 ## 7. Límites y gates que permanecen
 

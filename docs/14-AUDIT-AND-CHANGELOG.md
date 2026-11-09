@@ -936,3 +936,19 @@ HEAD integrado: `19cb7da376ae1de776f2ed272a54f683eefdf460` (`environment/local`)
 - Se agregan tres permisos de agente al catálogo y kill-switch al conjunto de acciones de dos aprobadores. Se preserva la política de dos personas para privacy.retention.manage/execute que existía en la rama canónica.
 - `AgentToolsModule` queda registrado pero no expone HTTP/MCP de red; tenant policies nacen disabled + kill switch active. El trigger de seed puede insertar defaults bajo owner context; la aplicación no obtiene INSERT sobre la tabla de políticas.
 - Source CI [42601538278](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42601538278), CodeQL [42601538232](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42601538232) y Supply-chain [42601538412](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42601538412) estaban en ejecución al documentar este handoff. No declarar el paquete verificado hasta resultados finales.
+
+
+## 72. PR audit, consolidation and CI verification — environment/local — 2026-11-09
+
+Se auditaron ocho PR abiertas y se trasladó su código útil al HEAD canónico `environment/local`. Las PR #4–#9 quedaron integradas; #10 y #11 se cerraron como supersedidas por sus bases antiguas y errores de compilación estricta.
+
+**Validación final sobre code HEAD `788450aed386bdc008370bbda3e39652df9d2df4`:**
+- Source workspace validation [42602093160](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42602093160): SUCCESS.
+- CodeQL [42602093143](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42602093143): SUCCESS.
+- Supply-chain security [42602093310](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42602093310): SUCCESS.
+- HTTP benchmark harness 4/4; Inbox 36/36; API + PostgreSQL 481/481; Meta backend + PostgreSQL/RabbitMQ 112/112.
+- Build/typecheck, migraciones 0001–0044 y segunda ejecución idempotente, restore PostgreSQL cifrado, Gitleaks, Trivy, SBOM CycloneDX, observabilidad y agregador independiente: PASS.
+
+La primera ejecución del Agent Tool Gateway había expuesto dos fallos de limpieza: la FK RESTRICT de `agent_tool_runtime_policies` retenía tenants de fixtures. La migración 0044 se ajustó a ON DELETE CASCADE para la fila de configuración por tenant. No se relajan políticas RLS ni se otorga INSERT al runtime. La nueva ejecución pasó ambas integraciones.
+
+**Ramas:** todas las funcionalidades rescatadas quedaron integradas en `environment/local`, pero las referencias de branches históricos no se pudieron borrar desde las operaciones disponibles en esta sesión. El cierre de PR no elimina branch refs. No se ha reescrito ni borrado historia de ramas antiguas.
