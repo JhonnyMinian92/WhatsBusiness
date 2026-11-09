@@ -6,7 +6,7 @@ import type {
   MetaOAuthProviderPort,
   MetaOAuthTokenSet,
 } from "../application/meta-oauth.ports.js";
-import type { MetaOAuthProduct, MetaOAuthScopePolicy } from "../domain/meta-oauth.policy.js";
+import type { MetaOAuthProduct } from "../domain/meta-oauth.policy.js";
 
 /**
  * Deliberately fail-closed defaults. A KMS/secret-manager binding and a
@@ -40,7 +40,7 @@ export class UnconfiguredMetaOAuthProvider implements MetaOAuthProviderPort {
   async refreshAccessToken(_input: {
     readonly product: MetaOAuthProduct;
     readonly authorizationMode: "user_token" | "system_user_token";
-    readonly refreshToken: string;
+    readonly accessToken: string;
     readonly grantedScopes: readonly string[];
     readonly providerUserId: string;
   }): Promise<MetaOAuthTokenSet> {
@@ -54,28 +54,6 @@ export class UnconfiguredMetaOAuthProvider implements MetaOAuthProviderPort {
   }): Promise<void> {
     throw new ServiceUnavailableException("La revocación remota Meta no está configurada ni habilitada.");
   }
-  async refreshAccessToken(_input: {
-    readonly product: MetaOAuthProduct;
-    readonly authorizationMode: "user_token" | "system_user_token";
-    readonly refreshToken: string;
-    readonly grantedScopes: readonly string[];
-    readonly providerUserId: string;
-  }): Promise<MetaOAuthTokenSet> {
-    throw new ServiceUnavailableException("La renovación de tokens Meta no está configurada ni habilitada.");
-  }
-  async revokeAccessToken(_input: {
-    readonly product: MetaOAuthProduct;
-    readonly authorizationMode: "user_token" | "system_user_token";
-    readonly accessToken: string;
-    readonly providerUserId: string;
-  }): Promise<void> {
-    throw new ServiceUnavailableException("La revocación remota Meta no está configurada ni habilitada.");
-  }
+
 }
 
-@Injectable()
-export class UnverifiedMetaOAuthScopePolicy implements MetaOAuthScopePolicy {
-  isAllowed(_product: MetaOAuthProduct, _scope: string): boolean {
-    return false;
-  }
-}
