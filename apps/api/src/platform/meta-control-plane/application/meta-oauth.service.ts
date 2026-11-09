@@ -7,7 +7,7 @@ import {
   ServiceUnavailableException,
   UnauthorizedException,
 } from "@nestjs/common";
-import type { TenantAccessContext } from "../../../identity/tenant-access-context.js";
+import type { TenantAccessContext } from "../../identity/tenant-access-context.js";
 import {
   META_OAUTH_PROVIDER,
   META_OAUTH_REPOSITORY,
