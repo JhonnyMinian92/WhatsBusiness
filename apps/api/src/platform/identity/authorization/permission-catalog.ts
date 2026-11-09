@@ -293,6 +293,21 @@ export const PERMISSION_CATALOG = {
     riskClass: "sensitive",
     requiresIndependentApproval: false,
   },
+  "privacy.subject.request": {
+    description: "Read and manage tenant privacy rights requests, subject metadata and legal holds",
+    riskClass: "sensitive",
+    requiresIndependentApproval: false,
+  },
+  "privacy.retention.manage": {
+    description: "Create and approve immutable tenant retention policy versions and legal holds",
+    riskClass: "critical",
+    requiresIndependentApproval: true,
+  },
+  "privacy.retention.execute": {
+    description: "Execute an approved tenant retention batch after policy and legal-hold checks",
+    riskClass: "critical",
+    requiresIndependentApproval: true,
+  },
   "privacy.export.request": {
     description: "Request export of tenant personal data",
     riskClass: "critical",
