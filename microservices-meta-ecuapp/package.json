@@ -18,5 +18,8 @@
   "devDependencies": {
     "@types/node": "26.0.0",
     "@types/pg": "8.23.1"
+  },
+  "scripts": {
+    "bench:capacity": "node scripts/benchmark/run.mjs"
   }
 }
