@@ -153,7 +153,7 @@ async function withTimeout(promise, timeoutMs, name) {
     return await Promise.race([
       promise,
       new Promise((_, reject) => {
-        timer = setTimeout(() => reject(new Error(`${name} timeout`), timeoutMs);
+        timer = setTimeout(() => reject(new Error(`${name} timeout`)), timeoutMs);
       }),
     ]);
   } finally {
@@ -251,7 +251,10 @@ async function benchmarkQueueWorker(config) {
         pending.delete(payload.sequence);
       } catch (error) {
         channel.nack(message, false, false);
-        pending.get(-1)?.reject(error);
+        if (Number.isSafeInteger(sequence)) {
+          pending.get(sequence)?.reject(error);
+          pending.delete(sequence);
+        }
       }
     }, { noAck: false });
     consumerTag = consumer.consumerTag;
