@@ -30,6 +30,8 @@ import {
         new MetaOAuthPolicy({
           allowedRedirectUris: (process.env["META_OAUTH_ALLOWED_REDIRECT_URIS"] ?? "")
             .split(",").map((value) => value.trim()).filter(Boolean),
+          allowedAuthorizationHosts: (process.env["META_OAUTH_ALLOWED_AUTHORIZATION_HOSTS"] ?? "")
+            .split(",").map((value) => value.trim().toLowerCase()).filter(Boolean),
           maximumStateLifetimeSeconds: Number(process.env["META_OAUTH_STATE_TTL_SECONDS"] ?? "600"),
         }, scopePolicy),
       inject: [META_OAUTH_SCOPE_POLICY],
