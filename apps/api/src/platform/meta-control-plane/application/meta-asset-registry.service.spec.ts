@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { HttpException } from "@nestjs/common";
 import type { TenantAccessContext } from "../../../identity/tenant-access-context.js";
 import type { MetaAssetReconciliation } from "../domain/meta-asset.js";
 import { MetaAssetRegistryService } from "./meta-asset-registry.service.js";
@@ -74,7 +75,11 @@ test("rechaza inventarios de otro tenant y nunca ejecuta persistencia", async ()
   const service = new MetaAssetRegistryService(repository);
   await assert.rejects(
     () => service.reconcile(subject(), { ...snapshot, tenantId: "a2cbecb4-bda0-4cf4-a43b-ecb34c11b025" }),
-    (error: unknown) => error instanceof Error && error.message.includes("META_ASSET_TENANT_MISMATCH"),
+    (error: unknown) => error instanceof HttpException
+      && typeof error.getResponse() === "object"
+      && error.getResponse() !== null
+      && "code" in error.getResponse()
+      && error.getResponse().code === "META_ASSET_TENANT_MISMATCH",
   );
   assert.equal(persisted, 0);
 });
