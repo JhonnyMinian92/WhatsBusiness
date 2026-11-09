@@ -971,3 +971,12 @@ La tabla kickoff de TASK-034..041 se conserva como registro histórico. Esta fil
 **Migración:** apps/api/migrations/0031-ads-creative-lab.sql.  
 **Evidencia de pruebas:** las seis suites agregadas registraron 26/26 pruebas Creative Lab aprobadas en Source run 42532889134 (commit 1dc4545); migration apply/idempotency, build y typecheck también pasaron, y CodeQL 42532889226 pasó. El workflow completo quedó bloqueado por el fallo preexistente de Platform Administration sobre RLS de platform.usage_ledger (reproducido antes de US-030 en run 42531885574). El HEAD compartido posterior e48b229 tiene además 63 errores TypeScript de Developer Platform y Source run 42533056750 no pasa build. Las tareas US-030 siguen in_progress.  
 **Bloqueos transversales:** TASK-024/025/056, TASK-067/072, API contract freeze, Meta credentials/capability runtime, derechos/brand review, integración oficial, review independiente y Product Owner acceptance. GO-PRODUCTION permanece NO-GO.
+
+## TASK-003 — adaptadores tenant cache y object storage (2026-11-08)
+
+**Estado: `in_progress`; slice de adaptadores y composición implementado en rama aislada, no verified/accepted.**
+
+- Se reusan `TenantResourceNamespace`, `TenantScopedCache` y `TenantScopedObjectStorage`; se agregan adapters `ValkeyCacheStore` (RESP2 binary-safe + pool bounded) y `S3CompatibleObjectStorage` (SigV4, TLS, checksum read/write y server-side encryption SSE-S3/SSE-KMS).
+- `IsolationModule` conecta los puertos `CACHE_STORE`/`OBJECT_STORAGE` y exporta decorators tenant-scoped; no se agregan dependencias runtime.
+- Valkey local usa el servicio AOF de `spike/task-039-lab`; remotos requieren TLS y producción requiere TLS + ACL. S3 remoto/prod requiere HTTPS y todas las variables del provider configuradas.
+- Se añaden specs de parser RESP y S3; no ejecutadas aquí. El object store, bucket, IAM/KMS, lifecycle, consumers, malware scan, retención/borrado y DR continúan pendientes. Ver docs/92.

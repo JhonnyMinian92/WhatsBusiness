@@ -213,3 +213,9 @@ El objetivo de esta campaña se cumple cuando:
 - Las pruebas siguen explícitamente pendientes y la siguiente etapa queda definida como ejecución local, una tarea a la vez.
 
 Este cierre no representa `verified`, `accepted` ni autorización de producción.
+
+### TASK-003 — adaptadores de aislamiento (slice agregado, 2026-11-08)
+
+- Se agregan Valkey RESP2 adapter + pool y S3-compatible adapter SigV4 con checksum y server-side encryption configurables.
+- `IsolationModule` registra los ports/tokens, exporta `TenantScopedCache` y `TenantScopedObjectStorage`; no se añaden dependencias de terceros.
+- Tests de fuente añadidos, ejecución pendiente; no se marca `implemented` porque faltan consumidores completos, bucket/KMS real, malware/lifecycle, privacidad y DR. Ver docs/92.

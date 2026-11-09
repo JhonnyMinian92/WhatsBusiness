@@ -258,3 +258,14 @@ También se cambió la prueba a comparar contra el backlog de ejecución medido 
 
 La integración PostgreSQL se reordenó para no llamar a la operación batch `claim_tenant_job_publications` mientras el job de finalización principal seguía pendiente. Primero se completa el dispatch/claim de ese job con el helper existente; después se inserta y publica el fixture de métrica cuando es el único nuevo job elegible en la topología de prueba. Esto elimina el efecto colateral real de `LIMIT` + `FOR UPDATE SKIP LOCKED` al filtrar fuera de la función por `job_id`, y evita dejar leases de otros fixtures en estado `publishing`.
 **Estado:** el orden corregido se somete nuevamente a Source CI; no se afirma todavía verificación.
+
+## 19. Adaptadores de aislamiento Valkey y S3 — TASK-003 (2026-11-08)
+
+Se incorpora el slice de adapters en `apps/api/src/platform/isolation/infrastructure/`.
+
+- Valkey: RESP2 binario, conexión TCP/TLS, pool acotado, AUTH ACL y TTL; usa el servicio local AOF del laboratorio (`127.0.0.1:16389`) para desarrollo. URL remota requiere TLS y producción requiere TLS+password.
+- Object storage: S3-compatible REST con firma AWS SigV4, GET/PUT/DELETE, límites de tamaño, SHA-256 verificado y SSE-S3 (`AES256`) o SSE-KMS con key reference. El adapter exige HTTPS fuera de loopback y siempre en producción.
+- `IsolationModule` registra `CACHE_STORE`/`OBJECT_STORAGE` y exporta `TenantScopedCache` y `TenantScopedObjectStorage` sin exponer providers a los dominios.
+- Los tests de fuente de RESP y S3 se han agregado pero no se ejecutaron en esta campaña. El object store no está provisionado y no se declaran resultados live.
+
+El slice no completa aún TASK-003: faltan consumidores de negocio, políticas bucket/IAM/KMS/versioning/lifecycle, malware scanning, integración con derechos/retención y backup/restore. Ver `docs/92-TASK-003-VALKEY-S3-ADAPTERS.md`.

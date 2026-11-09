@@ -794,3 +794,14 @@ La ejecución de CI anterior pasó build/typecheck y 355/356 API tests; el fallo
 | Seguridad de HEAD compartido | CodeQL \`42533056607\`, mismo HEAD | Aprobado | CodeQL pasó, pero no sustituye el build ni hace verde el Source workflow. |
 
 **Decisión:** TASK-069, TASK-070, TASK-073 y TASK-079 permanecen \`in_progress\`. Los tests de dominio pasan, pero faltan providers autoritativos de derechos/consentimiento/marca/claims, ingestión TASK-072, asignación server-side de audiencias disjuntas, adapter oficial Meta con capabilities por cuenta/versión/placement, contract tests, review independiente y Product Owner acceptance. No se habilitan endpoints públicos, publicación ni gasto.
+
+## 60. TASK-003 — adaptadores Valkey y S3-compatible (2026-11-08)
+
+| ID | Cambio | Estado real |
+|---|---|---|
+| AUD-228 | Encoder/parser RESP2 binario, conexión TCP/TLS y pool Valkey con límites, timeout y AUTH. | Código fuente agregado; CI/live con Valkey pendiente. |
+| AUD-229 | `ValkeyCacheStore` para CacheStore con GET/SET EX/DEL; TLS remoto y prod, fail-closed sin configuración. | Adapter y provider Nest registrados; no conectado aún a consumidores finales. |
+| AUD-230 | `S3CompatibleObjectStorage` con SigV4, PUT/GET/DELETE, límite de tamaño, checksum y SSE-S3/SSE-KMS. | Adapter y specs agregados; bucket, IAM, KMS y pruebas live pendientes. |
+| AUD-231 | Composition root `IsolationModule` y tokens `CACHE_STORE`/`OBJECT_STORAGE`. | Registrados y exportados junto a decorators tenant-scoped. |
+
+TASK-003 sigue `in_progress`: lifecycle, consumers, retención/derechos, malware, telemetría, backup/restore y aceptación siguen pendientes. Detalle docs/92.
