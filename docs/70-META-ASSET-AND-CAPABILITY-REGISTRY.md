@@ -9,7 +9,7 @@
 
 US-004 debe permitir al administrador conocer los activos Meta accesibles, sus grants efectivos y las operaciones que realmente puede ejecutar. Para evitar falsos positivos, inventario, ownership, grants y capability son conceptos separados.
 
-Esta entrega implementa reglas puras del dominio y pruebas unitarias. No conecta con Meta, no persiste registros y no expone una API. No se debe presentar como sincronización operativa ni como disponibilidad real de activos.
+La entrega inicial implementó reglas puras del dominio y pruebas unitarias. La iteración de Fase 2 del 2026-11-08 añadió persistencia tenant-scoped y reconciliación PostgreSQL (migration 0039, repository y application service) descritas en la sección de seguimiento al final de este documento. Aún no conecta con Meta Graph ni expone endpoint público: no se debe presentar como sincronización externa operativa ni como disponibilidad real de activos.
 
 ## 2. Fuentes Meta consideradas
 
@@ -54,7 +54,7 @@ reconcileMetaAssetInventory aplica estas invariantes:
 6. Se preservan firstSeenAt, lastSeenAt y la versión API observada.
 7. Se validan tenant/conexión UUID, producto/tipo compatible, versión explícita, timestamps, IDs, duplicados, tareas y relaciones. Límites de tamaño impiden snapshots desproporcionados.
 
-No hay un adapter que obtenga estos snapshots y no hay repository que los persista todavía.
+Existe un repository PostgreSQL para persistir snapshots validados y sus resultados de reconciliación; no hay aún adapter Graph/Meta que obtenga snapshots externos. La persistencia de inventario no equivale a integración end-to-end.
 
 ## 5. Capability Registry / Explainability implementado
 
@@ -88,7 +88,7 @@ No se sembró un catálogo falso de operaciones: las definiciones concretas sigu
 
 - meta-asset.spec.ts: namespaces WAAC/PMA/teléfono; catálogo de tipos; mismatch; duplicados; tenant inválido; alta e historial; sync parcial; sync completo; snapshots viejos; grant denegado; aislamiento de registros de otro tenant.
 - meta-capability-evaluator.spec.ts: decisión positiva; scope faltante; task faltante; actor denegado; evidencia unknown; version no soportada; evidencia expirada; tier insuficiente; consent/approval; App Mode/App Review/account type/country; gates opcionales; definición inválida.
-- Ambas suites están en apps/api/project.json y se ejecutan con el target api:test.
+- Las suites de dominio `meta-asset.spec.ts` y `meta-capability-evaluator.spec.ts` siguen en `api:test`; la ampliación de Fase 2 añadió suites OAuth, onboarding, Asset Registry service boundary y audit outcome. El registro de estas suites está en `apps/api/project.json`.
 
 Evidencia CI: Source CI #42512236821 detectó en build TS4111 por dot notation en Record<string, unknown>. Se corrigió en el commit 2f97c8a94275c87f8543de065c30ae00cbf52b43. Source CI #42512364598 terminó SUCCESS (build, typecheck, API unit/PostgreSQL integration y Meta backend PostgreSQL/RabbitMQ integration); CodeQL #42512364506 terminó SUCCESS, ambos sobre 2f97c8a. El HEAD posterior 9e5dfa1 agrega un cambio separado de aislamiento de jobs. Source CI #42512536601 terminó con fallo en api:test: build y typecheck pasaron; 166/167 pruebas pasaron y las 23 pruebas nuevas de US-004 (inventario + capabilities) pasaron. La única falla fue la integración independiente tenant-job-record.integration.spec.ts, con SQLSTATE 42501 ('permission denied for table tenant_job_records') en PostgresTenantJobRecordWriter.stage; el target de Meta backend se omitió por el fallo previo. Esto no invalida los tests US-004, pero el HEAD posterior no tiene Source CI completo verde y la falla independiente debe corregirse por su owner.
 
@@ -141,3 +141,27 @@ No hacer: no activar META-010..015, no declarar sincronización real, no usar to
 - Las suites Threads y el bridge al evaluador Meta se ejecutaron; el gate que obliga a ejecutar ambas baterías quedó en `SUCCESS`.
 - Evidencia: Source CI run [42528782609](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42528782609), commit pipeline `1ba349cf013f4d34b5d3496e9a8adddee49a71ad`; CodeQL [42528566180](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42528566180) completado con `SUCCESS` sobre el commit de código `46f57247d667abb7e9626c639514bfd8e74ebc30`.
 - Esta evidencia valida build/typecheck/tests y seguridad estática; no convierte el perfil Threads en una conexión Meta real ni cambia el estado productivo.
+
+
+## 9. Actualización Fase 2 — persistencia real de TASK-009 y estado CI (2026-11-08)
+
+### Incrementos confirmados en \`environment/local\`
+
+- \`apps/api/migrations/0039-meta-asset-registry-and-sync-history.sql\`: tablas \`platform.meta_assets\` y \`platform.meta_asset_sync_runs\`, índices, FKs compuestas tenant/connection, trigger de identidad inmutable, RLS forzado y grants de mínimo privilegio. Los runs de sincronización son append-only, conservan snapshot hash, cambios y \`complete_for\` para demostrar la cobertura efectivamente enumerada.
+- \`PostgresMetaAssetRegistryRepository\`: usa \`withTenantContextAtVersion\`, serializa sync por tenant/conexión con advisory transaction lock, verifica que la conexión sea activa, aplica la reconciliación pura, persiste upserts e historial dentro de la misma transacción y añade auditoría hash-chained.
+- \`MetaAssetRegistryService\`: exige membresía activa y permiso \`meta.connections.manage\`, valida el snapshot y rechaza tenant mismatch antes de llegar al repositorio.
+- \`MetaControlPlaneModule\`: enlaza el port a PostgreSQL, proporciona y exporta el application service.
+- El outcome \`meta_assets_synced\` y eventos de Embedded Signup están alineados en la unión TypeScript, allowlist de runtime y CHECK de PostgreSQL.
+
+### CI del HEAD \`a08bb5352f611077a6342ffc19a065fef2370b79\`
+
+- Build y Typecheck de todas las aplicaciones: PASS.
+- Migración 0039 aplicada y verificada como idempotente: PASS.
+- Meta backend unit/integration (PostgreSQL/RabbitMQ): **112/112 PASS**.
+- CodeQL: PASS (run 42555054766).
+- Source workspace aggregate: FAILURE porque una integración baseline de Platform Administration falla con RLS al insertar en \`platform.usage_ledger\`; API unit/DB suite: 404/405 PASS. El agregador conserva ese fallo; no se excluye.
+- No se ejecutó discovery Graph real ni se comprobó acceso de una app/cuenta Meta de WhatsBusiness.
+
+### Estado que no debe confundirse
+
+TASK-009 ya tiene persistencia de código fuente y migration CI-verified, pero no tiene discovery externo ni sincronización de una cuenta real. TASK-010 mantiene un motor de evaluación explicable, pero no existe catálogo completo con definiciones oficiales por operación para todas las familias Meta. Los contratos META-010..016 permanecen catalog-only. No hay endpoint público activo ni operación remota permitida. G2 sigue no aprobado.
