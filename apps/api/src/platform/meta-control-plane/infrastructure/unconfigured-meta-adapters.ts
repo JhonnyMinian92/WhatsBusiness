@@ -37,6 +37,23 @@ export class UnconfiguredMetaOAuthProvider implements MetaOAuthProviderPort {
   }): Promise<MetaOAuthTokenSet> {
     throw new ServiceUnavailableException("El intercambio OAuth Meta no está configurado ni habilitado.");
   }
+  async refreshAccessToken(_input: {
+    readonly product: MetaOAuthProduct;
+    readonly authorizationMode: "user_token" | "system_user_token";
+    readonly refreshToken: string;
+    readonly grantedScopes: readonly string[];
+    readonly providerUserId: string;
+  }): Promise<MetaOAuthTokenSet> {
+    throw new ServiceUnavailableException("La renovación de tokens Meta no está configurada ni habilitada.");
+  }
+  async revokeAccessToken(_input: {
+    readonly product: MetaOAuthProduct;
+    readonly authorizationMode: "user_token" | "system_user_token";
+    readonly accessToken: string;
+    readonly providerUserId: string;
+  }): Promise<void> {
+    throw new ServiceUnavailableException("La revocación remota Meta no está configurada ni habilitada.");
+  }
 }
 
 @Injectable()
