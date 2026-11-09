@@ -62,6 +62,46 @@ function runDocker(argumentsList, label) {
   return processCompletion(child, label);
 }
 
+function hasRedundantOuterParentheses(expression) {
+  if (!expression.startsWith("(") || !expression.endsWith(")")) return false;
+  let depth = 0;
+  let singleQuoted = false;
+  let doubleQuoted = false;
+  for (let index = 0; index < expression.length; index += 1) {
+    const character = expression[index];
+    const next = expression[index + 1];
+    if (singleQuoted) {
+      if (character === "'" && next === "'") { index += 1; continue; }
+      if (character === "'") singleQuoted = false;
+      continue;
+    }
+    if (doubleQuoted) {
+      if (character === '"' && next === '"') { index += 1; continue; }
+      if (character === '"') doubleQuoted = false;
+      continue;
+    }
+    if (character === "'") { singleQuoted = true; continue; }
+    if (character === '"') { doubleQuoted = true; continue; }
+    if (character === "(") depth += 1;
+    if (character === ")") {
+      depth -= 1;
+      if (depth < 0) return false;
+      if (depth === 0 && index !== expression.length - 1) return false;
+    }
+  }
+  return depth === 0 && !singleQuoted && !doubleQuoted;
+}
+
+function normalizeConstraintDefinition(definition) {
+  const normalized = definition.replace(/\\s+/g, " ").trim();
+  if (!normalized.startsWith("CHECK (") || !normalized.endsWith(")")) return normalized;
+  let expression = normalized.slice("CHECK (".length, -1).trim();
+  while (hasRedundantOuterParentheses(expression)) {
+    expression = expression.slice(1, -1).trim();
+  }
+  return "CHECK (" + expression + ")";
+}
+
 async function captureCatalog(pool) {
   const [migrations, relations, policies, constraints, rls, privileges] = await Promise.all([
     pool.query("SELECT version FROM platform.schema_migrations ORDER BY version"),
@@ -104,7 +144,10 @@ async function captureCatalog(pool) {
     migrations: migrations.rows,
     relations: relations.rows,
     policies: policies.rows,
-    constraints: constraints.rows,
+    constraints: constraints.rows.map((row) => ({
+      ...row,
+      definition: normalizeConstraintDefinition(row.definition),
+    })),
     rls: rls.rows,
     privileges: privileges.rows[0],
   };
