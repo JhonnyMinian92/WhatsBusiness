@@ -12,7 +12,8 @@ test("RESP command encoder preserves binary cache values", () => {
 
 test("RESP parser handles incomplete frames, binary bulk strings and server errors", () => {
   assert.equal(parseRespResponse(Buffer.from("$4\r\nabc")), null);
-  const bulk = parseRespResponse(Buffer.from("$2\r\n\0\xff\r\n"));
+  const bulkFrame = Buffer.concat([Buffer.from("$2\r\n", "ascii"), Buffer.from([0, 255]), Buffer.from("\r\n", "ascii")]);
+  const bulk = parseRespResponse(bulkFrame);
   assert.ok(bulk);
   assert.ok(Buffer.isBuffer(bulk.value));
   assert.deepEqual([...(bulk.value as Buffer)], [0, 255]);

@@ -194,6 +194,9 @@ jobs:
           MIGRATION_DATABASE_URL: ${{ env.MIGRATION_DATABASE_URL }}
         run: node scripts/verify-postgres-backup-restore.mjs
 
+      - name: Run bounded HTTP benchmark harness tests
+        run: pnpm bench:test
+
       - name: Build all applications
         run: pnpm build
 

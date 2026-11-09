@@ -11,7 +11,9 @@
     "build": "nx run-many --target=build --all",
     "test": "nx run-many --target=test --all",
     "typecheck": "nx run-many --target=typecheck --all",
-    "db:migrate": "node scripts/migrate.mjs"
+    "db:migrate": "node scripts/migrate.mjs",
+    "bench:http": "node scripts/bench/http-load.mjs",
+    "bench:test": "node --test scripts/bench/http-load.test.mjs"
   },
   "dependencies": {
     "@nestjs/common": "12.4.0",
