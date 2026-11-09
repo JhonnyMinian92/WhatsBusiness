@@ -925,3 +925,14 @@ CI del nuevo HEAD `e583208` pendiente. No declarar estos paquetes verificados ha
 ## 70. PR #4 — traslado de política de acceso delegado de partners — 2026-11-09
 
 Se integra en `environment/local` `PartnerTenantGrantPolicy` y sus pruebas de dominio, con registro/export en IdentityModule y test en `api:test`. Se conserva el estado parcial: la política valida grants y decisiones, pero no crea acceso de runtime ni persistencia. No se modifican `platform.can_use_tenant`, memberships ni controllers. Persistencia/RLS, aprobación/audit/outbox atómicos, revalidación de sesión/jobs, pruebas BOLA y revisión siguen pendientes.
+
+
+## 71. PR #4/#5 — Partner Grants y Agent Tool Gateway trasladados — 2026-11-09
+
+HEAD integrado: `19cb7da376ae1de776f2ed272a54f683eefdf460` (`environment/local`).
+
+- PR #4: se integran policy pura de partner grant, 22 tests, provider/export en IdentityModule y test target. El estado solo cubre validación de dominio; no implementa tablas/RLS, contexto partner, repositorio ni endpoints. No se amplía `platform.can_use_tenant`.
+- PR #5: se integra el núcleo Agent Tool Gateway/MCP, catálogo de herramientas, input validator, policy, adapters PostgreSQL rate-limit/idempotency/audit, Ads handler, Meta Ads MCP read-only, Inbox coordination, server stateless interno y suites. Migration original `0032-agent-tool-runtime.sql` se renumera a `0044-agent-tool-runtime.sql` para evitar colisión con la migración Meta OAuth 0032 y el índice Meta 0043.
+- Se agregan tres permisos de agente al catálogo y kill-switch al conjunto de acciones de dos aprobadores. Se preserva la política de dos personas para privacy.retention.manage/execute que existía en la rama canónica.
+- `AgentToolsModule` queda registrado pero no expone HTTP/MCP de red; tenant policies nacen disabled + kill switch active. El trigger de seed puede insertar defaults bajo owner context; la aplicación no obtiene INSERT sobre la tabla de políticas.
+- Source CI [42601538278](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42601538278), CodeQL [42601538232](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42601538232) y Supply-chain [42601538412](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42601538412) estaban en ejecución al documentar este handoff. No declarar el paquete verificado hasta resultados finales.

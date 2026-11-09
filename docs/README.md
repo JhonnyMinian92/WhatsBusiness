@@ -243,3 +243,12 @@ Los instrumentos de campo están en research/us-028/: guía de entrevistas, regl
 ## 90 — TASK-060 HTTP benchmark
 
 [Harness reproducible HTTP read-only para health/API](90-TASK-060-HTTP-BENCHMARK-HARNESS.md)
+
+
+## 77 — US-025 Partner access
+
+[Política de acceso delegado de partners y criterios pendientes](77-US-025-PARTNER-ACCESS-FOUNDATION.md)
+
+## 77 — US-031 Agent Tool Interoperability
+
+[Agent Tool Gateway/MCP y coordinación Inbox](77-US-031-AGENT-TOOL-INTEROPERABILITY.md)

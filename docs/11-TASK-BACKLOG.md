@@ -1045,3 +1045,11 @@ Todos estos cambios se aplicaron sobre el HEAD canónico `environment/local`; no
 ## US-025 / TASK-058 — política de dominio partner integrada — 2026-11-09
 
 Se trasladó a `environment/local` la política pura `PartnerTenantGrantPolicy` y sus 22 casos de dominio. IdentityModule la registra/exporta y `api:test` incluye el spec. El traslado conserva el límite de arquitectura: no crea memberships en el tenant cliente, no relaja `can_use_tenant`, no añade persistence ni endpoints. Faltan modelo SQL/RLS, approval consumption atómico, contexto partner en IdentityService/DatabaseService/worker, invalidación de grants revocados, audit/outbox, pruebas BOLA PostgreSQL, contract freeze, revisión y aceptación.
+
+
+## US-025 / TASK-058 y US-031 / TASK-074..080 — rescate selectivo de PRs — 2026-11-09
+
+- PR #4: `PartnerTenantGrantPolicy` y sus 22 pruebas de dominio se trasladaron a `apps/api/src/platform/identity/partners`. IdentityModule registra/exporta la policy y `api:test` incluye el spec. Sigue siendo una política pura: no se crea membership cliente, persistence, acceso de runtime ni endpoint. TASK-058 continúa `in_progress`.
+- PR #5: se trasladó Agent Tool Gateway/MCP, validación de inputs, policy tenant/purpose/scope, facts resolver, Ads campaign handler, rate limit, idempotencia y auditoría PostgreSQL, catálogo read-only Meta Ads, coordinación Inbox y pruebas. La migración se publicó como `0044-agent-tool-runtime.sql` porque `0032` y `0043` ya pertenecen a Meta OAuth/connection identity.
+- El gateway comienza con políticas `enabled=false` y `kill_switch_active=true`; no se añadieron controllers/transportes HTTP ni rutas MCP públicas. El catálogo y las pruebas no implican que Meta Ads OAuth, capabilities o App Review reales estén configurados.
+- Source CI, CodeQL y supply-chain del HEAD `19cb7da` deben terminar antes de considerar verificado el traslado. TASK-074/075/080 y TASK-058 permanecen `in_progress`.
