@@ -5,9 +5,8 @@ import type {
   MetaOAuthAuthorizationRequest,
   MetaOAuthProviderPort,
   MetaOAuthTokenSet,
-  MetaOAuthScopePolicyPort,
 } from "../application/meta-oauth.ports.js";
-import type { MetaOAuthProduct } from "../domain/meta-oauth.policy.js";
+import type { MetaOAuthProduct, MetaOAuthScopePolicy } from "../domain/meta-oauth.policy.js";
 
 /**
  * Deliberately fail-closed defaults. A KMS/secret-manager binding and a
@@ -41,7 +40,7 @@ export class UnconfiguredMetaOAuthProvider implements MetaOAuthProviderPort {
 }
 
 @Injectable()
-export class UnverifiedMetaOAuthScopePolicy implements MetaOAuthScopePolicyPort {
+export class UnverifiedMetaOAuthScopePolicy implements MetaOAuthScopePolicy {
   isAllowed(_product: MetaOAuthProduct, _scope: string): boolean {
     return false;
   }
