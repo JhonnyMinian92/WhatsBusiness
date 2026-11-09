@@ -357,3 +357,27 @@ Las policies son código de dominio y no habilitan endpoints congelados. Source 
 **DoR adicional:** fuente oficial y fecha de consulta; product/endpoint/version; cuenta y scopes; tenant/purpose/data class; método experimental y unidad de asignación; variable/KPI/MDE; paths exclusivos; fixtures sintéticas; plan de rollback; reviewer distinto. Los IDs API/evento marcados como rangos deben reservarse formalmente en los catálogos antes de congelar contratos.
 
 **DoD adicional:** adapters reales o simulados de forma explícita (nunca placeholder como capability available), provider contracts, RLS/isolation, idempotency/replay, CI de commit exacto, revisión de privacidad/seguridad, docs/10/11/18/19/47 sincronizados y aceptación del owner. `implemented` no equivale a `verified` ni a `accepted`.
+
+
+
+## EP-16 — TASK-092..106: Omnichannel experimentation & measurement (proposed)
+
+| TASK | Owner | Historia | Dependencias | Contratos / eventos | Criterio de aceptación |
+|---|---|---|---|---|---|
+| TASK-092 | Experiment Platform | US-037 | TASK-067; TASK-070; TASK-087 | EXP registry, preregistration, arm/observation schemas | Persisted experiment lifecycle, one primary KPI, MDE/sample/stopping and audit. |
+| TASK-093 | Experiment Platform | US-037 | TASK-092; TASK-082; TASK-085 | assignment.created, assignment.exposed, srm.detected | Stable unique assignment, native split evidence or valid randomization, SRM/contamination fail-closed. |
+| TASK-094 | Measurement Platform | US-043 | TASK-027; TASK-028; TASK-084; TASK-086 | normalized event envelope, provider_event_inbox, measurement events | Signature, tenant context, raw evidence, dedupe, replay, out-of-order and freshness tests. |
+| TASK-095 | Journey Platform | US-038 | TASK-092; TASK-093; TASK-094; TASK-103 | journey state and channel touchpoint events | Global experiment assignment, branching, frequency, stop, fallback and idempotent dispatch. |
+| TASK-096 | Email Integrations | US-039 | TASK-094; TASK-103 | Email adapter events: delivery, bounce, complaint, click, unsubscribe | Provider contract tests, deliverability and suppression; opens marked weak signal. |
+| TASK-097 | Messaging & Voice Integrations | US-040 | TASK-094; TASK-103 | SMS status/cost and call lifecycle/disposition | Delivery callbacks, segment/call costs, DLR and real call outcome semantics. |
+| TASK-098 | Telegram Integrations | US-041 | TASK-094; TASK-095; TASK-103 | update_id/message/callback/business connection events | Official permission evidence, update dedupe, 24h handling, rate and loop tests. |
+| TASK-099 | Google Ads Adapter | US-042 | TASK-056; TASK-072; TASK-094 | Google Ads campaign/experiment/insights/conversion contracts | Access/API version evidence, native split and conversion behavior verified. |
+| TASK-100 | Analytics Platform | US-043 | TASK-072; TASK-078; TASK-088; TASK-094 | Metric Registry, semantic definitions, reporting events | Versioned formulas and denominators, time/currency/freshness, role-scoped dashboard. |
+| TASK-101 | Attribution & Measurement | US-043 | TASK-068; TASK-077; TASK-086; TASK-092; TASK-094 | touchpoint/credit/outcome contracts | No duplicate sales; reported/modelled/first-party/causal results separated. |
+| TASK-102 | Data & ML Platform | US-043 | TASK-088; TASK-094 | feature definitions/snapshots/quality events | Event-time, tenant lineage, no leakage, freshness and reproducible snapshots. |
+| TASK-103 | Privacy & Consent | US-044 | TASK-032; TASK-059; TASK-094; TASK-095 | consent/purpose/preference/suppression decisions | Revoke propagation and immediate pre-dispatch deny with audit. |
+| TASK-104 | Product Intelligence | US-045 | TASK-056; TASK-065; TASK-090 | channel registry/business case | Official source/date, capability, geography, demand, cost, risk and decision. |
+| TASK-105 | Experiment Statistics | US-037 | TASK-092; TASK-093; TASK-100; TASK-101 | experiment.analysis.completed/decision.recorded | Sample/power, multiple comparisons, sequential policy and reproducible decision. |
+| TASK-106 | Frontend & Operations | US-038/043 | TASK-095; TASK-096; TASK-097; TASK-098; TASK-099; TASK-100 | dashboard/read-model contracts | Journey/expt/quality/deliverability/cost views with role and tenant scope. |
+
+DoR: fuente oficial y fecha, producto/API/version/cuenta/scope, tenant/purpose, unit of randomization, KPI/MDE, code path, synthetic fixtures, rollback, reviewer distinto. DoD: RLS, idempotency/replay, provider contracts, CI exact commit, privacy/security review, traceability updates and owner acceptance. All statuses stay proposed until evidence exists.
