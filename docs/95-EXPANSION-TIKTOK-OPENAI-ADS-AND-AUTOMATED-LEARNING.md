@@ -13,7 +13,7 @@
 
 WhatsBusiness evolucionará desde una plataforma de integraciones Meta hacia una plataforma multicanal de gestión, experimentación y optimización de marketing. El producto deberá integrar las APIs oficiales de TikTok y la API oficial de anunciantes de OpenAI para publicidad en ChatGPT; conservará los adaptadores Meta existentes y agregará un motor transversal que permita crear, medir, comparar y mejorar campañas con evidencia.
 
-Cada campaña que ingrese al flujo de experimentación tendrá, como mínimo, dos versiones relacionadas e inmutables:
+Cada campaña publicitaria que WhatsBusiness envíe a un proveedor mediante API deberá tener, obligatoriamente, dos versiones relacionadas e inmutables y un experimento registrado antes de ejecutar cualquier escritura externa:
 
 - **Versión 1 — Original / Control:** copia fiel de la campaña fuente aprobada. No se sobrescribe ni se modifica para fabricar una comparación.
 - **Versión 2 — Alternativa / Variante:** propuesta alternativa generada o seleccionada por Creative Lab. La hipótesis y la variable primaria modificada quedan registradas.
@@ -272,7 +272,7 @@ Toda campaña que se incorpore al módulo de experimentación creará un `Campai
 | Presupuesto | Parte del budget total reservado para el experimento | Parte del mismo budget total reservado; no implica duplicarlo |
 | Resultado | Conserva exposición, delivery y outcomes propios | Conserva exposición, delivery y outcomes propios |
 
-La V1 y V2 iniciales son obligatorias para experimentos del tipo A/B, pero pueden existir campañas que se gestionen sin experimento cuando el propietario lo decida (por ejemplo, campañas de brand safety, comunicaciones operativas o restricciones de volumen). En ese caso debe quedar registrado el motivo de exclusión. Una campaña externa no se modificará o duplicará sin comprobar antes si el proveedor permite crear una estructura experimental equivalente.
+La V1/V2 y el registro de experimento son obligatorios para toda campaña publicitaria paga que WhatsBusiness envíe a un proveedor mediante API. No existe exclusión silenciosa por canal, presupuesto o preferencia operativa. La campaña no se activa si no se puede crear el par, validar los permisos y ejecutar una asignación aleatoria verificable mediante split nativo o partición de audiencia compatible. Si una limitación técnica, regulatoria o de seguridad impide el split, se bloquea el lanzamiento experimental; solo el Product Owner puede autorizar una excepción manual, con motivo, alcance, aprobadores y audit, etiquetada `manual_non_experimental` y excluida de la optimización A/B automática. La V2 debe existir incluso mientras espera revisión; si no está aprobada, no se inicia el experimento. Antes de duplicar o modificar recursos se valida que el proveedor soporte una estructura experimental equivalente.
 
 Cada ronda posterior debe conservar el lineage: V1/V2 iniciales no se sobrescriben; el siguiente experimento puede comparar el campeón anterior contra una nueva variante V3, V4, etc. El sistema debe distinguir `version_number` dentro de una campaña de `experiment_round` y rol experimental.
 
@@ -286,7 +286,7 @@ Cada ronda posterior debe conservar el lineage: V1/V2 iniciales no se sobrescrib
 - Comprobar que control y variante son mutuamente excluyentes y que no existe contaminación material entre grupos. Si no puede demostrarse, bloquear la declaración de causalidad.
 - Vigilar **Sample Ratio Mismatch (SRM)**: si la proporción observada se desvía significativamente de la distribución esperada, pausar la inferencia y analizar pérdida de eventos, elegibilidad o delivery desigual.
 - Una asignación de 50/50 en la aplicación no garantiza 50/50 impresiones: los algoritmos de entrega pueden optimizar exposición y gasto de manera desigual. Registrar assignment, eligible population, served impressions, reach y spend por separado.
-- Cuando el proveedor solo permita administrar creatividades y su propio motor decida entrega sin experimento controlado, el resultado se reporta como comparación observacional, no como A/B causal.
+- Si la API/plataforma no permite garantizar asignación aleatoria válida o un split nativo equivalente, WhatsBusiness bloquea el lanzamiento como experimento A/B. No se envía la pareja como si el reparto fuese aleatorio. El Product Owner puede autorizar una excepción manual fuera de la automatización A/B; cualquier análisis posterior se etiqueta como observacional y no causal.
 - Las particiones de audiencia, presupuesto, bids, calendario y placements deben ser equivalentes o diseñadas expresamente para la hipótesis. Evitar cambios simultáneos no registrados.
 - Guardar la configuración real devuelta por el proveedor y reconciliarla periódicamente.
 
@@ -573,7 +573,7 @@ Los siguientes identificadores son el siguiente rango libre verificado en los do
 | US-033 | P1 | Como equipo de producto quiero que la aplicación frontend se identifique como `app-meta-ecuapp` sin mover ni romper el backend. |
 | US-034 | P0 | Como marketer quiero conectar TikTok y administrar las capacidades de marketing, contenido orgánico, reporting, leads y mensajería que estén oficialmente disponibles y autorizadas. |
 | US-035 | P0 | Como anunciante quiero gestionar campañas oficiales de ChatGPT Ads, activos y medición desde WhatsBusiness con controles de seguridad y gasto. |
-| US-036 | P0 | Como marketer quiero que cada experimento cree una pareja V1 original/V2 alternativa, la distribuya con método válido y aprenda de datos de plataforma y CRM para recomendar nuevas versiones. |
+| US-036 | P0 | Como marketer quiero que cada campaña publicitaria enviada por API genere V1 original y V2 alternativa y se active solo mediante reparto aleatorio válido, para aprender de sus resultados y recomendar nuevas versiones. |
 
 ### Tareas de implementación propuestas
 
@@ -585,7 +585,7 @@ Los siguientes identificadores son el siguiente rango libre verificado en los do
 | TASK-084 | US-034 | TikTok Insights/measurement ingestion, event mapping y CRM/Inbox integration | TASK-023, 026, 029, 068, 072, 078 | Snapshots reconciliados, leads/eventos deduplicados y dashboard con freshness. |
 | TASK-085 | US-035 | OpenAI Advertiser API: account, campaigns, ad groups, ads, files/assets, feeds, preview, review, audit e Insights | TASK-024, 025, 056, 067, 072 | Adapter oficial, lifecycle paused-first, capability evidence, schemas y pruebas. |
 | TASK-086 | US-035 | OpenAI Measurement Pixel, Conversions API, conversion settings y reporting | TASK-026, 059, 068, 077, 078 | Eventos con consentimiento, credenciales separadas, dedupe y reconciliación. |
-| TASK-087 | US-036 | Orquestador de versiones V1/V2 y asignación experimental persistente | TASK-067, 069, 070, 072, 082, 085 | Par inmutable, split válido, SRM, exclusión, preflight, budget split y stop rules. |
+| TASK-087 | US-036 | Orquestador obligatorio de versiones V1/V2 y asignación aleatoria persistente para campañas enviadas por API | TASK-067, 069, 070, 072, 082, 085 | Par inmutable, bloqueo sin split verificable, SRM, preflight, budget split y stop rules. |
 | TASK-088 | US-036 | Feature Store y taxonomía de métricas multicanal, conversiones y outcomes | TASK-068, 072, 077, 078, 084, 086 | Datos versionados, fuente/fecha/contexto/calidad y reporting armonizado sin pérdida. |
 | TASK-089 | US-036 | Motor de aprendizaje, ranking de recomendaciones y generación autónoma de borradores | TASK-067, 069, 070, 077, 078, 087, 088 | Recomendaciones explicables, confianza, nuevas variantes draft y aprobación obligatoria. |
 | TASK-090 | US-034/035 | Capability Registry y monitor de drift para TikTok/OpenAI Ads | TASK-056, 065, 082, 083, 085 | Fuente oficial, fecha, versión, scope, región, elegibilidad, alertas y tareas de migración. |
@@ -595,9 +595,9 @@ Los siguientes identificadores son el siguiente rango libre verificado en los do
 
 ## 15. Criterios de aceptación globales
 
-- AC-036-01: cada experimento nuevo contiene V1 original y V2 alternativa inmutables, relacionadas con snapshot, source hash y lineage.
+- AC-036-01: toda campaña publicitaria enviada por WhatsBusiness mediante API crea V1 original y V2 alternativa inmutables con lineage, hipótesis y registro experimental antes de activarse; cualquier excepción requiere aprobación explícita y no se considera A/B válido.
 - AC-036-02: cada V2 documenta hipótesis, variable primaria, KPI, control, diferencia exacta y elementos constantes.
-- AC-036-03: la asignación es estable, reproducible y auditable. El sistema identifica el método (native split, randomized split, disjoint audiences u observacional) y no confunde asignación con impresiones efectivas.
+- AC-036-03: la asignación aleatoria es estable, reproducible y auditable mediante native split o partición aleatoria válida; si no puede garantizarse, la publicación experimental se bloquea. Las excepciones quedan como manual_non_experimental y no se confunden con A/B.
 - AC-036-04: el motor detecta SRM, tráfico inválido, audiencias contaminadas, muestra insuficiente, freshness insuficiente y datos duplicados; bloquea conclusiones inválidas.
 - AC-036-05: cada recomendación muestra evidencia, denominador, ventana, confianza, uncertainty, coste, impacto comercial y limitaciones.
 - AC-036-06: las métricas del proveedor, outcomes CRM y uplift causal están separados y reconciliados.
