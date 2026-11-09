@@ -24,7 +24,7 @@ export class PostgresPrivacyRightsRepository implements PrivacyRightsRepositoryP
   async findByIdempotency(input: {
     readonly tenantId: string; readonly requesterUserId: string; readonly idempotencyKey: string;
   }): Promise<PrivacyRequestSummary | null> {
-    const result = await this.database.withUserContext(input.requesterUserId, (client) =>
+    const result = await this.database.withTenantContext(input.requesterUserId,input.tenantId,(client) =>
       client.query<RequestRow>(
         `SELECT id::text,tenant_id::text,subject_type,subject_id::text,action,status,
                 approval_request_id::text,request_hash,created_at,updated_at
@@ -52,10 +52,8 @@ export class PostgresPrivacyRightsRepository implements PrivacyRightsRepositoryP
     await this.insertRequest(client,input,requestId,approvalId);
   }
 
-  async get(tenantId: string, requestId: string): Promise<PrivacyRequestSummary | null> {
-    // Caller must first establish the tenant context through DatabaseService.
-    const result = await this.database.transaction(async (client) => {
-      await client.query("SELECT set_config('app.tenant_id',$1,true)",[tenantId]);
+  async get(actorUserId: string, tenantId: string, requestId: string): Promise<PrivacyRequestSummary | null> {
+    const result = await this.database.withTenantContext(actorUserId,tenantId,async (client) => {
       return client.query<RequestRow>(
         `SELECT id::text,tenant_id::text,subject_type,subject_id::text,action,status,
                 approval_request_id::text,request_hash,created_at,updated_at
