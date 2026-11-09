@@ -10,7 +10,12 @@ export type AuditOutcome =
   | "approval_rejected"
   | "approval_vote_recorded"
   | "approval_expired"
-  | "approval_consumed";
+  | "approval_consumed"
+  | "privacy_request_created"
+  | "privacy_request_completed"
+  | "privacy_request_failed"
+  | "privacy_retention_policy_changed"
+  | "privacy_retention_batch_executed";
 
 export interface AppendAuditEvent {
   readonly tenantId: string;
@@ -208,6 +213,11 @@ export class AppendOnlyAuditRepository {
       "approval_vote_recorded",
       "approval_expired",
       "approval_consumed",
+      "privacy_request_created",
+      "privacy_request_completed",
+      "privacy_request_failed",
+      "privacy_retention_policy_changed",
+      "privacy_retention_batch_executed",
     ];
     const invalidFields: string[] = [];
 
