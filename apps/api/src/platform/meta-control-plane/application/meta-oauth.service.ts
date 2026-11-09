@@ -11,6 +11,7 @@ import type { TenantAccessContext } from "../../identity/tenant-access-context.j
 import {
   META_OAUTH_PROVIDER,
   META_OAUTH_REPOSITORY,
+  type MetaConnectionCredentialRecord,
   type MetaOAuthProviderPort,
   type MetaOAuthRepositoryPort,
   type MetaOAuthTokenSet,
