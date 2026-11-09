@@ -219,30 +219,34 @@ export class MetaOAuthService {
     const subject = this.requireManager(subjectInput);
     const connection = await this.repository.loadConnection({subject,connectionId});
     if (!connection) throw new NotFoundException({code:"META_CONNECTION_NOT_FOUND"});
-    const associatedData = this.associatedData(connection.tenantId,connection.createdByUserId,connection.product);
-    const currentTokens = this.parseTokens(await this.vault.decryptSecret(connection.encryptedToken,associatedData));
-
-    // Persist the local revocation intent before reaching the provider.
+    // Deshabilita primero el acceso local: una caída de KMS o Meta no debe
+    // mantener utilizable una credencial que el tenant decidió revocar.
     await this.repository.markRevocationPending({subject,connection});
+    let remoteState: "confirmed" | "unknown" = "unknown";
     try {
+      const associatedData = this.credentialAssociatedData(connection.tenantId, connection.product, connection.providerUserId);
+      const currentTokens = this.parseTokens(await this.vault.decryptSecret(connection.encryptedToken,associatedData));
       await this.provider.revokeAccessToken({
         product:connection.product,
         authorizationMode:connection.authorizationMode,
         accessToken:currentTokens.accessToken,
         providerUserId:connection.providerUserId,
       });
+      remoteState = "confirmed";
     } catch {
-      await this.repository.completeRevocation({subject,connection,remoteState:"unknown"});
-      return {
-        connectionId,status:"reauthorization_required",remoteRevocationState:"unknown",
-        expiresAt:connection.tokenExpiresAt.toISOString(),requiresManualFollowUp:true,
-      };
+      remoteState = "unknown";
     }
-    await this.repository.completeRevocation({subject,connection,remoteState:"confirmed"});
-    return {
-      connectionId,status:"revoked",remoteRevocationState:"confirmed",
-      expiresAt:null,requiresManualFollowUp:false,
-    };
+    // Si falla la escritura final se propaga; el estado local anterior ya es fail-closed.
+    await this.repository.completeRevocation({subject,connection,remoteState});
+    return remoteState === "confirmed"
+      ? {
+          connectionId,status:"revoked",remoteRevocationState:"confirmed",
+          expiresAt:null,requiresManualFollowUp:false,
+        }
+      : {
+          connectionId,status:"reauthorization_required",remoteRevocationState:"unknown",
+          expiresAt:connection.tokenExpiresAt.toISOString(),requiresManualFollowUp:true,
+        };
   }
 
   private requireManager(subject: TenantAccessContext): TenantAccessContext {
