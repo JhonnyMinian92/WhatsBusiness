@@ -12,6 +12,7 @@ export interface StoredMetaToken {
 }
 
 export interface MetaTokenRepository {
+  nextVersion(tenantId: string, connectionId: string): Promise<number>;
   save(record: StoredMetaToken): Promise<void>;
   findCurrent(tenantId: string, connectionId: string): Promise<StoredMetaToken | null>;
   revoke(tenantId: string, connectionId: string): Promise<void>;

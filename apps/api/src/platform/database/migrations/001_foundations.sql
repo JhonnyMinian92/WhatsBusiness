@@ -41,6 +41,8 @@ CREATE TABLE IF NOT EXISTS meta_connections (
 );
 CREATE INDEX IF NOT EXISTS meta_connections_tenant_idx ON meta_connections(tenant_id, created_at DESC);
 
+CREATE SEQUENCE IF NOT EXISTS meta_token_vault_version_seq;
+
 CREATE TABLE IF NOT EXISTS meta_token_vault (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
   connection_id UUID NOT NULL REFERENCES meta_connections(id) ON DELETE CASCADE,

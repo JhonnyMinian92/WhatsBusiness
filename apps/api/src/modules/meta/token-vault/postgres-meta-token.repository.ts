@@ -3,24 +3,27 @@ import type { Database } from "../../../platform/database/database.js";
 import type { EncryptedEnvelope } from "../../../platform/security/envelope-encryption.js";
 import type { MetaTokenRepository, StoredMetaToken } from "./token-vault.repository.js";
 
+interface VersionRow extends QueryResultRow { version: string; }
 interface TokenRow extends QueryResultRow {
-  tenant_id: string;
-  connection_id: string;
-  version: number;
-  token_type: string;
-  expires_at: Date | null;
-  data_access_expires_at: Date | null;
-  scopes: string[];
-  encryption_algorithm: "AES-256-GCM";
-  key_reference: string;
-  encrypted_data_key: Buffer;
-  nonce: Buffer;
-  authentication_tag: Buffer;
-  ciphertext: Buffer;
+  tenant_id: string; connection_id: string; version: number; token_type: string;
+  expires_at: Date | null; data_access_expires_at: Date | null; scopes: string[];
+  encryption_algorithm: "AES-256-GCM"; key_reference: string; encrypted_data_key: Buffer;
+  nonce: Buffer; authentication_tag: Buffer; ciphertext: Buffer;
 }
 
 export class PostgresMetaTokenRepository implements MetaTokenRepository {
   constructor(private readonly database: Database) {}
+
+  async nextVersion(tenantId: string, connectionId: string): Promise<number> {
+    const result = await this.database.query<VersionRow>(
+      "SELECT nextval('meta_token_vault_version_seq')::text AS version"
+    );
+    const value = Number(result.rows[0]?.version);
+    if (!Number.isSafeInteger(value) || value < 1) {
+      throw new Error("Could not allocate a unique Meta token version.");
+    }
+    return value;
+  }
 
   async save(record: StoredMetaToken): Promise<void> {
     await this.database.transaction(async (executor) => {
@@ -52,20 +55,14 @@ export class PostgresMetaTokenRepository implements MetaTokenRepository {
     const row = result.rows[0];
     if (!row) return null;
     return {
-      tenantId: row.tenant_id,
-      connectionId: row.connection_id,
-      version: row.version,
-      tokenType: row.token_type,
-      expiresAt: row.expires_at ? new Date(row.expires_at) : null,
+      tenantId: row.tenant_id, connectionId: row.connection_id, version: row.version,
+      tokenType: row.token_type, expiresAt: row.expires_at ? new Date(row.expires_at) : null,
       dataAccessExpiresAt: row.data_access_expires_at ? new Date(row.data_access_expires_at) : null,
       scopes: row.scopes,
       envelope: {
-        algorithm: row.encryption_algorithm,
-        keyReference: row.key_reference,
-        encryptedDataKey: row.encrypted_data_key,
-        nonce: row.nonce,
-        authenticationTag: row.authentication_tag,
-        ciphertext: row.ciphertext
+        algorithm: row.encryption_algorithm, keyReference: row.key_reference,
+        encryptedDataKey: row.encrypted_data_key, nonce: row.nonce,
+        authenticationTag: row.authentication_tag, ciphertext: row.ciphertext
       }
     };
   }

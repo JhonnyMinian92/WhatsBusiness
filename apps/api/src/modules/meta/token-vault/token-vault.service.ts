@@ -1,7 +1,10 @@
 import { ApplicationError } from "../../../platform/errors/application-error.js";
-import type { SensitiveDataCipher } from "../../../platform/security/envelope-encryption.js";
+import type {
+  EncryptedEnvelope,
+  SensitiveDataCipher
+} from "../../../platform/security/envelope-encryption.js";
 import type { MetaAccessToken } from "../shared/meta-types.js";
-import type { MetaTokenRepository, StoredMetaToken } from "./token-vault.repository.js";
+import type { MetaTokenRepository } from "./token-vault.repository.js";
 
 export class TokenVaultService {
   constructor(
@@ -9,22 +12,21 @@ export class TokenVaultService {
     private readonly cipher: SensitiveDataCipher
   ) {}
 
-  async store(input: {
-    tenantId: string;
-    connectionId: string;
-    token: MetaAccessToken;
-  }): Promise<void> {
+  async store(input: { tenantId: string; connectionId: string; token: MetaAccessToken }): Promise<void> {
     if (!input.tenantId || !input.connectionId || !input.token.value) {
       throw new ApplicationError("VALIDATION_ERROR", "Tenant, connection and provider token are required.");
     }
-    const current = await this.repository.findCurrent(input.tenantId, input.connectionId);
-    const version = (current?.version ?? 0) + 1;
+    const version = await this.repository.nextVersion(input.tenantId, input.connectionId);
     const plaintext = Buffer.from(JSON.stringify({ value: input.token.value }), "utf8");
-    const envelope = await this.cipher.encrypt(
-      plaintext,
-      this.associatedData(input.tenantId, input.connectionId, version)
-    );
-    plaintext.fill(0);
+    let envelope: EncryptedEnvelope;
+    try {
+      envelope = await this.cipher.encrypt(
+        plaintext,
+        this.associatedData(input.tenantId, input.connectionId, version)
+      );
+    } finally {
+      plaintext.fill(0);
+    }
     await this.repository.save({
       tenantId: input.tenantId,
       connectionId: input.connectionId,
