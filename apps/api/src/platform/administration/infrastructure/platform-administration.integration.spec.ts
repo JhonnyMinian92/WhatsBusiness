@@ -113,6 +113,16 @@ test("platform administration provisions tenants, versions plans, meters usage a
       observedAt: new Date().toISOString(),
     };
     const firstUsage = await service.recordUsage(usageCommand);
+    const directLedgerInsert = await database.transaction((client) =>
+      client.query<{ can_insert: boolean }>(
+        "SELECT has_table_privilege(current_user,'platform.usage_ledger','INSERT') AS can_insert",
+      ),
+    );
+    assert.equal(
+      directLedgerInsert.rows[0]?.can_insert,
+      false,
+      "The API runtime must write usage only through the tenant/actor-validated database function.",
+    );
     const repeatedUsage = await service.recordUsage(usageCommand);
     assert.equal(firstUsage.duplicate, false);
     assert.equal(repeatedUsage.duplicate, true);

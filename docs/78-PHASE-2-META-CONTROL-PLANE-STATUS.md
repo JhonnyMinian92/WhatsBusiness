@@ -95,3 +95,12 @@ No se dispuso de un runtime de agentes independientes en esta sesión. Se trabaj
 - Meta WhatsApp Embedded Signup collection: https://www.postman.com/meta/whatsapp-business-platform/documentation/du6gzjv/embedded-signup
 - Meta WhatsApp Business Platform overview: https://www.postman.com/meta/whatsapp-business-platform/overview
 - Catálogo y matriz operativa del proyecto: \`docs/09-API-INTEGRATION-CATALOG.md\`, \`docs/49-API-CONTRACT-READINESS-AND-META-ADAPTER-GATES.md\`
+
+
+## Actualización 2026-11-09 — corrección de la escritura del Usage Ledger
+
+La revisión del run Source CI `42555054762` (job `validate`) identificó un único test fallido: `PlatformAdministration` al ejecutar `INSERT platform.usage_ledger`, rechazado por RLS. Los pasos de instalación, escaneo de secretos/dependencias, migraciones e idempotencia, build, typecheck y suite Meta finalizaron SUCCESS; el agregador conservó FAILURE por esa integración.
+
+Se reemplazó la escritura directa desde el repositorio por `platform.record_usage_entry`, función SQL de privilegios mínimos que comprueba los GUC transaccionales actor/tenant, el rol de ingesta y el estado medible del tenant. El rol API no conserva permiso directo `INSERT` sobre el ledger y la tabla mantiene RLS habilitada para las lecturas. La clave idempotente sigue acotada a tenant/categoría y la reconciliación solo devuelve datos de la misma identidad. La integración añade una aserción que verifica que el rol API no posee INSERT directo.
+
+**Estado de evidencia:** cambio preparado en código/migración; Source CI del nuevo SHA aún pendiente. No declarar TASK-052, G1 ni G2 cerrados hasta que el run final pase y exista revisión/aceptación correspondiente.

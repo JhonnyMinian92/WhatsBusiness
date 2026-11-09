@@ -17,7 +17,6 @@ import type { PlanEntitlementDefinition } from "../domain/platform-administratio
 
 interface TenantRow { readonly id: string; readonly status: string; readonly authz_version: number; }
 interface PlanRow { readonly id: string; readonly plan_key: string; readonly version: number; }
-interface UsageRow { readonly id: string; readonly payload_hash: string; }
 interface GrantRow { readonly id: string; readonly expires_at: Date | string; }
 interface TenantLifecycleOutboxEnvelope {
   readonly id: string;
@@ -250,37 +249,49 @@ export class PlatformAdministrationRepository implements PlatformAdministrationP
   async recordUsage(command:RecordUsageCommand):Promise<{usageId:string;duplicate:boolean}> {
     return this.database.transaction(async(client)=>{
       await client.query("SELECT set_config('app.user_id',$1,true)",[command.actorUserId]);
-      const role=await client.query<{allowed:boolean}>("SELECT platform.is_usage_ingestor($1) AS allowed",[command.actorUserId]);
-      if(role.rows[0]?.allowed!==true) throw new ForbiddenException({code:"USAGE_INGESTOR_REQUIRED",detail:"El proceso no está autorizado para registrar consumo."});
       await this.setTenantContext(client,command.tenantId);
-      const meterable=await client.query<{allowed:boolean}>("SELECT platform.is_meterable_tenant($1) AS allowed",[command.tenantId]);
-      if(meterable.rows[0]?.allowed!==true) throw new ConflictException({code:"TENANT_NOT_METERABLE",detail:"El tenant no admite nuevos registros de consumo."});
+
       const payload={
         metricKey:command.metricKey,unit:command.unit,quantity:command.quantity,
         costAmount:command.costAmount??null,currency:command.currency??null,
         evidenceType:command.evidenceType,sourceReference:command.sourceReference,observedAt:command.observedAt,
       };
       const payloadHash=this.hash(payload);
-      const inserted=await client.query<{id:string}>(
-        "INSERT INTO platform.usage_ledger(tenant_id,actor_user_id,category,metric_key,unit,quantity,cost_amount,currency,evidence_type,source_reference,idempotency_key,payload_hash,observed_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) ON CONFLICT(tenant_id,category,idempotency_key) DO NOTHING RETURNING id::text",
-        [command.tenantId,command.actorUserId,command.category,command.metricKey,command.unit,command.quantity,
-          command.costAmount??null,command.currency??null,command.evidenceType,command.sourceReference,
-          command.idempotencyKey,payloadHash,command.observedAt]);
-      if(inserted.rows[0]) {
-        await this.tenantAudit.append(client,{
-          tenantId:command.tenantId,actorUserId:command.actorUserId,actionKey:"billing.usage.recorded",
-          resourceType:"usage_entry",resourceId:inserted.rows[0].id,purpose:"billing.usage.meter",
-          outcome:"allowed",correlationId:command.correlationId,requestHash:payloadHash,
+      const recorded=await client.query<{
+        usage_id:string|null;
+        payload_hash:string|null;
+        inserted:boolean;
+      }>(
+        `SELECT usage_id::text,payload_hash::text,inserted
+           FROM platform.record_usage_entry(
+             $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13
+           )`,
+        [
+          command.tenantId,command.actorUserId,command.category,command.metricKey,command.unit,
+          command.quantity,command.costAmount??null,command.currency??null,command.evidenceType,
+          command.sourceReference,command.idempotencyKey,payloadHash,command.observedAt,
+        ],
+      );
+      const entry=recorded.rows[0];
+      if(!entry?.usage_id) {
+        throw new ConflictException({
+          code:"USAGE_IDEMPOTENCY_CONFLICT",
+          detail:"La clave ya se utilizó por otra identidad o no puede reconciliarse de forma segura.",
         });
-        return {usageId:inserted.rows[0].id,duplicate:false};
       }
-      const existing=await client.query<UsageRow>(
-        "SELECT id::text,payload_hash FROM platform.resolve_usage_idempotency($1,$2,$3,$4)",
-        [command.tenantId,command.actorUserId,command.category,command.idempotencyKey]);
-      if(!existing.rows[0]||existing.rows[0].payload_hash.trim()!==payloadHash) {
-        throw new ConflictException({code:"USAGE_IDEMPOTENCY_CONFLICT",detail:"La clave ya se utilizó con datos diferentes."});
+      if(!entry.inserted) {
+        if(entry.payload_hash?.trim()!==payloadHash) {
+          throw new ConflictException({code:"USAGE_IDEMPOTENCY_CONFLICT",detail:"La clave ya se utilizó con datos diferentes."});
+        }
+        return {usageId:entry.usage_id,duplicate:true};
       }
-      return {usageId:existing.rows[0].id,duplicate:true};
+
+      await this.tenantAudit.append(client,{
+        tenantId:command.tenantId,actorUserId:command.actorUserId,actionKey:"billing.usage.recorded",
+        resourceType:"usage_entry",resourceId:entry.usage_id,purpose:"billing.usage.meter",
+        outcome:"allowed",correlationId:command.correlationId,requestHash:payloadHash,
+      });
+      return {usageId:entry.usage_id,duplicate:false};
     });
   }
 

@@ -827,3 +827,12 @@ La ejecución de CI anterior pasó build/typecheck y 355/356 API tests; el fallo
 ## 59. Compatibilidad de sobres OAuth históricos — 2026-11-08
 
 El helper `decryptConnectionTokens` prueba el AAD nuevo (tenant/product/provider identity) y solo ante fallo intenta el AAD histórico (tenant/creator/product). Las renovaciones exitosas guardan el token con el AAD estable nuevo; la revocación puede operar sobre sobres antiguos sin reactivar el acceso local. Hay pruebas Meta para renovación y revocación de credenciales legacy. Permanece pendiente KMS/secret manager real, rotación/recuperación de claves y rollout monitorizado para conexiones antiguas que no vuelvan a renovarse. La suite Meta del HEAD `a08bb5352f611077a6342ffc19a065fef2370b79` pasó 112/112.
+
+
+## 60. Ingesta del ledger de consumo bajo una frontera SQL explícita — 2026-11-09
+
+El diagnóstico del Source CI `42555054762` confirmó que la única suite API fallida era `platform-administration.integration.spec.ts`: la inserción de `platform.usage_ledger` recibía `new row violates row-level security policy`. El defecto afecta TASK-052 y el gate de validación de Fase 1; no se omitió ni se convirtió el test en opcional.
+
+La corrección añade la función `platform.record_usage_entry` como única frontera de escritura: exige coincidencia estricta entre actor/tenant enviados y `app.user_id`/`app.tenant_id` transaccionales, rol `usage_ingestor`, tenant en estado medible e idempotencia por tenant/categoría/clave. El runtime pierde el permiso directo INSERT y mantiene lectura protegida por RLS. La API registra auditoría solo para una inserción nueva y devuelve el resultado previo únicamente al mismo actor/tenant/categoría.
+
+**Estado:** cambio implementado en código y migración; CI del nuevo SHA y revisión independiente pendientes. No se declara TASK-052, G1 ni G2 cerrados hasta contar con evidencia positiva.
