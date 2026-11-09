@@ -69,7 +69,7 @@ export class TenantAuditReportService {
     }
     const from = query.from ? Date.parse(query.from) : null;
     const to = query.to ? Date.parse(query.to) : null;
-    if ((query.from && !Number.isFinite(from)) || (query.to && !Number.isFinite(to))
+    if ((from !== null && !Number.isFinite(from)) || (to !== null && !Number.isFinite(to))
       || (from !== null && to !== null && to <= from)
       || (from !== null && to !== null && to - from > 366 * 24 * 60 * 60 * 1000)) {
       throw new BadRequestException({code:"AUDIT_PERIOD_INVALID",detail:"El rango de fechas no es válido o excede 366 días."});
