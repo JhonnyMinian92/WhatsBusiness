@@ -80,17 +80,10 @@ try {
   if (error instanceof Error) {
     const databaseError = error;
     console.error("Migration error:", databaseError.message);
-    const diagnostic = databaseError as Error & {
-      code?: string; position?: string; schema?: string; table?: string; column?: string; constraint?: string;
-    };
-    for (const [key, value] of Object.entries({
-      code: diagnostic.code,
-      position: diagnostic.position,
-      schema: diagnostic.schema,
-      table: diagnostic.table,
-      column: diagnostic.column,
-      constraint: diagnostic.constraint,
-    })) {
+    const diagnostic = databaseError;
+    const diagnosticFields = ["code","position","schema","table","column","constraint"];
+    for (const key of diagnosticFields) {
+      const value = diagnostic[key];
       if (value !== undefined) console.error(`  ${key}: ${value}`);
     }
   }
