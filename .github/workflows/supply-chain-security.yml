@@ -1,0 +1,125 @@
+name: Supply-chain security
+
+on:
+  push:
+    branches: [environment/local]
+    paths:
+      - "apps/**"
+      - "microservices-meta-ecuapp/**"
+      - "libs/**"
+      - "scripts/**"
+      - "contracts/**"
+      - "infra/**"
+      - "spike/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/supply-chain-security.yml"
+      - ".github/dependabot.yml"
+  pull_request:
+    branches: [environment/local]
+    paths:
+      - "apps/**"
+      - "microservices-meta-ecuapp/**"
+      - "libs/**"
+      - "scripts/**"
+      - "contracts/**"
+      - "infra/**"
+      - "spike/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/supply-chain-security.yml"
+      - ".github/dependabot.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supply-chain-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  secrets:
+    name: Secret detection
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout complete history
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Scan repository history and working tree with Gitleaks
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITLEAKS_ENABLE_COMMENTS: "false"
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
+          GITLEAKS_ENABLE_SUMMARY: "true"
+
+  dependencies:
+    name: Dependency, IaC and SBOM analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+
+      - name: Install pinned Trivy CLI
+        id: setup_trivy
+        uses: aquasecurity/setup-trivy@81e514348e19b6112ce2a7e3ecbafe19c1e1f567
+        with:
+          version: v0.76.2
+          cache: true
+
+      - name: Scan lockfiles and infrastructure configuration
+        id: fs_scan
+        continue-on-error: true
+        run: |
+          trivy fs \
+            --scanners vuln,misconfig \
+            --severity HIGH,CRITICAL \
+            --exit-code 1 \
+            --format json \
+            --output "$RUNNER_TEMP/trivy-fs-report.json" \
+            .
+
+      - name: Generate CycloneDX SBOM
+        id: sbom
+        if: always() && steps.setup_trivy.outcome == 'success'
+        continue-on-error: true
+        run: |
+          trivy fs \
+            --format cyclonedx \
+            --output "$RUNNER_TEMP/whatsbusiness-sbom.cdx.json" \
+            .
+
+      - name: Upload vulnerability report and SBOM
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: supply-chain-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/trivy-fs-report.json
+            ${{ runner.temp }}/whatsbusiness-sbom.cdx.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Enforce scan and SBOM generation outcomes
+        if: always()
+        env:
+          SETUP_OUTCOME: ${{ steps.setup_trivy.outcome }}
+          SCAN_OUTCOME: ${{ steps.fs_scan.outcome }}
+          SBOM_OUTCOME: ${{ steps.sbom.outcome }}
+        run: |
+          if [[ "$SETUP_OUTCOME" != "success" || "$SCAN_OUTCOME" != "success" || "$SBOM_OUTCOME" != "success" ]]; then
+            echo "::error::Supply-chain scan or SBOM generation failed. Inspect the uploaded report before remediation."
+            exit 1
+          fi

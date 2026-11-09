@@ -213,3 +213,30 @@ El objetivo de esta campaña se cumple cuando:
 - Las pruebas siguen explícitamente pendientes y la siguiente etapa queda definida como ejecución local, una tarea a la vez.
 
 Este cierre no representa `verified`, `accepted` ni autorización de producción.
+
+## Reconciliación de ejecución — Frente A (2026-11-08)
+
+**Base de código inspeccionada:** `0a33bee216b2e0c05e76ad6f8d481bbfbaeb1671` (`environment/local`). La rama de trabajo para el paquete TASK-031 parte de ese commit; el workspace compartido continúa recibiendo cambios concurrentes, por lo que la integración se realiza mediante PR.
+
+| Tarea | Estado de código observado en la base | Faltante principal para `implemented` |
+|---|---|---|
+| TASK-001 | in_progress | Completar lifecycle/provisioning y todos los boundaries tenant-scoped con persistencia y autorización integrada. |
+| TASK-003 | in_progress | Adaptadores concretos de cache/object storage; integración de handlers, replay y controles operativos del runtime. |
+| TASK-006 | in_progress | Provider OAuth real configurable y reconciliación completa de conexión/revocación. |
+| TASK-007 | in_progress | Credential envelope provider/KMS o Secret Manager integrado, rotación y revocación; el provider por defecto sigue unconfigured/fail-closed. |
+| TASK-008 | not_started | Onboarding saga/Embedded Signup, callbacks, pasos compensatorios y reconciliación fail-closed. |
+| TASK-028 | in_progress | Handlers de negocio reales, replay autorizado end-to-end y conexión completa de todos los bounded contexts. |
+| TASK-029 | in_progress | Tracing/logging estructurado/redacción transversal de request, worker y webhook; operación de dashboards/alertas. |
+| TASK-030 | in_progress | Reporting/access review y cierre de gaps de auditoría para todos los workflows sensibles. |
+| TASK-031 | in_progress | Se incorpora slice SCA/secrets/SBOM/Dependabot en docs/89; faltan imagen release, attestation, DAST, ASVS, pentest y risk acceptance. |
+| TASK-032 | in_progress | Conectar rights workflows a todos los stores, colas, search, cache, backups y derivados; completar evidencia de export/erase/revocation. |
+| TASK-059 | in_progress | Policy engine de retención versionada y ejecución coordinada sobre todos los stores; schedule legal permanece configurable/pending. |
+| TASK-060 | in_progress | Ampliar laboratorio actual con harness reproducible de carga/capacidad de API/worker y reportes normalizados. |
+
+La clasificación anterior es de fuente/código, no de aceptación ni porcentaje global. Los artefactos existentes, migraciones y pruebas registradas no implican que los criterios completos estén cerrados. Ninguna tarea del Frente A se marca `verified` o `accepted` por esta reconciliación.
+
+### Paquete TASK-031 — automatización Secure SDLC
+
+- Rama: `feat/task-031-supply-chain-security`.
+- Cambios: `.github/workflows/supply-chain-security.yml`, `.github/dependabot.yml`, `docs/89-TASK-031-SECURE-SDLC-SUPPLY-CHAIN.md`; anexos a `docs/08`, `docs/11` y `docs/14`.
+- Código fuente agregado; el resultado del workflow de este HEAD se registra después de CI. La tarea permanece `in_progress` hasta cerrar todo su alcance.

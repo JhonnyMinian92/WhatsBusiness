@@ -95,3 +95,12 @@ No liberar si hay vulnerabilidades críticas/altas sin mitigación aceptada, sec
 - Audit y approval decision records están protegidos por triggers append-only y hash chain SHA-256 por tenant. Esto detecta alteraciones en el stream bajo el rol runtime; no sustituye backup independiente, monitoreo, segregación DBA ni anclaje externo y no protege contra un administrador privilegiado.
 - Source CI run #112 [42387272987](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42387272987) pasa pruebas PostgreSQL sintéticas. No se han validado cuentas/IdP reales, controles legales de retención, política de aprobadores de producción ni operación de consumidores externos.
 - Las rutas IAM-018..020 siguen catalog-only; ningún endpoint ni acción externa quedó habilitada por la implementación de estos primitives.
+## 12. Secure SDLC y cadena de suministro — TASK-031 (2026-11-08)
+
+- Se incorpora `.github/workflows/supply-chain-security.yml`: Gitleaks sobre historial completo y árbol actual; Trivy para vulnerabilidades de dependencias y misconfiguration IaC; generación de CycloneDX SBOM y artefactos de evidencia.
+- `.github/dependabot.yml` programa actualizaciones semanales de paquetes pnpm/npm y GitHub Actions contra `environment/local`. Las actualizaciones se proponen como PR; no hay auto-merge.
+- Los jobs usan permisos mínimos `contents: read`. Los actions están fijados a commit SHA y Trivy CLI a versión concreta.
+- El gate configurado falla ante hallazgos Trivy HIGH/CRITICAL. El reporte y SBOM se publican incluso si el scan detecta vulnerabilidades, para facilitar su remediación.
+- El workflow no activa por sí mismo Dependency Graph/Dependabot Alerts/Security Updates en la configuración del repositorio. Debe comprobarse esa configuración de GitHub por un administrador.
+- Quedan fuera del slice: container scan de imagen productiva (no existe imagen release versionada), firma/provenance/attestation, DAST autenticado, ASVS assessment, pentest y CR-0018 risk acceptance. TASK-031 sigue `in_progress`.
+- Detalle de implementación: [docs/89](89-TASK-031-SECURE-SDLC-SUPPLY-CHAIN.md). No se afirma ejecución exitosa de los scans hasta leer CI del commit que contenga el workflow.

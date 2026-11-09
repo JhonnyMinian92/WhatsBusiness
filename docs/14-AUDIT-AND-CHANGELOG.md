@@ -794,3 +794,14 @@ La ejecución de CI anterior pasó build/typecheck y 355/356 API tests; el fallo
 | Seguridad de HEAD compartido | CodeQL \`42533056607\`, mismo HEAD | Aprobado | CodeQL pasó, pero no sustituye el build ni hace verde el Source workflow. |
 
 **Decisión:** TASK-069, TASK-070, TASK-073 y TASK-079 permanecen \`in_progress\`. Los tests de dominio pasan, pero faltan providers autoritativos de derechos/consentimiento/marca/claims, ingestión TASK-072, asignación server-side de audiencias disjuntas, adapter oficial Meta con capabilities por cuenta/versión/placement, contract tests, review independiente y Product Owner acceptance. No se habilitan endpoints públicos, publicación ni gasto.
+
+## 57. Secure SDLC automatizado / TASK-031 (2026-11-08)
+
+| ID | Cambio | Estado real |
+|---|---|---|
+| AUD-219 | Gitleaks Action v3, checkout de historial completo y permisos de solo lectura para detectar secretos versionados. | Workflow agregado; ejecución del commit pendiente. |
+| AUD-220 | Trivy v0.76.2 para vulnerabilidades de dependencias y misconfiguration de IaC con gate HIGH/CRITICAL. | Workflow agregado; resultados de CVE/configuración pendientes de CI. |
+| AUD-221 | Generación SBOM CycloneDX y publicación de reporte + SBOM con retención de 14 días. | Código agregado; generación/artifact upload pendientes de CI. |
+| AUD-222 | Dependabot npm/pnpm + GitHub Actions dirigido a `environment/local`. | Configuración versionada; Dependency Graph/Alerts/Security Updates deben habilitarse/verificarse en GitHub Settings. |
+
+Los actions quedan fijados a SHA. No se incorpora secreto nuevo ni se concede permiso de escritura. TASK-031 permanece `in_progress`: no existe imagen productiva para container scan ni pipeline de firma/attestation; DAST, ASVS, pentest y CR-0018 siguen pendientes. Véase docs/89.
