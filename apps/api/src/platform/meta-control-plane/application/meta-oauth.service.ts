@@ -24,6 +24,9 @@ export interface CompleteMetaOAuthCommand {
   readonly state: string;
   readonly code: string;
   readonly redirectUri: string;
+  readonly tenantId: string;
+  readonly actorUserId: string;
+  readonly authzVersion: number;
 }
 export interface BeginMetaOAuthResult {
   readonly authorizationUrl: string;
@@ -62,7 +65,7 @@ export class MetaOAuthService {
     const verifier = randomBytes(48).toString("base64url");
     const stateHash = this.digest(state);
     const nonceHash = this.digest(nonce);
-    const codeChallenge = this.digest(verifier);
+    const codeChallenge = createHash("sha256").update(verifier,"ascii").digest("base64url");
     const expiresAt = new Date(Date.now() + this.policy.stateLifetimeSeconds * 1000);
     const associatedData = this.associatedData(command.tenantId, command.actorUserId, command.product);
 
@@ -103,11 +106,16 @@ export class MetaOAuthService {
       || typeof command.code !== "string" || command.code.length < 1 || command.code.length > 4096) {
       throw new BadRequestException({ code: "META_OAUTH_CALLBACK_INVALID", detail: "Los parámetros de callback OAuth no son válidos." });
     }
-    const state = await this.repository.consumeState(this.digest(command.state));
+    const state = await this.repository.consumeState({
+      stateHash: this.digest(command.state),
+      tenantId: command.tenantId,
+      actorUserId: command.actorUserId,
+      authzVersion: command.authzVersion,
+    });
     if (!state) {
       throw new UnauthorizedException({ code: "META_OAUTH_STATE_INVALID", detail: "El estado OAuth expiró, fue usado o no existe." });
     }
-    if (command.redirectUri !== state.redirectUri) {
+    if (command.actorUserId !== state.actorUserId || command.tenantId !== state.tenantId || command.authzVersion !== state.authzVersion || command.redirectUri !== state.redirectUri) {
       throw new UnauthorizedException({ code: "META_OAUTH_REDIRECT_MISMATCH", detail: "El callback no coincide con el redirect URI original." });
     }
 
