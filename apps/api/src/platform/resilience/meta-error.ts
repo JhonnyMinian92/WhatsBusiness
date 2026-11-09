@@ -53,7 +53,7 @@ export function createMetaApiError(status: number, body: unknown, headers: Heade
   const code = typeof payload["code"] === "number" ? payload["code"] : undefined;
   const usage = new MetaUsageHeaders().parse(headers);
   const estimated = Math.max(0, ...usage.businessUseCases.flatMap(item =>
-    item.samples.map(metrics => (metrics.estimated_time_to_regain_access ?? 0) * 60_000)));
+    item.samples.map(metrics => (metrics["estimated_time_to_regain_access"] ?? 0) * 60_000)));
   const retryAfterMs = Math.max(parseRetryAfter(readHeader(headers, "retry-after"), now) ?? 0, estimated) || undefined;
   return new MetaApiError({
     status, code,
