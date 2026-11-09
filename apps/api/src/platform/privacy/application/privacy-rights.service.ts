@@ -29,7 +29,7 @@ export class PrivacyRightsService {
     @Inject(PRIVACY_RIGHTS_REPOSITORY) private readonly repository: PrivacyRightsRepositoryPort,
   ) {}
 
-  async request(subject: TenantAccessContext, input: Omit<PrivacyRightsRequestInput,"tenantId"|"requesterUserId"|"purpose">): Promise<PrivacyRequestSummary> {
+  async request(subject: TenantAccessContext, input: Omit<PrivacyRightsRequestInput,"tenantId"|"requesterUserId"|"purpose"|"correlationId">): Promise<PrivacyRequestSummary> {
     if (subject.membershipStatus !== "active" || subject.tenantId.length === 0) {
       throw new ForbiddenException({code:"PRIVACY_REQUEST_ACTOR_INACTIVE"});
     }
