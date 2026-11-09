@@ -39,7 +39,6 @@ CREATE POLICY meta_connections_change ON platform.meta_connections
 -- State consumption now executes as UPDATE under an authenticated
 -- withTenantContextAtVersion transaction and the table's forced RLS policy.
 -- Remove the legacy SECURITY DEFINER function that bypassed caller context.
-REVOKE ALL ON FUNCTION platform.consume_meta_oauth_state(text) FROM PUBLIC,whatsbusiness_app;
 DROP FUNCTION IF EXISTS platform.consume_meta_oauth_state(text);
 
 -- Meta connection lifecycle results share the existing append-only audit stream.
