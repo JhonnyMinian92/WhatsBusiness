@@ -6,6 +6,7 @@ import {
   META_ASSET_DISCOVERY,
   META_ONBOARDING_REPOSITORY,
   type MetaAssetDiscoveryPort,
+  type MetaAssetDiscoveryResult,
   type MetaOnboardingRecord,
   type MetaOnboardingRepositoryPort,
 } from "./meta-onboarding.ports.js";
@@ -187,14 +188,15 @@ export class MetaOnboardingService {
 function isMetaAssetDiscoveryResult(value:unknown):value is MetaAssetDiscoveryResult{
   if(typeof value!=="object"||value===null||Array.isArray(value))return false;
   const candidate=value as Record<string,unknown>;
+  const missingCapabilitiesCandidate=candidate["missingCapabilities"];
+  if(!Array.isArray(missingCapabilitiesCandidate)||missingCapabilitiesCandidate.length>1000)return false;
+  const missingCapabilities:unknown[]=missingCapabilitiesCandidate;
   return typeof candidate["requiredAssetsReady"]==="boolean"
     && typeof candidate["discoveredAssets"]==="number"
     && Number.isSafeInteger(candidate["discoveredAssets"])
     && (candidate["discoveredAssets"] as number)>=0
-    && Array.isArray(candidate["missingCapabilities"])
-    && candidate["missingCapabilities"].length<=1000
-    && candidate["missingCapabilities"].every((capability)=>typeof capability==="string"
+    && missingCapabilities.every((capability:unknown)=>typeof capability==="string"
       && capability.length<=128
       && /^[a-z][a-z0-9]*(?:[._:-][a-z0-9]+)*$/.test(capability))
-    && new Set(candidate["missingCapabilities"]).size===candidate["missingCapabilities"].length;
+    && new Set(missingCapabilities as string[]).size===missingCapabilities.length;
 }

@@ -166,6 +166,20 @@ test("conserva los grants y capabilities faltantes cuando el inventario todavía
   assert.equal(harness.saga().syncAttempts,1);
 });
 
+test("rechaza resultados de discovery mal formados sin persistirlos como capabilities válidas",async()=>{
+  const malformed={requiredAssetsReady:true,discoveredAssets:-1,missingCapabilities:["bad capability"]}
+    as unknown as MetaAssetDiscoveryResult;
+  const harness=createHarness({initial:record({status:"oauth_pending"}),discovery:malformed});
+  const progress=await harness.service.complete(subject(),{
+    sagaId,state:"s".repeat(40),code:"authorization-code",redirectUri:command.redirectUri,
+  });
+  assert.equal(progress.status,"asset_sync_pending");
+  assert.equal(progress.discoveredAssets,null);
+  assert.deepEqual(progress.missingCapabilities,[]);
+  assert.equal(progress.lastErrorCode,"META_ASSET_DISCOVERY_RESPONSE_INVALID");
+  assert.equal(harness.failureSnapshots()[0]?.errorCode,"META_ASSET_DISCOVERY_RESPONSE_INVALID");
+});
+
 test("registra un resultado unknown si el provider de activos no está disponible",async()=>{
   const harness=createHarness({initial:record({status:"oauth_pending"}),discoveryError:new Error("Graph unavailable")});
   const progress=await harness.service.complete(subject(),{

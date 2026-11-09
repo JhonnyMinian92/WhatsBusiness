@@ -22,6 +22,7 @@ export type AuditOutcome =
   | "meta_connection_revoked"
   | "meta_onboarding_started"
   | "meta_onboarding_asset_sync_started"
+  | "meta_onboarding_asset_sync_failed"
   | "meta_onboarding_ready"
   | "meta_onboarding_blocked"
   | "meta_assets_synced";
