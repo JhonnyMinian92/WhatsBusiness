@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import type { TenantAccessContext } from "../../../identity/tenant-access-context.js";
+import type { TenantAccessContext } from "../../identity/tenant-access-context.js";
 import { MetaOAuthPolicy } from "../domain/meta-oauth.policy.js";
 import { MetaOAuthScopeCatalog } from "../domain/meta-oauth-scope-catalog.js";
 import { MetaOAuthService } from "./meta-oauth.service.js";
