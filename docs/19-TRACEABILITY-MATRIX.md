@@ -626,3 +626,6 @@ La especificación se encuentra en [docs/95](95-EXPANSION-TIKTOK-OPENAI-ADS-AND-
 | Channel Registry/business-case prioritization | US-045 | TASK-104 | Demand/cost/access/measurement scorecard, source and review date | proposed |
 
 La especificación completa y los límites por canal constan en docs/95, addendum §§23–42. No se declaran adapters ni ejecución externa implementados.
+
+
+| Dashboard omnicanal, journey explorer, calidad de datos y deliverability | US-038/043 | TASK-106 | Read models tenant-scoped, UX por rol, journey/experiment monitor, freshness, alerts y export controlado | proposed |
