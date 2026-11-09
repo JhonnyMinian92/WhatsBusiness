@@ -123,3 +123,9 @@ El paso:
 6. Elimina DB y artefactos temporales y borra la clave efímera en memoria.
 
 **Resultado: PASS en CI.** No se versiona ni persiste la clave. Esto verifica el procedimiento criptográfico en un runner efímero y la restauración del esquema/controles. No incluye datos productivos/sintéticos de tenant, WAL/PITR, copias fuera del host, KMS/Secret Manager, rotación/custodia ni una medición RPO/RTO. No declarar G1 ni TASK-039 aceptados por este smoke test aislado.
+
+
+
+## Addendum — métricas del motor experimental omnicanal (propuesta 2026-11-09)
+
+La expansión documentada en [docs/95](95-EXPANSION-TIKTOK-OPENAI-ADS-AND-AUTOMATED-LEARNING.md), §§27, 28 y 37, añade observabilidad de assignment, SRM, contaminación, exposure gap, eventos de proveedor duplicados/tardíos/rechazados, delivery por canal, reconciliación de spend/invoice, conversion lag, orphan outcomes, suppression propagation, quiet-hours/frequency violations y model drift/calibration. Los indicadores deben ser tenant-scoped y no pueden utilizar PII/tokens/cuerpos de mensaje como labels. Estos indicadores se consideran requisitos propuestos hasta implementar collectors, dashboards y alertas.
