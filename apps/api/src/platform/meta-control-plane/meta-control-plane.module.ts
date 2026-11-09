@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { DatabaseModule } from "../database/database.module.js";
+import { IdentityModule } from "../identity/identity.module.js";
 import {
   META_CREDENTIAL_ENVELOPE_PROVIDER,
   META_OAUTH_PROVIDER,
@@ -17,7 +18,7 @@ import {
 } from "./infrastructure/unconfigured-meta-adapters.js";
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [DatabaseModule,IdentityModule],
   providers: [
     PostgresMetaOAuthRepository,
     { provide: META_OAUTH_REPOSITORY, useExisting: PostgresMetaOAuthRepository },
