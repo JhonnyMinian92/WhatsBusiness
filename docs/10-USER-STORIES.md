@@ -323,10 +323,10 @@ Como anunciante quiero gestionar campañas, anuncios, recursos y medición de Ch
 Tareas: TASK-085, TASK-086, TASK-090, TASK-091.
 
 ### US-036 — Experimentos V1/V2 y aprendizaje continuo multicanal (P0)
-Como marketer quiero que cada campaña sometida a experimentación tenga una versión original y una alternativa, se distribuya con método válido y genere aprendizajes para la siguiente versión.
-- AC-036-01: V1 es snapshot original inmutable y V2 deriva de una hipótesis explícita; ambas conservan lineage y aprobación.
+Como marketer quiero que toda campaña publicitaria enviada por WhatsBusiness mediante API genere una versión V1 original y una V2 alternativa y solo se active con reparto aleatorio válido, para aprender de sus resultados y mejorar las siguientes versiones.
+- AC-036-01: toda campaña enviada mediante API crea V1 original y V2 alternativa inmutables, con lineage e hipótesis, antes de activar cualquier anuncio.
 - AC-036-02: cada experimento declara variable primaria, KPI, población, tamaño de muestra, MDE, ventana, presupuesto y stop rules.
-- AC-036-03: asignación estable y excluyente; se detecta SRM y se distingue asignación, delivery y exposición efectiva.
+- AC-036-03: asignación aleatoria estable y excluyente; se detecta SRM y se distingue asignación, delivery y exposición efectiva. Si no puede garantizarse el split aleatorio, la activación se bloquea salvo excepción manual aprobada, que no se considera A/B.
 - AC-036-04: se registran atributos visuales, texto, tipografía cuando sea controlable, CTA, landing, oferta, placement, fecha, hora, audiencia y outcomes.
 - AC-036-05: métricas de plataforma, outcomes CRM y uplift causal permanecen separados.
 - AC-036-06: el motor genera recomendaciones y drafts con evidencia/uncertainty; publicación y gasto conservan approval gate.
