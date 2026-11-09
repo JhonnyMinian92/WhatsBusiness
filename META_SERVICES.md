@@ -348,7 +348,7 @@ No habilitar campañas promocionales porque un contacto exista en un CRM. La cap
 
 Meta cobra de acuerdo con país del destinatario, categoría y reglas aplicables. El país del negocio emisor no determina por sí solo la tarifa del mensaje. Los precios pueden variar y los descuentos pueden depender de categoría y volumen.
 
-**Snapshot de referencia, USD, efectivo 1 de octubre de 2026, mercado Rest of Latin America que incluye Ecuador:**
+**Snapshot secundario de referencia, USD, con vigencia declarada 1 de octubre de 2026, mercado Rest of Latin America que incluye Ecuador; pendiente de validación con el rate card oficial:**
 
 | Categoría | Tarifa base por mensaje reportada |
 |---|---:|
@@ -362,10 +362,20 @@ Fuente secundaria que transcribe el rate card en USD: [ContactShip - WhatsApp Bu
 
 Estas cifras son una **referencia de planificación**, no una tabla contable inmutable. Las reglas de precios han cambiado más de una vez y el texto de distintas páginas de soporte puede actualizarse en fechas diferentes. El motor de billing debe registrar la versión de rate card, la moneda de facturación y el origen del precio aplicado.
 
+### Verificación de fuente primaria (2026-11-09) — discrepancia abierta
+
+La página pública oficial de precios, consultada el 2026-11-09, indica que WhatsApp no cobra por mensajes de servicio ni por mensajes de utilidad enviados por la empresa en respuesta a usuarios, y describe una ventana gratuita de entrada de 72 horas. El contenido consultado no muestra una fecha de última actualización. Esto contradice la regla de franquicia/cobro posterior y el snapshot secundario de esta sección.
+
+El enlace oficial al rate card y las páginas de precios/changelog de Meta for Developers no pudieron abrirse durante esta revisión (HTTP 429); por tanto, no fue posible determinar si la página pública está desactualizada, si el rate card tiene una regla más específica o si aplican condiciones distintas por cuenta/mercado.
+
+**Estado:** la discrepancia entre fuentes está confirmada; la regla tarifaria efectiva para Ecuador no quedó confirmada con una fuente primaria accesible. Hasta resolverla, no tratar los valores ni la franquicia de la tabla como tarifa oficial, no codificarlos ni cotizarlos a clientes. Conservar fuente, moneda, mercado y fecha del rate card y conciliar con la facturación real antes de liquidar.
+
+Fuentes: [WhatsApp Business Platform Pricing](https://whatsappbusiness.com/products/platform-pricing/) (consultada 2026-11-09); [documentación oficial de precios](https://developers.facebook.com/docs/whatsapp/pricing) (no accesible por HTTP 429 en esta revisión).
+
 ### Implicaciones del nuevo esquema
 
 - Las plantillas se facturan por mensaje y categoría, no por una supuesta conversación de 24 horas.
-- Desde el 1 de octubre de 2026, los mensajes de servicio tienen una franquicia mensual reportada de 1.000 por número; se cobran los posteriores conforme a la tarifa aplicable.
+- La franquicia de 1.000 mensajes de servicio por número/mes y el cobro posterior desde el 1 de octubre de 2026 son datos reportados por la fuente secundaria citada; están pendientes de conciliación con la página y el rate card oficiales.
 - Las plantillas de utilidad y autenticación pueden tener descuentos por volumen según rate card y mercado.
 - Marketing y servicio no deben asumir los mismos descuentos por volumen.
 - Las respuestas de los usuarios no son lo mismo que los mensajes enviados por la empresa a efectos de costes.
