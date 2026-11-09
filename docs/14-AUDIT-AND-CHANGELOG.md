@@ -952,3 +952,10 @@ Se auditaron ocho PR abiertas y se trasladó su código útil al HEAD canónico 
 La primera ejecución del Agent Tool Gateway había expuesto dos fallos de limpieza: la FK RESTRICT de `agent_tool_runtime_policies` retenía tenants de fixtures. La migración 0044 se ajustó a ON DELETE CASCADE para la fila de configuración por tenant. No se relajan políticas RLS ni se otorga INSERT al runtime. La nueva ejecución pasó ambas integraciones.
 
 **Ramas:** todas las funcionalidades rescatadas quedaron integradas en `environment/local`, pero las referencias de branches históricos no se pudieron borrar desde las operaciones disponibles en esta sesión. El cierre de PR no elimina branch refs. No se ha reescrito ni borrado historia de ramas antiguas.
+
+
+## 73. Limpieza de ramas y resultado de acceso administrativo — 2026-11-09
+
+La revisión posterior a la consolidación confirma `environment/local` como única rama de trabajo. El repositorio todavía tiene 26 ramas y la rama predeterminada continúa siendo `master`; no hay PR abiertas. El inventario de las 25 referencias que deben retirarse, su análisis de contenido y los pasos de cierre están en [docs/94](94-REPOSITORY-CLEANUP-STATUS.md).
+
+No se borraron referencias ni se cambió la configuración de rama predeterminada: las operaciones GitHub disponibles en esta sesión no exponen PATCH de configuración del repositorio ni DELETE de referencias. No declarar la limpieza completa hasta verificar que `default_branch=environment/local` y que la única rama remota restante sea `environment/local`.
