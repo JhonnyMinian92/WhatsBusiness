@@ -125,18 +125,34 @@ RETURNS trigger LANGUAGE plpgsql
 SET search_path=pg_catalog,platform
 AS $function$
 BEGIN
-  IF NEW.tenant_id IS DISTINCT FROM NULLIF(current_setting('app.tenant_id',true),'')::uuid
-     OR NEW.created_by_user_id IS DISTINCT FROM NULLIF(current_setting('app.user_id',true),'')::uuid THEN
-    RAISE EXCEPTION 'Meta connection actor/tenant context mismatch' USING ERRCODE='42501';
+  IF NEW.tenant_id IS DISTINCT FROM NULLIF(current_setting('app.tenant_id',true),'')::uuid THEN
+    RAISE EXCEPTION 'Meta connection tenant context mismatch' USING ERRCODE='42501';
   END IF;
-  IF TG_OP='UPDATE' AND (
-    NEW.id IS DISTINCT FROM OLD.id OR NEW.tenant_id IS DISTINCT FROM OLD.tenant_id
-    OR NEW.provider_product IS DISTINCT FROM OLD.provider_product
-    OR NEW.authorization_mode IS DISTINCT FROM OLD.authorization_mode
-    OR NEW.created_by_user_id IS DISTINCT FROM OLD.created_by_user_id
-    OR NEW.created_at IS DISTINCT FROM OLD.created_at
-  ) THEN
-    RAISE EXCEPTION 'Meta connection identity is immutable' USING ERRCODE='23514';
+  IF TG_OP='INSERT' THEN
+    IF NEW.created_by_user_id IS DISTINCT FROM NULLIF(current_setting('app.user_id',true),'')::uuid THEN
+      RAISE EXCEPTION 'Meta connection actor context mismatch' USING ERRCODE='42501';
+    END IF;
+  ELSE
+    IF NEW.id IS DISTINCT FROM OLD.id OR NEW.tenant_id IS DISTINCT FROM OLD.tenant_id
+      OR NEW.provider_product IS DISTINCT FROM OLD.provider_product
+      OR NEW.authorization_mode IS DISTINCT FROM OLD.authorization_mode
+      OR NEW.created_by_user_id IS DISTINCT FROM OLD.created_by_user_id
+      OR NEW.created_at IS DISTINCT FROM OLD.created_at THEN
+      RAISE EXCEPTION 'Meta connection identity is immutable' USING ERRCODE='23514';
+    END IF;
+    IF OLD.status='revoked' AND NEW.status IS DISTINCT FROM OLD.status THEN
+      RAISE EXCEPTION 'Revoked Meta connections are terminal' USING ERRCODE='23514';
+    END IF;
+    IF NOT (
+      NEW.status=OLD.status
+      OR (OLD.status='pending' AND NEW.status IN ('active','failed','revoked'))
+      OR (OLD.status='active' AND NEW.status IN ('reauthorization_required','revoked','failed'))
+      OR (OLD.status='reauthorization_required' AND NEW.status IN ('active','revoked','failed'))
+      OR (OLD.status='failed' AND NEW.status IN ('pending','revoked'))
+    ) THEN
+      RAISE EXCEPTION 'Invalid Meta connection transition: % -> %',OLD.status,NEW.status
+        USING ERRCODE='23514';
+    END IF;
   END IF;
   NEW.updated_at:=clock_timestamp();
   RETURN NEW;
