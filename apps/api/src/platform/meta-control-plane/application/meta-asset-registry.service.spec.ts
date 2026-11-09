@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { HttpException } from "@nestjs/common";
-import type { TenantAccessContext } from "../../../identity/tenant-access-context.js";
+import type { TenantAccessContext } from "../../identity/tenant-access-context.js";
 import type { MetaAssetReconciliation } from "../domain/meta-asset.js";
 import { MetaAssetRegistryService } from "./meta-asset-registry.service.js";
 import type { MetaAssetRegistryRepositoryPort } from "./meta-asset-registry.ports.js";
