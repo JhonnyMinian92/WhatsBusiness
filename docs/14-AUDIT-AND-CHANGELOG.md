@@ -973,3 +973,15 @@ Se crea [docs/95-EXPANSION-TIKTOK-OPENAI-ADS-AND-AUTOMATED-LEARNING.md](95-EXPAN
 **A/B y aprendizaje:** se exige V1 original y V2 alternativa inmutables, asignación persistente y auditable, split nativo o audiencia disjunta demostrable, detección SRM, preregistro estadístico y separación entre delivery reportado, outcomes CRM y causal lift. Se mantiene draft-first y los guardrails de presupuesto/approval vigentes.
 
 **Estado:** documentación y backlog propuestos; no se movió el frontend, no se implementaron adapters TikTok/OpenAI, no se conectaron cuentas, no se ejecutaron campañas y no se incurrió en gasto publicitario. Tareas nuevas permanecen `proposed` hasta que exista código y evidencia por commit. La disponibilidad real de APIs, scopes, review, cuenta y país debe comprobarse por operación antes de declarar cualquier integración verificada.
+
+
+
+## 75. Addendum de experimentación omnicanal — 2026-11-09
+
+Se amplía docs/95, §§23–42, con el diseño del motor transversal de experimentación/medición, canales propios, nuevas capacidades y criterios de aceptación. El documento incorpora journeys cross-channel, assignment persistente, preregistro estadístico, SRM, medición incremental, Metric Registry, taxonomía de eventos, raw provider evidence, attribution separation y learning engine con generación de drafts.
+
+**Canales evaluados:** email (SES/SendGrid/Mailchimp como candidatos), SMS/Voice por CPaaS, Telegram Bot/Business (no se equipara a una API general de compra de Ads), Google Ads/YouTube, más un registro priorizado para LinkedIn, Pinterest, Snapchat, Reddit, Viber, LINE, RCS, Web Push/In-App y Discord. Email/SMS/voz se proponen P1; Telegram P1/P2 y Google Ads/YouTube P1; otros quedan market-led.
+
+**Auditoría y controles:** opens de email son señal débil por MPP/bots; DLR de SMS no demuestra lectura; llamada completed no demuestra conversación humana; read/reach/impressions solo se reportan donde exista evidencia de proveedor. Se refuerza no sumar conversiones atribuidas por plataformas como ventas distintas; CRM/payment es fuente de outcomes. Consentimiento, preferencias y suppression se aplican inmediatamente antes del despacho y por canal/finalidad.
+
+Se proponen US-037..045 y TASK-092..106. Todos permanecen proposed; no se implementaron estos adapters, no se enviaron campañas ni se ejecutó experimento en este cambio documental. La elegibilidad de cada cuenta/API y el análisis legal por jurisdicción permanecen gates externos.
