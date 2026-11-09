@@ -31,6 +31,9 @@ export class DefaultApprovalPolicyResolver implements ApprovalPolicyResolver {
     "jobs.replay.request",
     "privacy.retention.manage",
     "privacy.retention.execute",
+    "agent.tools.kill_switch.manage",
+    "privacy.retention.manage",
+    "privacy.retention.execute",
   ]);
 
   resolve(actionKey: PermissionKey): ApprovalActionPolicy | null {

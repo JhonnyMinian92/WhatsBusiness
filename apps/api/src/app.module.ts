@@ -11,8 +11,9 @@ import { CreativeLabModule } from "./ads/creative-lab/application/creative-lab.m
 import { PlatformAdministrationModule } from "./platform/administration/platform-administration.module.js";
 import { MetaControlPlaneModule } from "./platform/meta-control-plane/meta-control-plane.module.js";
 import { PrivacyModule } from "./platform/privacy/privacy.module.js";
+import { AgentToolsModule } from "./agents/agent-tools.module.js";
 
 @Module({
-  imports: [HealthModule, IdentityModule, IsolationModule, TenantJobsModule, MetaWebhooksModule, CrmContactsModule, WhatsAppTemplatesModule, AdsCampaignsModule, CreativeLabModule, PlatformAdministrationModule, MetaControlPlaneModule, PrivacyModule],
+  imports: [HealthModule, IdentityModule, IsolationModule, TenantJobsModule, MetaWebhooksModule, CrmContactsModule, WhatsAppTemplatesModule, AdsCampaignsModule, CreativeLabModule, PlatformAdministrationModule, MetaControlPlaneModule, PrivacyModule, AgentToolsModule],
 })
 export class AppModule {}

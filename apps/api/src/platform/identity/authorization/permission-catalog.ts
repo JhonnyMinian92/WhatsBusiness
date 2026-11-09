@@ -198,6 +198,21 @@ export const PERMISSION_CATALOG = {
     riskClass: "sensitive",
     requiresIndependentApproval: false,
   },
+  "agent.tools.read": {
+    description: "Read the tenant-scoped allowlisted agent tool catalog and execution audit",
+    riskClass: "normal",
+    requiresIndependentApproval: false,
+  },
+  "agent.tools.execute": {
+    description: "Execute tenant-scoped agent tools through the guarded gateway",
+    riskClass: "sensitive",
+    requiresIndependentApproval: false,
+  },
+  "agent.tools.kill_switch.manage": {
+    description: "Enable or disable agent tool execution and emergency kill switches",
+    riskClass: "critical",
+    requiresIndependentApproval: true,
+  },
   "ai.suggestions.read": {
     description: "Read assistive AI suggestions",
     riskClass: "normal",

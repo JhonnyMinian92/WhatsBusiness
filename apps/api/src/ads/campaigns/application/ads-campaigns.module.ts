@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { DatabaseModule } from "../../../platform/database/database.module.js";
 import { IdentityModule } from "../../../platform/identity/identity.module.js";
 import { AdsCampaignApplicationService } from "./ads-campaign.application.service.js";
+import { AdsCampaignAgentToolHandler } from "../../../agents/application/ads-campaign-agent-tool-handler.js";
 import {
   ADS_CAMPAIGN_EXECUTION_EVIDENCE_PROVIDER,
   ADS_CAMPAIGN_PREFLIGHT_PROVIDER,
@@ -27,7 +28,12 @@ import { PostgresAdsCampaignRepository } from "./postgres-ads-campaign.repositor
       useClass: UnavailableAdsCampaignEvidenceProvider,
     },
     AdsCampaignApplicationService,
+    {
+      provide: AdsCampaignAgentToolHandler,
+      useFactory: (campaigns: AdsCampaignApplicationService) => new AdsCampaignAgentToolHandler(campaigns),
+      inject: [AdsCampaignApplicationService],
+    },
   ],
-  exports: [AdsCampaignApplicationService],
+  exports: [AdsCampaignApplicationService, AdsCampaignAgentToolHandler],
 })
 export class AdsCampaignsModule {}
