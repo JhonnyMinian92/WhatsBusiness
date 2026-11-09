@@ -104,6 +104,12 @@ export class MetaOnboardingService {
     return this.runAssetSync(subject,saga.sagaId,connection.connectionId,saga);
   }
 
+  async getProgress(subjectInput:TenantAccessContext,sagaId:string):Promise<MetaOnboardingProgress>{
+    const subject=this.requireManager(subjectInput);
+    const saga=await this.requireOwnedSaga(subject,sagaId);
+    return this.toProgress(saga);
+  }
+
   async retryAssetSync(subjectInput:TenantAccessContext,sagaId:string):Promise<MetaOnboardingProgress>{
     const subject=this.requireManager(subjectInput);
     const saga=await this.requireOwnedSaga(subject,sagaId);
@@ -117,27 +123,41 @@ export class MetaOnboardingService {
   private async runAssetSync(
     subject:TenantAccessContext,sagaId:string,connectionId:string,saga:MetaOnboardingRecord,
   ):Promise<MetaOnboardingProgress>{
+    let result:MetaAssetDiscoveryResult;
     try{
-      const result=await this.assets.discoverAndPersist({
+      result=await this.assets.discoverAndPersist({
         subject,connectionId,product:saga.product,authorizationMode:saga.authorizationMode,
         requiredScopes:saga.requiredScopes,
       });
-      if(!Number.isSafeInteger(result.discoveredAssets)||result.discoveredAssets<0
-        ||!Array.isArray(result.missingCapabilities)
-        ||result.missingCapabilities.some(value=>typeof value!=="string"||value.length>128)
-        ||!result.requiredAssetsReady||result.missingCapabilities.length>0){
-        await this.repository.recordAssetSyncFailure(subject,sagaId,"META_REQUIRED_ASSET_GRANTS_INCOMPLETE");
-        const pending=await this.requireOwnedSaga(subject,sagaId);
-        return this.toProgress(pending,result.discoveredAssets,result.missingCapabilities);
-      }
-      await this.repository.markReady(subject,sagaId);
-      const ready=await this.requireOwnedSaga(subject,sagaId);
-      return this.toProgress(ready,result.discoveredAssets,[]);
     }catch{
-      await this.repository.recordAssetSyncFailure(subject,sagaId,"META_ASSET_DISCOVERY_UNAVAILABLE");
-      const pending=await this.requireOwnedSaga(subject,sagaId);
-      return this.toProgress(pending,null,[]);
+      await this.repository.recordAssetSyncFailure(subject,sagaId,"META_ASSET_DISCOVERY_UNAVAILABLE",{
+        discoveredAssets:null,missingCapabilities:[],
+      });
+      return this.toProgress(await this.requireOwnedSaga(subject,sagaId));
     }
+
+    if(!isMetaAssetDiscoveryResult(result)){
+      await this.repository.recordAssetSyncFailure(subject,sagaId,"META_ASSET_DISCOVERY_RESPONSE_INVALID",{
+        discoveredAssets:null,missingCapabilities:[],
+      });
+      return this.toProgress(await this.requireOwnedSaga(subject,sagaId));
+    }
+
+    const snapshot={
+      discoveredAssets:result.discoveredAssets,
+      missingCapabilities:Object.freeze([...new Set(result.missingCapabilities)].sort()),
+    };
+    if(!result.requiredAssetsReady||snapshot.missingCapabilities.length>0){
+      await this.repository.recordAssetSyncFailure(
+        subject,sagaId,"META_REQUIRED_ASSET_GRANTS_INCOMPLETE",snapshot,
+      );
+      return this.toProgress(await this.requireOwnedSaga(subject,sagaId));
+    }
+
+    await this.repository.markReady(subject,sagaId,{
+      ...snapshot,requiredAssetsReady:true,
+    });
+    return this.toProgress(await this.requireOwnedSaga(subject,sagaId));
   }
 
   private async requireOwnedSaga(subject:TenantAccessContext,sagaId:string):Promise<MetaOnboardingRecord>{
@@ -154,13 +174,27 @@ export class MetaOnboardingService {
     return subject;
   }
 
-  private toProgress(
-    saga:MetaOnboardingRecord,discoveredAssets:number|null,missingCapabilities:readonly string[],
-  ):MetaOnboardingProgress{
+  private toProgress(saga:MetaOnboardingRecord):MetaOnboardingProgress{
     return {
       sagaId:saga.sagaId,status:saga.status,connectionId:saga.connectionId,
-      discoveredAssets,missingCapabilities:Object.freeze([...missingCapabilities]),
+      discoveredAssets:saga.discoveredAssets,
+      missingCapabilities:Object.freeze([...saga.missingCapabilities]),
       lastErrorCode:saga.lastErrorCode,syncAttempts:saga.syncAttempts,
     };
   }
+}
+
+function isMetaAssetDiscoveryResult(value:unknown):value is MetaAssetDiscoveryResult{
+  if(typeof value!=="object"||value===null||Array.isArray(value))return false;
+  const candidate=value as Record<string,unknown>;
+  return typeof candidate["requiredAssetsReady"]==="boolean"
+    && typeof candidate["discoveredAssets"]==="number"
+    && Number.isSafeInteger(candidate["discoveredAssets"])
+    && (candidate["discoveredAssets"] as number)>=0
+    && Array.isArray(candidate["missingCapabilities"])
+    && candidate["missingCapabilities"].length<=1000
+    && candidate["missingCapabilities"].every((capability)=>typeof capability==="string"
+      && capability.length<=128
+      && /^[a-z][a-z0-9]*(?:[._:-][a-z0-9]+)*$/.test(capability))
+    && new Set(candidate["missingCapabilities"]).size===candidate["missingCapabilities"].length;
 }

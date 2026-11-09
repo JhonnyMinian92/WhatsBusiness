@@ -9,7 +9,7 @@ interface SagaRow {
   id:string;tenant_id:string;initiated_by_user_id:string;provider_product:MetaOnboardingRecord["product"];
   authorization_mode:MetaOnboardingRecord["authorizationMode"];status:MetaOnboardingRecord["status"];
   required_scopes:string[];connection_id:string|null;request_hash:string;sync_attempts:number;
-  last_error_code:string|null;
+  last_error_code:string|null;discovered_assets_count:number|null;missing_capabilities:string[];
 }
 @Injectable()
 export class PostgresMetaOnboardingRepository implements MetaOnboardingRepositoryPort {
@@ -23,14 +23,16 @@ export class PostgresMetaOnboardingRepository implements MetaOnboardingRepositor
          VALUES($1,$2,$3,$4,$5,$6::text[],$7,$8)
          ON CONFLICT(tenant_id,initiated_by_user_id,idempotency_key) DO NOTHING
          RETURNING id::text,tenant_id::text,initiated_by_user_id::text,provider_product,authorization_mode,status,
-           required_scopes,connection_id::text,request_hash,sync_attempts,last_error_code`,
+           required_scopes,connection_id::text,request_hash,sync_attempts,last_error_code,
+           discovered_assets_count,missing_capabilities`,
         [sagaId,input.tenantId,input.actorUserId,input.product,input.authorizationMode,input.requiredScopes,input.idempotencyKey,input.requestHash],
       );
       let row=inserted.rows[0];
       if(!row){
         const existing=await client.query<SagaRow>(
           `SELECT id::text,tenant_id::text,initiated_by_user_id::text,provider_product,authorization_mode,status,
-                  required_scopes,connection_id::text,request_hash,sync_attempts,last_error_code
+                  required_scopes,connection_id::text,request_hash,sync_attempts,last_error_code,
+           discovered_assets_count,missing_capabilities
              FROM platform.meta_onboarding_sagas
             WHERE tenant_id=$1 AND initiated_by_user_id=$2 AND idempotency_key=$3`,
           [input.tenantId,input.actorUserId,input.idempotencyKey],
@@ -53,7 +55,8 @@ export class PostgresMetaOnboardingRepository implements MetaOnboardingRepositor
     const result=await this.database.withTenantContextAtVersion(subject.actorId,subject.tenantId,subject.authzVersion,(client)=>
       client.query<SagaRow>(
         `SELECT id::text,tenant_id::text,initiated_by_user_id::text,provider_product,authorization_mode,status,
-                required_scopes,connection_id::text,request_hash,sync_attempts,last_error_code
+                required_scopes,connection_id::text,request_hash,sync_attempts,last_error_code,
+           discovered_assets_count,missing_capabilities
            FROM platform.meta_onboarding_sagas WHERE id=$1 AND tenant_id=$2`,
         [sagaId,subject.tenantId],
       ),
@@ -81,30 +84,38 @@ export class PostgresMetaOnboardingRepository implements MetaOnboardingRepositor
     });
   }
 
-  async recordAssetSyncFailure(subject:TenantAccessContext,sagaId:string,errorCode:string):Promise<void>{
+  async recordAssetSyncFailure(
+    subject:TenantAccessContext,sagaId:string,errorCode:string,
+    snapshot:{readonly discoveredAssets:number|null;readonly missingCapabilities:readonly string[]},
+  ):Promise<void>{
     await this.database.withTenantContextAtVersion(subject.actorId,subject.tenantId,subject.authzVersion,async(client)=>{
       const result=await client.query(
-        `UPDATE platform.meta_onboarding_sagas SET last_error_code=$3
+        `UPDATE platform.meta_onboarding_sagas
+            SET last_error_code=$3,discovered_assets_count=$4,missing_capabilities=$5::text[]
           WHERE id=$1 AND tenant_id=$2 AND status='asset_sync_pending'`,
-        [sagaId,subject.tenantId,normalizeError(errorCode)],
+        [sagaId,subject.tenantId,normalizeError(errorCode),snapshot.discoveredAssets,[...snapshot.missingCapabilities]],
       );
       if(result.rowCount!==1)throw new ConflictException({code:"META_ONBOARDING_SYNC_STATE_CONFLICT"});
       await this.audit.append(client,{
         tenantId:subject.tenantId,actorUserId:subject.actorId,actionKey:"meta.connections.manage",
         resourceType:"meta_onboarding_saga",resourceId:sagaId,purpose:subject.purpose,
-        outcome:"meta_onboarding_blocked",reasonCode:normalizeError(errorCode),correlationId:subject.correlationId,
+        outcome:"meta_onboarding_asset_sync_failed",reasonCode:normalizeError(errorCode),correlationId:subject.correlationId,
       });
     });
   }
 
-  async markReady(subject:TenantAccessContext,sagaId:string):Promise<void>{
+  async markReady(
+    subject:TenantAccessContext,sagaId:string,
+    result:{readonly discoveredAssets:number;readonly missingCapabilities:readonly string[]},
+  ):Promise<void>{
     await this.database.withTenantContextAtVersion(subject.actorId,subject.tenantId,subject.authzVersion,async(client)=>{
-      const result=await client.query(
-        `UPDATE platform.meta_onboarding_sagas SET status='ready',last_error_code=NULL
+      const updated=await client.query(
+        `UPDATE platform.meta_onboarding_sagas
+            SET status='ready',last_error_code=NULL,discovered_assets_count=$3,missing_capabilities=$4::text[]
           WHERE id=$1 AND tenant_id=$2 AND status='asset_sync_pending' AND connection_id IS NOT NULL`,
-        [sagaId,subject.tenantId],
+        [sagaId,subject.tenantId,result.discoveredAssets,[...result.missingCapabilities]],
       );
-      if(result.rowCount!==1)throw new ConflictException({code:"META_ONBOARDING_TRANSITION_CONFLICT"});
+      if(updated.rowCount!==1)throw new ConflictException({code:"META_ONBOARDING_TRANSITION_CONFLICT"});
       await this.audit.append(client,{
         tenantId:subject.tenantId,actorUserId:subject.actorId,actionKey:"meta.connections.manage",
         resourceType:"meta_onboarding_saga",resourceId:sagaId,purpose:subject.purpose,
@@ -139,7 +150,10 @@ export class PostgresMetaOnboardingRepository implements MetaOnboardingRepositor
       sagaId:row.id,tenantId:row.tenant_id,initiatedByUserId:row.initiated_by_user_id,
       product:row.provider_product,authorizationMode:row.authorization_mode,status:row.status,
       requiredScopes:Object.freeze([...row.required_scopes]),connectionId:row.connection_id,
-      requestHash:row.request_hash,syncAttempts:row.sync_attempts,lastErrorCode:row.last_error_code,
+      requestHash:row.request_hash,syncAttempts:row.sync_attempts,
+      discoveredAssets:row.discovered_assets_count,
+      missingCapabilities:Object.freeze([...(row.missing_capabilities??[])]),
+      lastErrorCode:row.last_error_code,
     });
   }
 }
