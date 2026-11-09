@@ -15,6 +15,7 @@ export interface PrivacyRightsRequestInput {
   readonly purpose: string;
   readonly reasonCode: string;
   readonly idempotencyKey: string;
+  readonly correlationId: string;
 }
 export interface ValidatedPrivacyRightsRequest extends PrivacyRightsRequestInput {
   readonly requestHash: string;
@@ -35,7 +36,7 @@ const ACTIONS: readonly PrivacyRightAction[] = [
 
 export class PrivacyRightsPolicy {
   validate(input: PrivacyRightsRequestInput): ValidatedPrivacyRightsRequest {
-    if (!UUID.test(input.tenantId) || !UUID.test(input.requesterUserId) || !UUID.test(input.subjectId)) {
+    if (!UUID.test(input.tenantId) || !UUID.test(input.requesterUserId) || !UUID.test(input.subjectId) || !UUID.test(input.correlationId)) {
       throw new PrivacyRightsPolicyViolation("PRIVACY_SUBJECT_IDENTIFIER_INVALID", "El tenant, solicitante o sujeto no tiene un identificador válido.");
     }
     if (input.subjectType !== "user" && input.subjectType !== "contact" && input.subjectType !== "contact_identity") {
