@@ -289,3 +289,46 @@ Como operador de plataforma quiero detectar cambios de API, features, permisos y
 - AC-032-03: feature flags/capabilities se habilitan por evidencia versionada y no por suposiciones.
 - AC-032-04: alerts pueden generar draft migration tasks/PRs, pero no modificar permisos ni publicar en Meta sin aprobación.
 Tareas: TASK-076.
+
+
+
+## Épica EP-15 — Expansión multicanal y aprendizaje experimental
+
+### US-033 — Identidad y reorganización del frontend (P1)
+Como usuario del producto quiero que la aplicación Angular se llame `app-meta-ecuapp` para identificar el frontend sin mover ni romper el backend NestJS.
+- AC-033-01: el código Angular se ubica en `app-meta-ecuapp/` y el proyecto Nx/Angular usa exactamente ese nombre.
+- AC-033-02: `apps/api` conserva su ruta y targets operativos.
+- AC-033-03: workspace pnpm, Angular, Nx, tests, CI, Docker, build outputs y documentación se actualizan sin referencias rotas.
+- AC-033-04: frozen install, build, typecheck, unit/integration y E2E aplicables pasan en el mismo commit.
+Tareas: TASK-081.
+
+### US-034 — TikTok APIs oficiales para Ads, contenido y mensajería (P0)
+Como marketer quiero conectar cuentas TikTok y operar sus capacidades comerciales y de contenido oficiales desde WhatsBusiness con permisos, elegibilidad y límites explícitos.
+- AC-034-01: existe un capability registry por API/producto/versión/cuenta/scope/país/operación y evidencia vigente.
+- AC-034-02: Marketing API permite gestionar los recursos admitidos de Ads, audiencias, leads, catálogos e Insights; se utiliza Upgraded Smart+ en los flujos que migren desde Legacy Manual Flow.
+- AC-034-03: Login Kit, Organic API, Content Posting, Display y Business Messaging usan adapters y permisos independientes.
+- AC-034-04: Direct Post requiere `video.publish`, autorización del usuario y revisión/audit del cliente; un upload a draft no se reporta como publicación.
+- AC-034-05: webhooks, leads y mensajes se verifican, deduplican, persisten y enrutan con tenant isolation, consentimiento y handoff.
+- AC-034-06: las operaciones sin capability o scope vigente fallan de forma cerrada.
+Tareas: TASK-082, TASK-083, TASK-084, TASK-090, TASK-091.
+
+### US-035 — Publicidad oficial en ChatGPT (OpenAI Advertiser API) (P0)
+Como anunciante quiero gestionar campañas, anuncios, recursos y medición de ChatGPT Ads desde WhatsBusiness sin exponer claves ni ejecutar gasto no autorizado.
+- AC-035-01: el adapter utiliza OpenAI Advertiser API, no la API de modelos ni endpoints inventados.
+- AC-035-02: cuentas, campañas, ad groups, ads, files, product feeds, previews, audit logs e Insights quedan vinculados a tenant/cuenta y a capability evidence vigente.
+- AC-035-03: campañas y anuncios se crean en draft/paused cuando el endpoint lo permita y requieren aprobación antes de activar.
+- AC-035-04: Measurement Pixel y Conversions API separan credenciales, aplican consentimiento y deduplican por la clave oficial de evento.
+- AC-035-05: cada métrica expone ventana de atribución, granularidad, moneda, zona horaria y freshness.
+- AC-035-06: operaciones externas tienen idempotencia, audit, reconciliación y kill switch.
+Tareas: TASK-085, TASK-086, TASK-090, TASK-091.
+
+### US-036 — Experimentos V1/V2 y aprendizaje continuo multicanal (P0)
+Como marketer quiero que cada campaña sometida a experimentación tenga una versión original y una alternativa, se distribuya con método válido y genere aprendizajes para la siguiente versión.
+- AC-036-01: V1 es snapshot original inmutable y V2 deriva de una hipótesis explícita; ambas conservan lineage y aprobación.
+- AC-036-02: cada experimento declara variable primaria, KPI, población, tamaño de muestra, MDE, ventana, presupuesto y stop rules.
+- AC-036-03: asignación estable y excluyente; se detecta SRM y se distingue asignación, delivery y exposición efectiva.
+- AC-036-04: se registran atributos visuales, texto, tipografía cuando sea controlable, CTA, landing, oferta, placement, fecha, hora, audiencia y outcomes.
+- AC-036-05: métricas de plataforma, outcomes CRM y uplift causal permanecen separados.
+- AC-036-06: el motor genera recomendaciones y drafts con evidencia/uncertainty; publicación y gasto conservan approval gate.
+- AC-036-07: un ganador no se sobrescribe y toda nueva ronda conserva historial versionado.
+Tareas: TASK-087, TASK-088, TASK-089, TASK-091.
