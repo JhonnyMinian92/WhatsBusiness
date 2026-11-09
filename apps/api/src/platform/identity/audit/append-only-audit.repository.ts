@@ -19,7 +19,8 @@ export type AuditOutcome =
   | "meta_connection_created"
   | "meta_connection_rotated"
   | "meta_connection_revocation_requested"
-  | "meta_connection_revoked";
+  | "meta_connection_revoked"
+  | "meta_assets_synced";
 
 export interface AppendAuditEvent {
   readonly tenantId: string;
@@ -226,6 +227,7 @@ export class AppendOnlyAuditRepository {
       "meta_connection_rotated",
       "meta_connection_revocation_requested",
       "meta_connection_revoked",
+      "meta_assets_synced",
     ];
     const invalidFields: string[] = [];
 
