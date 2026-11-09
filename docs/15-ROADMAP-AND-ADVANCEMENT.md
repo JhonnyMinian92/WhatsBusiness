@@ -1,5 +1,7 @@
 # 15 — Roadmap y control de avances
 
+> **Precedencia de fases:** la secuencia vigente y normativa está en `docs/31-MASTER-DELIVERY-PLAN.md`. Los encabezados de fases iniciales en este documento son históricos y se conservan para trazabilidad. En el plan vigente, Fase 2 = Meta Control Plane y onboarding; WhatsApp, Inbox y CRM esencial pasan a Fase 3.
+
 ## Principio de avance
 El roadmap mide implementación y verificación, no cantidad de documentación o commits. Cada estado debe tener IDs y evidencia en la matriz de trazabilidad. Una solicitud explícita del propietario para implementar/corregir habilita el trabajo correspondiente aunque existan otros gates pendientes; los gates de seguridad y producción siguen siendo obligatorios para liberar o ejecutar acciones de alto impacto.
 
@@ -18,7 +20,7 @@ El roadmap mide implementación y verificación, no cantidad de documentación o
 Tenant, IAM, audit, secrets, asset registry, capability registry, webhook gateway, event bus, observability.
 **Salida:** US-001..004, US-014..016 implementadas y verificadas con QA/security.
 
-## Fase 2 — WhatsApp completo
+## Fase 2 histórica (roadmap anterior, supersedida) — WhatsApp completo
 Onboarding, management, Cloud API, templates, media, Flows, Marketing Messages, policy, cost ledger.
 **Salida:** US-005..008 end-to-end y elegibilidad real.
 
@@ -441,3 +443,10 @@ Se añadió un slice puro bajo `apps/api/src/inbox/domain`:
 - La suite API general tiene 4 fallos ajenos a Inbox (tres expectations de guards CRM y un fixture de Platform Administration sin correlation ID); el workflow completo mantiene FAILURE por ese gate, no por Inbox.
 - No cerrar la historia: operaciones INB-006..014/018 siguen contract-only hasta API-CONTRACT-FREEZE+G0. Persistencia/RLS, CAS/outbox, workers de presencia/expiry, controllers, integración TASK-045, UI/E2E, revisión independiente y Product Owner acceptance siguen pendientes.
 - Evidencia, run IDs y causas: [docs/75-US-021-INBOX-COLLABORATION-DOMAIN-SLICE.md](75-US-021-INBOX-COLLABORATION-DOMAIN-SLICE.md).
+
+
+## Actualización de Fase 2 — Meta Control Plane y TASK-006..010 (2026-11-08)
+
+Se conserva como fuente normativa `docs/31-MASTER-DELIVERY-PLAN.md`: Fase 2 es Meta Control Plane y onboarding. En la rama `environment/local` se implementó un nuevo slice de seguridad OAuth (AAD separado para state y credenciales; gestión por otro administrador del tenant; refresh basado en access token; revocación local fail-closed), catálogo acotado de scopes WhatsApp con procedencia, validación runtime de onboarding, registro PostgreSQL de activos con RLS y sync history append-only, y auditoría de `meta_assets_synced`. Se añadieron suites al target `api:test`.
+
+**Avance veraz:** TASK-006..010 siguen `in_progress`. El provider Meta OAuth, el proveedor KMS/secret manager y Meta Asset Discovery permanecen intencionalmente `unconfigured`; no se habilitaron endpoints META catalog-only. La migración 0039, build/typecheck/tests y CodeQL aún no tienen resultado verificado para el HEAD actual. Faltan Meta App/config_id Embedded Signup v4, App Review/Advanced Access, cuenta autorizada, provider Graph con paginación/versioning, catálogo capability por operación/evidencia persistida, contract freeze G0, revisión independiente y aceptación del Product Owner. G2 no está aprobado; GO-PRODUCTION NO-GO. Ver `docs/78-PHASE-2-META-CONTROL-PLANE-STATUS.md`.
