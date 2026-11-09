@@ -11,7 +11,6 @@ import type { TenantAccessContext } from "../../../identity/tenant-access-contex
 import {
   META_OAUTH_PROVIDER,
   META_OAUTH_REPOSITORY,
-  type CredentialEnvelope,
   type MetaOAuthProviderPort,
   type MetaOAuthRepositoryPort,
   type MetaOAuthTokenSet,
