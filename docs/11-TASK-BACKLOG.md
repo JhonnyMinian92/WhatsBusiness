@@ -1093,3 +1093,29 @@ Los siguientes paquetes amplían TASK-067..080. Los estados iniciales son `propo
 | TASK-091 | P0 | US-034/035/036 | Hardening multicanal: spend ledger, cuotas, privacidad/retención, rights/brand, reconciliación y observabilidad | TASK-029,031,032,059,071,080,082..089 | Guardrails unificados, recuperación/alertas y revisión independiente. |
 
 **Estado inicial de TASK-081..091:** proposed; sin código, API pública ni write externo acreditado por esta propuesta.
+
+
+
+## EP-16 — Experimentación y operación omnicanal (propuesta 2026-11-09)
+
+Todos los estados nuevos inician en proposed. Esta ampliación no modifica el estado de TASK-067..091 ni acredita integraciones reales.
+
+| TASK | Prioridad | Historia | Entregable | Dependencias | Criterio de salida |
+|---|---:|---|---|---|---|
+| TASK-092 | P0 | US-037 | Experiment Registry, preregistro, brazos, unidad experimental y lifecycle | TASK-067,070,087 | Experimento auditable, schemas versionados e invariantes persistidas. |
+| TASK-093 | P0 | US-037 | Assignment Service, randomization, native split ports, SRM y contamination | TASK-092,082,085 | Unicidad por unidad y split válido; fail-closed si no se prueba. |
+| TASK-094 | P0 | US-043 | Event ingestion, inbox, normalization, dedupe, data quality y replay | TASK-027,028,084,086 | Eventos canónicos con raw evidence, provenance y freshness. |
+| TASK-095 | P0 | US-038 | Journey Orchestrator, cross-channel assignment, branching, frequency caps y stop rules | TASK-092,093,094,103 | Una variante estable por unidad y decisiones idempotentes. |
+| TASK-096 | P1 | US-039 | Email ESP adapters y webhooks, deliverability, suppression y domain health | TASK-094,103 | Delivery/bounce/complaint/click/unsubscribe con semántica real y MPP caveat. |
+| TASK-097 | P1 | US-040 | SMS/Voice CPaaS adapters, ledger, callbacks y dispositions | TASK-094,103 | Estados, errores, costes y voice outcomes con consent gates. |
+| TASK-098 | P1/P2 | US-041 | Telegram Bot/Business adapter, Mini App events, webhooks y loop protection | TASK-094,095,103 | Updates durables, rights, rate limits y métricas soportadas. |
+| TASK-099 | P1 | US-042 | Google Ads/YouTube API, experiment resources y conversions | TASK-056,072,094 | Capability por cuenta y native experiment evidence. |
+| TASK-100 | P0 | US-043 | Metric Registry, semantic layer, dashboards y export | TASK-072,078,088,094 | Definiciones de métricas versionadas, denominadores y freshness. |
+| TASK-101 | P0 | US-043 | Attribution, cross-channel dedupe, holdout/incrementality y conversion lag | TASK-068,077,086,092,094 | Provider attribution separado de first-party y lift causal. |
+| TASK-102 | P0 | US-043 | Feature Store multicanal, event-time snapshots, lineage y quality | TASK-088,094 | Features reproducibles, temporales y sin leakage. |
+| TASK-103 | P0 | US-044 | Consent/Preference/Suppression runtime transversal | TASK-032,059,094,095 | Bloqueo ante evidencia ausente/revocada; propagación y audit. |
+| TASK-104 | P1 | US-045 | Channel Registry y Business Case scorecard | TASK-056,065,090 | Prioridad por demanda, coste, país, audiencia y API oficial. |
+| TASK-105 | P1 | US-037 | Analyzer, sample/power, intervals, multiple comparisons y sequential policy | TASK-092,093,100,101 | Decisión winner/loser/inconclusive/invalidated reproducible. |
+| TASK-106 | P1 | US-038/043 | Dashboard omnicanal, journey explorer y observabilidad deliverability | TASK-095,096,097,098,099,100 | Vistas por tenant/rol y alertas basadas en eventos reales. |
+
+Política de estado: tareas propuestas hasta que cada paquete tenga owner/reviewer, código, contratos, tests, evidencia CI del commit, revisión independiente y aceptación. No confundir intención documental con implementación.
