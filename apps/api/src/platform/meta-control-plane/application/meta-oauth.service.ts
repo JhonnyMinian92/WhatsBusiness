@@ -79,9 +79,11 @@ export class MetaOAuthService {
       nonce,
       codeChallenge,
     });
-    const parsedUrl = new URL(authorizationUrl);
-    if (parsedUrl.protocol !== "https:" || parsedUrl.username || parsedUrl.password) {
-      throw new ServiceUnavailableException("El proveedor OAuth devolvió un destino de autorización inseguro.");
+    let parsedUrl: URL;
+    try {
+      parsedUrl = this.policy.assertAuthorizationUrl(authorizationUrl);
+    } catch {
+      throw new ServiceUnavailableException("El proveedor OAuth devolvió un destino fuera de la allowlist HTTPS autorizada.");
     }
 
     await this.repository.createState({
