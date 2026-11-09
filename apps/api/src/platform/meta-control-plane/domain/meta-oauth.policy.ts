@@ -1,4 +1,6 @@
-import type { MetaOAuthScopePolicyPort } from "../application/meta-oauth.ports.js";
+export interface MetaOAuthScopePolicy {
+  isAllowed(product: MetaOAuthProduct, scope: string): boolean;
+}
 
 export type MetaOAuthProduct =
   | "whatsapp_business_platform"
@@ -39,7 +41,7 @@ export class MetaOAuthPolicy {
 
   constructor(
     config: MetaOAuthPolicyConfig,
-    private readonly scopePolicy: MetaOAuthScopePolicyPort,
+    private readonly scopePolicy: MetaOAuthScopePolicy,
   ) {
     this.allowedRedirectUris = new Set(config.allowedRedirectUris.map((value) => value.trim()).filter(Boolean));
     this.stateLifetimeSeconds = config.maximumStateLifetimeSeconds ?? 600;
