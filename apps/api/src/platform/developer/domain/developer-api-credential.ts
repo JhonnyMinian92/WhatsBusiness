@@ -10,13 +10,13 @@ export interface GeneratedDeveloperApiCredential {readonly keyId:string;readonly
 const TOKEN=/^wb_live_([a-f0-9]{24})\.([A-Za-z0-9_-]{43})$/, IDEMPOTENCY=/^[\x21-\x7e]{16,255}$/;
 export function parseCreateDeveloperApiClient(value:unknown,now=new Date()):CreateDeveloperApiClientCommand{
  const b=record(value); exact(b,["name","scopes","expiresAt"],["name","scopes"]);
- if(typeof b.name!=="string"||b.name.trim().length<2||b.name.trim().length>100)throw new DeveloperApiCredentialValidationError("DEVELOPER_CLIENT_NAME_INVALID");
- if(!Array.isArray(b.scopes)||b.scopes.length<1||b.scopes.length>DEVELOPER_API_SCOPES.length)throw new DeveloperApiCredentialValidationError("DEVELOPER_CLIENT_SCOPES_INVALID");
- const scopes=b.scopes.map(s=>{if(typeof s!=="string"||!isDeveloperApiScope(s))throw new DeveloperApiCredentialValidationError("DEVELOPER_CLIENT_SCOPE_NOT_ALLOWED");return s;});
+ if(typeof b["name"]!=="string"||b["name"].trim().length<2||b["name"].trim().length>100)throw new DeveloperApiCredentialValidationError("DEVELOPER_CLIENT_NAME_INVALID");
+ if(!Array.isArray(b["scopes"])||b["scopes"].length<1||b["scopes"].length>DEVELOPER_API_SCOPES.length)throw new DeveloperApiCredentialValidationError("DEVELOPER_CLIENT_SCOPES_INVALID");
+ const scopes=b["scopes"].map(s=>{if(typeof s!=="string"||!isDeveloperApiScope(s))throw new DeveloperApiCredentialValidationError("DEVELOPER_CLIENT_SCOPE_NOT_ALLOWED");return s;});
  if(new Set(scopes).size!==scopes.length)throw new DeveloperApiCredentialValidationError("DEVELOPER_CLIENT_SCOPES_DUPLICATED");
  let expiresAt:Date|null=null;
- if(b.expiresAt!==undefined&&b.expiresAt!==null){if(typeof b.expiresAt!=="string")throw new DeveloperApiCredentialValidationError("DEVELOPER_CLIENT_EXPIRY_INVALID");const n=Date.parse(b.expiresAt);if(!Number.isFinite(n)||n<=now.getTime()||n>now.getTime()+366*86400000)throw new DeveloperApiCredentialValidationError("DEVELOPER_CLIENT_EXPIRY_INVALID");expiresAt=new Date(n);}
- return Object.freeze({name:b.name.trim(),scopes:Object.freeze([...scopes].sort()),expiresAt});
+ if(b["expiresAt"]!==undefined&&b["expiresAt"]!==null){if(typeof b["expiresAt"]!=="string")throw new DeveloperApiCredentialValidationError("DEVELOPER_CLIENT_EXPIRY_INVALID");const n=Date.parse(b["expiresAt"]);if(!Number.isFinite(n)||n<=now.getTime()||n>now.getTime()+366*86400000)throw new DeveloperApiCredentialValidationError("DEVELOPER_CLIENT_EXPIRY_INVALID");expiresAt=new Date(n);}
+ return Object.freeze({name:b["name"].trim(),scopes:Object.freeze([...scopes].sort()),expiresAt});
 }
 export function generateDeveloperApiCredential(pepper:Buffer):GeneratedDeveloperApiCredential{assertPepper(pepper);const keyId=randomBytes(12).toString("hex"),secret=randomBytes(32).toString("base64url");return Object.freeze({keyId,bearerToken:"wb_live_"+keyId+"."+secret,secretDigest:digestDeveloperApiSecret(secret,pepper)});}
 export function parseDeveloperApiBearerToken(token:string,pepper:Buffer){assertPepper(pepper);const m=typeof token==="string"&&token.length<=160?TOKEN.exec(token):null;if(!m?.[1]||!m[2])throw new DeveloperApiCredentialValidationError("DEVELOPER_CLIENT_TOKEN_INVALID");return {keyId:m[1],secretDigest:digestDeveloperApiSecret(m[2],pepper)};}

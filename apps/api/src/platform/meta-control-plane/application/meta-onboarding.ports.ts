@@ -1,4 +1,4 @@
-import type { TenantAccessContext } from "../../../identity/tenant-access-context.js";
+import type { TenantAccessContext } from "../../identity/tenant-access-context.js";
 import type { MetaAuthorizationMode, MetaOAuthProduct } from "../domain/meta-oauth.policy.js";
 import type { MetaOnboardingStatus, ValidatedMetaOnboardingRequest } from "../domain/meta-onboarding.policy.js";
 

@@ -794,3 +794,16 @@ La ejecución de CI anterior pasó build/typecheck y 355/356 API tests; el fallo
 | Seguridad de HEAD compartido | CodeQL \`42533056607\`, mismo HEAD | Aprobado | CodeQL pasó, pero no sustituye el build ni hace verde el Source workflow. |
 
 **Decisión:** TASK-069, TASK-070, TASK-073 y TASK-079 permanecen \`in_progress\`. Los tests de dominio pasan, pero faltan providers autoritativos de derechos/consentimiento/marca/claims, ingestión TASK-072, asignación server-side de audiencias disjuntas, adapter oficial Meta con capabilities por cuenta/versión/placement, contract tests, review independiente y Product Owner acceptance. No se habilitan endpoints públicos, publicación ni gasto.
+
+## 61. Reparación TypeScript build plataforma (2026-11-08)
+
+| ID | Hallazgo | Corrección | Estado |
+|---|---|---|---|
+| AUD-232 | Imports relativos de Developer y Meta resolvían dentro del directorio equivocado. | Se alinean con el layout `platform/*`; build CI nuevo pendiente. | source patched |
+| AUD-233 | Guard importaba `TooManyRequestsException`, que no existe en `@nestjs/common`. | `HttpException` + `HttpStatus.TOO_MANY_REQUESTS`. | source patched |
+| AUD-234 | Acceso a campos `Record<string, unknown>` con dot notation bajo regla estricta. | bracket notation y validación runtime. | source patched |
+| AUD-235 | Implementaciones duplicadas en `UnconfiguredMetaOAuthProvider`. | Una implementación fail-closed por método. | source patched |
+| AUD-236 | Embedded Signup emitía outcomes no contemplados por `AuditOutcome`. | Se agregan tipos y allowlist de cuatro outcomes registrados en migration 0038. | source patched |
+| AUD-237 | Subscription upsert ejecutaba DELETE duplicado. | Se deja un único DELETE transaccional. | source patched |
+
+El run previo pasó migrations, la aceptación de build/typecheck continúa pendiente hasta el CI del commit con estas correcciones. Detalle `docs/93-PLATFORM-SOURCE-TYPECHECK-FIX.md`.

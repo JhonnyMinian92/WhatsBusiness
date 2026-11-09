@@ -1,6 +1,6 @@
 import { Inject, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { randomUUID } from "node:crypto";
-import type { TenantAccessContext } from "../../../identity/tenant-access-context.js";
+import type { TenantAccessContext } from "../../identity/tenant-access-context.js";
 import { MetaOAuthService } from "./meta-oauth.service.js";
 import {
   META_ASSET_DISCOVERY,

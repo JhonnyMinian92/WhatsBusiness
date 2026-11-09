@@ -19,7 +19,11 @@ export type AuditOutcome =
   | "meta_connection_created"
   | "meta_connection_rotated"
   | "meta_connection_revocation_requested"
-  | "meta_connection_revoked";
+  | "meta_connection_revoked"
+  | "meta_onboarding_started"
+  | "meta_onboarding_asset_sync_started"
+  | "meta_onboarding_blocked"
+  | "meta_onboarding_ready";
 
 export interface AppendAuditEvent {
   readonly tenantId: string;
@@ -226,6 +230,10 @@ export class AppendOnlyAuditRepository {
       "meta_connection_rotated",
       "meta_connection_revocation_requested",
       "meta_connection_revoked",
+      "meta_onboarding_started",
+      "meta_onboarding_asset_sync_started",
+      "meta_onboarding_blocked",
+      "meta_onboarding_ready",
     ];
     const invalidFields: string[] = [];
 

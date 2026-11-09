@@ -971,3 +971,12 @@ La tabla kickoff de TASK-034..041 se conserva como registro histórico. Esta fil
 **Migración:** apps/api/migrations/0031-ads-creative-lab.sql.  
 **Evidencia de pruebas:** las seis suites agregadas registraron 26/26 pruebas Creative Lab aprobadas en Source run 42532889134 (commit 1dc4545); migration apply/idempotency, build y typecheck también pasaron, y CodeQL 42532889226 pasó. El workflow completo quedó bloqueado por el fallo preexistente de Platform Administration sobre RLS de platform.usage_ledger (reproducido antes de US-030 en run 42531885574). El HEAD compartido posterior e48b229 tiene además 63 errores TypeScript de Developer Platform y Source run 42533056750 no pasa build. Las tareas US-030 siguen in_progress.  
 **Bloqueos transversales:** TASK-024/025/056, TASK-067/072, API contract freeze, Meta credentials/capability runtime, derechos/brand review, integración oficial, review independiente y Product Owner acceptance. GO-PRODUCTION permanece NO-GO.
+
+## Reparación de TypeScript build — Frente A (2026-11-08)
+
+**Estado: corrección de fuente comprometida en rama; CI nuevo pendiente.**
+
+- Source run `42547476482` pasó migraciones 0032–0038 e idempotencia, pero falló en build TypeScript. Se corrigen rutas relativas de Developer/Meta, propiedad indexada estricta, HttpException/TooManyRequests y adapters duplicados.
+- Se amplía allowlist tipada de `AuditOutcome` a los cuatro outcomes Embedded Signup ya creados por migración 0038.
+- Se quita una segunda operación DELETE de subscriptions que era redundante dentro de la misma transacción.
+- La rama antigua PR #8 se considera obsoleta: el HEAD de `environment/local` ya incluye la reparación de SQL 0032–0037; la corrección de compilación es un paquete separado. Ver `docs/93-PLATFORM-SOURCE-TYPECHECK-FIX.md`.

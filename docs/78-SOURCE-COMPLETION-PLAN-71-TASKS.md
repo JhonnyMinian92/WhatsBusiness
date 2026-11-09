@@ -213,3 +213,9 @@ El objetivo de esta campaña se cumple cuando:
 - Las pruebas siguen explícitamente pendientes y la siguiente etapa queda definida como ejecución local, una tarea a la vez.
 
 Este cierre no representa `verified`, `accepted` ni autorización de producción.
+
+### Plataforma TypeScript build — reparación de errores (2026-11-08)
+
+- Se corrigen rutas de módulos y validación de payload/idempotency en Developer, imports de Identity desde Meta, exception Nest y métodos duplicados de adapters.
+- Se alinean outcomes de auditoría del onboarding con el nuevo tipo TS, incluyendo los cuatro valores ya persistidos por migración 0038.
+- Source run anterior pasó migrations/idempotency pero build falló; estado solo `source patched` hasta nuevo CI. No relajar TS strict. Ver docs/93.

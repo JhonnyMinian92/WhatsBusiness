@@ -3,23 +3,23 @@ import {
 } from "@nestjs/common";
 import { createHash, randomBytes } from "node:crypto";
 import type { PoolClient } from "pg";
-import type { TenantAccessContext } from "../identity/tenant-access-context.js";
-import type { PermissionKey } from "../identity/authorization/permission-catalog.js";
-import { AppendOnlyAuditRepository } from "../identity/audit/append-only-audit.repository.js";
-import { DatabaseService } from "../database/database.module.js";
-import { PostgresTenantJobRecordWriter } from "../isolation/postgres-tenant-job-record.writer.js";
+import type { TenantAccessContext } from "../../identity/tenant-access-context.js";
+import type { PermissionKey } from "../../identity/authorization/permission-catalog.js";
+import { AppendOnlyAuditRepository } from "../../identity/audit/append-only-audit.repository.js";
+import { DatabaseService } from "../../database/database.module.js";
+import { PostgresTenantJobRecordWriter } from "../../isolation/postgres-tenant-job-record.writer.js";
 import {
   assertDeveloperIdempotencyKey, assertDeveloperUuid, generateDeveloperApiCredential,
   hashDeveloperCommand, isDeveloperApiScope, parseCreateDeveloperApiClient,
   secureDigestEquals, type DeveloperApiScope,
-} from "./domain/developer-api-credential.js";
+} from "../domain/developer-api-credential.js";
 import {
   createDeveloperWebhookSecret, parseCreateWebhookEndpoint,
   parseDeveloperWebhookSubscriptions, DeveloperWebhookValidationError,
   validateWebhookTargetUrl,
-} from "./domain/developer-webhook.js";
-import { DEVELOPER_API_KEY_PEPPER_PROVIDER, type DeveloperApiKeyPepperProvider } from "./infrastructure/developer-api-key-pepper.js";
-import { DEVELOPER_WEBHOOK_SECRET_PROTECTOR, type DeveloperWebhookSecretProtector } from "./infrastructure/developer-webhook-secret-protector.js";
+} from "../domain/developer-webhook.js";
+import { DEVELOPER_API_KEY_PEPPER_PROVIDER, type DeveloperApiKeyPepperProvider } from "../infrastructure/developer-api-key-pepper.js";
+import { DEVELOPER_WEBHOOK_SECRET_PROTECTOR, type DeveloperWebhookSecretProtector } from "../infrastructure/developer-webhook-secret-protector.js";
 
 const DELIVERY_JOB_TYPE = "developer.webhook.delivery";
 const VERIFY_JOB_TYPE = "developer.webhook.verify_endpoint";
@@ -306,8 +306,6 @@ export class DeveloperPlatformService {
           "DELETE FROM platform.developer_webhook_subscriptions WHERE tenant_id=$1 AND endpoint_id=$2",
           [subject.tenantId, endpointId],
         );
-        await client.query("DELETE FROM platform.developer_webhook_subscriptions WHERE tenant_id=$1 AND endpoint_id=$2",
-          [subject.tenantId, endpointId]);
         for (const item of subscriptions) {
           await client.query(
             "INSERT INTO platform.developer_webhook_subscriptions (tenant_id,endpoint_id,event_type,schema_version) " +
@@ -424,17 +422,21 @@ export class DeveloperPlatformService {
     return candidate;
   }
 
-  private async reserveCommand(client: PoolClient, subject: TenantAccessContext, operation: string, key: string, requestHash: string) {
+  private async reserveCommand(client: PoolClient, subject: TenantAccessContext, operation: string, key: string | undefined, requestHash: string) {
+    const validatedKey = validateDeveloperInput(() => {
+      assertDeveloperIdempotencyKey(key);
+      return key;
+    });
     const inserted = await client.query<{ id: string }>(
       "INSERT INTO platform.developer_api_commands (tenant_id,actor_user_id,operation_key,idempotency_key,request_sha256) " +
       "VALUES ($1,$2,$3,$4,$5) ON CONFLICT (tenant_id,actor_user_id,operation_key,idempotency_key) DO NOTHING RETURNING id::text",
-      [subject.tenantId, subject.actorId, operation, key, requestHash],
+      [subject.tenantId, subject.actorId, operation, validatedKey, requestHash],
     );
     if (inserted.rows[0]) return { commandId: inserted.rows[0].id, replayed: false, resourceId: null as string | null };
     const existing = await client.query<CommandRow>(
       "SELECT id::text,request_sha256,resource_id::text FROM platform.developer_api_commands " +
       "WHERE tenant_id=$1 AND actor_user_id=$2 AND operation_key=$3 AND idempotency_key=$4",
-      [subject.tenantId, subject.actorId, operation, key],
+      [subject.tenantId, subject.actorId, operation, validatedKey],
     );
     const row = existing.rows[0];
     if (!row) throw new ConflictException({ code: "DEVELOPER_IDEMPOTENCY_RECORD_NOT_FOUND" });
