@@ -256,3 +256,8 @@ Los instrumentos de campo están en research/us-028/: guía de entrevistas, regl
 ## 77 — US-031 Agent Tool Interoperability
 
 [Agent Tool Gateway/MCP y coordinación Inbox](77-US-031-AGENT-TOOL-INTEROPERABILITY.md)
+
+
+## 95 — Expansión multicanal: TikTok, ChatGPT Ads y aprendizaje A/B
+
+[95 — Expansión multicanal: TikTok, ChatGPT Ads y aprendizaje automático de campañas](95-EXPANSION-TIKTOK-OPENAI-ADS-AND-AUTOMATED-LEARNING.md) especifica el rename seguro del frontend a `app-meta-ecuapp`, las familias oficiales TikTok y OpenAI Ads, las versiones V1/V2, asignación experimental, medición causal, aprendizaje, seguridad y tareas propuestas US-033..036 / TASK-081..091. Especificación propuesta; no declara APIs implementadas ni habilita publicación/gasto.
