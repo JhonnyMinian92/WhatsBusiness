@@ -22,11 +22,20 @@ export class MetaOnboardingPolicyViolation extends Error {
   }
 }
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const PRODUCTS: readonly MetaOAuthProduct[] = [
+  "whatsapp_business_platform","facebook_pages","instagram","marketing_api","conversions_api","threads",
+];
+const AUTHORIZATION_MODES: readonly MetaAuthorizationMode[] = ["user_token","system_user_token"];
+
 export class MetaOnboardingPolicy {
   validate(input: MetaOnboardingRequest): ValidatedMetaOnboardingRequest {
     if(!UUID.test(input.tenantId)||!UUID.test(input.actorUserId))
       throw new MetaOnboardingPolicyViolation("META_ONBOARDING_CONTEXT_INVALID","El tenant o actor no es válido.");
-    if(typeof input.idempotencyKey!=="string"||input.idempotencyKey.length<16||input.idempotencyKey.length>255)
+    if(!PRODUCTS.includes(input.product))
+      throw new MetaOnboardingPolicyViolation("META_ONBOARDING_PRODUCT_INVALID","El producto Meta no está soportado.");
+    if(!AUTHORIZATION_MODES.includes(input.authorizationMode))
+      throw new MetaOnboardingPolicyViolation("META_ONBOARDING_AUTHORIZATION_MODE_INVALID","El modo de autorización no está soportado.");
+    if(typeof input.idempotencyKey!=="string"||input.idempotencyKey.trim()!==input.idempotencyKey||input.idempotencyKey.length<16||input.idempotencyKey.length>255)
       throw new MetaOnboardingPolicyViolation("META_ONBOARDING_IDEMPOTENCY_INVALID","Se requiere una clave de idempotencia de 16 a 255 caracteres.");
     if(!Array.isArray(input.requiredScopes)||input.requiredScopes.length<1||input.requiredScopes.length>100)
       throw new MetaOnboardingPolicyViolation("META_ONBOARDING_SCOPES_INVALID","Debe especificarse el conjunto de permisos requerido.");
