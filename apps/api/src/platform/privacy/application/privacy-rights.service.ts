@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import type { TenantAccessContext } from "../../identity/tenant-access-context.js";
 import type { PermissionKey } from "../../identity/authorization/permission-catalog.js";
 import { ApprovalWorkflowService } from "../../identity/approvals/approval-workflow.service.js";
-import { PrivacyRightsPolicy, PrivacyRightsPolicyViolation, type PrivacyRightsRequestInput } from "../domain/privacy-rights.policy.js";
+import { PrivacyRightsPolicy, PrivacyRightsPolicyViolation, type PrivacyRightsRequestInput, type ValidatedPrivacyRightsRequest } from "../domain/privacy-rights.policy.js";
 import {
   PRIVACY_RIGHTS_REPOSITORY,
   type PrivacyRequestSummary,
@@ -29,17 +29,17 @@ export class PrivacyRightsService {
     @Inject(PRIVACY_RIGHTS_REPOSITORY) private readonly repository: PrivacyRightsRepositoryPort,
   ) {}
 
-  async request(subject: TenantAccessContext, input: Omit<PrivacyRightsRequestInput,"tenantId"|"requesterUserId"|"purpose"> & { readonly purpose?: string }): Promise<PrivacyRequestSummary> {
+  async request(subject: TenantAccessContext, input: Omit<PrivacyRightsRequestInput,"tenantId"|"requesterUserId"|"purpose">): Promise<PrivacyRequestSummary> {
     if (subject.membershipStatus !== "active" || subject.tenantId.length === 0) {
       throw new ForbiddenException({code:"PRIVACY_REQUEST_ACTOR_INACTIVE"});
     }
-    let validated;
+    let validated: ValidatedPrivacyRightsRequest;
     try {
       validated = this.policy.validate({
         ...input,
         tenantId: subject.tenantId,
         requesterUserId: subject.actorId,
-        purpose: input.purpose ?? subject.purpose,
+        purpose: subject.purpose,
       });
     } catch (error) {
       if (error instanceof PrivacyRightsPolicyViolation) {
@@ -56,6 +56,7 @@ export class PrivacyRightsService {
       tenantId: subject.tenantId,
       requesterUserId: subject.actorId,
       idempotencyKey: validated.idempotencyKey,
+      authzVersion: subject.authzVersion,
     });
     if (existing) {
       if (existing.action !== validated.action || existing.subjectType !== validated.subjectType
@@ -67,7 +68,7 @@ export class PrivacyRightsService {
 
     const requestId = randomUUID();
     if (validated.approvalKind === "none") {
-      return this.repository.create(validated,requestId);
+      return this.repository.create(validated,requestId,subject.authzVersion);
     }
     const approvalAction: PermissionKey = validated.approvalKind === "erasure"
       ? "privacy.deletion.request"
@@ -99,6 +100,7 @@ export class PrivacyRightsService {
     });
     const created = await this.repository.findByIdempotency({
       tenantId: subject.tenantId, requesterUserId: subject.actorId, idempotencyKey: validated.idempotencyKey,
+      authzVersion: subject.authzVersion,
     });
     if (!created || created.approvalId !== approval.approvalId) {
       throw new NotFoundException({code:"PRIVACY_REQUEST_STAGE_MISSING",detail:"La solicitud de privacidad no quedó vinculada a su aprobación durable."});
