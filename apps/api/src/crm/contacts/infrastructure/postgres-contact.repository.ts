@@ -36,7 +36,7 @@ export class PostgresContactRepository {
     input: {
       tenantId: string;
       actorId: string;
-      operation: "create" | "update" | "link_identity";
+      operation: "create" | "update" | "link_identity" | "create_contact_attribute" | "update_contact_attribute" | "set_contact_attribute";
       idempotencyKey: string;
       requestHash: string;
     },
