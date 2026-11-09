@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "scenarioId": "api-health-live",
+  "environment": "local",
+  "target": {
+    "baseUrl": "http://127.0.0.1:3000",
+    "path": "/api/health/live",
+    "expectedStatuses": [200],
+    "accept": "application/json"
+  },
+  "workload": {
+    "requests": 500,
+    "concurrency": 20,
+    "warmupRequests": 25,
+    "timeoutMs": 3000
+  },
+  "outputDirectory": "artifacts/benchmarks"
+}

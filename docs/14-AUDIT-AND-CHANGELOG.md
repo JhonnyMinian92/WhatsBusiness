@@ -794,3 +794,13 @@ La ejecución de CI anterior pasó build/typecheck y 355/356 API tests; el fallo
 | Seguridad de HEAD compartido | CodeQL \`42533056607\`, mismo HEAD | Aprobado | CodeQL pasó, pero no sustituye el build ni hace verde el Source workflow. |
 
 **Decisión:** TASK-069, TASK-070, TASK-073 y TASK-079 permanecen \`in_progress\`. Los tests de dominio pasan, pero faltan providers autoritativos de derechos/consentimiento/marca/claims, ingestión TASK-072, asignación server-side de audiencias disjuntas, adapter oficial Meta con capabilities por cuenta/versión/placement, contract tests, review independiente y Product Owner acceptance. No se habilitan endpoints públicos, publicación ni gasto.
+
+## 58. Harness de benchmark HTTP / TASK-060 (2026-11-08)
+
+| ID | Cambio | Estado real |
+|---|---|---|
+| AUD-223 | CLI `pnpm bench:http` con requests GET acotados, warm-up, concurrency pool, timeout, latencias percentiles y throughput. | Código agregado; no se ejecutó medición. |
+| AUD-224 | Default loopback; staging externo requiere opt-in explícito HTTPS; production prohibido; token tomado por env var y redactado de artefactos. | Guardrails implementados; fuente de tests registrada, ejecución posterior. |
+| AUD-225 | Reportes JSON/Markdown/CSV de resultados por request sin response body ni secretos. | Código agregado; generación real pendiente de ejecución. |
+
+El primer escenario apunta a `GET /api/health/live`; no mide carga CRM/Inbox/jobs/DB ni acredita SLO/capacidad. TASK-060 sigue `in_progress`. Véase docs/90.

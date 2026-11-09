@@ -213,3 +213,10 @@ El objetivo de esta campaña se cumple cuando:
 - Las pruebas siguen explícitamente pendientes y la siguiente etapa queda definida como ejecución local, una tarea a la vez.
 
 Este cierre no representa `verified`, `accepted` ni autorización de producción.
+
+### Paquete TASK-060 — harness de benchmark HTTP
+
+- Rama: `feat/task-060-http-benchmark-harness`.
+- Se añade generador de carga de solo lectura con validación segura del destino, concurrencia acotada, timeout, métricas p50/p95/p99/throughput y reportes JSON/Markdown/CSV.
+- Se agregan comandos `pnpm bench:http` y `pnpm bench:test` y se ignoran los resultados bajo `artifacts/benchmarks/`.
+- El harness no establece SLOs ni afirma capacidad; los escenarios de dominio, soak/capacity y métricas reales siguen pendientes. TASK-060 continúa `in_progress`. Ver docs/90.

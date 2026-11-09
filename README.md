@@ -86,6 +86,8 @@ Variables principales: DATABASE_URL, MIGRATION_DATABASE_URL, DATABASE_POOL_MAX (
 - API: pnpm exec tsx apps/api/src/main.ts.
 - Web: pnpm nx run web:serve.
 - Calidad: pnpm build, pnpm typecheck y pnpm test.
+- Benchmark HTTP de solo lectura: pnpm bench:http --config scripts/bench/http-load.config.example.json.
+- Pruebas del harness (fase posterior): pnpm bench:test.
 
 API local: http://localhost:3000. Angular dev server: http://localhost:4200.
 

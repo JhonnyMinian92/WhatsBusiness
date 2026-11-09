@@ -971,3 +971,13 @@ La tabla kickoff de TASK-034..041 se conserva como registro histórico. Esta fil
 **Migración:** apps/api/migrations/0031-ads-creative-lab.sql.  
 **Evidencia de pruebas:** las seis suites agregadas registraron 26/26 pruebas Creative Lab aprobadas en Source run 42532889134 (commit 1dc4545); migration apply/idempotency, build y typecheck también pasaron, y CodeQL 42532889226 pasó. El workflow completo quedó bloqueado por el fallo preexistente de Platform Administration sobre RLS de platform.usage_ledger (reproducido antes de US-030 en run 42531885574). El HEAD compartido posterior e48b229 tiene además 63 errores TypeScript de Developer Platform y Source run 42533056750 no pasa build. Las tareas US-030 siguen in_progress.  
 **Bloqueos transversales:** TASK-024/025/056, TASK-067/072, API contract freeze, Meta credentials/capability runtime, derechos/brand review, integración oficial, review independiente y Product Owner acceptance. GO-PRODUCTION permanece NO-GO.
+
+## Handoff TASK-060 — harness reproducible de carga HTTP (2026-11-08)
+
+**Estado: `in_progress` (harness de lectura implementado; escenarios/capacidad completos y medición real pendientes).**
+
+- Se añade CLI y módulos reutilizables en `scripts/bench/`: configuración versionada, runner con pool concurrente, timeout, métricas de latencia/throughput/error, evaluación de thresholds, escritor de reportes y ejemplo JSON.
+- Solo GET; default loopback; destino externo exige flag explícito + HTTPS + environment no productivo. No se permite production. Bearer token solo vía variable de entorno y nunca se vuelca al reporte.
+- Artefactos JSON/Markdown/CSV no incluyen cuerpos ni valores de cabeceras. Los umbrales no tienen defaults arbitrarios.
+- Scripts registrados: `pnpm bench:http` y `pnpm bench:test`. Las pruebas quedan escritas para ejecución posterior; no se ejecutaron en esta etapa.
+- Sigue pendiente añadir escenarios reales de API/CRM/Inbox/jobs/queues, escalones de carga, soak, recursos, consumer lag y criterio de capacidad aprobado. Ver `docs/90-TASK-060-HTTP-BENCHMARK-HARNESS.md`.
