@@ -971,3 +971,20 @@ La tabla kickoff de TASK-034..041 se conserva como registro histórico. Esta fil
 **Migración:** apps/api/migrations/0031-ads-creative-lab.sql.  
 **Evidencia de pruebas:** las seis suites agregadas registraron 26/26 pruebas Creative Lab aprobadas en Source run 42532889134 (commit 1dc4545); migration apply/idempotency, build y typecheck también pasaron, y CodeQL 42532889226 pasó. El workflow completo quedó bloqueado por el fallo preexistente de Platform Administration sobre RLS de platform.usage_ledger (reproducido antes de US-030 en run 42531885574). El HEAD compartido posterior e48b229 tiene además 63 errores TypeScript de Developer Platform y Source run 42533056750 no pasa build. Las tareas US-030 siguen in_progress.  
 **Bloqueos transversales:** TASK-024/025/056, TASK-067/072, API contract freeze, Meta credentials/capability runtime, derechos/brand review, integración oficial, review independiente y Product Owner acceptance. GO-PRODUCTION permanece NO-GO.
+
+
+## Handoff de implementación — Fase 2 Meta Control Plane (2026-11-08)
+
+Fuente de fase vigente: `docs/31-MASTER-DELIVERY-PLAN.md` (Fase 2 = Meta Control Plane y onboarding). Los cambios están en la rama autorizada `environment/local`.
+
+| TASK | Estado | Incremento implementado en esta iteración | Pendiente para cierre |
+|---|---|---|---|
+| TASK-006 — OAuth/state/PKCE | in_progress | AAD de state separado del AAD de credenciales; identidad de credencial asociada a tenant/producto/usuario Meta; segundo administrador puede rotar; provider contract refresh por access token; catálogo de scopes WhatsApp con evidencia; pruebas de policy. | Provider OAuth real, Meta App/redirects/config, callback/contratos G0, intercambio de código con cuenta autorizada y CI/review. |
+| TASK-007 — token vault/lifecycle | in_progress | Revocación local se persiste antes de KMS/Meta; fallos remotos/KMS dejan estado reauthorization_required y remote state unknown. | KMS/secret manager real, key rotation y recuperación, re-encriptado/compatibilidad de sobres existentes, provider refresh/revoke real, pruebas operativas. |
+| TASK-008 — Embedded Signup/onboarding | in_progress | Validación runtime de producto, modo, scopes e idempotency; se conserva la saga durable existente. | Embedded Signup v4/config_id real, mapping Business/WABA/phone/system-user, webhook subscription, provider de tokens/KMS y pruebas de cuenta autorizada. |
+| TASK-009 — Meta Asset Registry | in_progress | Migration 0039, repository PostgreSQL, advisory lock por tenant/conexión, RLS, relaciones/tasks/ownership, sync history append-only/hash, cobertura complete_for y aplicación de validación; módulo exporta el servicio. | Discovery Graph real, paginación/rate limit/retry, provider de token, conexión real, contract freeze META-010..013, migración/CI PostgreSQL del HEAD. |
+| TASK-010 — Capability Registry | in_progress | Evaluador explicable existente; scope catalog acotado a WhatsApp con procedencia y fail-closed para otros productos. | Catálogo completo por operación y versión, evidence provider/read-refresh/persistence, consumidores/guards, META-014..015 contract freeze, fixtures de eligibility/account. |
+
+**Validación:** se registraron `meta-oauth-scope-catalog.spec.ts`, `meta-oauth.policy.spec.ts`, `meta-onboarding.policy.spec.ts`, `meta-oauth.service.spec.ts` y `meta-asset-registry.service.spec.ts` en `api:test`; el spec del audit ledger ahora cubre `meta_assets_synced`. No se reporta Source CI, CodeQL, build, typecheck ni ejecución PostgreSQL del HEAD actual; no afirmar PASS hasta revisar el run del SHA exacto.
+
+**Gates:** META-010..015 siguen `catalog-only`; no cambiar `x-implementation-allowed`. La configuración de Meta App, Embedded Signup v4, App Review/Advanced Access, Business Verification/Tech Provider cuando aplique, KMS y una cuenta autorizada son dependencias externas. G2 no está aprobado; fase permanece `in_progress`; GO-PRODUCTION NO-GO. Detalle: `docs/78-PHASE-2-META-CONTROL-PLANE-STATUS.md`.
