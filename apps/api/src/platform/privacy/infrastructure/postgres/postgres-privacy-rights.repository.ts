@@ -22,9 +22,9 @@ export class PostgresPrivacyRightsRepository implements PrivacyRightsRepositoryP
   constructor(private readonly database: DatabaseService) {}
 
   async findByIdempotency(input: {
-    readonly tenantId: string; readonly requesterUserId: string; readonly idempotencyKey: string;
+    readonly tenantId: string; readonly requesterUserId: string; readonly idempotencyKey: string; readonly authzVersion: number;
   }): Promise<PrivacyRequestSummary | null> {
-    const result = await this.database.withTenantContext(input.requesterUserId,input.tenantId,(client) =>
+    const result = await this.database.withTenantContextAtVersion(input.requesterUserId,input.tenantId,input.authzVersion,(client) =>
       client.query<RequestRow>(
         `SELECT id::text,tenant_id::text,subject_type,subject_id::text,action,status,
                 approval_request_id::text,request_hash,created_at,updated_at
@@ -36,8 +36,8 @@ export class PostgresPrivacyRightsRepository implements PrivacyRightsRepositoryP
     return result.rows[0] ? this.toSummary(result.rows[0]) : null;
   }
 
-  async create(input: ValidatedPrivacyRightsRequest, requestId: string): Promise<PrivacyRequestSummary> {
-    const result = await this.database.withTenantContext(input.requesterUserId,input.tenantId,(client) =>
+  async create(input: ValidatedPrivacyRightsRequest, requestId: string, authzVersion: number): Promise<PrivacyRequestSummary> {
+    const result = await this.database.withTenantContextAtVersion(input.requesterUserId,input.tenantId,authzVersion,(client) =>
       this.insertRequest(client,input,requestId,null),
     );
     return result;
@@ -52,8 +52,8 @@ export class PostgresPrivacyRightsRepository implements PrivacyRightsRepositoryP
     await this.insertRequest(client,input,requestId,approvalId);
   }
 
-  async get(actorUserId: string, tenantId: string, requestId: string): Promise<PrivacyRequestSummary | null> {
-    const result = await this.database.withTenantContext(actorUserId,tenantId,async (client) => {
+  async get(actorUserId: string, tenantId: string, authzVersion: number, requestId: string): Promise<PrivacyRequestSummary | null> {
+    const result = await this.database.withTenantContextAtVersion(actorUserId,tenantId,authzVersion,async (client) => {
       return client.query<RequestRow>(
         `SELECT id::text,tenant_id::text,subject_type,subject_id::text,action,status,
                 approval_request_id::text,request_hash,created_at,updated_at
