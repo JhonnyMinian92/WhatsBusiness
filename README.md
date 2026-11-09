@@ -56,7 +56,7 @@ No utilizar claves, URLs ni valores de ejemplo en producción. La API rechaza el
 
 ## Seguridad
 
-Las rutas de negocio requieren Bearer JWT verificado con JWKS. Cada operación comprueba membresía y permiso del tenant. El contexto autenticado configura `app.tenant_id` en PostgreSQL y activa RLS. Los tokens Meta no se devuelven al navegador ni se registran en logs; se cifran con AES-256-GCM y una data key administrada por AWS KMS. Los webhooks se verifican sobre los bytes originales antes de parsearlos y se guardan cifrados antes del ACK.
+Las rutas de negocio requieren Bearer JWT verificado con JWKS. Cada operación comprueba membresía y permiso del tenant. El contexto autenticado configura `app.tenant_id` en PostgreSQL y activa RLS. Los tokens Meta no se devuelven al navegador ni se registran en logs; se cifran con AES-256-GCM y una data key administrada por AWS KMS. Los logs bajo contexto de tenant incluyen un pseudónimo HMAC versionado y nunca el identificador real; genera `TELEMETRY_HMAC_KEY_BASE64` con `openssl rand -base64 32`. Los webhooks se verifican sobre los bytes originales antes de parsearlos y se guardan cifrados antes del ACK.
 
 ## Documentación
 

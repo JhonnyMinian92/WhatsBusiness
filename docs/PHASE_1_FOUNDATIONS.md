@@ -24,6 +24,7 @@
 | Event delivery | inbox/outbox, locking, reintento con backoff y DLQ | `platform/events`, worker |
 | Privacidad | consentimiento por tenant/canal/finalidad y callback signed_request | `modules/privacy` |
 | Auditoría | eventos administrativos y de consentimiento | `modules/audit` |
+| Observabilidad | contexto correlacionado, HMAC de tenant y dimensiones métricas acotadas | `platform/isolation/tenant-telemetry-context.ts` y logger HTTP |
 | Operación | migración SQL, Docker, health checks y CI | raíz y `.github/workflows` |
 
 ## Invariantes de seguridad
@@ -40,6 +41,7 @@
 10. Dedupe es persistente; fan-out soporta que un mismo activo esté autorizado por más de un tenant.
 11. Consentimiento se registra por tenant, sujeto, canal y finalidad, con eventos de concesión/revocación append-only.
 12. Credenciales, activos y grants no se comparten entre tenants por coincidencia de IDs.
+13. Los logs bajo contexto de tenant usan pseudónimos HMAC versionados y dimensiones de métricas con vocabulario acotado; no se exporta el tenant ID real.
 
 ## Rutas del producto incluidas en la fase
 

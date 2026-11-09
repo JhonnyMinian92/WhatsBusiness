@@ -30,7 +30,8 @@ const environmentSchema = z.object({
   EVENT_BUS_HTTP_URL: z.string().url().optional(),
   EVENT_BUS_HTTP_TOKEN: z.string().optional(),
   CORS_ALLOWED_ORIGINS: z.string().default("http://localhost:5173"),
-  LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info")
+  LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info"),
+  TELEMETRY_HMAC_KEY_BASE64: z.string().min(1)
 });
 
 export type Environment = z.infer<typeof environmentSchema>;
@@ -43,6 +44,10 @@ export function loadEnvironment(source: NodeJS.ProcessEnv = process.env): Enviro
   }
 
   const env = parsed.data;
+  const telemetryKey = Buffer.from(env.TELEMETRY_HMAC_KEY_BASE64, "base64");
+  if (telemetryKey.byteLength < 32 || telemetryKey.toString("base64") !== env.TELEMETRY_HMAC_KEY_BASE64) {
+    throw new Error("TELEMETRY_HMAC_KEY_BASE64 must encode at least 256 bits of key material.");
+  }
   if (env.NODE_ENV === "production" && env.TOKEN_ENCRYPTION_MODE !== "aws-kms") {
     throw new Error("Production requires TOKEN_ENCRYPTION_MODE=aws-kms.");
   }

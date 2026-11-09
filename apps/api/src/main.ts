@@ -2,6 +2,8 @@ import "dotenv/config";
 import { loadEnvironment } from "./platform/config/environment.js";
 import { Database } from "./platform/database/database.js";
 import { TenantContext } from "./platform/isolation/tenant-context.js";
+import { TenantTelemetryContext } from "./platform/isolation/tenant-telemetry-context.js";
+import { HmacTenantPseudonymizer } from "./platform/isolation/tenant-hmac-pseudonymizer.js";
 import { OidcJwtAuthenticator } from "./modules/identity/oidc-authenticator.js";
 import { PostgresTenantRepository } from "./modules/tenants/postgres-tenant.repository.js";
 import { TenantService } from "./modules/tenants/tenant.service.js";
@@ -34,6 +36,9 @@ import { buildApplication } from "./http/application.js";
 
 const env = loadEnvironment();
 const tenantContext = new TenantContext();
+const telemetry = new TenantTelemetryContext(
+  new HmacTenantPseudonymizer(Buffer.from(env.TELEMETRY_HMAC_KEY_BASE64, "base64"))
+);
 const database = new Database({
   connectionString: env.DATABASE_URL,
   maxConnections: env.DATABASE_POOL_MAX
@@ -166,7 +171,8 @@ const app = buildApplication({
   assetRegistry,
   tokenVault,
   consent,
-  audit
+  audit,
+  telemetry
 });
 
 const shutdown = async (): Promise<void> => {

@@ -22,6 +22,7 @@ import type { TokenVaultService } from "../modules/meta/token-vault/token-vault.
 import { META_PERMISSION_CATALOG } from "../modules/meta/permissions/permission-catalog.js";
 import type { ConsentService } from "../modules/privacy/consent.service.js";
 import type { AuditService } from "../modules/audit/audit.service.js";
+import type { TenantTelemetryContext } from "../platform/isolation/tenant-telemetry-context.js";
 
 interface RawBodyRequest extends FastifyRequest { rawBody?: Buffer; }
 export interface ApplicationDependencies {
@@ -41,6 +42,7 @@ export interface ApplicationDependencies {
   readonly tokenVault: TokenVaultService;
   readonly consent: ConsentService;
   readonly audit: AuditService;
+  readonly telemetry: TenantTelemetryContext;
 }
 const tenantIdSchema = z.string().uuid();
 const createTenantSchema = z.object({
@@ -63,6 +65,10 @@ export function buildApplication(dependencies: ApplicationDependencies): Fastify
   const app = Fastify({
     logger: {
       level: dependencies.env.LOG_LEVEL,
+      mixin: () => {
+        const identity = dependencies.tenantContext.optional();
+        return identity ? dependencies.telemetry.logAttributes(identity) : {};
+      },
       redact: {
         paths: [
           "req.headers.authorization", "req.headers.cookie", "req.body.code",
