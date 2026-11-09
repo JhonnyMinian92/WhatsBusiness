@@ -5,6 +5,7 @@ on:
     branches: [master, "feat/**"]
   pull_request:
     branches: [master]
+    types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
   contents: read
@@ -12,6 +13,23 @@ permissions:
 jobs:
   quality:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: whatsbusiness
+          POSTGRES_USER: whatsbusiness
+          POSTGRES_PASSWORD: phase-one-ci-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U whatsbusiness -d whatsbusiness"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 15
+    env:
+      DATABASE_URL: postgresql://whatsbusiness:phase-one-ci-password@localhost:5432/whatsbusiness
+      DATABASE_POOL_MAX: "10"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -21,3 +39,7 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
       - run: npm test
+      - name: Apply PostgreSQL migration on a clean database
+        run: npm run migrate
+      - name: Verify migration is idempotent
+        run: npm run migrate
