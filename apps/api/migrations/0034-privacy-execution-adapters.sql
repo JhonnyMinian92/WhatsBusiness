@@ -182,14 +182,14 @@ RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER
 SET search_path=pg_catalog,platform,crm
 AS $function$
 DECLARE
-  v_tenant_id uuid := NULLIF(current_setting('app.v_tenant_id',true),'')::uuid;
+  v_tenant_id uuid := NULLIF(current_setting('app.tenant_id',true),'')::uuid;
   v_actor_id uuid := NULLIF(current_setting('app.user_id',true),'')::uuid;
 BEGIN
   IF v_tenant_id IS NULL OR v_actor_id IS NULL
      OR NOT platform.has_permission(v_tenant_id,'privacy.deletion.request') THEN
     RAISE EXCEPTION 'Contact erasure requires verified tenant privacy authority' USING ERRCODE='42501';
   END IF;
-  PERFORM 1 FROM crm.contacts WHERE crm.contacts.v_tenant_id=v_tenant_id AND crm.contacts.id=p_contact_id FOR UPDATE;
+  PERFORM 1 FROM crm.contacts WHERE crm.contacts.tenant_id=v_tenant_id AND crm.contacts.id=p_contact_id FOR UPDATE;
   IF NOT FOUND THEN RETURN false; END IF;
 
   UPDATE crm.contacts AS contact SET
@@ -201,7 +201,7 @@ BEGIN
   UPDATE crm.contact_identities identity_record SET
     external_id='redacted:'||md5(v_tenant_id::text||':'||p_contact_id::text||':'||identity_record.id::text),
     source_reference=NULL,verified_at=NULL,confidence=NULL
-  WHERE identity_record.v_tenant_id=v_tenant_id AND identity_record.contact_id=p_contact_id;
+  WHERE identity_record.tenant_id=v_tenant_id AND identity_record.contact_id=p_contact_id;
   RETURN true;
 END
 $function$;
@@ -213,7 +213,7 @@ RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER
 SET search_path=pg_catalog,platform,crm
 AS $function$
 DECLARE
-  v_tenant_id uuid := NULLIF(current_setting('app.v_tenant_id',true),'')::uuid;
+  v_tenant_id uuid := NULLIF(current_setting('app.tenant_id',true),'')::uuid;
 BEGIN
   IF v_tenant_id IS NULL OR NOT platform.has_permission(v_tenant_id,'privacy.deletion.request') THEN
     RAISE EXCEPTION 'Contact identity erasure requires privacy deletion permission' USING ERRCODE='42501';
@@ -233,7 +233,7 @@ RETURNS integer LANGUAGE plpgsql SECURITY DEFINER
 SET search_path=pg_catalog,platform,crm
 AS $function$
 DECLARE
-  v_tenant_id uuid := NULLIF(current_setting('app.v_tenant_id',true),'')::uuid;
+  v_tenant_id uuid := NULLIF(current_setting('app.tenant_id',true),'')::uuid;
   v_actor_id uuid := NULLIF(current_setting('app.user_id',true),'')::uuid;
   affected integer := 0;
   contact_row record;
@@ -245,10 +245,10 @@ BEGIN
   IF p_batch_size<1 OR p_batch_size>5000 THEN RAISE EXCEPTION 'Invalid batch size' USING ERRCODE='22023'; END IF;
   FOR contact_row IN
     SELECT contact.id FROM crm.contacts contact
-    WHERE contact.v_tenant_id=v_tenant_id AND contact.status='archived' AND contact.updated_at<=p_cutoff
+    WHERE contact.tenant_id=v_tenant_id AND contact.status='archived' AND contact.updated_at<=p_cutoff
       AND (NOT p_require_legal_hold_check OR NOT EXISTS (
         SELECT 1 FROM platform.privacy_legal_holds hold
-        WHERE hold.v_tenant_id=v_tenant_id AND hold.subject_id=contact.id
+        WHERE hold.tenant_id=v_tenant_id AND hold.subject_id=contact.id
           AND hold.data_category='contacts' AND hold.status='active'
       ))
     ORDER BY contact.updated_at,contact.id
