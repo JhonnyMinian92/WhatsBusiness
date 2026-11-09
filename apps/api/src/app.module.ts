@@ -10,8 +10,9 @@ import { AdsCampaignsModule } from "./ads/campaigns/application/ads-campaigns.mo
 import { CreativeLabModule } from "./ads/creative-lab/application/creative-lab.module.js";
 import { PlatformAdministrationModule } from "./platform/administration/platform-administration.module.js";
 import { MetaControlPlaneModule } from "./platform/meta-control-plane/meta-control-plane.module.js";
+import { PrivacyModule } from "./platform/privacy/privacy.module.js";
 
 @Module({
-  imports: [HealthModule, IdentityModule, IsolationModule, TenantJobsModule, MetaWebhooksModule, CrmContactsModule, WhatsAppTemplatesModule, AdsCampaignsModule, CreativeLabModule, PlatformAdministrationModule, MetaControlPlaneModule],
+  imports: [HealthModule, IdentityModule, IsolationModule, TenantJobsModule, MetaWebhooksModule, CrmContactsModule, WhatsAppTemplatesModule, AdsCampaignsModule, CreativeLabModule, PlatformAdministrationModule, MetaControlPlaneModule, PrivacyModule],
 })
 export class AppModule {}
