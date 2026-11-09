@@ -261,3 +261,8 @@ Los instrumentos de campo están en research/us-028/: guía de entrevistas, regl
 ## 95 — Expansión multicanal: TikTok, ChatGPT Ads y aprendizaje A/B
 
 [95 — Expansión multicanal: TikTok, ChatGPT Ads y aprendizaje automático de campañas](95-EXPANSION-TIKTOK-OPENAI-ADS-AND-AUTOMATED-LEARNING.md) especifica el rename seguro del frontend a `app-meta-ecuapp`, las familias oficiales TikTok y OpenAI Ads, las versiones V1/V2, asignación experimental, medición causal, aprendizaje, seguridad y tareas propuestas US-033..036 / TASK-081..091. Especificación propuesta; no declara APIs implementadas ni habilita publicación/gasto.
+
+
+### Addendum 95 — Experimentación omnicanal
+
+El documento 95 añade el motor transversal de experimentación/medición y las historias US-037..045 / tareas TASK-092..106 propuestas. Cubre email, SMS, voz, Telegram, Google Ads/YouTube, journeys, Metric Registry, atribución, consentimiento y Channel Registry. No implica que estos adapters estén implementados.
