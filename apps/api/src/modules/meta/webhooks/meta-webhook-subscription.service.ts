@@ -45,7 +45,7 @@ export class MetaWebhookSubscriptionService {
           providerAssetId: asset.providerAssetId, objectType,
           subscribedFields: fields, status: "PENDING"
         });
-        const body = asset.type === "WHATSAPP_BUSINESS_ACCOUNT"
+        const body: Readonly<Record<string, string | number | boolean>> = asset.type === "WHATSAPP_BUSINESS_ACCOUNT"
           ? {}
           : { subscribed_fields: fields.join(",") };
         await this.graph.post(asset.providerAssetId + "/subscribed_apps", input.token.value, body);

@@ -218,6 +218,22 @@ export function buildApplication(dependencies: ApplicationDependencies): Fastify
     });
   });
 
+  app.post("/v1/tenants/:tenantId/meta/connections/:connectionId/rotate-token", async (request) => {
+    const actor = await authenticate(request, dependencies.authenticator);
+    const params = z.object({ tenantId: tenantIdSchema, connectionId: z.string().uuid() }).parse(request.params);
+    return dependencies.tenantContext.run({ tenantId: params.tenantId, userId: actor.userId, correlationId: request.id }, async () => {
+      await dependencies.tenants.requirePermission(params.tenantId, actor.userId, "assets.manage");
+      const result = await dependencies.connectionLifecycle.rotateUserToken(params.tenantId, params.connectionId);
+      await dependencies.audit.record({
+        tenantId: params.tenantId, actorUserId: actor.userId,
+        action: "meta.token.rotated", resourceType: "meta_connection",
+        resourceId: params.connectionId, correlationId: request.id,
+        metadata: { scopeCount: result.scopes.length, expiresAt: result.expiresAt?.toISOString() ?? null }
+      });
+      return { data: result };
+    });
+  });
+
   app.post("/v1/tenants/:tenantId/meta/connections/:connectionId/disconnect", async (request, reply) => {
     const actor = await authenticate(request, dependencies.authenticator);
     const params = z.object({ tenantId: tenantIdSchema, connectionId: z.string().uuid() }).parse(request.params);
