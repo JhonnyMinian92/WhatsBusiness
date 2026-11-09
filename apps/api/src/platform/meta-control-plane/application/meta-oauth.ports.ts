@@ -83,6 +83,7 @@ export interface SaveMetaConnection {
   readonly tenantId: string;
   readonly actorUserId: string;
   readonly authzVersion: number;
+  readonly correlationId: string;
   readonly product: MetaOAuthProduct;
   readonly authorizationMode: MetaAuthorizationMode;
   readonly providerUserId: string;
