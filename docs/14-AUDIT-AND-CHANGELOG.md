@@ -822,3 +822,8 @@ La ejecución de CI anterior pasó build/typecheck y 355/356 API tests; el fallo
 | Source workspace aggregate | FAIL | El agregador exige que todas las suites independientes pasen y conserva el fallo API anterior. |
 
 **Decisión:** no se presenta Source CI como verde. La compilación, typecheck, migración y suites de Meta sí están verificadas; Source global necesita que se corrija la integración baseline de Platform Administration y que vuelva a pasar sobre el SHA final. Esto no cambia los blockers externos de Meta App/KMS/cuenta autorizada, ni convierte G2 en aprobado.
+
+
+## 59. Compatibilidad de sobres OAuth históricos — 2026-11-08
+
+El helper `decryptConnectionTokens` prueba el AAD nuevo (tenant/product/provider identity) y solo ante fallo intenta el AAD histórico (tenant/creator/product). Las renovaciones exitosas guardan el token con el AAD estable nuevo; la revocación puede operar sobre sobres antiguos sin reactivar el acceso local. Hay pruebas Meta para renovación y revocación de credenciales legacy. Permanece pendiente KMS/secret manager real, rotación/recuperación de claves y rollout monitorizado para conexiones antiguas que no vuelvan a renovarse. La suite Meta del HEAD `a08bb5352f611077a6342ffc19a065fef2370b79` pasó 112/112.
