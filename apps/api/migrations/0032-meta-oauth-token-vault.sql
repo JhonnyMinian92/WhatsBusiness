@@ -6,6 +6,7 @@ CREATE TABLE platform.meta_oauth_states (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id uuid NOT NULL REFERENCES platform.tenants(id) ON DELETE RESTRICT,
   initiated_by_user_id uuid NOT NULL REFERENCES platform.users(id) ON DELETE RESTRICT,
+  authz_version bigint NOT NULL CHECK (authz_version>0),
   provider_product text NOT NULL CHECK (provider_product IN (
     'whatsapp_business_platform','facebook_pages','instagram','marketing_api',
     'conversions_api','threads'
@@ -80,6 +81,7 @@ CREATE OR REPLACE FUNCTION platform.consume_meta_oauth_state(p_state_hash text)
 RETURNS TABLE (
   tenant_id uuid,
   initiated_by_user_id uuid,
+  authz_version bigint,
   provider_product text,
   authorization_mode text,
   pkce_verifier_envelope jsonb,
@@ -217,7 +219,7 @@ GRANT SELECT,INSERT,UPDATE ON platform.meta_connections TO whatsbusiness_app;
      AND oauth_state.consumed_at IS NULL
      AND oauth_state.failed_at IS NULL
      AND oauth_state.expires_at>clock_timestamp()
-  RETURNING oauth_state.tenant_id,oauth_state.initiated_by_user_id,
+  RETURNING oauth_state.tenant_id,oauth_state.initiated_by_user_id,oauth_state.authz_version,
     oauth_state.provider_product,oauth_state.authorization_mode,
     oauth_state.pkce_verifier_envelope,oauth_state.redirect_uri,
     oauth_state.requested_scopes,oauth_state.return_path;
