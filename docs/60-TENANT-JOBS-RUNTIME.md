@@ -128,7 +128,8 @@ Source CI declara PostgreSQL 18.6 y RabbitMQ 4.4 para pruebas de integración. R
 - [x] Reader RabbitMQ cambiado a Management HTTP API con identidad `monitoring` dedicada y permisos AMQP vacíos, HTTPS remoto, Basic auth y timeout abortable. CodeQL #6 SUCCESS; Source CI #466 pendiente.
 - [x] Dashboard Grafana, alert rules y runbook versionados; aún no desplegados en stack real.
 - [x] Dashboard Grafana JSON, reglas Prometheus y runbook versionados; aún no importados/probados en el stack real.
-- [ ] Añadir métrica autoritativa de unacked/consumer lag, validar alert routing/SLO y umbrales con carga.
+- [x] Métricas RabbitMQ live de `messages_unacked` para worker y DLQ, además de `messages_ready` y consumers; unit + integración live Source CI 42597892008 PASS.
+- [ ] Definir/validar consumer lag como indicador temporal distinto de `messages_unacked`, desplegar alert routing/SLO y calibrar umbrales con carga.
 - [x] Probar pérdida de canal y redelivery real RabbitMQ; error de persistencia en job válido; ACK ambiguo después del commit; cierres concurrentes single-flight; expiración de execution/dispatch leases y fencing de tokens viejos. Source CI #42433941375 SUCCESS para commit `f136cff710fe8c60c8430c82928092320b9d90b5`.
 - [ ] Extender crash tests para todas las ventanas publish/confirm/mark, recovery concurrente bajo carga y fault injection con infraestructura de deployment.
 - [ ] Validar topology/policy en un deployment RabbitMQ real; CI no sustituye infraestructura de producción.
@@ -172,7 +173,7 @@ Cambios y regresiones cubiertas en la punta verificada:
 - PostgreSQL real: recuperación de execution/dispatch leases expirados; fencing de tokens antiguos que impide renew/complete/mark publicados; completion e inbox transaccionales.
 - Prometheus: counters/histograms in-memory con outcomes allowlisted, más endpoint `GET /metrics` (loopback por defecto; bearer remoto + TLS/mTLS y red privada). Gauges PostgreSQL agregados implementados; el muestreo está aislado y no bloquea recovery/dispatch.
 
-**Limitaciones que siguen abiertas:** el runtime no registra handlers de negocio Meta/CRM; el registry de replay continúa vacío y fail-closed. No se ha demostrado todavía replay end-to-end con handler real ni idempotencia de efectos externos. El adapter Prometheus ya tiene endpoint de scrape, gauges PostgreSQL y conteos RabbitMQ de mensajes listos/consumidores para worker queue y DLQ. Siguen pendientes mensajes unacknowledged/consumer lag autoritativo, importación/validación del dashboard y alert rules, alert routing y SLO. Tampoco existe evidencia de topology/policies en un cluster RabbitMQ productivo, secret manager/rotación, pruebas de carga/DR, revisión independiente ni aceptación final del propietario. TASK-003 continúa `in_progress` y GO-PRODUCTION permanece NO-GO.
+**Limitaciones que siguen abiertas:** el runtime no registra handlers de negocio Meta/CRM; el registry de replay continúa vacío y fail-closed. No se ha demostrado todavía replay end-to-end con handler real ni idempotencia de efectos externos. El adapter Prometheus ya tiene endpoint de scrape, gauges PostgreSQL y conteos RabbitMQ live de ready/unacknowledged/consumers para worker queue y DLQ. Sigue pendiente definir un indicador temporal de consumer lag (no equivalente a unacked), además de importar/validar dashboard y alert rules, alert routing y SLO. Tampoco existe evidencia de topology/policies en un cluster RabbitMQ productivo, secret manager/rotación, pruebas de carga/DR, revisión independiente ni aceptación final del propietario. TASK-003 continúa `in_progress` y GO-PRODUCTION permanece NO-GO.
 
 ## 13. Exposición HTTP de métricas Prometheus
 
@@ -182,7 +183,7 @@ La configuración usa `TENANT_JOB_METRICS_HOST=127.0.0.1` y `TENANT_JOB_METRICS_
 
 El nuevo test cubre GET/404/405, headers, bearer token, binding remoto sin token, renderer fallido, doble startup y cierre idempotente. Está agregado a `microservices-meta-ecuapp:test`. Source CI [#42434224485](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42434224485) terminó SUCCESS para commit `abbc86cfbd72e89ab5db82b0e3207159a66eba71`, incluyendo build, typecheck y esta suite.
 
-El endpoint sirve counters/histograms in-memory, gauges agregados PostgreSQL y conteos de mensajes listos/consumidores de RabbitMQ. El reader RabbitMQ usa la Management HTTP API con una identidad `monitoring` dedicada y permisos AMQP vacíos; no comparte conexión/canal con worker. Sus conteos son `messages_ready` y `consumers`, no incluyen mensajes unacknowledged ni son consumer lag. Todavía faltan medición autoritativa de unacked/lag, validación de alert routing/SLO, importación del dashboard y reglas en stack Prometheus/Grafana real y validación de scraping en la topología desplegada. TASK-003 sigue `in_progress`; GO-PRODUCTION permanece NO-GO.
+El endpoint sirve counters/histograms in-memory, gauges agregados PostgreSQL y seis conteos físicos RabbitMQ (ready, unacknowledged y consumers para worker y DLQ). El reader usa la Management HTTP API con identidad `monitoring` dedicada y permisos AMQP vacíos; no comparte conexión/canal con worker. `messages_unacked` describe deliveries en vuelo, no consumer lag temporal. Todavía faltan esa medida temporal, validación de alert routing/SLO, importación del dashboard y reglas en stack Prometheus/Grafana real y validación de scraping en la topología desplegada. TASK-003 sigue `in_progress`; GO-PRODUCTION permanece NO-GO.
 
 ## 14. Gauges operativos agregados desde PostgreSQL
 
@@ -194,7 +195,7 @@ El único rol con `EXECUTE` es `whatsbusiness_job_dispatcher_role`. `whatsbusine
 
 Se añadieron suites del exporter, reader y supervisor, además de comprobaciones gated en la integración PostgreSQL para privilegios y delta de jobs pending. **Source CI #42435204662 terminó SUCCESS** para migración/reader/gauges PostgreSQL.
 
-Quedan fuera de este slice los mensajes unacknowledged y el consumer lag autoritativo, dashboards, reglas de alertas y SLO. TASK-003 continúa `in_progress`; GO-PRODUCTION permanece NO-GO.
+Quedan fuera de este slice el consumer lag temporal/autorutativo, dashboards y reglas de alertas desplegados, alert routing y SLO. TASK-003 continúa `in_progress`; GO-PRODUCTION permanece NO-GO.
 
 
 ## 15. Métricas RabbitMQ por Prometheus Detailed Metrics
@@ -258,3 +259,15 @@ También se cambió la prueba a comparar contra el backlog de ejecución medido 
 
 La integración PostgreSQL se reordenó para no llamar a la operación batch `claim_tenant_job_publications` mientras el job de finalización principal seguía pendiente. Primero se completa el dispatch/claim de ese job con el helper existente; después se inserta y publica el fixture de métrica cuando es el único nuevo job elegible en la topología de prueba. Esto elimina el efecto colateral real de `LIMIT` + `FOR UPDATE SKIP LOCKED` al filtrar fuera de la función por `job_id`, y evita dejar leases de otros fixtures en estado `publishing`.
 **Estado:** el orden corregido se somete nuevamente a Source CI; no se afirma todavía verificación.
+
+
+## 18. Reconciliación del backlog de métricas RabbitMQ — 2026-11-09
+
+La métrica `rabbitmq_detailed_queue_messages_unacked` ya está implementada en `RabbitMqPrometheusTenantJobQueueMetricsReader`, junto a `messages_ready` y `consumers` para worker queue y DLQ. Los seis gauges se publican en `PrometheusTenantJobRuntimeMetrics` y se combinan con los gauges PostgreSQL mediante `CompositeTenantJobRuntimeMetricsReader`.
+
+Evidencia:
+- Unit test `rabbitmq-prometheus-tenant-job-queue-metrics.reader.spec.ts`: filtra por vhost/colas configuradas, valida etiquetas, duplicados, valores, timeouts y límites de respuesta.
+- Integración live `rabbitmq-prometheus-tenant-job-queue-metrics.integration.spec.ts`: crea mensajes en ambas colas, mantiene deliveries sin ACK con un consumer por cola, verifica `unacknowledged=1` y posteriormente verifica ready/unacknowledged/consumers en cero.
+- Source CI [42597892008](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42597892008) terminó SUCCESS, incluida la suite Meta backend/PostgreSQL/RabbitMQ 112/112.
+
+**No confundir:** mensajes unacknowledged son entregas en vuelo; no son consumer lag temporal. La métrica física queda implementada y CI-verified. Queda por definir una medida de lag/latencia de cola con semántica explícita, validar umbrales con carga y desplegar dashboards, alert rules, alert routing y SLO en la topología real.
