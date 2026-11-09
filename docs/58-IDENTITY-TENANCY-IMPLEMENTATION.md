@@ -234,3 +234,12 @@ En el HEAD `4ac3a95009c2b29ca7963d79733206ba8079d0d4`, Source workspace validati
 Para TASK-052, la ingesta de consumo pasó de INSERT directo bajo RLS (fallo reproducido en run 42594594079) a una función SQL `SECURITY DEFINER` con validación del contexto transaccional actor/tenant, rol `usage_ingestor`, lifecycle del tenant y clave idempotente. El rol de aplicación no tiene INSERT directo y el test comprueba la ausencia de ese permiso. La migración 0041 califica explícitamente el alias de retorno para evitar la ambigüedad SQLSTATE 42702 detectada en la primera iteración.
 
 **Límite:** TASK-052 como conjunto, G1 y GO-PRODUCTION no se declaran aceptados. Siguen pendientes la revisión independiente, aceptación del propietario, contract freeze de operaciones SaaS, restore/DR drill, configuración operativa de secretos y servicios externos, despliegues de observabilidad/SLO y comprobaciones de producción. TASK-003 y demás dependencias conservan el estado registrado en sus documentos específicos.
+
+
+## 13. Evidencia vigente de Fase 1 y TASK-052 — 2026-11-09
+
+El HEAD de código `1a41984bca97aa2bc7fd64d5f9076e04b4b7c343` pasó Source workspace validation [42596385580](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42596385580) y CodeQL [42596385533](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42596385533). Evidencia: API/PostgreSQL 414/414, Inbox 36/36, Meta backend/PostgreSQL/RabbitMQ 112/112; build y typecheck; migrations 0040–0042 e idempotencia; secret scanning; dependency audit; observability assets; roles DB/worker least-privilege, quorum DLX y métricas RabbitMQ: todos PASS.
+
+TASK-052 incluye ahora la frontera segura del usage ledger: función SQL con contexto transaccional actor/tenant, rol de ingesta, lifecycle e idempotencia, sin permiso INSERT directo del runtime. Se preserva RLS de lectura y la integración comprueba el privilegio efectivo.
+
+**Alcance:** este resultado verifica los componentes y gates automatizados ejecutados en CI. No completa por sí solo TASK-003/TASK-052 ni acepta G1. Continúan pendientes el bootstrap operacional desde cero, restore/DR real, revisión independiente y aceptación del propietario, secret/KMS/Valkey/object storage gestionados, handlers reales y configuración operativa de alertas/SLO, despliegue y pruebas de carga según los documentos específicos. GO-PRODUCTION permanece NO-GO.

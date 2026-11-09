@@ -132,3 +132,18 @@ El run previo `42594594079` falló primero por SQLSTATE `42702` en la cláusula 
 **Estado de la fase:** los slices de OAuth/state/PKCE, onboarding saga, persistencia de activos y catálogo/evaluación de capacidades siguen siendo parciales y `in_progress`. Los providers OAuth, envelope encryption y asset discovery permanecen fail-closed/unconfigured. META-010..015 permanecen catalog-only según docs/49; no se añadieron rutas públicas fuera del allowlist.
 
 **G2 sigue abierto:** faltan App ID/secret y configuración Meta por entorno, `config_id` de Embedded Signup v4, KMS/Secret Manager y rotación real, provider OAuth/Graph, revisión/accesos Meta y cuenta de negocio autorizada, discovery y pruebas end-to-end de activos/capabilities, contract freeze por operación, review independiente y aceptación del propietario. La ejecución verde no demuestra un alta ni una operación real en Meta.
+
+
+## Evidencia más reciente de TASK-008 / Fase 2 — 2026-11-09
+
+El código de onboarding del HEAD `1a41984bca97aa2bc7fd64d5f9076e04b4b7c343` incorpora progreso persistido de discovery, lectura de estado tenant-scoped para administradores del tenant, validación estricta del snapshot de capabilities, auditoría de fallas y separación entre errores de Meta y errores de persistencia local. Migración 0042 y suite de servicio integradas al API test target.
+
+**Source CI:** [42596385580 SUCCESS](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42596385580). **CodeQL:** [42596385533 SUCCESS](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42596385533). Resultados: API 414/414, Meta backend 112/112, Inbox 36/36; build/typecheck/migrations/idempotency/security/observability PASS.
+
+| TASK | Estado técnico actualizado | Pendientes de cierre |
+|---|---|---|
+| TASK-008 | `in_progress`; saga y consulta de progreso durable implementadas y CI-verified en este slice. | Meta OAuth provider, Meta App por entorno, Embedded Signup v4 `config_id`, KMS/credential envelope real, discovery Graph, webhook subscription, negocio de prueba autorizado, contract freeze y E2E real, revisión independiente y aceptación. |
+| TASK-009 | `in_progress`; registry y persistencia ya existentes, saga registra el resumen del discovery. | Adapter Graph real, paginación/rate limits/retry, token provider, reconciliación con conexión autorizada, evidence freshness y gates META-010..013. |
+| TASK-010 | `in_progress`; evaluator explicable y fail-closed existente. | Catálogo completo por operación/versión, evidence providers y consumidores/guards; META-014..015 catalog-only. |
+
+No se abre ningún controller ni ruta de operación catalog-only. El resultado verde no demuestra conexión real con Meta ni aprobación G2. La implementación de Embedded Signup v4 requiere configuración de Facebook Login for Business y un `config_id` real de App Dashboard; las guías actuales describen `FB.login` con `config_id`, `response_type: code` y `override_default_response_type: true`. <Cite ref="turn806502search3"/> <Cite ref="turn806502search0"/>

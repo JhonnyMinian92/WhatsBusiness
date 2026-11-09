@@ -988,3 +988,14 @@ Fuente de fase vigente: `docs/31-MASTER-DELIVERY-PLAN.md` (Fase 2 = Meta Control
 **Validación del HEAD `a08bb5352f611077a6342ffc19a065fef2370b79`:** Build y typecheck de todas las aplicaciones SUCCESS; migration 0039 aplicada e idempotente; Meta backend PostgreSQL/RabbitMQ **112/112 PASS**; CodeQL SUCCESS (run `42555054766`). Source workspace validation run `42555054762` permanece FAILURE porque `api:test` tuvo **404/405 PASS** y una integración preexistente de Platform Administration falló por RLS en `platform.usage_ledger`; el agregador no omitió el fallo. Las pruebas Meta fueron verdes; no hubo operación Meta real.
 
 **Gates:** META-010..015 siguen `catalog-only`; no cambiar `x-implementation-allowed`. La configuración de Meta App, Embedded Signup v4, App Review/Advanced Access, Business Verification/Tech Provider cuando aplique, KMS y una cuenta autorizada son dependencias externas. G2 no está aprobado; fase permanece `in_progress`; GO-PRODUCTION NO-GO. Detalle: `docs/78-PHASE-2-META-CONTROL-PLANE-STATUS.md`.
+
+
+## Reconciliación de estado US-003 / TASK-008 y TASK-052 — 2026-11-09
+
+**HEAD de código validado:** `1a41984bca97aa2bc7fd64d5f9076e04b4b7c343` en `environment/local`.
+
+- **TASK-008 / US-003 — onboarding Meta:** la saga conserva ahora en PostgreSQL `discovered_assets_count` y `missing_capabilities`, permite consultar progreso persistido por un administrador activo del tenant y sigue exigiendo el actor iniciador para completar el callback OAuth o reintentar la sincronización. Resultados inválidos y fallas del proveedor quedan diferenciados; fallas de persistencia no se presentan como fallas remotas. La migración 0042 es idempotente. Se añadió una suite de servicio con autorización, idempotencia, grants incompletos, discovery inválido/no disponible y persistencia.
+- **TASK-052 / US-024 — administración SaaS:** la ingesta de usage ledger se efectúa por una función SQL de privilegios mínimos, validando actor, tenant, rol y lifecycle; la app no conserva INSERT directo. Las migraciones 0040/0041 y la integración quedaron incluidas.
+- **Verificación del HEAD:** Source workspace validation [42596385580](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42596385580) SUCCESS; CodeQL [42596385533](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42596385533) SUCCESS; Inbox 36/36, API/PostgreSQL 414/414, Meta backend/PostgreSQL/RabbitMQ 112/112; build, typecheck, migraciones/idempotencia, secret scan, dependency audit, assets de observabilidad y agregador independiente PASS.
+
+**Estado de tareas:** TASK-008 y TASK-052 siguen `in_progress`, no `accepted`: el primero aún necesita Meta App/configuración, KMS, Embedded Signup v4 y cuenta autorizada; el segundo mantiene dependencias de planes/entitlements, telemetría real, contratos y aceptación indicadas en docs/76. G1/G2 y GO-PRODUCTION no se infieren de esta validación de código.

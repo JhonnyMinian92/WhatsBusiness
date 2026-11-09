@@ -868,3 +868,18 @@ El HEAD `4ac3a95009c2b29ca7963d79733206ba8079d0d4` de `environment/local` pasó 
 La causa anterior quedó resuelta mediante la función `platform.record_usage_entry`, con migraciones 0040 (frontera SQL/privilegios mínimos) y 0041 (calificación explícita de columnas de retorno). La aplicación ya no tiene INSERT directo en `platform.usage_ledger`; la integración verifica ese privilegio y prueba idempotencia, payload conflictivo y consulta bajo RLS.
 
 **Alcance de esta evidencia:** verifica el HEAD y las pruebas automatizadas indicadas. No equivale a review independiente, aceptación del Product Owner, despliegue productivo, prueba de restauración/DR ni aprobación G1/G2. Los checks exclusivos de Pull Request de sincronización/commit de lockfile aparecen skipped porque esta ejecución no es una PR; no son fallos del job.
+
+
+## 63. Fase 2 — progreso durable del onboarding Meta validado — 2026-11-09
+
+El HEAD `1a41984bca97aa2bc7fd64d5f9076e04b4b7c343` añade:
+- Snapshot durable de activos descubiertos y capacidades pendientes por saga, en tabla `platform.meta_onboarding_sagas`.
+- Lectura de progreso tenant-scoped para administradores activos con `meta.connections.manage`; callback OAuth y reintentos continúan restringidos al actor iniciador.
+- Validación de la respuesta de discovery (conteo entero no negativo, identificadores capability normalizados, lista acotada y sin duplicados).
+- Distinción de errores externos, respuesta no válida y errores de persistencia, sin falsear el resultado de la base de datos como indisponibilidad de Meta.
+- Auditoría de sincronización fallida y migración idempotente 0042, preservando el outcome histórico `meta_assets_synced`.
+- Suite de aplicación incluida en `api:test` para los casos de éxito, provider no configurado, grants incompletos, respuesta inválida, almacenamiento fallido y autorización.
+
+**Evidencia:** Source CI [42596385580](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42596385580) y CodeQL [42596385533](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42596385533) SUCCESS. Pruebas: API/PostgreSQL 414/414, Meta backend/PostgreSQL/RabbitMQ 112/112, Inbox 36/36; build, typecheck, migrations/idempotency y security checks PASS.
+
+**Estado final de TASK-008: `in_progress`.** Los providers OAuth, credential envelope/KMS y asset discovery permanecen fail-closed/unconfigured; no se ha ejecutado un alta real con Meta. La implementación v4 debe usar Facebook Login for Business y un `config_id` obtenido de la app configurada, no una URL OAuth genérica; la app requiere App Review/Advanced Access según los productos/permisos solicitados. META-010..015 permanecen catalog-only y no se habilitaron rutas públicas. G2, revisión independiente, aceptación del propietario y GO-PRODUCTION siguen abiertos. <Cite ref="turn806502search3"/> <Cite ref="turn806502search0"/>
