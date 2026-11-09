@@ -794,3 +794,15 @@ La ejecución de CI anterior pasó build/typecheck y 355/356 API tests; el fallo
 | Seguridad de HEAD compartido | CodeQL \`42533056607\`, mismo HEAD | Aprobado | CodeQL pasó, pero no sustituye el build ni hace verde el Source workflow. |
 
 **Decisión:** TASK-069, TASK-070, TASK-073 y TASK-079 permanecen \`in_progress\`. Los tests de dominio pasan, pero faltan providers autoritativos de derechos/consentimiento/marca/claims, ingestión TASK-072, asignación server-side de audiencias disjuntas, adapter oficial Meta con capabilities por cuenta/versión/placement, contract tests, review independiente y Product Owner acceptance. No se habilitan endpoints públicos, publicación ni gasto.
+
+
+## 57. Meta Control Plane — OAuth lifecycle y Asset Registry (2026-11-08)
+
+| ID | Hallazgo | Corrección / estado |
+|---|---|---|
+| AUD-218 | AAD de la credencial dependía del creador; otro administrador del tenant podía no descifrar la conexión. | AAD separado para state (tenant/actor/product) y credential (tenant/product/provider identity); rotación permitida solo tras revalidar el contexto autorizado. |
+| AUD-219 | La revocación descifraba el token antes de desactivar localmente; KMS indisponible podía impedir la revocación local. | Primero se persiste \`reauthorization_required\`; después se intenta KMS/Meta. Fallos quedan \`remote_revocation_state=unknown\` y exigen follow-up; no se reporta revocación remota exitosa. |
+| AUD-220 | Scope policy permanecía fail-closed incluso para permisos WhatsApp documentados, y el adapter contenía métodos duplicados. | Scope catalogue acotado a tres permisos WhatsApp con referencias oficiales; otros productos siguen cerrados. Se eliminaron métodos duplicados, no se activó provider remoto. |
+| AUD-221 | TASK-009 tenía modelo/reconciliación, pero no persistencia de inventario/sync history. | Migration 0039, repository PostgreSQL, RLS forzado, serialización advisory lock, snapshot hash, coverage evidence append-only y auditoría \`meta_assets_synced\`. |
+
+**Validación real:** se añadieron pruebas unitarias de políticas y fronteras al target \`api:test\`. No se ha verificado build/typecheck, ejecución de tests, migration apply/idempotency, PostgreSQL integration, Source CI ni CodeQL sobre el HEAD actual. Los providers Meta OAuth/KMS/Asset Discovery permanecen \`unconfigured\`; no hay transacción con Meta real ni endpoint catalog-only habilitado.
