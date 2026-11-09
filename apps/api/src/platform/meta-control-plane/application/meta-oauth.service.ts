@@ -200,7 +200,11 @@ export class MetaOAuthService {
       throw new UnauthorizedException({code:"META_REFRESH_IDENTITY_OR_SCOPE_CHANGED",detail:"La renovación cambió la identidad o los permisos; la credencial no será reemplazada."});
     }
     const expiresAt = new Date(Date.now()+refreshed.expiresInSeconds*1000);
-    const envelope = await this.vault.encryptSecret(this.serializeTokens(refreshed),associatedData);
+    const effectiveTokens: MetaOAuthTokenSet = {
+      ...refreshed,
+      refreshToken: refreshed.refreshToken ?? currentTokens.refreshToken,
+    };
+    const envelope = await this.vault.encryptSecret(this.serializeTokens(effectiveTokens),associatedData);
     await this.repository.saveRefreshedConnection({
       subject,connection,encryptedToken:envelope,expiresAt,grantedScopes:refreshed.grantedScopes,
     });
