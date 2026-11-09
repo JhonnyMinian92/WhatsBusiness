@@ -62,11 +62,50 @@ function runDocker(argumentsList, label) {
   return processCompletion(child, label);
 }
 
-function hasRedundantOuterParentheses(expression) {
-  if (!expression.startsWith("(") || !expression.endsWith(")")) return false;
+function stripRedundantOuterParentheses(expression) {
+  let value = expression.trim();
+  while (value.startsWith("(") && value.endsWith(")")) {
+    let depth = 0;
+    let singleQuoted = false;
+    let doubleQuoted = false;
+    let wrapsWholeExpression = true;
+    for (let index = 0; index < value.length; index += 1) {
+      const character = value[index];
+      const next = value[index + 1];
+      if (singleQuoted) {
+        if (character === "'" && next === "'") { index += 1; continue; }
+        if (character === "'") singleQuoted = false;
+        continue;
+      }
+      if (doubleQuoted) {
+        if (character === '"' && next === '"') { index += 1; continue; }
+        if (character === '"') doubleQuoted = false;
+        continue;
+      }
+      if (character === "'") { singleQuoted = true; continue; }
+      if (character === '"') { doubleQuoted = true; continue; }
+      if (character === "(") depth += 1;
+      if (character === ")") {
+        depth -= 1;
+        if (depth < 0) throw new Error("Unbalanced SQL expression parentheses.");
+        if (depth === 0 && index !== value.length - 1) {
+          wrapsWholeExpression = false;
+          break;
+        }
+      }
+    }
+    if (!wrapsWholeExpression || depth !== 0 || singleQuoted || doubleQuoted) break;
+    value = value.slice(1, -1).trim();
+  }
+  return value;
+}
+
+function splitTopLevelAnd(expression) {
+  const parts = [];
   let depth = 0;
   let singleQuoted = false;
   let doubleQuoted = false;
+  let segmentStart = 0;
   for (let index = 0; index < expression.length; index += 1) {
     const character = expression[index];
     const next = expression[index + 1];
@@ -82,24 +121,44 @@ function hasRedundantOuterParentheses(expression) {
     }
     if (character === "'") { singleQuoted = true; continue; }
     if (character === '"') { doubleQuoted = true; continue; }
-    if (character === "(") depth += 1;
+    if (character === "(") { depth += 1; continue; }
     if (character === ")") {
       depth -= 1;
-      if (depth < 0) return false;
-      if (depth === 0 && index !== expression.length - 1) return false;
+      if (depth < 0) throw new Error("Unbalanced SQL expression parentheses.");
+      continue;
     }
+    if (depth !== 0 || expression.slice(index, index + 3).toUpperCase() !== "AND") continue;
+    const previous = expression[index - 1];
+    const following = expression[index + 3];
+    if (!previous || !following || !/\\s/.test(previous) || !/\\s/.test(following)) continue;
+    parts.push(expression.slice(segmentStart, index).trim());
+    index += 2;
+    segmentStart = index + 1;
   }
-  return depth === 0 && !singleQuoted && !doubleQuoted;
+  if (depth !== 0 || singleQuoted || doubleQuoted) {
+    throw new Error("Malformed SQL expression while comparing restored constraints.");
+  }
+  if (parts.length === 0) return [expression.trim()];
+  parts.push(expression.slice(segmentStart).trim());
+  return parts;
+}
+
+function canonicalizeBooleanExpression(expression) {
+  const value = stripRedundantOuterParentheses(expression).replace(/\\s+/g, " ").trim();
+  const conjunction = splitTopLevelAnd(value);
+  if (conjunction.length > 1) {
+    const terms = conjunction.map(canonicalizeBooleanExpression).sort();
+    return "AND(" + terms.join(",") + ")";
+  }
+  return stripRedundantOuterParentheses(value).replace(/\\s+/g, " ").trim();
 }
 
 function normalizeConstraintDefinition(definition) {
   const normalized = definition.replace(/\\s+/g, " ").trim();
-  if (!normalized.startsWith("CHECK (") || !normalized.endsWith(")")) return normalized;
-  let expression = normalized.slice("CHECK (".length, -1).trim();
-  while (hasRedundantOuterParentheses(expression)) {
-    expression = expression.slice(1, -1).trim();
-  }
-  return "CHECK (" + expression + ")";
+  const checkPrefix = "CHECK (";
+  if (!normalized.startsWith(checkPrefix) || !normalized.endsWith(")")) return normalized;
+  const expression = normalized.slice(checkPrefix.length, -1).trim();
+  return "CHECK (" + canonicalizeBooleanExpression(expression) + ")";
 }
 
 async function captureCatalog(pool) {
