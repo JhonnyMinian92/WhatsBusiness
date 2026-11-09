@@ -1071,3 +1071,25 @@ La única rama de integración del trabajo activo es `environment/local`. Se res
 La migración 0044 fue corregida para que la fila de configuración `agent_tool_runtime_policies` se elimine en cascada con el tenant (solo esa tabla de configuración, no audit/idempotency/rate buckets). Las dos integraciones PostgreSQL que eliminan tenants sintéticos ya pasan. La política nace disabled + kill-switch activo.
 
 **Límite de ramas:** el cierre de PR no elimina las referencias de rama de GitHub. El conector usado en esta sesión permite cerrar PR y actualizar refs existentes, pero no ofrece operación de borrar refs/branches; las ramas históricas siguen listadas hasta que se eliminen en GitHub Settings → Branches. No se reescribió ni borró código/historial de esas ramas.
+
+
+
+## EP-15 — TikTok, OpenAI Ads y A/B multicanal (propuesta 2026-11-09)
+
+Los siguientes paquetes amplían TASK-067..080. Los estados iniciales son `proposed`: la creación de esta especificación no acredita implementación ni verificación.
+
+| TASK | Prioridad | Historia | Alcance | Dependencias principales | Criterio de salida |
+|---|---|---|---|---|---|
+| TASK-081 | P1 | US-033 | Renombrar solo Angular `apps/web` → `app-meta-ecuapp`; conservar `apps/api` | TASK-039; baseline Nx/pnpm | Workspace frozen, build, typecheck, tests y pipeline funcionando. |
+| TASK-082 | P0 | US-034 | TikTok Marketing API: ad accounts, campaigns, ad groups, ads, creatives, audiences, leads, catalog, reporting y Upgraded Smart+ | TASK-024,025,056,072 | Adapters oficiales/versionados, capability evidence y contract/account tests. |
+| TASK-083 | P0 | US-034 | TikTok Login Kit, Organic API, Content Posting/Display, Share Kit, TTO y Business Messaging | TASK-027,028,036,047,056 | OAuth/scopes, posts/drafts, webhook, mensajería y handoff autorizados. |
+| TASK-084 | P0 | US-034 | TikTok Insights, leads, measurement y CRM/Inbox event mapping | TASK-023,026,029,068,072,078 | Ingesta reconciliada, dedupe, freshness y evidencia de conversiones/outcomes. |
+| TASK-085 | P0 | US-035 | OpenAI Advertiser API: account, campaigns, ad groups, ads, files, feeds, previews, audit e Insights | TASK-024,025,056,067,072 | Adapter oficial, ciclo paused-first, schemas y pruebas de cuenta. |
+| TASK-086 | P0 | US-035 | OpenAI Pixel, Conversions API, conversion settings y reporting | TASK-026,059,068,077,078 | Consent, claves separadas, dedupe, event reconciliation y atribución declarada. |
+| TASK-087 | P0 | US-036 | Orquestador V1/V2, preregistro, test cells y asignación persistente/native split | TASK-067,069,070,072,082,085 | Pareja inmutable, split verificable, SRM, audience partition y stop rules. |
+| TASK-088 | P0 | US-036 | Feature Store/taxonomía multicanal de delivery, contexto, creatividad y business outcomes | TASK-068,072,077,078,084,086 | Features con lineage, calidad, frescura, retención y fuentes separadas. |
+| TASK-089 | P1 | US-036 | Learning/recommendation engine y generación de nuevas variantes draft | TASK-067,069,070,077,078,087,088 | Recomendaciones explicables, confianza, riesgo, draft lineage y approval gate. |
+| TASK-090 | P0 | US-034/035 | Capability Registry y API/policy drift monitor multicanal | TASK-056,065,082,083,085 | Evidencia oficial por operación y alertas/migraciones trazables. |
+| TASK-091 | P0 | US-034/035/036 | Hardening multicanal: spend ledger, cuotas, privacidad/retención, rights/brand, reconciliación y observabilidad | TASK-029,031,032,059,071,080,082..089 | Guardrails unificados, recuperación/alertas y revisión independiente. |
+
+**Estado inicial de TASK-081..091:** proposed; sin código, API pública ni write externo acreditado por esta propuesta.
