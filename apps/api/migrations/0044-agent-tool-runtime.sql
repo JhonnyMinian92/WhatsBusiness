@@ -8,7 +8,8 @@ VALUES
 ON CONFLICT (permission_key) DO NOTHING;
 
 CREATE TABLE platform.agent_tool_runtime_policies (
-  tenant_id uuid PRIMARY KEY REFERENCES platform.tenants(id) ON DELETE RESTRICT,
+  -- The policy belongs to the tenant lifecycle; remove only this configuration row when a tenant is hard-deleted.
+  tenant_id uuid PRIMARY KEY REFERENCES platform.tenants(id) ON DELETE CASCADE,
   enabled boolean NOT NULL DEFAULT false,
   kill_switch_active boolean NOT NULL DEFAULT true,
   max_calls_per_minute smallint NOT NULL DEFAULT 60 CHECK (max_calls_per_minute BETWEEN 1 AND 600),
