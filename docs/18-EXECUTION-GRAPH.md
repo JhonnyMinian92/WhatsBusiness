@@ -175,3 +175,19 @@ TASK-026 cuenta con un slice de dominio en `apps/api/src/marketing/conversions` 
 ## 9. Estado observado — US-030 / Creative Lab (2026-11-08)
 
 TASK-069/070/073/079 pasan de proposed a in_progress por el slice registrado en apps/api/src/ads/creative-lab y migration 0031. El grafo no cambia: TASK-069 → TASK-073 → TASK-079 → TASK-070; TASK-070 conserva TASK-067 como dependencia. Providers de rights/brand/claims, capability, audiencia, transport y performance evidence no se consideran disponibles por existir interfaces. No hay API pública nueva ni activación de Meta/gasto.
+
+
+
+## 10. Multichannel Ads and experimental learning (proposed 2026-11-09)
+
+- TASK-039 + workspace baseline → TASK-081 frontend rename; `apps/api` remains in place.
+- TASK-056/065 provider capability and policy registry + TASK-024/025 Ads execution + TASK-072 Insights → TASK-082 TikTok Marketing API and TASK-085 OpenAI Advertiser API.
+- TASK-027/028 webhook ingress/event platform + TASK-036/047 Inbox/authorization + TASK-056 capability registry → TASK-083 TikTok Login/Organic/Content Posting/Business Messaging.
+- TASK-023/026/059/068 CRM, consent and conversion pipeline + TASK-072/078 reporting → TASK-084 TikTok measurement and TASK-086 OpenAI Pixel/Conversions API.
+- TASK-067/069/070/072 + TASK-082/085 → TASK-087 experiment orchestrator V1/V2, persistent assignment, split methodology and SRM.
+- TASK-068/072/077/078 + TASK-084/086 → TASK-088 cross-provider feature/event store and outcome taxonomy.
+- TASK-087 + TASK-088 + TASK-067/069/079 → TASK-089 recommendations, statistical learning and draft generation.
+- TASK-056/065 + TASK-082/083/085 → TASK-090 capability and API drift monitor.
+- TASK-029/031/032/059/071/080 + TASK-082..089 → TASK-091 multichannel security, privacy, spend ledger and operations hardening.
+
+These are proposed dependencies. They do not advance task states or prove provider access. No autonomous publication or spending is authorized by this DAG.
