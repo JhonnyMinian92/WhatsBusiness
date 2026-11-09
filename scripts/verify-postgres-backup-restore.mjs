@@ -130,7 +130,7 @@ function splitTopLevelAnd(expression) {
     if (depth !== 0 || expression.slice(index, index + 3).toUpperCase() !== "AND") continue;
     const previous = expression[index - 1];
     const following = expression[index + 3];
-    if (!previous || !following || !/\\s/.test(previous) || !/\\s/.test(following)) continue;
+    if (!previous || !following || !/\s/.test(previous) || !/\s/.test(following)) continue;
     parts.push(expression.slice(segmentStart, index).trim());
     index += 2;
     segmentStart = index + 1;
@@ -144,22 +144,35 @@ function splitTopLevelAnd(expression) {
 }
 
 function canonicalizeBooleanExpression(expression) {
-  const value = stripRedundantOuterParentheses(expression).replace(/\\s+/g, " ").trim();
+  const value = stripRedundantOuterParentheses(expression).replace(/\s+/g, " ").trim();
   const conjunction = splitTopLevelAnd(value);
   if (conjunction.length > 1) {
     const terms = conjunction.map(canonicalizeBooleanExpression).sort();
     return "AND(" + terms.join(",") + ")";
   }
-  return stripRedundantOuterParentheses(value).replace(/\\s+/g, " ").trim();
+  return stripRedundantOuterParentheses(value).replace(/\s+/g, " ").trim();
 }
 
 function normalizeConstraintDefinition(definition) {
-  const normalized = definition.replace(/\\s+/g, " ").trim();
+  const normalized = definition.replace(/\s+/g, " ").trim();
   const checkPrefix = "CHECK (";
   if (!normalized.startsWith(checkPrefix) || !normalized.endsWith(")")) return normalized;
   const expression = normalized.slice(checkPrefix.length, -1).trim();
   return "CHECK (" + canonicalizeBooleanExpression(expression) + ")";
 }
+
+// Regression fixtures: PostgreSQL may serialize the same associative AND
+// expression with a nested left-associative tree or a flat conjunction.
+assert.equal(
+  normalizeConstraintDefinition("CHECK (((length(redirect_uri) >= 12) AND (length(redirect_uri) <= 2048)) AND (redirect_uri ~ '^https://'::text))"),
+  normalizeConstraintDefinition("CHECK ((length(redirect_uri) >= 12) AND (length(redirect_uri) <= 2048) AND (redirect_uri ~ '^https://'::text))"),
+  "Equivalent CHECK conjunctions must compare equal after restore.",
+);
+assert.notEqual(
+  normalizeConstraintDefinition("CHECK ((length(redirect_uri) >= 12) AND (length(redirect_uri) <= 2048))"),
+  normalizeConstraintDefinition("CHECK ((length(redirect_uri) >= 12) AND (length(redirect_uri) <= 2047))"),
+  "Different CHECK bounds must remain distinguishable.",
+);
 
 async function captureCatalog(pool) {
   const [migrations, relations, policies, constraints, rls, privileges] = await Promise.all([
