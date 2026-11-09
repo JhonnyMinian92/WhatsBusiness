@@ -18,6 +18,7 @@ import { MetaOAuthPolicy, MetaOAuthPolicyViolation, type MetaOAuthRequest } from
 export interface BeginMetaOAuthCommand extends MetaOAuthRequest {
   readonly tenantId: string;
   readonly actorUserId: string;
+  readonly authzVersion: number;
 }
 export interface CompleteMetaOAuthCommand {
   readonly state: string;
@@ -83,6 +84,7 @@ export class MetaOAuthService {
     await this.repository.createState({
       tenantId: command.tenantId,
       actorUserId: command.actorUserId,
+      authzVersion: command.authzVersion,
       product: request.product,
       authorizationMode: request.authorizationMode,
       stateHash,
@@ -142,6 +144,7 @@ export class MetaOAuthService {
     const connection = await this.repository.saveConnection({
       tenantId: state.tenantId,
       actorUserId: state.actorUserId,
+      authzVersion: state.authzVersion,
       product: state.product,
       authorizationMode: state.authorizationMode,
       providerUserId: tokens.providerUserId,
