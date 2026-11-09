@@ -806,3 +806,19 @@ La ejecución de CI anterior pasó build/typecheck y 355/356 API tests; el fallo
 | AUD-221 | TASK-009 tenía modelo/reconciliación, pero no persistencia de inventario/sync history. | Migration 0039, repository PostgreSQL, RLS forzado, serialización advisory lock, snapshot hash, coverage evidence append-only y auditoría \`meta_assets_synced\`. |
 
 **Validación real:** se añadieron pruebas unitarias de políticas y fronteras al target \`api:test\`. No se ha verificado build/typecheck, ejecución de tests, migration apply/idempotency, PostgreSQL integration, Source CI ni CodeQL sobre el HEAD actual. Los providers Meta OAuth/KMS/Asset Discovery permanecen \`unconfigured\`; no hay transacción con Meta real ni endpoint catalog-only habilitado.
+
+
+## 58. Evidencia final de validación Fase 2 — HEAD a08bb535 (2026-11-08)
+
+| Control | Resultado | Evidencia |
+|---|---|---|
+| Build all applications | PASS | Source run 42555054762, HEAD `a08bb5352f611077a6342ffc19a065fef2370b79`. |
+| Typecheck all applications | PASS | Mismo Source run/HEAD. |
+| Migration 0039 + idempotencia | PASS | Migración aplicada en PostgreSQL CI y re-ejecutada por el verificador de idempotencia. |
+| Meta backend unit + PostgreSQL/RabbitMQ integration | PASS — 112/112 | Mismo Source run; outcome independiente SUCCESS. |
+| Inbox domain | PASS — 36/36 | Mismo Source run. |
+| CodeQL | PASS | Run 42555054766 sobre el mismo HEAD. |
+| API unit + PostgreSQL integration | FAIL — 404/405 | Una integración de Platform Administration falla por RLS en `platform.usage_ledger`; baseline anterior ya registrado en este documento, fuera de TASK-006..010. |
+| Source workspace aggregate | FAIL | El agregador exige que todas las suites independientes pasen y conserva el fallo API anterior. |
+
+**Decisión:** no se presenta Source CI como verde. La compilación, typecheck, migración y suites de Meta sí están verificadas; Source global necesita que se corrija la integración baseline de Platform Administration y que vuelva a pasar sobre el SHA final. Esto no cambia los blockers externos de Meta App/KMS/cuenta autorizada, ni convierte G2 en aprobado.
