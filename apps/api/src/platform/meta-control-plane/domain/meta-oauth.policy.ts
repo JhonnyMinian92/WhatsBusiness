@@ -20,6 +20,7 @@ export interface MetaOAuthRequest {
 }
 export interface MetaOAuthPolicyConfig {
   readonly allowedRedirectUris: readonly string[];
+  readonly allowedAuthorizationHosts: readonly string[];
   readonly maximumStateLifetimeSeconds?: number;
 }
 export class MetaOAuthPolicyViolation extends Error {
@@ -37,6 +38,7 @@ const UUID_SAFE_PATH = /^\/(?!\/)[^\r\n]*$/;
 
 export class MetaOAuthPolicy {
   private readonly allowedRedirectUris: ReadonlySet<string>;
+  private readonly allowedAuthorizationHosts: ReadonlySet<string>;
   readonly stateLifetimeSeconds: number;
 
   constructor(
@@ -44,6 +46,7 @@ export class MetaOAuthPolicy {
     private readonly scopePolicy: MetaOAuthScopePolicy,
   ) {
     this.allowedRedirectUris = new Set(config.allowedRedirectUris.map((value) => value.trim()).filter(Boolean));
+    this.allowedAuthorizationHosts = new Set(config.allowedAuthorizationHosts.map((value) => value.trim().toLowerCase()).filter(Boolean));
     this.stateLifetimeSeconds = config.maximumStateLifetimeSeconds ?? 600;
     if (!Number.isSafeInteger(this.stateLifetimeSeconds)
       || this.stateLifetimeSeconds < 60 || this.stateLifetimeSeconds > 900) {
@@ -81,6 +84,19 @@ export class MetaOAuthPolicy {
       scopes: Object.freeze([...unique]),
       returnPath: request.returnPath,
     };
+  }
+
+  assertAuthorizationUrl(value: string): URL {
+    let parsed: URL;
+    try { parsed = new URL(value); } catch {
+      throw new MetaOAuthPolicyViolation("META_OAUTH_AUTHORIZATION_URL_INVALID", "La URL de autorización Meta no es válida.");
+    }
+    if (parsed.protocol !== "https:" || parsed.username || parsed.password || parsed.hash
+      || (parsed.port !== "" && parsed.port !== "443")
+      || !this.allowedAuthorizationHosts.has(parsed.hostname.toLowerCase())) {
+      throw new MetaOAuthPolicyViolation("META_OAUTH_AUTHORIZATION_HOST_NOT_ALLOWED", "El destino de autorización no está en la allowlist HTTPS de Meta.");
+    }
+    return parsed;
   }
 
   private validateRedirectUri(value: string): string {
