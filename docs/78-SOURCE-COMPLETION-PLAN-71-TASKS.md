@@ -213,3 +213,9 @@ El objetivo de esta campaña se cumple cuando:
 - Las pruebas siguen explícitamente pendientes y la siguiente etapa queda definida como ejecución local, una tarea a la vez.
 
 Este cierre no representa `verified`, `accepted` ni autorización de producción.
+
+### TASK-006/TASK-007 — corrección de integridad SQL
+
+- Detectado en Source run `42545949760`: la migración 0032 estaba sintácticamente corrupta/duplicada.
+- Se restaura un único modelo OAuth state + connections, retirando la función SECURITY DEFINER que no usa el repositorio y manteniendo la política RLS junto a la query contextual del repositorio.
+- Mantener TASK-006/007 `in_progress` hasta migration apply/idempotency y cerrar los provider adapters/OIDC/KMS requeridos. Ver docs/91.

@@ -794,3 +794,12 @@ La ejecución de CI anterior pasó build/typecheck y 355/356 API tests; el fallo
 | Seguridad de HEAD compartido | CodeQL \`42533056607\`, mismo HEAD | Aprobado | CodeQL pasó, pero no sustituye el build ni hace verde el Source workflow. |
 
 **Decisión:** TASK-069, TASK-070, TASK-073 y TASK-079 permanecen \`in_progress\`. Los tests de dominio pasan, pero faltan providers autoritativos de derechos/consentimiento/marca/claims, ingestión TASK-072, asignación server-side de audiencias disjuntas, adapter oficial Meta con capabilities por cuenta/versión/placement, contract tests, review independiente y Product Owner acceptance. No se habilitan endpoints públicos, publicación ni gasto.
+
+## 59. Restauración de migración Meta OAuth TASK-006/TASK-007 (2026-11-08)
+
+| ID | Hallazgo | Corrección |
+|---|---|---|
+| AUD-226 | Source run `42545949760` falla aplicando `0032-meta-oauth-token-vault.sql`: `syntax error at or near IF`; bloque `consume_meta_oauth_state` truncado y bloques `meta_connections` intercalados/duplicados. | Reescritura del SQL como migración única coherente con `PostgresMetaOAuthRepository`. |
+| AUD-227 | Migration duplicada usaba dos constraints diferentes; la versión no parcial no coincide con `ON CONFLICT ... WHERE status<>'revoked'`. | Mantener solo el índice único parcial que coincide con el upsert activo; conservar estados terminales de revocación. |
+
+El nuevo commit debe pasar migration apply e idempotency antes de marcar la corrección verificada. Véase docs/91.

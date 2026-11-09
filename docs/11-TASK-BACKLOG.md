@@ -971,3 +971,13 @@ La tabla kickoff de TASK-034..041 se conserva como registro histórico. Esta fil
 **Migración:** apps/api/migrations/0031-ads-creative-lab.sql.  
 **Evidencia de pruebas:** las seis suites agregadas registraron 26/26 pruebas Creative Lab aprobadas en Source run 42532889134 (commit 1dc4545); migration apply/idempotency, build y typecheck también pasaron, y CodeQL 42532889226 pasó. El workflow completo quedó bloqueado por el fallo preexistente de Platform Administration sobre RLS de platform.usage_ledger (reproducido antes de US-030 en run 42531885574). El HEAD compartido posterior e48b229 tiene además 63 errores TypeScript de Developer Platform y Source run 42533056750 no pasa build. Las tareas US-030 siguen in_progress.  
 **Bloqueos transversales:** TASK-024/025/056, TASK-067/072, API contract freeze, Meta credentials/capability runtime, derechos/brand review, integración oficial, review independiente y Product Owner acceptance. GO-PRODUCTION permanece NO-GO.
+
+## Corrección de migración TASK-006/TASK-007 — 2026-11-08
+
+**Estado: fix de fuente propuesto; `in_progress` hasta Source migration apply/idempotency.**
+
+- Source run `42545949760` identificó `syntax error at or near IF` en `0032-meta-oauth-token-vault.sql` luego de migrar correctamente 0031.
+- Se reestructura la migración para eliminar el cuerpo SQL partido, quitar la función SECURITY DEFINER no utilizada y eliminar la segunda definición duplicada de `meta_connections`.
+- Se conserva la política RLS de state (tenant + actor + permission + expiry + single-use), y conexión tenant-scoped con trigger de inmutabilidad y revocación terminal.
+- El índice parcial `meta_connections_active_identity_unique` se mantiene porque coincide con el target `ON CONFLICT ... WHERE status<>'revoked'` del repositorio.
+- Adapter OAuth y KMS/Secret Manager siguen fail-closed; el arreglo de SQL no equivale a conexión Meta productiva. Ver `docs/91-TASK-006-007-OAUTH-MIGRATION-INTEGRITY.md`.
