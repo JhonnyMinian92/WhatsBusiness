@@ -234,3 +234,12 @@ Los instrumentos de campo están en research/us-028/: guía de entrevistas, regl
 ## 76 — US-024 / TASK-052: Platform Administration
 
 [76 — Administración SaaS de tenants, planes, consumo y soporte JIT](76-US-024-TASK-052-PLATFORM-ADMINISTRATION.md) documenta AC-024-01..04, módulo, migración, pruebas, decisiones de seguridad, resultado CI observado y gates abiertos.
+
+
+## 89 — TASK-031 Secure SDLC y supply chain
+
+[Automatización de Gitleaks, Trivy, SBOM CycloneDX y Dependabot](89-TASK-031-SECURE-SDLC-SUPPLY-CHAIN.md)
+
+## 90 — TASK-060 HTTP benchmark
+
+[Harness reproducible HTTP read-only para health/API](90-TASK-060-HTTP-BENCHMARK-HARNESS.md)

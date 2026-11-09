@@ -282,3 +282,10 @@ Se incorporan implementaciones concretas de `CacheStore` y `ObjectStorage`:
 - Las suites RESP y S3 se registran en `api:test`; la configuración vacía/sintética se documenta en `.env.example`.
 
 **Pendiente:** Source CI de este HEAD, conectividad con servicios gestionados, IAM/policies de bucket, KMS/rotación, ciclo de vida y pruebas de carga/DR. Sin providers configurados, las operaciones fallan cerrado; no se simula almacenamiento durable. TASK-003 sigue `in_progress`.
+
+
+## 21. Consolidación de supply chain, benchmark HTTP y unicidad Meta — 2026-11-09
+
+Se rescataron de PR #6 y #7, directamente sobre `environment/local`, los workflows de Gitleaks/Trivy/CycloneDX, la configuración Dependabot y el harness HTTP read-only de TASK-060. Source CI registra `pnpm bench:test`; no se declara benchmark de capacidad ejecutado. El benchmark solo GET, loopback por defecto y bloquea producción.
+
+Se añade migración incremental 0043 con índice único parcial de identidad activa de conexión Meta. La migración comprueba duplicados existentes antes de aplicar el índice y usa el mismo predicado que el `ON CONFLICT` del repositorio. No se reescribe 0032.

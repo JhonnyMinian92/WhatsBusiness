@@ -1030,3 +1030,13 @@ La lectura de `docs/60-TENANT-JOBS-RUNTIME.md` y del código vigente confirma qu
 Se trasladó el código fuente de la PR #9 al HEAD actual de `environment/local`, sin fusionar su base antigua. Se añadieron adapters RESP/Valkey y S3 SigV4, pruebas, tokens de infraestructura y providers en `IsolationModule`. El target `api:test` registra ambas suites y `.env.example` incluye configuración vacía, sin secretos.
 
 La antigua PR #9 falló durante la migración `0031-ads-creative-lab` en su snapshot histórico; no se copia ese runner ni su historial documental. Source CI del nuevo SHA debe verificar migraciones, build, typecheck y suites API/Inbox/Meta. TASK-003 permanece `in_progress` hasta la validación integrada y el despliegue seguro de los proveedores reales.
+
+
+## Reconciliación PR #6/#7/#8 — código trasladado a environment/local — 2026-11-09
+
+- PR #6 TASK-031: workflow Gitleaks/Trivy, artefacto CycloneDX y configuración Dependabot trasladados. Falta validar el workflow en esta rama y habilitar/verificar las opciones de seguridad en GitHub Settings.
+- PR #7 TASK-060: harness HTTP solo GET, bounded concurrency, reportes JSON/Markdown/CSV, token redactado, tests; scripts `bench:http` y `bench:test`. CI ejecuta `pnpm bench:test`. No se ha ejecutado benchmark de capacidad ni SLO.
+- PR #8 TASK-006: índice único parcial para conexión Meta activa trasladado a la migración aditiva 0043. Preserva la migración 0032 ya versionada y falla antes de crear el índice si encuentra identidades activas duplicadas.
+- PR #9 TASK-003: Valkey/S3 adapters trasladados y test RESP corregido mediante frame binario explícito.
+
+Todos estos cambios se aplicaron sobre el HEAD canónico `environment/local`; no se mergearon snapshots antiguos de ramas.

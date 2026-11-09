@@ -908,3 +908,15 @@ La integración live crea mensajes en ambas colas, mantiene cada delivery sin AC
 Se trasladan al HEAD canónico los adapters nuevos de Valkey RESP, pool, cache store y S3 SigV4, junto con sus pruebas y el wiring DI. Se conserva el módulo actual de aislamiento y su runtime de jobs; solo se añaden tokens y providers del cache/storage. El target Nx `api:test` incluye las suites y `.env.example` documenta placeholders sin credenciales.
 
 El run antiguo de la PR #9 falló en migración `0031-ads-creative-lab`, sobre un snapshot anterior al HEAD actual. Esta integración no se considera verificada hasta que Source CI del nuevo HEAD complete todas las migraciones, build, typecheck y suites.
+
+
+## 69. PR #6/#7/#8 — traslado selectivo a environment/local — 2026-11-09
+
+Commit de implementación: `e5832088fc8bb406dcd0e33d77b3199c43001e34`.
+
+- PR #6: workflow de Gitleaks/Trivy/SBOM y Dependabot.
+- PR #7: HTTP benchmark harness read-only, tests y comandos root `bench:http`/`bench:test`; el workflow Source ejecuta el test.
+- PR #8: migración incremental `0043-meta-connection-active-identity-unique.sql` con chequeo de duplicados y unique partial index que coincide con ON CONFLICT del repositorio.
+- PR #9: fixture de Valkey RESP corregido para representar bytes `0x00,0xFF` reales; las pruebas no manipulan bytes a través de UTF-8.
+
+CI del nuevo HEAD `e583208` pendiente. No declarar estos paquetes verificados hasta que Source CI, CodeQL y el workflow supply-chain completen.
