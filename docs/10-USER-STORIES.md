@@ -332,3 +332,70 @@ Como marketer quiero que toda campaña publicitaria enviada por WhatsBusiness me
 - AC-036-06: el motor genera recomendaciones y drafts con evidencia/uncertainty; publicación y gasto conservan approval gate.
 - AC-036-07: un ganador no se sobrescribe y toda nueva ronda conserva historial versionado.
 Tareas: TASK-087, TASK-088, TASK-089, TASK-091.
+
+
+
+## EP-16 — Experimentación y operación omnicanal (2026-11-09)
+
+### US-037 — Experimentation Platform omnicanal (P0)
+Como Growth/Marketing quiero diseñar, asignar, ejecutar, analizar y cerrar experimentos con validez estadística compartida entre canales.
+- AC-037-01: cada experimento preregistra hipótesis, población, unidad, brazos, KPI, baseline, MDE, muestra, presupuesto, ventana y parada.
+- AC-037-02: assignment estable, único y reproducible con randomization/nativo comprobable; SRM y contaminación son detectables.
+- AC-037-03: decisión winner/loser/inconclusive/invalidated/observational_only según reglas predefinidas; no se promueve por valor bruto.
+- AC-037-04: análisis, dataset, métricas, método, versión y auditoría son reproducibles.
+Tareas: TASK-092, TASK-093, TASK-105.
+
+### US-038 — Orquestación de journeys y frecuencia omnicanal (P0)
+Como operador quiero coordinar anuncios, WhatsApp, email, SMS, llamadas y otros canales con una asignación coherente por persona.
+- AC-038-01: journey tiene pasos, ventanas, branching, idempotencia, time zone y stop rules.
+- AC-038-02: una unidad mantiene su brazo V1/V2 en todos los touchpoints del experimento.
+- AC-038-03: frequency cap, quiet hours, suppression, reply/purchase stop y fallback autorizado se verifican en dispatch.
+Tareas: TASK-095, TASK-106.
+
+### US-039 — Email Campaign & Deliverability (P1)
+Como marketer quiero ejecutar campañas email versionadas y medir entrega, reputación y conversiones con proveedores intercambiables.
+- AC-039-01: adapter registra processed/sent/delivered/deferred/bounce/block/complaint/unsubscribe/click y calidad de open.
+- AC-039-02: configuración y salud SPF/DKIM/DMARC, supresión, hard bounce y complaint bloquean despachos futuros según política.
+- AC-039-03: MPP/bots se tratan como señales débiles; open rate no es KPI único ni ganador.
+Tareas: TASK-096.
+
+### US-040 — SMS y Voice Campaigns (P1)
+Como equipo comercial quiero ejecutar mensajes y llamadas autorizadas y medir estados/costes/outcomes sin confundir entrega con lectura o conversación humana.
+- AC-040-01: SMS tiene callbacks, DLR, coste por segmento, replies, STOP y sender/policy controls.
+- AC-040-02: Voice registra estados, duración, IVR/espera/transferencia/disposition y coste.
+- AC-040-03: llamadas completed no se interpretan automáticamente como conversación humana; recording/transcription requiere controles legales y retención.
+Tareas: TASK-097.
+
+### US-041 — Telegram y mensajería complementaria (P1/P2)
+Como tenant quiero usar bots, Business Connections y Mini Apps con usuarios que habilitaron el canal.
+- AC-041-01: webhooks/updates se verifican, deduplican por update ID y persisten dentro de los límites de retención del proveedor.
+- AC-041-02: bot rights, rate limits, loop prevention y consentimiento/permiso de usuario se verifican.
+- AC-041-03: no se inventan read receipts y Bot API no se interpreta como una API general de compra de Telegram Ads.
+Tareas: TASK-098.
+
+### US-042 — Google Ads y YouTube (P1)
+Como anunciante quiero gestionar campañas de Search/video y experimentos nativos, midiendo conversiones online/offline según acceso.
+- AC-042-01: capability/access, API version, campañas, experiment resources, reporting y conversion actions se validan por cuenta.
+- AC-042-02: splits nativos, click IDs y conversiones offline se implementan solo con soporte y permisos demostrados.
+Tareas: TASK-099.
+
+### US-043 — Measurement & Analytics omnicanal (P0)
+Como analista quiero medir el funnel y comparar canales con métricas consistentes, denominadores, procedencia y calidad.
+- AC-043-01: raw provider evidence y eventos normalizados permanecen vinculados y versionados.
+- AC-043-02: cada métrica conserva fuente, unidad, denominador, ventana, timezone, moneda, freshness y caveats.
+- AC-043-03: una venta no se cuenta varias veces por conversiones reportadas por diferentes plataformas.
+- AC-043-04: reporting diferencia provider attribution, first-party observed, modelled e incremental lift.
+Tareas: TASK-094, TASK-100, TASK-101, TASK-102.
+
+### US-044 — Consent, Preference & Suppression Center (P0)
+Como titular y tenant quiero controlar finalidad y preferencias por canal, y que cada envío respete revocaciones/oposiciones.
+- AC-044-01: evidencia/base/aviso/finalidad/preferencia/scope se registran por canal y tipo de mensaje.
+- AC-044-02: revocación bloquea queued/scheduled y se aplica nuevamente justo antes de despacho.
+- AC-044-03: reglas por jurisdicción/sector se versionan y las decisiones quedan auditadas; unknown falla cerrado cuando aplique.
+Tareas: TASK-103.
+
+### US-045 — Channel Registry & Market Prioritization (P1)
+Como Product/Growth quiero priorizar conectores por evidencia de mercado, valor, API, medición, coste y riesgo.
+- AC-045-01: cada canal tiene business case, source/date, capacidad oficial, alcance geográfico, elegibilidad, métricas y coste.
+- AC-045-02: decisión pilot/integrate/defer/reject con revisión y scorecard auditable.
+Tareas: TASK-104.
