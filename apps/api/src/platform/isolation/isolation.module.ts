@@ -53,8 +53,6 @@ import { ValkeyCacheStore } from "./infrastructure/valkey-cache-store.js";
     PostgresTenantJobRecordWriter,
     TenantScopedCache,
     TenantScopedObjectStorage,
-    CACHE_STORE,
-    OBJECT_STORAGE,
   ],
 })
 export class IsolationModule {}

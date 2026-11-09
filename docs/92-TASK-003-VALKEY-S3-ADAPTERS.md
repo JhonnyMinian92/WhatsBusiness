@@ -24,7 +24,7 @@ Antes del cambio se inspeccionaron `TenantResourceNamespace`, `TenantScopedCache
 | `infrastructure/s3-compatible-object-storage.ts` | Implementa `ObjectStorage` con SigV4, PUT/GET/DELETE, cancelación por timeout, límite de transferencia y SHA-256 de lectura/escritura. |
 | `isolation.module.ts` | Registra los providers y expone `TenantScopedCache`, `TenantScopedObjectStorage` y tokens para los módulos consumidores. |
 
-Los tokens `CACHE_STORE` y `OBJECT_STORAGE` conectan los puertos con adaptadores reemplazables. Los factories son los composition root; los casos de uso consumen solo decorators/abstractions.
+Los tokens `CACHE_STORE` y `OBJECT_STORAGE` conectan los puertos con adaptadores reemplazables y permanecen internos al módulo; solo se exportan `TenantScopedCache` y `TenantScopedObjectStorage` para impedir que un bounded context omita el namespace del tenant. Los factories son el composition root; los casos de uso consumen solo decorators/abstractions.
 
 ## 3. Controles de seguridad
 
