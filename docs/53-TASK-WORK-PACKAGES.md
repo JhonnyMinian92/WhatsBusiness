@@ -335,3 +335,25 @@ Las policies son código de dominio y no habilitan endpoints congelados. Source 
 - Suite API general: 356 casos; 352 pass, 4 fail ajenos a Inbox: tres pruebas de CRM con expectativa de `OidcAuthGuard` distinta al guard declarado en el controller y una integración de Platform Administration sin correlation ID requerido.
 - Source CI: [42531505463](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42531505463); CodeQL: [42531505359](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42531505359).
 - **TASK-047/US-021 continúa in_progress** por contract freeze/G0, almacenamiento durable/RLS, CAS/outbox, workers, API habilitada, UI/E2E y aceptación/revisión independiente.
+
+
+
+## EP-15 — TASK-081..091: TikTok, OpenAI Ads y aprendizaje multicanal (proposed)
+
+| TASK | Owner | Historia | Dependencias | Contratos/eventos | Criterio de aceptación |
+|---|---|---|---|---|---|
+| TASK-081 | Frontend Platform | US-033 | TASK-039; Angular/Nx/pnpm baseline | Nx project `app-meta-ecuapp`; no API schema change | Mover solo Angular; mantener `apps/api`; frozen install, build, typecheck, unit/E2E y CI. |
+| TASK-082 | TikTok Ads Adapter | US-034 | TASK-024; TASK-025; TASK-056; TASK-072 | TTK-ADS-001..; `ads.provider_capability.observed` | Marketing API versionada, Smart+ migration, scopes/tiers y contract/account tests. |
+| TASK-083 | TikTok Accounts & Organic | US-034 | TASK-027; TASK-028; TASK-036; TASK-047; TASK-056 | TTK-AUTH/ORG/MSG-001..; post/message/webhook events | Login Kit, Organic, Content Posting, Display y Business Messaging con consentimiento y ownership. |
+| TASK-084 | TikTok Measurement | US-034 | TASK-023; TASK-026; TASK-029; TASK-068; TASK-072; TASK-078 | TTK-MEAS-001..; `ads.experiment.observation_ingested` | Leads/Insights/event mapping, dedupe, snapshots y reconciliación CRM. |
+| TASK-085 | OpenAI Ads Adapter | US-035 | TASK-024; TASK-025; TASK-056; TASK-067; TASK-072 | OAI-ADS-001..; campaign/ad group/ad/insight events | Advertiser API account, campaigns, ads, files, feeds, preview, audit y paused-first workflow. |
+| TASK-086 | OpenAI Measurement | US-035 | TASK-026; TASK-059; TASK-068; TASK-077; TASK-078 | OAI-CAPI-001..; conversion/pixel events | Pixel/CAPI keys separadas, event dedupe, consent y attribution reporting. |
+| TASK-087 | Experiment Platform | US-036 | TASK-067; TASK-069; TASK-070; TASK-072; TASK-082; TASK-085 | EXP-001..; assignment/exposure/SRM events | V1/V2, stable assignment, provider native split or validated disjoint groups, preregistration and stop rules. |
+| TASK-088 | Data & Measurement | US-036 | TASK-068; TASK-072; TASK-077; TASK-078; TASK-084; TASK-086 | FEAT-001..; observation/feature events | Feature registry/store with lineage, quality, freshness, timezone/currency and provider metric provenance. |
+| TASK-089 | Campaign Intelligence | US-036 | TASK-067; TASK-069; TASK-070; TASK-077; TASK-078; TASK-087; TASK-088 | RECO-001..; `ads.recommendation.created` | Statistical analysis, confidence, outcome value, explainable recommendation, generated drafts and approvals. |
+| TASK-090 | Provider Control Plane | US-034; US-035 | TASK-056; TASK-065; TASK-082; TASK-083; TASK-085 | CAP-001..; capability/drift events | Official source, version, scopes, region, eligibility, validity and affected tests/tasks. |
+| TASK-091 | Security / SRE / Privacy | US-034..036 | TASK-029; TASK-031; TASK-032; TASK-059; TASK-071; TASK-080; TASK-082..089 | AUD/OPS/PRV/ADS contracts | Spend ledger, rate limits, secrets, retention, rights/brand, reconciliation, dashboards, alerts and rollback. |
+
+**DoR adicional:** fuente oficial y fecha de consulta; product/endpoint/version; cuenta y scopes; tenant/purpose/data class; método experimental y unidad de asignación; variable/KPI/MDE; paths exclusivos; fixtures sintéticas; plan de rollback; reviewer distinto. Los IDs API/evento marcados como rangos deben reservarse formalmente en los catálogos antes de congelar contratos.
+
+**DoD adicional:** adapters reales o simulados de forma explícita (nunca placeholder como capability available), provider contracts, RLS/isolation, idempotency/replay, CI de commit exacto, revisión de privacidad/seguridad, docs/10/11/18/19/47 sincronizados y aceptación del owner. `implemented` no equivale a `verified` ni a `accepted`.
