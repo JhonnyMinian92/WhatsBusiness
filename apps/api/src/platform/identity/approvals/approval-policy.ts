@@ -29,6 +29,8 @@ export class DefaultApprovalPolicyResolver implements ApprovalPolicyResolver {
     "privacy.export.request",
     "privacy.deletion.request",
     "jobs.replay.request",
+    "privacy.retention.manage",
+    "privacy.retention.execute",
   ]);
 
   resolve(actionKey: PermissionKey): ApprovalActionPolicy | null {
