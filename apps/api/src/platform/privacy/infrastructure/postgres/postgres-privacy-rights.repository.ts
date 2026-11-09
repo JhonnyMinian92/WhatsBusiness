@@ -1,5 +1,6 @@
 import { ConflictException, Injectable } from "@nestjs/common";
 import { DatabaseService } from "../../../database/database.module.js";
+import { AppendOnlyAuditRepository } from "../../../identity/audit/append-only-audit.repository.js";
 import type { PoolClient } from "pg";
 import type { ValidatedPrivacyRightsRequest } from "../../domain/privacy-rights.policy.js";
 import type { PrivacyRequestSummary, PrivacyRightsRepositoryPort } from "../../application/privacy-rights.repository.js";
@@ -19,7 +20,7 @@ interface RequestRow {
 
 @Injectable()
 export class PostgresPrivacyRightsRepository implements PrivacyRightsRepositoryPort {
-  constructor(private readonly database: DatabaseService) {}
+  constructor(private readonly database: DatabaseService, private readonly audit: AppendOnlyAuditRepository) {}
 
   async findByIdempotency(input: {
     readonly tenantId: string; readonly requesterUserId: string; readonly idempotencyKey: string; readonly authzVersion: number;
@@ -83,7 +84,25 @@ export class PostgresPrivacyRightsRepository implements PrivacyRightsRepositoryP
         input.reasonCode,input.requestHash,input.idempotencyKey,input.requesterUserId,approvalId,
       ],
     );
-    if (inserted.rows[0]) return this.toSummary(inserted.rows[0]);
+    if (inserted.rows[0]) {
+      const row = inserted.rows[0];
+      const actionKey = input.action === "erasure" ? "privacy.deletion.request"
+        : input.action === "access" || input.action === "portability" ? "privacy.export.request"
+          : "privacy.subject.request";
+      await this.audit.append(client,{
+        tenantId: input.tenantId,
+        actorUserId: input.requesterUserId,
+        actionKey,
+        resourceType: "privacy_request",
+        resourceId: row.id,
+        purpose: input.purpose,
+        outcome: "privacy_request_created",
+        correlationId: input.correlationId,
+        requestHash: input.requestHash,
+        approvalId: approvalId ?? undefined,
+      });
+      return this.toSummary(row);
+    }
 
     const existing = await client.query<RequestRow>(
       `SELECT id::text,tenant_id::text,subject_type,subject_id::text,action,status,
