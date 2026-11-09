@@ -14,11 +14,11 @@ import { UnconfiguredMetaAssetDiscovery } from "./infrastructure/unconfigured-me
 import { MetaCredentialVault } from "./application/meta-credential-vault.js";
 import { MetaOAuthService } from "./application/meta-oauth.service.js";
 import { MetaOAuthPolicy } from "./domain/meta-oauth.policy.js";
+import { MetaOAuthScopeCatalog } from "./domain/meta-oauth-scope-catalog.js";
 import { PostgresMetaOAuthRepository } from "./infrastructure/postgres/meta-oauth.repository.js";
 import {
   UnconfiguredCredentialEnvelopeProvider,
   UnconfiguredMetaOAuthProvider,
-  UnverifiedMetaOAuthScopePolicy,
 } from "./infrastructure/unconfigured-meta-adapters.js";
 
 @Module({
@@ -32,10 +32,10 @@ import {
     MetaOnboardingService,
     { provide: META_CREDENTIAL_ENVELOPE_PROVIDER, useClass: UnconfiguredCredentialEnvelopeProvider },
     { provide: META_OAUTH_PROVIDER, useClass: UnconfiguredMetaOAuthProvider },
-    { provide: META_OAUTH_SCOPE_POLICY, useClass: UnverifiedMetaOAuthScopePolicy },
+    { provide: META_OAUTH_SCOPE_POLICY, useFactory: () => new MetaOAuthScopeCatalog() },
     {
       provide: MetaOAuthPolicy,
-      useFactory: (scopePolicy: UnverifiedMetaOAuthScopePolicy) =>
+      useFactory: (scopePolicy: MetaOAuthScopeCatalog) =>
         new MetaOAuthPolicy({
           allowedRedirectUris: (process.env["META_OAUTH_ALLOWED_REDIRECT_URIS"] ?? "")
             .split(",").map((value) => value.trim()).filter(Boolean),
