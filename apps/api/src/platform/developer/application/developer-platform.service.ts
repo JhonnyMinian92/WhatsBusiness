@@ -3,23 +3,23 @@ import {
 } from "@nestjs/common";
 import { createHash, randomBytes } from "node:crypto";
 import type { PoolClient } from "pg";
-import type { TenantAccessContext } from "../identity/tenant-access-context.js";
-import type { PermissionKey } from "../identity/authorization/permission-catalog.js";
-import { AppendOnlyAuditRepository } from "../identity/audit/append-only-audit.repository.js";
-import { DatabaseService } from "../database/database.module.js";
-import { PostgresTenantJobRecordWriter } from "../isolation/postgres-tenant-job-record.writer.js";
+import type { TenantAccessContext } from "../../identity/tenant-access-context.js";
+import type { PermissionKey } from "../../identity/authorization/permission-catalog.js";
+import { AppendOnlyAuditRepository } from "../../identity/audit/append-only-audit.repository.js";
+import { DatabaseService } from "../../database/database.module.js";
+import { PostgresTenantJobRecordWriter } from "../../isolation/postgres-tenant-job-record.writer.js";
 import {
   assertDeveloperIdempotencyKey, assertDeveloperUuid, generateDeveloperApiCredential,
   hashDeveloperCommand, isDeveloperApiScope, parseCreateDeveloperApiClient,
   secureDigestEquals, type DeveloperApiScope,
-} from "./domain/developer-api-credential.js";
+} from "../domain/developer-api-credential.js";
 import {
   createDeveloperWebhookSecret, parseCreateWebhookEndpoint,
   parseDeveloperWebhookSubscriptions, DeveloperWebhookValidationError,
   validateWebhookTargetUrl,
-} from "./domain/developer-webhook.js";
-import { DEVELOPER_API_KEY_PEPPER_PROVIDER, type DeveloperApiKeyPepperProvider } from "./infrastructure/developer-api-key-pepper.js";
-import { DEVELOPER_WEBHOOK_SECRET_PROTECTOR, type DeveloperWebhookSecretProtector } from "./infrastructure/developer-webhook-secret-protector.js";
+} from "../domain/developer-webhook.js";
+import { DEVELOPER_API_KEY_PEPPER_PROVIDER, type DeveloperApiKeyPepperProvider } from "../infrastructure/developer-api-key-pepper.js";
+import { DEVELOPER_WEBHOOK_SECRET_PROTECTOR, type DeveloperWebhookSecretProtector } from "../infrastructure/developer-webhook-secret-protector.js";
 
 const DELIVERY_JOB_TYPE = "developer.webhook.delivery";
 const VERIFY_JOB_TYPE = "developer.webhook.verify_endpoint";
@@ -73,7 +73,10 @@ export class DeveloperPlatformService {
 
   createApiClient(subject: TenantAccessContext, body: unknown, idempotencyKey: string | undefined): Promise<ApiClientMutationResult> {
     this.assertPermission(subject, "developer.api_clients.manage");
-    validateDeveloperInput(() => assertDeveloperIdempotencyKey(idempotencyKey));
+    const commandIdempotencyKey = validateDeveloperInput(() => {
+      assertDeveloperIdempotencyKey(idempotencyKey);
+      return idempotencyKey;
+    });
     const command = validateDeveloperInput(() => parseCreateDeveloperApiClient(body));
     const requestHash = hashDeveloperCommand({
       name: command.name, scopes: command.scopes, expiresAt: command.expiresAt?.toISOString() ?? null,
@@ -81,7 +84,7 @@ export class DeveloperPlatformService {
     const generated = generateDeveloperApiCredential(this.pepper.getPepper());
     return this.database.withTenantContextAtVersion(subject.actorId, subject.tenantId, subject.authzVersion,
       async (client) => {
-        const reservation = await this.reserveCommand(client, subject, "api_client.create", idempotencyKey, requestHash);
+        const reservation = await this.reserveCommand(client, subject, "api_client.create", commandIdempotencyKey, requestHash);
         if (reservation.replayed) {
           const existing = reservation.resourceId ? await this.findApiClient(client, subject.tenantId, reservation.resourceId) : null;
           if (!existing) throw new ConflictException({ code: "DEVELOPER_COMMAND_INCOMPLETE" });
@@ -105,12 +108,15 @@ export class DeveloperPlatformService {
   rotateApiClient(subject: TenantAccessContext, clientId: string, idempotencyKey: string | undefined): Promise<ApiClientMutationResult> {
     this.assertPermission(subject, "developer.api_clients.manage");
     validateDeveloperInput(() => assertDeveloperUuid(clientId));
-    validateDeveloperInput(() => assertDeveloperIdempotencyKey(idempotencyKey));
+    const commandIdempotencyKey = validateDeveloperInput(() => {
+      assertDeveloperIdempotencyKey(idempotencyKey);
+      return idempotencyKey;
+    });
     const requestHash = hashDeveloperCommand({ clientId, operation: "rotate" });
     const generated = generateDeveloperApiCredential(this.pepper.getPepper());
     return this.database.withTenantContextAtVersion(subject.actorId, subject.tenantId, subject.authzVersion,
       async (client) => {
-        const reservation = await this.reserveCommand(client, subject, "api_client.rotate", idempotencyKey, requestHash);
+        const reservation = await this.reserveCommand(client, subject, "api_client.rotate", commandIdempotencyKey, requestHash);
         if (reservation.replayed) {
           const existing = reservation.resourceId ? await this.findApiClient(client, subject.tenantId, reservation.resourceId) : null;
           if (!existing) throw new ConflictException({ code: "DEVELOPER_COMMAND_INCOMPLETE" });
@@ -136,11 +142,14 @@ export class DeveloperPlatformService {
   revokeApiClient(subject: TenantAccessContext, clientId: string, idempotencyKey: string | undefined) {
     this.assertPermission(subject, "developer.api_clients.manage");
     validateDeveloperInput(() => assertDeveloperUuid(clientId));
-    validateDeveloperInput(() => assertDeveloperIdempotencyKey(idempotencyKey));
+    const commandIdempotencyKey = validateDeveloperInput(() => {
+      assertDeveloperIdempotencyKey(idempotencyKey);
+      return idempotencyKey;
+    });
     const requestHash = hashDeveloperCommand({ clientId, operation: "revoke" });
     return this.database.withTenantContextAtVersion(subject.actorId, subject.tenantId, subject.authzVersion,
       async (client) => {
-        const reservation = await this.reserveCommand(client, subject, "api_client.revoke", idempotencyKey, requestHash);
+        const reservation = await this.reserveCommand(client, subject, "api_client.revoke", commandIdempotencyKey, requestHash);
         if (reservation.replayed) {
           const row = await this.findApiClient(client, subject.tenantId, reservation.resourceId ?? clientId);
           if (!row || row.status !== "revoked" || !row.revoked_at) throw new ConflictException({ code: "DEVELOPER_API_CLIENT_STATE_CHANGED" });
@@ -175,14 +184,17 @@ export class DeveloperPlatformService {
 
   createWebhookEndpoint(subject: TenantAccessContext, body: unknown, idempotencyKey: string | undefined): Promise<WebhookEndpointMutationResult> {
     this.assertPermission(subject, "developer.webhooks.manage");
-    validateDeveloperInput(() => assertDeveloperIdempotencyKey(idempotencyKey));
+    const commandIdempotencyKey = validateDeveloperInput(() => {
+      assertDeveloperIdempotencyKey(idempotencyKey);
+      return idempotencyKey;
+    });
     const command = validateDeveloperInput(() => parseCreateWebhookEndpoint(body));
     const requestHash = hashDeveloperCommand(command);
     const signingSecret = createDeveloperWebhookSecret();
     const challenge = randomBytes(32).toString("base64url");
     return this.database.withTenantContextAtVersion(subject.actorId, subject.tenantId, subject.authzVersion,
       async (client) => {
-        const reservation = await this.reserveCommand(client, subject, "webhook_endpoint.create", idempotencyKey, requestHash);
+        const reservation = await this.reserveCommand(client, subject, "webhook_endpoint.create", commandIdempotencyKey, requestHash);
         if (reservation.replayed) {
           const endpoint = reservation.resourceId ? await this.findEndpoint(client, subject.tenantId, reservation.resourceId) : null;
           if (!endpoint) throw new ConflictException({ code: "DEVELOPER_COMMAND_INCOMPLETE" });
@@ -219,13 +231,16 @@ export class DeveloperPlatformService {
   updateWebhookEndpoint(subject: TenantAccessContext, endpointId: string, body: unknown, idempotencyKey: string | undefined): Promise<WebhookEndpointMutationResult> {
     this.assertPermission(subject, "developer.webhooks.manage");
     validateDeveloperInput(() => assertDeveloperUuid(endpointId));
-    validateDeveloperInput(() => assertDeveloperIdempotencyKey(idempotencyKey));
+    const commandIdempotencyKey = validateDeveloperInput(() => {
+      assertDeveloperIdempotencyKey(idempotencyKey);
+      return idempotencyKey;
+    });
     const command = validateDeveloperInput(() => parseUpdateWebhookEndpoint(body));
     const requestHash = hashDeveloperCommand({ endpointId, command });
     const challenge = randomBytes(32).toString("base64url");
     return this.database.withTenantContextAtVersion(subject.actorId, subject.tenantId, subject.authzVersion,
       async (client) => {
-        const reservation = await this.reserveCommand(client, subject, "webhook_endpoint.update", idempotencyKey, requestHash);
+        const reservation = await this.reserveCommand(client, subject, "webhook_endpoint.update", commandIdempotencyKey, requestHash);
         if (reservation.replayed) {
           const existing = await this.findEndpoint(client, subject.tenantId, reservation.resourceId ?? endpointId);
           if (!existing) throw new NotFoundException({ code: "DEVELOPER_WEBHOOK_ENDPOINT_NOT_FOUND" });
@@ -263,11 +278,14 @@ export class DeveloperPlatformService {
   disableWebhookEndpoint(subject: TenantAccessContext, endpointId: string, idempotencyKey: string | undefined) {
     this.assertPermission(subject, "developer.webhooks.manage");
     validateDeveloperInput(() => assertDeveloperUuid(endpointId));
-    validateDeveloperInput(() => assertDeveloperIdempotencyKey(idempotencyKey));
+    const commandIdempotencyKey = validateDeveloperInput(() => {
+      assertDeveloperIdempotencyKey(idempotencyKey);
+      return idempotencyKey;
+    });
     const requestHash = hashDeveloperCommand({ endpointId, operation: "disable" });
     return this.database.withTenantContextAtVersion(subject.actorId, subject.tenantId, subject.authzVersion,
       async (client) => {
-        const reservation = await this.reserveCommand(client, subject, "webhook_endpoint.disable", idempotencyKey, requestHash);
+        const reservation = await this.reserveCommand(client, subject, "webhook_endpoint.disable", commandIdempotencyKey, requestHash);
         if (reservation.replayed) return { id: reservation.resourceId ?? endpointId, status: "disabled" as const, replayed: true };
         const result = await client.query<{ id: string }>(
           "UPDATE platform.developer_webhook_endpoints SET status='disabled',disabled_at=now(),updated_at=now() " +
@@ -284,10 +302,17 @@ export class DeveloperPlatformService {
 
   subscribeWebhookEvents(subject: TenantAccessContext, body: unknown, idempotencyKey: string | undefined) {
     this.assertPermission(subject, "developer.webhooks.manage");
-    validateDeveloperInput(() => assertDeveloperIdempotencyKey(idempotencyKey));
+    const commandIdempotencyKey = validateDeveloperInput(() => {
+      assertDeveloperIdempotencyKey(idempotencyKey);
+      return idempotencyKey;
+    });
     const record = asPlainRecord(body);
-    const endpointId = record["endpointId"];
-    validateDeveloperInput(() => assertDeveloperUuid(typeof endpointId === "string" ? endpointId : ""));
+    const endpointIdValue = record["endpointId"];
+    if (typeof endpointIdValue !== "string") {
+      throw new BadRequestException({ code: "DEVELOPER_RESOURCE_ID_INVALID" });
+    }
+    const endpointId = endpointIdValue;
+    validateDeveloperInput(() => assertDeveloperUuid(endpointId));
     if (Object.keys(record).some((key) => key !== "endpointId" && key !== "subscriptions")) {
       throw new DeveloperWebhookValidationError("DEVELOPER_WEBHOOK_SUBSCRIPTION_FIELDS_INVALID");
     }
@@ -295,7 +320,7 @@ export class DeveloperPlatformService {
     const requestHash = hashDeveloperCommand({ endpointId, subscriptions });
     return this.database.withTenantContextAtVersion(subject.actorId, subject.tenantId, subject.authzVersion,
       async (client) => {
-        const reservation = await this.reserveCommand(client, subject, "webhook_subscription.upsert", idempotencyKey, requestHash);
+        const reservation = await this.reserveCommand(client, subject, "webhook_subscription.upsert", commandIdempotencyKey, requestHash);
         if (reservation.replayed) {
           return { endpointId, subscriptions: await this.getSubscriptions(client, subject.tenantId, endpointId), replayed: true };
         }
@@ -306,8 +331,6 @@ export class DeveloperPlatformService {
           "DELETE FROM platform.developer_webhook_subscriptions WHERE tenant_id=$1 AND endpoint_id=$2",
           [subject.tenantId, endpointId],
         );
-        await client.query("DELETE FROM platform.developer_webhook_subscriptions WHERE tenant_id=$1 AND endpoint_id=$2",
-          [subject.tenantId, endpointId]);
         for (const item of subscriptions) {
           await client.query(
             "INSERT INTO platform.developer_webhook_subscriptions (tenant_id,endpoint_id,event_type,schema_version) " +
@@ -345,11 +368,14 @@ export class DeveloperPlatformService {
   retryWebhookDelivery(subject: TenantAccessContext, deliveryId: string, idempotencyKey: string | undefined) {
     this.assertPermission(subject, "developer.webhooks.retry");
     validateDeveloperInput(() => assertDeveloperUuid(deliveryId));
-    validateDeveloperInput(() => assertDeveloperIdempotencyKey(idempotencyKey));
+    const commandIdempotencyKey = validateDeveloperInput(() => {
+      assertDeveloperIdempotencyKey(idempotencyKey);
+      return idempotencyKey;
+    });
     const requestHash = hashDeveloperCommand({ deliveryId, operation: "manual_retry" });
     return this.database.withTenantContextAtVersion(subject.actorId, subject.tenantId, subject.authzVersion,
       async (client) => {
-        const reservation = await this.reserveCommand(client, subject, "webhook_delivery.retry", idempotencyKey, requestHash);
+        const reservation = await this.reserveCommand(client, subject, "webhook_delivery.retry", commandIdempotencyKey, requestHash);
         if (reservation.replayed) return { id: reservation.resourceId ?? deliveryId, status: "pending" as const, replayed: true };
         const selected = await client.query<{
           id: string; status: string; attempt_count: number; max_attempts: number; manual_retry_count: number;
