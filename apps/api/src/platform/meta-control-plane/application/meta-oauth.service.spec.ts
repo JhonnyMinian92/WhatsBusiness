@@ -59,9 +59,11 @@ function tokenSet(accessToken: string): MetaOAuthTokenSet {
   };
 }
 
-function createHarness(options?: { decryptFails?: boolean }) {
+function createHarness(options?: { decryptFails?: boolean; legacyAadOnly?: boolean }) {
   let connection = originalConnection;
   let lastAssociatedData = "";
+  let encryptedAssociatedData = "";
+  const decryptAttempts: string[] = [];
   let refreshAccessToken = "";
   let remoteRevocationCalls = 0;
   let localRevocationMarked = false;
@@ -71,11 +73,17 @@ function createHarness(options?: { decryptFails?: boolean }) {
   const vault = {
     async encryptSecret(_plaintext: string, associatedData: string) {
       lastAssociatedData = associatedData;
+      encryptedAssociatedData = associatedData;
       return { keyId: "kms-key", ciphertext: "rotated-ciphertext", iv: "iv", tag: "tag" };
     },
     async decryptSecret(_envelope: unknown, associatedData: string) {
       lastAssociatedData = associatedData;
+      decryptAttempts.push(associatedData);
       if (options?.decryptFails) throw new Error("simulated KMS outage");
+      const legacyAad = ["whatsbusiness","meta-oauth",tenantId,creatorId,"whatsapp_business_platform"].join(":");
+      if (options?.legacyAadOnly && associatedData !== legacyAad) {
+        throw new Error("simulated legacy envelope AAD mismatch");
+      }
       return JSON.stringify({ accessToken: "meta-access-token", refreshToken: null, tokenType: "bearer" });
     },
   } as unknown as MetaCredentialVault;
@@ -120,6 +128,8 @@ function createHarness(options?: { decryptFails?: boolean }) {
   return {
     service,
     associatedData: () => lastAssociatedData,
+    encryptedAssociatedData: () => encryptedAssociatedData,
+    decryptAttempts: () => [...decryptAttempts],
     refreshedAccessToken: () => refreshAccessToken,
     remoteRevocationCalls: () => remoteRevocationCalls,
     localRevocationMarked: () => localRevocationMarked,
@@ -152,4 +162,30 @@ test("la revocación local se aplica antes de KMS y falla cerrada ante su indisp
   assert.equal(result.remoteRevocationState, "unknown");
   assert.equal(result.requiresManualFollowUp, true);
   assert.equal(harness.connection().status, "reauthorization_required");
+});
+
+
+test("migra de forma transparente un sobre histórico al AAD estable al renovar", async () => {
+  const harness = createHarness({ legacyAadOnly: true });
+  await harness.service.refreshConnection(subject(managerId), connectionId);
+
+  const currentAad = JSON.stringify([
+    "whatsbusiness","meta-oauth","credential",tenantId,"whatsapp_business_platform","meta-user-001",
+  ]);
+  const legacyAad = ["whatsbusiness","meta-oauth",tenantId,creatorId,"whatsapp_business_platform"].join(":");
+
+  assert.deepEqual(harness.decryptAttempts(), [currentAad, legacyAad]);
+  assert.equal(harness.encryptedAssociatedData(), currentAad);
+  assert.ok(harness.finalEncryptedToken());
+});
+
+test("puede revocar una credencial histórica sin reactivar el acceso local", async () => {
+  const harness = createHarness({ legacyAadOnly: true });
+  const result = await harness.service.revokeConnection(subject(managerId), connectionId);
+
+  assert.equal(harness.decryptAttempts().length, 2);
+  assert.equal(harness.remoteRevocationCalls(), 1);
+  assert.equal(harness.revocationCompleted(), "confirmed");
+  assert.equal(harness.connection().status, "revoked");
+  assert.equal(result.status, "revoked");
 });
