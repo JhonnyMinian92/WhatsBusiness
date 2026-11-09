@@ -121,7 +121,11 @@ export class MetaOAuthService {
       redirectUri: state.redirectUri,
     });
     if (!tokens.accessToken || tokens.accessToken.length > 64_000
+      || (tokens.refreshToken !== null && (typeof tokens.refreshToken !== "string" || tokens.refreshToken.length > 64_000))
       || !tokens.providerUserId.trim() || tokens.providerUserId.length > 512
+      || !Array.isArray(tokens.grantedScopes)
+      || tokens.grantedScopes.some((scope) => typeof scope !== "string" || !/^[a-z][a-z0-9_]{1,127}$/.test(scope))
+      || new Set(tokens.grantedScopes).size !== tokens.grantedScopes.length
       || !Number.isSafeInteger(tokens.expiresInSeconds) || tokens.expiresInSeconds < 60
       || tokens.expiresInSeconds > 31_536_000) {
       throw new ServiceUnavailableException("El proveedor OAuth devolvió credenciales o expiración inválidas.");
