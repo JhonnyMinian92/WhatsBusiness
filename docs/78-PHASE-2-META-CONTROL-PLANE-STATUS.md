@@ -65,7 +65,15 @@ Se registraron en el target Nx \`api:test\`:
 
 También se amplió \`append-only-audit.repository.spec.ts\` para verificar \`meta_assets_synced\`.
 
-**Validación real al corte:** no hay resultado Source CI ni CodeQL reportado para el HEAD actual de esta iteración. No afirmar que build, typecheck, pruebas PostgreSQL o migración 0039 pasaron hasta inspeccionar un run del commit exacto. No se ejecutaron pruebas con Meta real.
+**Validación real del HEAD `a08bb5352f611077a6342ffc19a065fef2370b79`:**
+- Source workspace validation: **FAIL** (run [42555054762](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42555054762)). Los pasos `Build all applications`, `Typecheck all applications`, aplicación de migraciones y verificación de idempotencia terminaron SUCCESS.
+- Migración `0039-meta-asset-registry-and-sync-history.sql`: aplicada y verificada como idempotente en PostgreSQL del workflow.
+- Suite Meta backend con PostgreSQL/RabbitMQ: **112/112 PASS** (outcome SUCCESS).
+- Suite Inbox domain: **36/36 PASS**.
+- API unit + PostgreSQL integration: **404/405 PASS**; el único fallo es `platform-administration.integration.spec.ts`, que intenta insertar `platform.usage_ledger` y recibe `new row violates row-level security policy`. Es el mismo fallo baseline documentado previamente para Platform Administration y no pertenece a TASK-006..010. El agregador mantiene el workflow global en FAILURE; no se excluyó ni se ocultó el test.
+- CodeQL: **SUCCESS** en [run 42555054766](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42555054766), mismo SHA.
+- Escaneo de credenciales, auditoría de dependencias de alta severidad, checks de observabilidad, migraciones/idempotencia y provisioning de roles de mínimo privilegio: SUCCESS.
+- No se ejecutó intercambio OAuth, Embedded Signup ni sincronización Graph con una cuenta Meta real.
 
 ## Gates externos y de integración que siguen abiertos
 
@@ -74,7 +82,7 @@ También se amplió \`append-only-audit.repository.spec.ts\` para verificar \`me
 3. Verificar App Review, Advanced Access, Business Verification, Tech Provider (cuando aplique), scopes concedidos, business eligibility, país y cuenta real/sandbox autorizada.
 4. Implementar/revisar provider OAuth HTTP y discovery Graph con allowlist de hosts, versión por operación/producto, paginación, rate limit, timeouts, retries controlados y manejo de respuestas parciales.
 5. Congelar schemas de request/response/error, autorización, idempotencia, auditoría y tenant boundary por META operation bajo docs/49 y G0 antes de habilitar endpoints.
-6. Aplicar migration 0039 sobre PostgreSQL, ejecutar Source CI/CodeQL sobre el HEAD exacto, corregir cualquier fallo, hacer revisión independiente y obtener aceptación del Product Owner.
+6. La migración 0039 y su idempotencia ya pasaron; CodeQL pasó en el HEAD indicado. Corregir la integración baseline de Platform Administration que bloquea el Source workflow, repetir Source CI verde sobre un SHA final, hacer revisión independiente y obtener aceptación del Product Owner.
 
 No se habilitan operaciones catalog-only ni acciones remotas. **Fase 2 no está completa y G2 no está aprobado; GO-PRODUCTION permanece NO-GO.**
 
