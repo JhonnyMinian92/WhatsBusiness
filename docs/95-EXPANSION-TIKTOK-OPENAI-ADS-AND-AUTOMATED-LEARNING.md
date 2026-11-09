@@ -22,6 +22,8 @@ Las versiones se asignarán a grupos experimentales mediante un mecanismo aleato
 
 El propósito final no es solamente identificar qué anuncio recibe más clics. WhatsBusiness debe descubrir qué combinación de contenido, creatividad, contexto, experiencia y oferta consigue mejores resultados comerciales sostenibles: leads cualificados, oportunidades, compras, ingresos netos, margen, recurrencia y valor de vida del cliente, según los datos disponibles.
 
+**Ampliación de producto:** Campaign Intelligence y Creative Lab se convierten en un motor de experimentación omnicanal. El A/B testing será el núcleo que gobierna cómo se crean variantes, se asignan personas, se ejecutan campañas, se capturan interacciones y se deciden las siguientes versiones. Este motor cubre paid media y canales propios como WhatsApp, email, SMS, voz, Telegram y otros, sin asumir que todos ofrecen el mismo control o medición. La plataforma registra las limitaciones y nunca inventa eventos que el canal no exponga.
+
 El motor podrá recomendar y preparar automáticamente nuevas versiones. La activación de anuncios, las publicaciones, los cambios de presupuesto y cualquier operación externa con coste continuarán sujetos a permisos, límites, políticas y aprobaciones configuradas por el propietario y el tenant. La automatización de generación no equivale a autorización de publicación ni de gasto.
 
 ## 2. Objetivos y resultados de negocio
@@ -766,3 +768,618 @@ Corte de consulta: **2026-11-09**. Los endpoints, versiones, scopes, disponibili
 - [ ] Aceptación final del Product Owner.
 
 **Conclusión:** esta entrega define la ampliación completa del producto y la ruta técnica. No marca como implementadas las APIs, el rename ni el aprendizaje automático. El objetivo de ejecución es completar el código y las pruebas sintéticas de todos los requisitos aprobados sin bloquearse por accesos externos; los gates de proveedor, revisión legal, gasto y producción deben permanecer explícitos hasta contar con evidencia real y autorización.
+---
+
+# Addendum — Experimentación, ventas y medición omnicanal
+
+> Fecha de ampliación: 2026-11-09. Extiende US-033..036 y TASK-081..091. No acredita integración de proveedores ni implementación.
+
+## 23. El A/B testing es el núcleo del producto
+
+WhatsBusiness no debe ser solo un panel que publica anuncios en distintas redes. Debe ser una plataforma de experimentación, contacto, ventas y aprendizaje continuo que coordine publicidad pagada, contenido orgánico, mensajería, correo, SMS, llamadas, web y CRM mediante un mismo motor de medición.
+
+El núcleo transversal tiene cinco capacidades:
+
+1. **Experiment Design:** traduce un objetivo de negocio a hipótesis, población, V1, V2, variable principal, KPI, muestra, presupuesto, ventana y criterios de parada.
+2. **Experiment Assignment:** asigna una unidad elegible a una variante con método persistente, reproducible y auditable.
+3. **Channel Orchestration:** decide dónde y cuándo contactar, atendiendo permiso, preferencia, límites, coste, frecuencia y reglas del journey.
+4. **Measurement & Outcomes:** captura eventos de proveedor, web, ecommerce, CRM, agenda, call center y pagos, conservando procedencia y calidad.
+5. **Learning & Recommendations:** analiza la evidencia y produce una recomendación explicable o declara el resultado inconcluso. Puede crear drafts nuevos, pero no publicarlos ni gastar sin aprobación.
+
+Se deben separar tres planos:
+
+| Plano | Ejemplos | Lo que demuestra |
+|---|---|---|
+| Entrega | accepted, sent, delivered, impression, call ringing | Que hubo una operación o exposición según el estado disponible |
+| Interacción | read, click, reply, visita, formulario, llamada atendida | Una señal de engagement con calidad específica del canal |
+| Resultado comercial | lead validado, cita atendida, oportunidad, venta cobrada, margen, recompra | El resultado confirmado por CRM, comercio o sistema transaccional |
+
+El número de impresiones, mensajes enviados, aperturas o conversaciones iniciadas no es éxito final. La métrica principal debe reflejar resultados comerciales sostenibles: leads cualificados, oportunidades, ventas, ingreso neto, margen, retención, recompra y coste de servir al cliente.
+
+### 23.1. Entidades que deben diferenciarse
+
+- Campaign: iniciativa comercial con objetivo, presupuesto, fechas, responsable y criterios de éxito.
+- Journey: secuencia de contactos que puede usar varios canales y varios días.
+- ChannelExecution: ejecución concreta en un proveedor/canal.
+- Experiment: protocolo de comparación con población, brazos, asignación y reglas estadísticas.
+- Variant: contenido o configuración versionada, vinculada a una hipótesis.
+- Touchpoint: exposición o contacto individual en un canal.
+- BusinessOutcome: lead, cita, oportunidad, venta, pago, devolución u otro resultado real.
+
+Una campaña puede contener varios journeys; un journey varios touchpoints; un experimento varios canales. La asignación experimental, sin embargo, debe mantener coherencia de variante a través de todos esos canales.
+
+### 23.2. Obligación V1/V2 y excepciones seguras
+
+Toda campaña de marketing, ventas, adquisición, retención, reactivación o comunicación comercial que WhatsBusiness prepare o envíe mediante API debe crear, antes del primer write externo:
+
+- **V1 — Original / Control:** versión base aprobada, inmutable, con hash, source y snapshot.
+- **V2 — Alternativa / Tratamiento:** versión diferente derivada de una hipótesis, con los cambios y atributos constantes registrados.
+
+Si la campaña nace desde cero, V1 será la primera versión aprobada del brief. No se puede crear V1 retroactivamente después de modificar o lanzar la campaña.
+
+Las comunicaciones transaccionales, legales, de autenticación, seguridad o avisos críticos también conservarán dos snapshots de contenido, pero las dos versiones deben preservar todos los hechos, importes, códigos, condiciones y mensajes obligatorios. No se experimenta con información crítica que pueda inducir a error, causar daño o afectar derechos. Cualquier variación de bajo riesgo requiere aprobación de producto/legal.
+
+Para campañas comerciales, la activación exige un split aleatorio verificable mediante una herramienta nativa del proveedor o una partición de audiencia compatible y auditable. Si no existe ese control, se bloquea el lanzamiento como A/B causal. Solo el Product Owner puede autorizar una excepción manual identificada como **manual_non_experimental**, con motivo y aprobadores. No se usa esa excepción para aprendizaje causal ni se etiqueta como A/B.
+
+Nunca enviar V1 y V2 a la misma persona simultáneamente para comparar. Cada unidad recibe solo la variante que le corresponde, salvo que exista un protocolo secuencial explícito que evite contaminación.
+
+## 24. ¿Qué canales conviene incluir?
+
+Sí, conviene incluir email, SMS, llamadas y canales menos populares, pero no desarrollar todos los conectores de inmediato. Primero se construye el motor de experimentación y medición; después se priorizan canales por valor comercial, audiencia elegible, coste, medición, permisos y demanda demostrada.
+
+### 24.1. Portafolio y prioridad
+
+| Canal | Valor dentro de WhatsBusiness | Prioridad propuesta | Consideraciones |
+|---|---|---:|---|
+| WhatsApp Business Platform | Ventas, seguimiento, recordatorios, soporte, catálogos, conversaciones | P0 | Ventanas, plantillas, preferencias, calidad y políticas por tipo de mensaje |
+| Facebook / Instagram Ads | Paid acquisition, leads, retargeting elegible y ventas | P0 | Marketing API, Insights, CAPI, experimentos, scopes y acceso de cuenta |
+| Instagram / Messenger orgánico | Publicaciones, comentarios, mensajes y atención | P0/P1 | Separar las capacidades de anuncios de las capacidades de contenido y mensajes |
+| TikTok Ads / Organic | Video paid, leads, catálogos y publicación orgánica | P0 | Marketing API, Organic API, Content Posting/Display y approvals |
+| ChatGPT Ads | Publicidad en ChatGPT y medición de conversiones | P0 | OpenAI Advertiser API, Pixel/CAPI y elegibilidad de ad account |
+| Email | Newsletters, nutrición, onboarding, carritos, ventas B2B, retención | P1 | Reputación del dominio, rebotes, complaints, bajas y privacidad de aperturas |
+| SMS | Alertas, recordatorios, promociones autorizadas y enlaces | P1 | Coste por segmento, DLR del operador, remitente y autorización previa |
+| Llamadas / Voice / IVR | Ventas consultivas, citas, atención y recuperación de oportunidades | P1 | Callbacks, dispositions, coste, consentimiento de grabación y resultado humano |
+| Google Ads / YouTube | Search, Display, video, leads y conversiones | P1 | Google Ads API, experiments, click IDs y conversiones offline según acceso |
+| Telegram | Bots, comunidad, soporte, notificaciones autorizadas y Mini Apps | P1/P2 | Bot API no es una API universal de anuncios ni permite contactar a cualquiera |
+| LinkedIn Ads / Pages | B2B, lead forms y contenido corporativo | P2 | Aporta valor si el ICP es B2B; permisos y APIs deben validarse |
+| RCS | Mensajería enriquecida | P2 | Disponibilidad desigual por operador/país y fallback a SMS |
+| Web Push / In-App | Activación, retención y recuperación | P1/P2 | Requiere permiso y medición first-party |
+| Pinterest Ads / Organic | Descubrimiento visual, catálogo y retail | P2 | Priorizar categorías donde se demuestre intención |
+| Snapchat Ads | Video/AR y audiencias elegibles | P2 | Validar valor en el ICP |
+| Reddit Ads | Comunidades e intereses | P2 | Medir ventas y calidad, no solo votos/clics |
+| Viber / LINE | Mensajería regional | P2 | Activar solo con audiencia y proveedor elegible |
+| Discord | Comunidad, soporte y bots | P2 | Un servidor no equivale a una lista comercial con permiso |
+| Threads / YouTube orgánico | Distribución de contenido y señales de interés | P1/P2 | Publicación orgánica no equivale a compra de publicidad |
+
+El orden recomendado es: motor de experimentación/medición; integraciones Meta, TikTok y OpenAI Ads; email y SMS/voz; Google Ads/YouTube y Telegram; luego otros canales según un caso de negocio. No se asumen cifras de penetración ni popularidad sin investigación por país e ICP.
+
+### 24.2. Email: integrarlo como canal de primer nivel
+
+Crear un port EmailProvider y adapters intercambiables. Evaluar Amazon SES, SendGrid, Mailchimp u otros según coste, volumen, reputación, API, región, contrato, soporte y capacidad de marketing automation.
+
+Capturar si el proveedor los expone:
+
+- processed, accepted, sent, deferred/delayed, delivered, reject, hard/soft bounce, block y rendering failure;
+- spam complaint, unsubscribe global o por grupo/preferencia y resubscribe;
+- clicks únicos/totales, URL/link ID y timestamp;
+- opens únicos/totales con flag de señal débil, posible proxy/prefetch y bot;
+- sender domain, plantilla/version, proveedor, IP pool cuando esté disponible, categoría, campaña, variante y subject pseudonimizado.
+
+**No usar open rate como KPI primario ni como único disparador de automatización.** Apple Mail Privacy Protection puede descargar pixels en segundo plano sin que la persona abra el mensaje y los sistemas antispam pueden abrir/clicar enlaces. Los opens se guardan como señal auxiliar y se contrastan con sesiones web, clicks filtrados, respuestas, formularios, compras y CRM.
+
+Añadir SPF/DKIM/DMARC readiness, dominios de tracking, reputación, lista de supresión, manejo de hard bounces y complaints, preferencia transaccional/marketing y control de frecuencia. Un contacto suprimido no recibe otra campaña comercial.
+
+### 24.3. SMS: incluirlo por su valor práctico
+
+Implementar un port SmsProvider con adapters CPaaS/operador. Capturar queued, accepted, sent, delivered, undelivered, failed, canceled, código de error, segmentos facturables, encoding, tamaño, remitente, país/operador/ruta, timestamp, coste/moneda, latencia, replies, opt-out y clicks de enlaces cortos.
+
+Un DLR delivered demuestra un estado informado por red/proveedor, no que una persona haya leído el mensaje. No inventar read rate. Controlar costes por segmento, reglas de fallback, número remitente, frecuencia y autorización.
+
+### 24.4. Voice: llamadas, IVR y contact center
+
+Incluir Voice API y eventos del contact center para llamadas entrantes/salientes, ventas consultivas, citas y soporte.
+
+Capturar queued, initiated, ringing, answered/in-progress, completed, busy, no-answer, failed y canceled; duración de timbrado, duración conectada/facturada, IVR, espera, transferencia, abandono, disposition del agente, callback, citas, oportunidad, venta y coste.
+
+Una llamada completed no demuestra conversación humana: puede conectar con buzón o IVR. Mantener separado voicemail/answering machine cuando el proveedor soporte esa señal. Grabaciones, transcripciones, speech-to-text y sentiment solo con base jurídica, aviso, permisos, retención y ACL adecuados.
+
+A/B de guion, apertura, orden de preguntas, tono, IVR y hora se asigna por lead/oportunidad, no por intento. Los reintentos conservan el mismo brazo.
+
+### 24.5. Telegram: útil para comunidad y bots, no para publicidad indiscriminada
+
+Construir un adapter de Telegram Bot API, Business Connections, webhooks, Mini Apps y pagos donde proceda. Aporta atención, autoservicio, notificaciones a usuarios que habilitaron la interacción y experiencias de comunidad.
+
+Reglas: no contactar usuarios que no iniciaron/autorizaron el bot; persistir updates rápidamente porque Telegram no los guarda indefinidamente (su documentación indica un máximo de 24 horas); deduplicar update_id; registrar permisos Business; prevenir loops bot-a-bot y replies duplicadas. Telegram Bot API no ofrece métricas universales de lectura y no debe considerarse una API de compra de Telegram Ads. Telegram Ads se trata como producto separado y solo se implementa si se demuestra API oficial, acceso y contrato.
+
+### 24.6. Google Ads / YouTube
+
+Priorizar tras los canales P0: existe una API oficial de experimentos con control/tratamiento, split, reporting y workflows de promoción/finalización. Aporta Search, intención, video y conversión offline. Cada tipo de campaña/cuenta/producto debe comprobarse por capability; no asumir que todos los formatos permiten el mismo experimento ni que el acceso histórico a conversion uploads sigue habilitado.
+
+### 24.7. Selección de canales menos populares
+
+Cada nueva integración requiere un Channel Business Case:
+
+1. ICP, sectores, país e idioma.
+2. Audiencia propia elegible y uso observado por clientes.
+3. Capacidad oficial de enviar/publicar, recibir eventos y extraer métricas.
+4. Posibilidad de asignación experimental sin contaminación.
+5. Coste total y soporte del proveedor.
+6. Restricciones de permisos, revisión, privacidad, región y deprecaciones.
+7. Resultados downstream esperados y evidencia de demanda.
+
+La decisión se registra como pilot, integrate, defer o reject con fuente, fecha, scorecard, coste, riesgos y fecha de revisión. No desarrollar un canal solo por tener API.
+
+## 25. Proceso concreto de campaña a aprendizaje
+
+Máquina de estados obligatoria:
+
+1. Brief: tenant, responsable, producto, oferta, país, audiencia, funnel, objetivo y resultado económico.
+2. Elegibilidad: cuenta, activos, scopes, API version, país, tier, policy, cuota, coste y capability vigente.
+3. Audiencia y política: finalidad/base, aviso, preferencias, opt-outs, supresión, edad, categorías de datos y restricciones.
+4. KPI: objetivo primario y guardrails. Ejemplo: coste por lead cualificado y margen por venta, no CTR aislado.
+5. Preregistro: hipótesis, variable primaria, unidad, población, brazos, MDE, muestra, power, fecha, presupuesto y stopping rules.
+6. Variantes: V1/V2, copy/assets/format/CTA/landing/oferta/configuración, diferencias y atributos constantes.
+7. QA legal/creativo: derechos, claims, marca, precio, stock, landing, formato, preview, accesibilidad y traducción.
+8. Assignment: split nativo o randomización válida de audiencia/personas. Comprobar exclusión, persistencia y no solapamiento.
+9. Preflight: simulación, presupuesto máximo, gasto por brazo, coste por envío, límites y kill switch.
+10. Approval: aprobación de actor distinto para acciones sensibles y hash exacto del change set.
+11. Staging/despacho: drafts/paused cuando proceda, idempotencia, request IDs y estado remoto. Cada destinatario recibe solo la variante asignada.
+12. Observación: callbacks, Insights, eventos web, replies, CRM, costes y bloqueos.
+13. Reconciliación: estado remoto, ledger, callbacks tardíos, duplicados, métricas retrasadas y atribución incompleta.
+14. Análisis: SRM, muestra, MDE, guardrails, intervalos/posterior, conversion lag y heterogeneidad.
+15. Decisión: winner, loser, inconclusive, invalidated u observational_only. Proteger ganadores; crear siguiente variante como nuevo snapshot.
+16. Cierre: conservar evidencia y retención según política; actualizar learning history.
+
+Estados de campaña: draft → validated → experiment_registered → variants_ready → approval_pending → approved → staged → scheduled → running → paused/stop_requested → completed → reconciled → archived.
+
+Estados de experimento: draft → preregistered → assignment_ready → approved → running → monitoring → analysis_ready → winner/loser/inconclusive → archived. cancelled e invalidated son terminales con reason code.
+
+## 26. Metodología A/B: validez estadística y control de sesgos
+
+### 26.1. Unidad de asignación
+
+Registrar explícitamente si la unidad es persona seudonimizada, hogar/organización, cluster geográfico, sesión o split gestionado por el proveedor. Para contacto directo, preferir persona/cliente o unidad de negocio. Una misma persona no puede estar en V1 para email y V2 para WhatsApp dentro del mismo experimento cuando se mide una única propuesta.
+
+Para paid media, diferenciar split de impresiones, usuarios, audiencia y presupuesto. El 50/50 del presupuesto no equivale a 50/50 de personas expuestas.
+
+### 26.2. Diseños válidos
+
+| Diseño | Caso | Requisito |
+|---|---|---|
+| A/B clásico | V1 vs V2 cambiando una variable | Randomización y KPI prerregistrado |
+| Multi-arm | V1, V2 y V3 | Corrección múltiple y muestra suficiente |
+| Factorial | Color × CTA | Potencia suficiente para interacciones |
+| Holdout | Contactar vs no contactar | Control sin contacto salvo notificaciones obligatorias |
+| Cross-channel | WhatsApp vs email vs SMS | Assignment por persona y oferta/ventana equivalentes |
+| Secuencial | Email y después SMS si no respondió | Branching preregistrado y análisis intention-to-treat |
+| Landing/checkout | Página A vs B | Assignment persistente y tracking íntegro |
+| Geo/time split | Región o período diferente | Cuasi-experimento; controlar estacionalidad |
+| Contenido orgánico | Post A vs B | Causal solo con exposición controlada; si no, observacional |
+| A/A | Misma variante en dos brazos | Detectar fallos de asignación e instrumentación |
+
+### 26.3. Preregistro y muestra
+
+Cada experimento registra hipótesis falsable, población, criterios, unidad, KPI y guardrails, baseline, MDE, potencia, riesgo tipo I, muestra por brazo, attrition, duración, estacionalidad, conversion lag, presupuesto, parada y método estadístico.
+
+Se puede usar como baseline configurable significancia 5% y potencia 80% para cálculo clásico, pero no son garantía ni valores universales. La muestra se calcula con baseline, MDE, varianza/tasa, asignación y clustering. Nunca inventar muestra mínima sin base.
+
+### 26.4. Invalidación
+
+Detectar SRM, reasignación, contaminación, audiencias solapadas, diferencia de delivery, tracking ausente/duplicado/tardío, métrica cambiada post hoc, conversion lag desigual, cambios simultáneos no atribuibles, bots/fraude, API rota, learning reset, peeking o comparaciones sin corrección. Un experimento inválido o sin muestra no puede promover ganador.
+
+### 26.5. Decisión
+
+- winner: criterio estadístico prerregistrado, impacto práctico y guardrails superados;
+- loser: evidencia suficiente de peor resultado/daño;
+- inconclusive: falta muestra, precisión, estabilidad o atribución;
+- invalidated: asignación o instrumentación no confiable;
+- observational_only: no hubo randomización válida.
+
+No escoger el mayor valor bruto. Mostrar efecto absoluto/relativo, intervalo/posterior, muestra, coste, margen, riesgo y contexto.
+
+### 26.6. Bandits
+
+Bandits/contextual bandits solo después de baseline y experimento controlado. Mantener exploración mínima y guardar propensity, política, momento y modelo de assignment para corregir sesgo adaptativo. No usar para comunicaciones transaccionales, poblaciones pequeñas o tratamientos sensibles.
+
+## 27. Captura granular de métricas sin exceso de datos personales
+
+“Capturar hasta el mínimo detalle” significa registrar cada evento, estado, costo y resultado técnicamente disponible y permitido; no recolectar todos los datos personales posibles. Cada métrica llevará fuente, calidad, granularidad, denominador, fecha, zona horaria, ventana, coste de extracción y limitaciones.
+
+### 27.1. Eventos del ciclo completo
+
+| Fase | Eventos internos |
+|---|---|
+| Planeación | campaign.brief.created, objective.selected, audience.snapshot.created, experiment.preregistered |
+| Creatividad | creative.variant.created, asset.uploaded, rights.checked, claim.reviewed, preview.generated, approved |
+| Assignment | assignment.created, assignment.exposed, srm.detected, contamination.detected |
+| Despacho | approval.requested/granted/denied, staged, scheduled, message.queued/accepted, ad.created/paused |
+| Delivery | impression.reported, message.sent/delivered/read/failed, call.ringing/answered |
+| Engagement | message.replied, link.clicked, landing.viewed, video.viewed, button.clicked, form.started/submitted |
+| CRM | lead.created/validated/qualified, opportunity.created, appointment.booked/attended, opportunity.won/lost |
+| Comercio | cart.created, checkout.started, order.created, payment.authorized/captured, order.refunded/cancelled, repeat.purchase |
+| Costos | provider.spend.observed, message.cost.assessed, call.cost.assessed, agency.cost.allocated, refund.cost.assessed |
+| Gobernanza | consent.granted/revoked, suppression.added, privacy.right.requested, policy.blocked, kill_switch.activated |
+| Análisis | analysis.started, declared_winner/loser/inconclusive, recommendation.created/approved/rejected |
+
+El backend registra evento observado del proveedor y evento de negocio propio por separado. Un HTTP 200 o accepted no equivale a delivered/read/converted.
+
+### 27.2. Atributos de cada variante
+
+- Texto: idioma, longitud, titular, cuerpo, descripción, tono, legibilidad, personalización, beneficio, prueba social, claims, urgencia y CTA.
+- Visual: asset tipo imagen/video/audio, dimensiones, aspecto, resolución, duración, escenas, colores, contraste, composición, fondo, logo, rostro/consent, subtítulos, texto en imagen, safe zones y crop por placement.
+- Marca: versión de brand kit, paleta, fuente, logo, disclaimers y claims verificados.
+- Oferta: precio, descuento, bundle, financiación, envío, vigencia, stock, garantía, restricciones y margen.
+- Experiencia: landing/version, velocidad y Core Web Vitals si se instrumentan, formulario, campos, pasos, botones, deep link, checkout, errores y accesibilidad.
+- Distribución: proveedor/cuenta/campaign/adset/ad, placement, formato, objetivo, puja, audiencia, segmento, país y elegibilidad.
+- Calendario: fecha/hora local, zona horaria, día, festivo, temporada, payday y evento comercial. Clima solo si la fuente y uso son legítimos y relevantes.
+- Generación: origen humano/IA, modelo/proveedor, prompt hash, plantilla, assets referencia, seed si aplica, reviewer y aprobación.
+- Variación: variable primaria, cambios exactos, constantes, razón y hash comparativo V1↔V2.
+
+No inferir tipografía/color/emoción/identidad como hechos objetivos sin método, confidence y revisión. No utilizar atributos sensibles o proxies para segmentación discriminatoria.
+
+### 27.3. Paid media
+
+Cuando el proveedor lo soporte, ingerir por campaña, ad group/adset, anuncio, creativo, placement, país/ciudad con umbrales de privacidad, audiencia, dispositivo y período:
+
+- spend, budget, pacing, billed amount, currency, account spend cap;
+- impressions, reach, unique reach, frequency, delivery status y delivery diagnostics;
+- CPM, CPC, cost per result, link/outbound clicks, CTR, landing page views, view-through;
+- video views por umbral/quartiles, completion, watch time;
+- reactions, comments, shares, saves, follows, profile visits y quality feedback;
+- leads, form opens/submissions, qualified leads, purchases, conversion value y ROAS reportado;
+- audience/placement breakdown, learning/review state, rejected/restricted flags y recommendations;
+- extracción, API version, query/dimensions, report ID, pagination/checkpoint y freshness.
+
+Cada campo se marca supported, not_supported, not_authorized, not_applicable, delayed, estimated, suppressed o unknown.
+
+### 27.4. Mensajería
+
+WhatsApp, Messenger, Instagram DM, Telegram y chats: intento, aceptación, entrega y error por estados reales; lectura solo si el proveedor envía read receipt; reply, tipo de respondedor, primera respuesta, turnos, resolución, handoff, abandono, satisfacción, clicks/buttons, catálogo, producto, formulario, cita, pedido, pago, template/category/language, ventana, quality y coste.
+
+No inventar read rate ni reach si no existe evidencia de API.
+
+### 27.5. Email
+
+Capturar processed, sent, delivered, deferred, bounce, block, reject, spam_report, unsubscribe, resubscribe, open, click, rendering_failure y delay. Medir aparte formulario, respuesta, visita verificada, sesión, compra y margen. Etiquetar opens/clicks automatizados y comparar unique clicks, human-verified sessions, replies, qualified leads y orders. Opens son auxiliares.
+
+### 27.6. SMS y Voice
+
+SMS: estado de red/error, segmento, encoding, tamaño, ruta, operador, país, latencia, reply, short-link click, opt-out, coste y conversión; nunca afirmar read.
+
+Voice: estados de llamada, duración, espera, transferencia, abandono, IVR, disposition, agente/cola pseudonymized, cita/venta, coste, calidad y grabaciones permitidas. Completion no demuestra conversación humana; separar voicemail/IVR si hay señal real.
+
+### 27.7. Web, ecommerce y producto
+
+Capturar landing/session/page view, UTM/click ID, product view/search/cart/checkout, payment success/failure, form start/submit/error/drop-off, appointment/demo/quote/proposal/trial/onboarding, revenue gross/net, tax/discount/shipping/refund/return/cancel/chargeback/margin, feature adoption, support, CSAT/NPS y repeat purchase.
+
+No registrar teclas ni contenido sensible de formularios por defecto. Excluir contraseñas, tarjetas, OTP, documentos completos y conversaciones sensibles.
+
+## 28. Contrato canónico y calidad de eventos
+
+Cada proveedor conserva su payload y semántica original. La normalización añade contexto y correlación sin borrar evidencia ni inventar equivalencias.
+
+Campos conceptuales mínimos: schema version, event ID, tenant, campaign, journey, experiment, assignment, variant, arm, provider/product/channel, provider account/campaign/message reference, subject pseudonymous reference, event type, event occurred/received timestamps, timezone, currency, consent snapshot, purpose, source type, API version, metric values, quality flags y raw evidence reference.
+
+Reglas:
+
+1. Verificar firma/secret, timestamp, tamaño, cuenta, tenant y capability.
+2. Persistir inbox durable antes del ACK cuando corresponda.
+3. Deduplicar con la clave específica documentada para ese proveedor/evento.
+4. Aceptar eventos fuera de orden; conservar sequence/event time.
+5. Separar occurred, provider_received, received y processed timestamps.
+6. Guardar payload raw cifrado con ACL/retention; producir evento normalizado mínimo.
+7. Enrutar por eventos versionados/outbox a CRM, Campaign Intelligence y Analytics.
+8. Reconciliar eventos tardíos, informes agregados y snapshots.
+9. DLQ, replay e idempotencia sin doble conversión ni gasto.
+10. Medir cobertura, parse, dedupe, lag, missing fields y eventos sin correlación.
+
+Si no hay callback para un estado, usar polling/reporting solo si existe. Si tampoco existe, ese estado permanece unknown, no cero.
+
+## 29. Métricas canónicas y fórmulas
+
+Metric Registry versionado: nombre, fórmula, unidad, numerador, denominador, ventana, atribución, granularidad, moneda, fuente, freshness y caveats.
+
+| Métrica | Fórmula propuesta | Cautela |
+|---|---|---|
+| Delivery rate | destinatarios únicos entregados / aceptados para envío | Definir accepted por canal |
+| Failure rate | intentos únicos fallidos / intentos elegibles | Separar recuperable/terminal/bloqueo |
+| Read rate | destinatarios con read confirmado / entregados | Solo donde exista read real |
+| Unique CTR | destinatarios únicos con click válido / impresiones o entregados | Denominador según canal |
+| Landing session rate | sesiones verificadas atribuibles / clicks válidos | Excluir bots |
+| Lead conversion | leads válidos / unidades elegibles expuestas | Ventana/atribución explícita |
+| Qualified lead rate | leads cualificados / leads válidos | Criterio por tenant/sector |
+| Appointment rate | citas / leads válidos o cualificados | Denominador fijo |
+| Show rate | citas atendidas / citas agendadas vencidas | Excluir futuras |
+| Win rate | oportunidades ganadas / oportunidades cerradas | No incluir open |
+| CPL / CPQL | gasto / lead válido o cualificado | No confundir |
+| CAC | coste adquisición / clientes nuevos | Scope de coste explícito |
+| ROAS reportado | conversion value atribuido por plataforma / spend reportado | No equivale a margen ni uplift |
+| Net ROAS | ingreso neto atribuido / gasto | Considerar refunds/cancelaciones |
+| Contribution margin | ingresos netos menos costes variables/directos | Fuente por tenant |
+| Incremental lift | tratamiento menos control, ajustado por diseño | Exige experimento válido |
+| iROAS | valor/margen incremental / inversión incremental | Separar atribución |
+| MER | ingresos totales / gasto total de marketing del scope definido | Métrica agregada |
+| Payback | tiempo de recuperación del CAC con margen | Cohorte explícita |
+| LTV/CLV | valor económico estimado/realizado del cliente | Predicción ≠ ingreso real |
+
+No promediar CTR/CPA/conversion rates con denominadores incompatibles. Agregar numeradores/denominadores comparables y conservar métricas nativas. Toda tasa muestra volumen, denominador, incertidumbre y freshness. Un 80% con tres eventos no demuestra ganador.
+
+## 30. Atribución, identidad e incremento causal
+
+Guardar por separado:
+
+1. Provider reported attribution.
+2. First-party observed conversion.
+3. Deterministic touchpoint link (click ID, deep link, campaign token u order reference permitido).
+4. Modelled attribution con versión y supuestos.
+5. Incrementality estimate con diseño causal y evidencia.
+
+No sumar las conversiones reportadas de Meta, TikTok, Google y OpenAI como ventas diferentes. El BusinessOutcome canónico es uno; touchpoints reciben créditos conforme al modelo reportado.
+
+UTM normalizados: source, medium, campaign, content, term e IDs internos opacos. Preservar click IDs nativos solo si existe permiso/base/uso autorizado. No incluir PII en URLs. Links cortos/deep links firmados y expirables. No usar fingerprinting encubierto ni eludir bloqueadores.
+
+Lead, oportunidad, cita y venta tendrán outcome ID, timestamp, estado, amount/currency, fuente, owner, calidad y provenance. Refund/cancel crea evento compensatorio; no borra la compra original ni deja ROAS bruto incorrecto.
+
+Ventanas y cohortes se configuran por proveedor/objetivo; no existe ventana universal. Mostrar la fecha del click/exposure, conversión, ventana y regla de precedencia.
+
+## 31. Journey orchestrator, identidad y frecuencia
+
+Debe responder: **¿cuál es el siguiente contacto legítimo y útil para esta persona, en este momento, sin duplicación ni fatiga?**
+
+Aplicar preferencia por canal/finalidad, base jurídica, horario local/quiet hours, frecuencia por persona/campaña/canal, exclusión tras compra/objetivo cumplido/opt-out/complaint, prioridad de servicio sobre marketing, fallback autorizado, retry/backoff e idempotencia, ownership lease y supresión cross-channel.
+
+Assignment global por experiment + randomization unit. Si el miembro está en V1, todos los touchpoints del mismo experimento respetan V1. Un fallback cambia canal, no variante. Si no se mantiene el tratamiento, registrar contaminación y reanalizar/invalidar según protocolo.
+
+Ejemplo: asignar 50/50 un lead elegible a V1/V2; enviar por canal permitido; fallback preregistrado solo si no interactúa dentro de ventana; no cambiar el brazo; detener follow-up después de reply, cita, compra u oposición; medir delivery, respuesta, cita, show, oportunidad, venta, margen y cancelación; analizar intention-to-treat y exposición secundaria.
+
+## 32. Learning engine y siguiente mejor versión
+
+No entrenar un modelo global que afirme “botón rojo siempre gana”. El resultado depende de objetivo, producto, precio, sector, audiencia, país, canal, placement, temporada, muestra y delivery.
+
+Capas de inteligencia:
+
+1. reglas determinísticas de elegibilidad, consentimiento, frecuencia, presupuesto, claims, stock y stop conditions;
+2. estadística experimental;
+3. ML predictivo/causal para lead quality, conversion, cost, fatigue y heterogeneidad cuando exista data suficiente;
+4. generación creativa en proveedor aprobado, siempre como draft con provenance.
+
+CRM Intelligence sigue siendo ML clásico/estadístico según docs/62; no se introduce un LLM dentro de CRM.
+
+Pipeline: ingest → validate → normalize → dedupe → quality → temporal features → dataset snapshot → train/validation/test por tiempo/tenant/unidad → evaluación out-of-time → calibración → shadow evaluation → baseline comparison → model artifact versionado/aprobado → drift/quality/cost monitoring → rollback.
+
+Recomendación debe explicar qué cambiar, por qué, contexto donde funcionó, qué se mantiene, impacto esperado e incertidumbre, riesgo, muestra/presupuesto, invalidadores y approvals. V2/V3 pueden generarse en draft; no publicarse ni gastar sin aprobación. Cold-start se etiqueta como prior de baja evidencia; no como ganador demostrado. No mezclar datos de tenants sin base jurídica, contrato, propósito compatible y aislamiento/anónimo demostrado.
+
+Bandits solo después de control experimental y baseline, conservando propensity/política/modelo de assignment. No aplicarlos a comunicaciones transaccionales, población pequeña ni cambios sensibles.
+
+## 33. Dashboard necesario
+
+El frontend app-meta-ecuapp tendrá:
+
+1. Executive Overview: inversión, ingreso neto, margen, CAC, CPQL, citas, ventas, nuevos clientes, retención e incremental lift.
+2. Campaign Workspace: brief, objetivos, canales, presupuesto, owner, lifecycle, approvals y snapshots.
+3. Variant Comparison: V1/V2, previews, diferencias, sample, incertidumbre, coste y recomendaciones.
+4. Experiment Monitor: assignment, SRM, delivery, exposición, contaminación, stopping rules, conversion lag y guardrails.
+5. Omnichannel Journey: timeline pseudonymized, touchpoints, respuestas, frecuencia, outcome y suppression.
+6. Creative Intelligence: atributos, similarity, fatiga, rights, claims, brand, prompt y lineage.
+7. Channel Performance: métricas nativas/normalizadas, coste, cuota, error, freshness y capability.
+8. Sales Outcomes: lead→contact→qualified→appointment→show→opportunity→won/lost→revenue/margin.
+9. Attribution & Incrementality: provider vs first-party vs modelled vs causal.
+10. Consent & Deliverability Center: preferencias, bajas, supresión, complaints, reputación, quality y rate limits.
+11. Recommendations Inbox: evidencia, confianza, impacto, riesgo, preview, approval y ejecución.
+12. Data Quality & Audit: faltantes, tardíos, duplicados, versiones, conciliación, costes y DSR.
+
+Todos los gráficos muestran denominador, timezone, moneda, ventana, granularidad, freshness y caveats. Métricas suprimidas/desconocidas no son cero.
+
+## 34. Arquitectura SOLID y límites
+
+No crear un UniversalCampaignService gigante. Reutilizar el dominio/contratos y especializar adapters/capabilities.
+
+Bounded contexts:
+- campaigns: brief, lifecycle, budget, schedule, snapshots;
+- experiments: hypothesis, arms, variants, assignment, sample, SRM, analysis;
+- creative-lab: assets, similarity, rights, claims, brand, previews;
+- journeys: sequence, frequency, contact policy, stop events;
+- channel-connectors: adapters, capabilities, credentials, IDs, quota/rate limit;
+- measurement: events, metric registry, snapshots, data quality;
+- attribution: touchpoints, click IDs, models, windows, incrementality;
+- CRM: leads, opportunities, customers y outcomes;
+- privacy: consent, basis, purpose, suppression, rights, retention, transfers;
+- analytics/learning: features, cohorts, statistical engine, model registry, recommendations;
+- billing/cost-ledger: spend y costes variables;
+- approval/audit: hash binding, step-up, actor, reason, audit y rollback.
+
+Ports conceptuales: CampaignProviderPort, CreativeProviderPort, NativeExperimentPort, RecipientAssignmentPort, MessageDeliveryPort, VoiceDeliveryPort, WebhookVerificationPort, ProviderInsightsPort, ConversionEventPort, ConsentEvidencePort, SuppressionRegistryPort, OutcomeRepositoryPort, CostLedgerPort, MetricDefinitionPort, ExperimentAnalysisPort, ModelInferencePort y RecommendationApprovalPort.
+
+Cada adapter implementa solo capacidades demostradas. CapabilityDescriptor por producto/operación/versión/cuenta/región/scope/acceso/expiración. Prohibido declarar supportsAllFeatures o retornar éxito desde placeholder.
+
+Persistencia conceptual: campaign_briefs/snapshots/channel_executions; variants/creative_feature_snapshots/asset_rights; experiments/arms/assignments/observations/analyses; journeys/steps/execution/frequency; capabilities/api_versions/checkpoints; provider_event_inbox/normalized_events/dedupe/metric_observations; touchpoints/attribution_credits/business_outcome_links; consent/purpose/preferences/suppression; provider_costs/currency_snapshots/spend_reconciliation; feature_definitions/snapshots/model_artifacts/recommendations.
+
+Todo tenant-scoped requiere RLS, namespace, índices, idempotencia y tests. Una unidad por experimento no puede tener dos brazos.
+
+Eventos propuestos: campaign.brief.approved, campaign.variant.created, experiment.preregistered, experiment.assignment.created/exposed, experiment.srm.detected, channel.message.queued/status_changed, channel.call.status_changed, provider_metric.ingested, measurement.event.accepted/rejected, measurement.data_quality.alerted, business.outcome.confirmed, attribution.credit.calculated, experiment.analysis.completed, experiment.decision.recorded, learning.feature_snapshot.created/model.evaluated, recommendation.created/approved, journey.contact.suppressed y channel.capability.changed.
+
+Reservar API/event IDs en catálogos OpenAPI/AsyncAPI/JSON Schema antes de congelar contratos. El nombre de evento no prueba runtime existente.
+
+## 35. Privacidad, consentimiento y Ecuador
+
+El motor no debe extender consentimiento de WhatsApp a email/SMS/llamada ni confundir baja de newsletter con avisos transaccionales. Finalidad, base y preferencia por canal/categoría son datos diferenciados.
+
+Consent & Preference Center por sujeto/tenant/responsable/finalidad/base/aviso-version/timestamp/fuente/evidencia/jurisdicción/scope. Estados granted, denied, withdrawn, expired, unknown y not_required_with_documented_basis no son intercambiables. Unknown falla cerrado cuando la policy requiere evidencia.
+
+Preferencias separadas: promociones, newsletters, seguimiento de venta, citas, updates transaccionales, llamadas comerciales, SMS, WhatsApp, email y bots. Revocación/oposición actualiza suppression, detiene scheduled/queued y se propaga al adapter. La suppression list se conserva minimizada para evitar reincidencia, no como perfil comercial.
+
+Para Ecuador:
+- LOPDP reconoce derecho de oposición a mercadotecnia directa, incluida elaboración de perfiles para esa finalidad.
+- SPDP-SPD-2025-0041-R, vigente desde 7-nov-2025, regula interés legítimo; mercadotecnia directa exige condiciones específicas: no afectar derechos, no usar datos sensibles ni de menores en el supuesto regulado, relación contractual previa o expectativa razonable, informar antes en español claro y proporcionar en cada comunicación un mecanismo visible, gratuito y eficaz de oposición atendido sin dilación y con efecto inmediato.
+- Interés legítimo no es autorización universal; requiere evaluación previa, motivada, documentada y proporcional.
+- ARCOTEL publica el derecho a no recibir mensajes o llamadas comerciales/publicitarias no autorizadas previa y expresamente. Para SMS/llamadas validar normativas vigentes, identificación de remitente y registro/enmascaramiento cuando aplique.
+- Revisión legal debe considerar jurisdicción, sector, finalidad, rol de WhatsBusiness y tipo de dato; esta especificación no es dictamen jurídico.
+
+Antes de cada despacho, ContactPolicyDecision verifica actor/tenant/purpose, clasificación, canal, base/aviso, evidencia/revocación, suppression, edad/datos sensibles, quiet hours/frequency, template/permission, país/operador/remitente, coste/presupuesto, idempotencia y kill switch.
+
+No usar una sola casilla de marketing para todos los canales/finalidades si el aviso/base no los cubre. No reutilizar datos para otra finalidad sin evaluación. ML no anula estos controles.
+
+Privacidad analítica: pseudónimos tenant-scoped; PII no en URLs/labels/logs; no exportar conversaciones/recordings/transcripts a Ads/IA sin base/propósito/contrato/minimización; no microtargeting sensible; retention por clase; DSR/export/delete; evaluación de impacto y transferencias según riesgo.
+
+## 36. Costes y unit economics
+
+Registrar media spend, email/API/infra/IP, SMS por segmento, WhatsApp por categoría/template/conversación cuando facture así, minutos de voz/carrier/recording, costes creativos, landing, licencias, comisiones, descuentos, refunds, impuestos, FX y horas humanas si el tenant las imputa.
+
+Cada coste mantiene decimal exacto, moneda ISO, fuente, timestamp, pricing basis, quantity, invoice/reference y conciliación. No sumar monedas sin tipo de cambio fechado. Medir CAC/CPQL, margen, coste operativo, ingreso neto y coste de servir al cliente. Mayor ROAS bruto puede ser peor con devoluciones, leads malos o más carga de atención.
+
+Mantener PD-024 y guardrails de presupuesto; añadir límites de volumen/gasto/coste por destinatario/resultado/saldo/rate limits por proveedor y global.
+
+## 37. Operación, calidad de datos y SLOs
+
+Nuevos indicadores: provider_event_ingestion_lag, eventos verificados/rechazados/duplicados/tardíos, sync freshness, assignment uniqueness, SRM, contamination, exposure gap, webhook retry/DLQ/replay age, delivery/failure, spend vs ledger vs invoice, email bounce/complaint/unsub, WhatsApp block/quality, SMS undelivered/opt-out, call no-answer, conversion lag, orphan events, model drift/calibration, recommendation acceptance, mensajes tras revocación y frequency/quiet-hour violations.
+
+PII, tokens, nombres, teléfonos, message bodies y recording URLs nunca como labels. SLO con percentiles, denominador, ventana, exclusiones/error budget; sin SLA hasta medición y aprobación.
+
+## 38. Pruebas ampliadas
+
+No bloquear código por falta de cuenta real. Crear fixtures/contract tests sintéticos; live account tests son evidencia externa adicional, no simulada.
+
+Pruebas: assignment concurrente y persistente; uniqueness/RLS; distribución; SRM; contaminación; sample insufficiency; delayed/duplicate/out-of-order; datasets sintéticos con efecto nulo/positivo/negativo; múltiples comparaciones/peeking/secuencial; invariantes semánticos V1/V2; suppression revoke al despacho; frequency y stop tras reply/booking/purchase/opt-out; estados reales por canal; webhook signature/replay/DLQ; spend/refunds/FX; timezone/quiet hours; derechos/claims/marca; BOLA/PII leakage/retención/DSR; capability missing/expired fail-closed.
+
+## 39. Historias y tareas nuevas propuestas
+
+Amplían el backlog sin reciclar TASK-081..091. Estado inicial proposed.
+
+**US-037 — Experimentation Platform omnicanal (P0):** registry, preregistro, control/tratamiento, assignment estable, muestra/MDE, SRM, invalidación, winner/loser/inconclusive y audit.
+
+**US-038 — Journey Orchestrator (P0):** secuencia multi-canal, variante persistente, preferencias, frequency caps, fallback, stop y suppression.
+
+**US-039 — Email Campaign & Deliverability (P1):** ESP adapters, SPF/DKIM/DMARC readiness, webhooks, rebotes, complaint, unsubscribe, MPP/bot caveats y conversion outcomes.
+
+**US-040 — SMS y Voice Campaigns (P1):** CPaaS, receipts/callbacks, dispositions, coste, opt-out, sender identity, recording/retention y consent.
+
+**US-041 — Telegram y mensajería complementaria (P1/P2):** Bot/Business adapter, webhook dedupe, rights, buttons/polls, 24h update handling, rate limits, loops y no invented reads.
+
+**US-042 — Google Ads/YouTube (P1):** campaign adapters, native experiments, reporting, click IDs, conversions offline y access gates.
+
+**US-043 — Measurement & Analytics omnicanal (P0):** event taxonomy, Metric Registry, raw/provider snapshots, normalized events, dashboard, freshness, quality, currency/timezone y export.
+
+**US-044 — Consent/Preference/Suppression Center (P0):** evidence, revocation, fail-closed dispatch, audit, DSR/retention y reglas por país.
+
+**US-045 — Channel Registry & Market Prioritization (P1):** capability catalog, business case, scorecard, pilot/integrate/defer/reject y official source.
+
+| TASK | Prioridad | Historia | Alcance | Dependencias | Salida |
+|---|---:|---|---|---|---|
+| TASK-092 | P0 | US-037 | Experiment Registry, preregistro, brazos, unidad y lifecycle | TASK-067,070,087 | Experimento auditable y schemas |
+| TASK-093 | P0 | US-037 | Assignment Service, randomization, native split, SRM y contamination | TASK-092,082,085 | Unicidad y split verificable/fail-closed |
+| TASK-094 | P0 | US-043 | Event ingestion, inbox, normalization, dedupe, quality, replay | TASK-027,028,084,086 | Eventos canónicos con raw evidence/provenance |
+| TASK-095 | P0 | US-038 | Journey Orchestrator, branching, frequency, stop rules | TASK-092,093,094,103 | Journey con contacto único por brazo |
+| TASK-096 | P1 | US-039 | Email ESP adapters y webhooks | TASK-094,103 | Delivery/bounce/complaint/click/unsub y domain health |
+| TASK-097 | P1 | US-040 | SMS/Voice CPaaS, ledger, callbacks, dispositions | TASK-094,103 | Coste/estado/outcome con consent gates |
+| TASK-098 | P1/P2 | US-041 | Telegram Bot/Business, Mini Apps, webhook y loop protection | TASK-094,095,103 | Eventos durables y métricas reales |
+| TASK-099 | P1 | US-042 | Google Ads/YouTube, experiment resources y conversions | TASK-056,072,094 | Capability y native experiment evidence |
+| TASK-100 | P0 | US-043 | Metric Registry, semantic layer, dashboards y export | TASK-072,078,088,094 | Definiciones versionadas |
+| TASK-101 | P0 | US-043 | Attribution, dedupe, holdout/incrementality, conversion lag | TASK-068,077,086,092,094 | Atribución separada y evidencia causal |
+| TASK-102 | P0 | US-043 | Feature Store multicanal, snapshots, lineage, quality | TASK-088,094 | Features reproducibles sin leakage |
+| TASK-103 | P0 | US-044 | Consent/Preference/Suppression runtime | TASK-032,059,094,095 | Bloqueo por evidencia ausente/revocada |
+| TASK-104 | P1 | US-045 | Channel Registry y Business Case scorecard | TASK-056,065,090 | Priorización por evidencia/coste/región |
+| TASK-105 | P1 | US-037 | Analyzer, sample/power, intervals, multiple comparisons y sequential policy | TASK-092,093,100,101 | Decisión reproducible |
+| TASK-106 | P1 | US-038/043 | Cross-channel dashboard, journey explorer y ops | TASK-095,096,097,098,100 | Vistas y alertas basadas en datos |
+
+Dependencias: 092→093→095; 094→096/097/098 y 100/101/102; 099 depende de 056 y alimenta 094/100/101; 103 es gate de todo envío comercial; 100+101+102→105→089; 095/096/097/098/099/100→106.
+
+Ninguna tarea nueva cambia a in_progress/implemented/verified/accepted por documentar. Requiere owner, reviewer, code path, API/event IDs, tests y evidencia.
+
+## 40. Criterios globales de aceptación
+
+1. Toda campaña comercial API crea V1/V2 inmutables antes de write externo.
+2. Una unidad/persona no recibe brazos distintos dentro del mismo experimento cross-channel.
+3. Sin split aleatorio válido se bloquea el A/B, salvo excepción manual no causal aprobada.
+4. Cada API tiene capability/version/access evidence por cuenta, operación, scope, país y fecha.
+5. Cada evento se guarda con source, event time/received time, timezone, tenant, campaign, experiment y quality flags.
+6. Se conservan métricas nativas/limitaciones; no falsificar read/reach/impression/human_answered/attribution.
+7. business_outcome_id evita contar una venta como varias conversiones.
+8. Email opens, SMS DLR, call completion y read receipts se interpretan según semántica real.
+9. Consent/purpose/preference/opposition/suppression se revisan antes de cada despacho.
+10. Revocación detiene envíos queued/scheduled y se propaga donde aplique.
+11. Reporte muestra denominador, muestra, coste, moneda, timezone, ventana, atribución, freshness e incertidumbre.
+12. Resultado inconclusive es permitido; no escoger ganador sin evidencia.
+13. Generar variante no autoriza publicar ni gastar.
+14. Conciliar ads/email/SMS/voz/operación/refunds/ingresos por moneda y período.
+15. RLS, idempotencia, replay, audit, DSR, retención, backup y observabilidad cubren los nuevos contextos.
+16. APIs/eventos congelados y versionados; CI/security/supply-chain/contract tests pasan en commit exacto.
+17. Aceptación final exclusiva del Product Owner.
+
+## 41. Fuentes oficiales y referencias
+
+Corte: 2026-11-09. Revalidar versión, scopes, precios, elegibilidad y políticas al implementar y antes de release.
+
+### OpenAI Ads
+- Overview: https://developers.openai.com/ads
+- Advertiser API: https://developers.openai.com/ads/api-overview
+- API Partner Setup: https://developers.openai.com/ads/api-partner-setup
+- Conversion Tracking: https://developers.openai.com/ads/conversion-tracking
+- Conversions API: https://developers.openai.com/ads/conversions-api
+- Conversion Setup: https://developers.openai.com/ads/api-reference/conversion-setup
+- Reporting: https://developers.openai.com/ads/reporting
+
+### TikTok
+- Marketing API: https://ads.tiktok.com/resources/help/article/marketing-api
+- API for Business: https://business-api.tiktok.com/gateway/docs/index
+- Content Posting: https://developers.tiktok.com/docs/en/content-posting-api-get-started
+- Direct Post: https://developers.tiktok.com/docs/en/content-posting-api-reference-direct-post
+- Display API: https://developers.tiktok.com/doc/display-api-get-started
+
+### Meta / WhatsApp
+- Developer Hub: https://whatsappbusiness.com/developers/developer-hub/
+- Business Platform Policy: https://business.whatsapp.com/policy/
+- Marketing-message best practices: https://whatsappbusiness.com/wp-content/uploads/2026/04/Best-Practices-for-Marketing-Messages-on-WhatsApp-.pdf
+- Meta A/B, creative testing and lift: https://formedia.facebookblueprint.com/student/path/219763-ab-test-conversion-brand-lift-course
+
+### Google
+- Experiments overview: https://developers.google.com/google-ads/api/docs/experiments/overview
+- Experiment reporting: https://developers.google.com/google-ads/api/docs/experiments/reporting
+- Conversion management: https://developers.google.com/google-ads/api/docs/conversions/overview
+- Offline conversions: https://developers.google.com/google-ads/api/docs/conversions/upload-offline
+
+### Email
+- Amazon SES event data: https://docs.aws.amazon.com/ses/latest/dg/event-publishing-retrieving-firehose-contents.html
+- Amazon SES monitoring: https://docs.aws.amazon.com/ses/latest/dg/monitor-sending-activity.html
+- SendGrid event webhook: https://www.twilio.com/docs/sendgrid/for-developers/tracking-events/event
+- Mailchimp reports: https://mailchimp.com/developer/marketing/api/reports/get
+- Apple Mail Privacy Protection: https://www.apple.com/legal/privacy/data/en/mail-privacy-protection/
+- Mailchimp MPP caveats: https://mailchimp.com/help/apple-privacy-faq/
+
+### SMS y llamadas
+- Twilio outbound message status callbacks: https://www.twilio.com/docs/messaging/guides/track-outbound-message-status
+- Twilio message status lifecycle: https://www.twilio.com/docs/messaging/guides/outbound-message-status-in-status-callbacks
+- Twilio Voice API: https://www.twilio.com/docs/voice/api
+- Twilio Call status callbacks: https://www.twilio.com/docs/voice/api/call-resource
+
+### Telegram
+- Bot API: https://core.telegram.org/bots/api
+- Bot features and Business Bots: https://core.telegram.org/bots/features
+- Bots FAQ: https://core.telegram.org/bots/faq
+
+### Ecuador
+- SPDP Resolution SPDP-SPD-2025-0041-R: https://spdp.gob.ec/wp-content/uploads/2025/11/41.01.01-SPSP-SPD-2025-0041-R-Normativa-general-para-la-aplicacion-del-interes-legitimo-y-su-anexo.pdf
+- SPDP right to object: https://www.spdp.gob.ec/docs/proteccion-de-datos-personales/cuales-son-mis-derechos/derecho-de-oposicion/
+- SPDP consent: https://www.spdp.gob.ec/docs/proteccion-de-datos-personales/general/consentimiento/
+- ARCOTEL subscriber rights: https://www.arcotel.gob.ec/derechos-de-los-abonados-clientes-y-usuarios/
+- ARCOTEL commercial call identification: https://www.arcotel.gob.ec/enmascaramiento-de-llamadas-comerciales-del-servicio-movil-avanzado/
+
+**Límites de la evidencia:** Google Ads documenta workflows de split, pero no todos los productos/cuentas lo permiten; TikTok indica funciones de Split Test en API for Business, sujetas a acceso; Telegram Bot API no ofrece read metrics universales ni contacto indiscriminado; OpenAI Advertiser API y Pixel/CAPI tienen disponibilidad condicionada por cuenta/partner; email/SMS/voz reportan eventos técnicos que no prueban por sí solos intención humana ni compra. La normativa requiere revisión legal por jurisdicción, sector, finalidad, rol y tipo de datos.
+
+## 42. Estado del addendum
+
+- [x] Motor experimental omnicanal como núcleo.
+- [x] Obligación V1/V2 y distinción de comunicaciones críticas.
+- [x] Evaluación de email, SMS, voz, Telegram, Google Ads/YouTube y otros canales.
+- [x] Proceso end-to-end de campaña, experimento, medición, reconciliación y aprendizaje.
+- [x] Taxonomía de eventos, atributos, métricas, fórmulas y calidad.
+- [x] Atribución, incrementality, identidad, journeys, frecuencia y preferencias.
+- [x] Límites de opens email, DLR SMS, llamadas completadas y read receipts.
+- [x] Controles de privacidad y referencias oficiales de Ecuador.
+- [x] Bounded contexts, ports, entidades, eventos y criterios.
+- [x] Historias US-037..045 y tareas TASK-092..106 propuestas.
+- [ ] No implementado por el mero hecho de documentarlo.
+- [ ] Falta reservar API/event IDs y crear contratos versionados.
+- [ ] Faltan adapters, persistencia, UI, tests y evidencia por cuenta/canal.
+- [ ] Falta revisión independiente y aceptación del Product Owner.
+
+**Conclusión:** la ventaja diferencial de WhatsBusiness no será publicar en más plataformas, sino aprender qué oferta, mensaje, experiencia, canal y secuencia generan más clientes rentables con menos desperdicio, respetando la privacidad y midiendo únicamente aquello que puede demostrarse.
