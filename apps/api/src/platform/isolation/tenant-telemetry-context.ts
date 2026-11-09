@@ -12,31 +12,17 @@ export interface SafeMetricDimensions {
 }
 
 const ALLOWED_OPERATIONS = new Set([
-  "api.request",
-  "worker.execute",
-  "cache.get",
-  "cache.set",
-  "cache.delete",
-  "storage.get",
-  "storage.put",
-  "storage.delete",
-  "webhook.process",
-  "outbox.publish",
+  "api.request", "worker.execute", "cache.get", "cache.set", "cache.delete",
+  "storage.get", "storage.put", "storage.delete", "webhook.process",
+  "outbox.publish", "oauth.start", "oauth.callback", "asset.sync",
+  "token.read", "token.rotate", "consent.record", "privacy.delete"
 ]);
 const ALLOWED_COMPONENTS = new Set([
-  "api",
-  "worker",
-  "cache",
-  "storage",
-  "webhook",
-  "outbox",
+  "api", "worker", "cache", "storage", "webhook", "outbox",
+  "oauth", "assets", "token-vault", "privacy", "identity"
 ]);
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-/**
- * Separates high-cardinality tenant identity from metric dimensions.
- * Logs carry a keyed HMAC pseudonym; raw tenant IDs never become metric labels.
- */
 export class TenantTelemetryContext {
   constructor(private readonly pseudonymizer: TenantPseudonymizer) {}
 
@@ -48,10 +34,7 @@ export class TenantTelemetryContext {
     if (tenantRef === identity.tenantId || !/^hmacv1_[0-9a-f]{64}$/.test(tenantRef)) {
       throw new Error("Tenant telemetry must use a versioned HMAC pseudonym.");
     }
-    return Object.freeze({
-      tenant_ref: tenantRef,
-      correlation_id: identity.correlationId,
-    });
+    return Object.freeze({ tenant_ref: tenantRef, correlation_id: identity.correlationId });
   }
 
   metricDimensions(dimensions: SafeMetricDimensions): Readonly<SafeMetricDimensions> {

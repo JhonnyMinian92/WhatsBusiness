@@ -5,7 +5,7 @@
 **Repositorio:** [JhonnyMinian92/WhatsBusiness](https://github.com/JhonnyMinian92/WhatsBusiness)  
 **Fecha de corte de investigación:** 6 de noviembre de 2026  
 **Estrategia:** integración directa, oficial y multi-tenant con Meta; cobertura amplia; arquitectura extensible y polimórfica.  
-**Estado:** documento de investigación y decisiones de arquitectura. No contiene código inicial ni representa una implementación.
+**Estado:** investigación y decisiones de arquitectura. La Fase A de fundaciones y acceso a Meta cuenta con implementación en `feat/phase-1-foundations-meta-access`; el cierre operativo aún requiere CI, migración en PostgreSQL y configuración/aprobación externa de Meta. Ver `docs/PHASE_1_FOUNDATIONS.md`.
 
 ---
 

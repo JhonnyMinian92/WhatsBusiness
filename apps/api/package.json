@@ -1,0 +1,33 @@
+{
+  "name": "@whatsbusiness/api",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "tsx --test src/platform/isolation/*.spec.ts src/platform/security/*.spec.ts src/modules/meta/*.spec.ts",
+    "start": "node dist/main.js",
+    "dev": "tsx watch src/main.ts",
+    "migrate": "tsx src/platform/database/migrate.ts",
+    "worker:outbox": "tsx src/workers/outbox.worker.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-kms": "^3.900.0",
+    "@fastify/cors": "^11.1.0",
+    "@fastify/formbody": "^8.0.2",
+    "dotenv": "^16.6.1",
+    "fastify": "^5.6.0",
+    "jose": "^6.1.0",
+    "pg": "^8.16.3",
+    "pino": "^9.9.0",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.6",
+    "@types/pg": "^8.15.5",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  }
+}

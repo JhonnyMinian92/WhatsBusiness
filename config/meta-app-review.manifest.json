@@ -1,0 +1,65 @@
+{
+  "manifestVersion": 1,
+  "application": {
+    "name": "WhatsBusiness",
+    "type": "Business",
+    "graphApiVersion": "v27.0",
+    "businessLogin": {
+      "required": true,
+      "configurationMode": "Facebook Login for Business",
+      "embeddedSignupVersion": "v4",
+      "configurationIdEnvironmentVariable": "META_BUSINESS_LOGIN_CONFIG_ID"
+    }
+  },
+  "publicUrls": {
+    "privacyPolicy": "PRIVACY_POLICY_URL",
+    "termsOfService": "TERMS_OF_SERVICE_URL",
+    "dataDeletionInstructions": "DATA_DELETION_URL",
+    "dataDeletionCallback": "DATA_DELETION_CALLBACK_URL",
+    "webhookCallback": "META_WEBHOOK_PUBLIC_URL"
+  },
+  "permissions": [
+    {
+      "scope": "business_management",
+      "product": "Business asset discovery",
+      "access": "Advanced",
+      "reason": "Discover only business assets explicitly shared with the application."
+    },
+    {
+      "scope": "whatsapp_business_management",
+      "product": "WhatsApp Business Platform",
+      "access": "Advanced",
+      "reason": "Discover and administer WABAs, numbers and webhook subscriptions for connected tenants."
+    },
+    {
+      "scope": "whatsapp_business_messaging",
+      "product": "WhatsApp Business Platform",
+      "access": "Advanced",
+      "reason": "Required by the messaging phase; request when that use case is submitted for review."
+    },
+    {
+      "scope": "pages_show_list",
+      "product": "Facebook Pages",
+      "access": "Standard or Advanced as determined by Meta",
+      "reason": "List Pages available to an authorizing business user."
+    },
+    {
+      "scope": "pages_manage_metadata",
+      "product": "Facebook Pages",
+      "access": "Advanced",
+      "reason": "Subscribe authorized Pages to the webhook fields used by the product."
+    }
+  ],
+  "webhookObjects": ["whatsapp_business_account", "page", "instagram"],
+  "reviewEvidenceChecklist": [
+    "Screen recording of Business Login and permission grant",
+    "Step-by-step reviewer instructions and dedicated test business",
+    "Test Page, test WABA, test phone number and professional Instagram account",
+    "Purpose and in-product use case for every requested permission",
+    "Public privacy policy, terms and data deletion instructions",
+    "Data deletion callback tested with Meta signed_request",
+    "Webhook challenge and X-Hub-Signature-256 verification demonstrated",
+    "Per-asset webhook subscriptions demonstrated",
+    "Two tenant accounts used to demonstrate row-level isolation and disconnection"
+  ]
+}
