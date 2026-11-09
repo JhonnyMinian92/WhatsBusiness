@@ -13,8 +13,8 @@ export interface PrivacyRequestSummary {
   readonly updatedAt: string;
 }
 export interface PrivacyRightsRepositoryPort {
-  findByIdempotency(input: Pick<PrivacyRightsRequestInput,"tenantId"|"requesterUserId"|"idempotencyKey">): Promise<PrivacyRequestSummary | null>;
-  create(input: ValidatedPrivacyRightsRequest, requestId: string): Promise<PrivacyRequestSummary>;
+  findByIdempotency(input: Pick<PrivacyRightsRequestInput,"tenantId"|"requesterUserId"|"idempotencyKey"> & { readonly authzVersion: number }): Promise<PrivacyRequestSummary | null>;
+  create(input: ValidatedPrivacyRightsRequest, requestId: string, authzVersion: number): Promise<PrivacyRequestSummary>;
   stageWithApproval(client: PoolClient, input: ValidatedPrivacyRightsRequest, requestId: string, approvalId: string): Promise<void>;
   get(tenantId: string, requestId: string): Promise<PrivacyRequestSummary | null>;
 }
