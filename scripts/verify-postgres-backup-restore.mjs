@@ -143,14 +143,18 @@ function splitTopLevelAnd(expression) {
   return parts;
 }
 
-function canonicalizeBooleanExpression(expression) {
+function collectTopLevelConjunctionTerms(expression) {
   const value = stripRedundantOuterParentheses(expression).replace(/\s+/g, " ").trim();
   const conjunction = splitTopLevelAnd(value);
   if (conjunction.length > 1) {
-    const terms = conjunction.map(canonicalizeBooleanExpression).sort();
-    return "AND(" + terms.join(",") + ")";
+    return conjunction.flatMap(collectTopLevelConjunctionTerms);
   }
-  return stripRedundantOuterParentheses(value).replace(/\s+/g, " ").trim();
+  return [stripRedundantOuterParentheses(value).replace(/\s+/g, " ").trim()];
+}
+
+function canonicalizeBooleanExpression(expression) {
+  const terms = collectTopLevelConjunctionTerms(expression).sort();
+  return terms.length > 1 ? "AND(" + terms.join(",") + ")" : (terms[0] ?? "");
 }
 
 function normalizeConstraintDefinition(definition) {
