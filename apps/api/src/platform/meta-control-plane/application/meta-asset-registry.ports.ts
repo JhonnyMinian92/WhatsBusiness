@@ -1,4 +1,4 @@
-import type { TenantAccessContext } from "../../../identity/tenant-access-context.js";
+import type { TenantAccessContext } from "../../identity/tenant-access-context.js";
 import type {
   MetaAssetInventorySnapshot,
   MetaAssetReconciliation,
