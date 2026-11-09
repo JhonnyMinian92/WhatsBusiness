@@ -1,4 +1,4 @@
-import type { MetaOAuthProduct, MetaAuthorizationMode } from "../domain/meta-oauth.policy.js";
+import type { MetaOAuthProduct, MetaAuthorizationMode, MetaOAuthScopePolicy } from "../domain/meta-oauth.policy.js";
 
 export interface CredentialEnvelope {
   readonly keyId: string;
@@ -80,7 +80,5 @@ export interface MetaOAuthRepositoryPort {
 }
 export const META_OAUTH_REPOSITORY = Symbol("META_OAUTH_REPOSITORY");
 
-export interface MetaOAuthScopePolicyPort {
-  isAllowed(product: MetaOAuthProduct, scope: string): boolean;
-}
+export type MetaOAuthScopePolicyPort = MetaOAuthScopePolicy;
 export const META_OAUTH_SCOPE_POLICY = Symbol("META_OAUTH_SCOPE_POLICY");
