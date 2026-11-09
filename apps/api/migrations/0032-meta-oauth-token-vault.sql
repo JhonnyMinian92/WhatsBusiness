@@ -123,7 +123,6 @@ CREATE TABLE platform.meta_connections (
   updated_at timestamptz NOT NULL DEFAULT clock_timestamp(),
   revoked_at timestamptz,
   UNIQUE (id,tenant_id),
-  UNIQUE (tenant_id,provider_product,authorization_mode,provider_user_id),
   CHECK (status<>'active' OR (
     encrypted_token ? 'keyId' AND encrypted_token ? 'ciphertext'
     AND encrypted_token ? 'iv' AND encrypted_token ? 'tag'
@@ -132,6 +131,9 @@ CREATE TABLE platform.meta_connections (
   CHECK ((status='revoked' AND revoked_at IS NOT NULL)
       OR (status<>'revoked' AND revoked_at IS NULL))
 );
+CREATE UNIQUE INDEX meta_connections_active_identity_unique
+  ON platform.meta_connections (tenant_id,provider_product,authorization_mode,provider_user_id)
+  WHERE status<>'revoked';
 CREATE INDEX meta_connections_tenant_status_idx
   ON platform.meta_connections (tenant_id,status,provider_product,updated_at DESC);
 CREATE INDEX meta_connections_actor_idx
@@ -165,7 +167,7 @@ BEGIN
       OR (OLD.status='pending' AND NEW.status IN ('active','failed','revoked'))
       OR (OLD.status='active' AND NEW.status IN ('reauthorization_required','revoked','failed'))
       OR (OLD.status='reauthorization_required' AND NEW.status IN ('active','revoked','failed'))
-      OR (OLD.status='failed' AND NEW.status IN ('pending','revoked'))
+      OR (OLD.status='failed' AND NEW.status IN ('pending','active','revoked'))
     ) THEN
       RAISE EXCEPTION 'Invalid Meta connection transition: % -> %',OLD.status,NEW.status
         USING ERRCODE='23514';
