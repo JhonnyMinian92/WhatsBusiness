@@ -718,3 +718,17 @@ Latest GitHub compare after validation-record commits: environment/local is ahea
 - Tests registrados en \`api:test\`: domain policies + PostgreSQL integration con usuarios synthetic. El CI anterior falló en migration 0030 por delimiter de función SQL; fix aplicado. Inspeccionar Source CI del HEAD actual antes de llamar PASS. CodeQL también debe corresponder al HEAD verificado.
 - Sigue pendiente TASK-041/G0, contract freeze IAM/BILL/PAR, publisher/outbox TASK-028, productores y conciliación reales, uso de autorización JIT en handlers por recurso, revisión independiente y Product Owner acceptance.
 - Detalle y estado AC-024-01..04: \`docs/76-US-024-TASK-052-PLATFORM-ADMINISTRATION.md\`. GO-PRODUCTION NO-GO.
+
+
+## Handoff Fase 2 — Meta Control Plane (2026-11-08)
+
+- Fuente normativa de fases: \`docs/31-MASTER-DELIVERY-PLAN.md\`. Fase 2 = Meta Control Plane y onboarding; WhatsApp/Inbox/CRM esencial es Fase 3. El encabezado antiguo de \`docs/15\` se marcó como roadmap histórico/supersedido.
+- Rama autorizada: \`environment/local\`; repositorio \`JhonnyMinian92/WhatsBusiness\`.
+- OAuth hardening: state AAD actor-bound; token AAD tenant/product/Meta provider identity-bound; refresh interface uses current access token; local revocation is persisted before KMS/remote calls; KMS/Meta failures remain fail-closed and demand manual follow-up.
+- Scope catalog: allowlist reviewed for WhatsApp \`business_management\`, \`whatsapp_business_management\`, \`whatsapp_business_messaging\`; other products/scopes remain fail-closed. A scope in this catalogue is not proof of App Review/Advanced Access/grant/account eligibility.
+- TASK-009: migration \`0039-meta-asset-registry-and-sync-history.sql\`, \`PostgresMetaAssetRegistryRepository\`, \`MetaAssetRegistryService\`, forced tenant RLS, append-only sync evidence/hash and \`meta_assets_synced\` audit. Snapshot completeness still controls \`not_visible\`.
+- Tests added to \`api:test\`: OAuth scope catalog, OAuth policy, onboarding policy, OAuth lifecycle (cross-admin AAD + KMS-outage revoke), asset registry boundary; audit repository test covers \`meta_assets_synced\`.
+- **No CI evidence for current HEAD:** Source CI, CodeQL, build, typecheck, tests PostgreSQL and migration 0039 remain unverified. Do not mark PASS.
+- TASK-006..010 remain \`in_progress\`: OAuth provider, KMS, Meta discovery remain unconfigured; Embedded Signup v4 config, official Graph pagination, capability evidence catalog/refresh and contract freeze G0 remain open. META-010..015 are catalog-only. No endpoint activated or Meta operation executed.
+- No independent-agent execution runtime was available; work was role-separated but reviewed by the same execution context, not independent security/QA sign-off.
+- Detail/status and required external gates: \`docs/78-PHASE-2-META-CONTROL-PLANE-STATUS.md\`. G2 not approved; GO-PRODUCTION NO-GO.
