@@ -1016,3 +1016,10 @@ La validación completa de workspace y CodeQL terminó SUCCESS:
 - Agregador independiente y CodeQL: PASS.
 
 El restore de CI es una evidencia acotada de restauración de catálogo/schema y controles; no prueba restauración de datos de tenants, backup externo, WAL/PITR, KMS/rotación ni RPO/RTO de producción. TASK-003/TASK-052, G1 y G2 continúan `in_progress` hasta completar también sus entregables operativos, pruebas externas, revisión y aceptación en los documentos específicos.
+
+
+## Reconciliación final de TASK-003 — métricas RabbitMQ y restore CI — 2026-11-09
+
+La lectura de `docs/60-TENANT-JOBS-RUNTIME.md` y del código vigente confirma que las métricas `messages_ready`, `messages_unacked` y `consumers` para worker y DLQ están implementadas y probadas en RabbitMQ real. La integración mantiene deliveries sin ACK y consumidores activos, valida los gauges y confirma el drenaje hasta cero. Source CI [42597892008](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42597892008) terminó SUCCESS, y la suite Meta backend/PostgreSQL/RabbitMQ pasó 112/112. Se corrige así el estado histórico que marcaba `unacked` como pendiente.
+
+**Pendiente real:** consumer lag temporal con semántica independiente, thresholds de carga, dashboards/alert rules desplegados, alert routing/SLO y revisión operativa. El smoke restore cifrado de CI también pasó, pero no sustituye DR con datos, WAL/PITR, KMS ni RPO/RTO en infraestructura real. TASK-003 permanece `in_progress`, no `accepted`.
