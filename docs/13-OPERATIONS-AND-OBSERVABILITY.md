@@ -99,3 +99,12 @@ A single VPS/Compose topology is suitable for development or explicitly accepted
 
 ## 11. Cache y coordinación
 Valkey 9.1.x es la baseline recomendada para cache, rate limits y locks efímeros; PostgreSQL sigue siendo la fuente de verdad y RabbitMQ el broker durable. Se mantienen TTL bounded, tenant namespace, invalidación de grants, alertas de memoria/eviction y prohibición de cachear secretos/PII. La licencia y compatibilidad se validan en TASK-039 SP-09; ver docs/51 y ADR-025.
+
+
+## 12. Backup cifrado y restore reproducible en CI — 2026-11-09
+
+El workflow `source-validation.yml` incorpora `scripts/verify-postgres-backup-restore.mjs`. El procedimiento crea un custom dump de PostgreSQL 18, lo cifra en streaming con AES-256-GCM (clave aleatoria efímera en memoria), restaura en una base nueva y compara el catálogo: versiones de migraciones, relaciones, políticas RLS, constraints, flags RLS/force-RLS y privilegios críticos de `whatsbusiness_app`.
+
+El script registra tamaño del backup y tiempo de restauración, limpia los archivos temporales y elimina la base restaurada al finalizar. La suite falla ante dump vacío, migración ausente, privilegio INSERT inesperado, función de ingesta faltante o divergencia del catálogo.
+
+**Límite:** el key es efímero y existe solo para probar cifrado/descifrado del pipeline; no sustituye KMS/Secret Manager, rotación, custodia de claves, backups externos, WAL/PITR, restore fuera de la misma máquina ni medición de RPO/RTO de producción. Esta prueba de CI es un smoke restore determinista, no la aceptación completa del gate G1 ni del Architecture Spike TASK-039.
