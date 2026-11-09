@@ -16,6 +16,7 @@ import { TenantRoleAssignmentRepository } from "./authorization/tenant-role-assi
 import { TenantRoleAssignmentService } from "./authorization/tenant-role-assignment.service.js";
 import { AppendOnlyAuditRepository } from "./audit/append-only-audit.repository.js";
 import { AuthorizationDecisionAuditService } from "./audit/authorization-decision-audit.service.js";
+import { TenantAuditReportService } from "./audit/tenant-audit-report.service.js";
 import { ApprovalWorkflowService } from "./approvals/approval-workflow.service.js";
 import {
   APPROVAL_POLICY_RESOLVER,
@@ -54,6 +55,7 @@ import {
     TenantRoleAssignmentService,
     AppendOnlyAuditRepository,
     AuthorizationDecisionAuditService,
+    TenantAuditReportService,
     ApprovalWorkflowService,
     {
       provide: APPROVAL_POLICY_RESOLVER,
@@ -67,6 +69,7 @@ import {
   exports: [
     ApprovalWorkflowService,
     AppendOnlyAuditRepository,
+    TenantAuditReportService,
     TenantRoleAssignmentService,
     OidcAuthGuard,
     TenantContextGuard,
