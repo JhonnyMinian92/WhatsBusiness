@@ -119,7 +119,7 @@ export class PostgresMetaOAuthRepository implements MetaOAuthRepositoryPort {
         resourceId: row.id,
         purpose: "meta.connections.oauth",
         outcome: "meta_connection_created",
-        correlationId: randomUUID(),
+        correlationId: input.correlationId,
       });
       return row.id;
     });
