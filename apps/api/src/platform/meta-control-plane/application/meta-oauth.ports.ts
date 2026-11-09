@@ -41,7 +41,7 @@ export interface MetaOAuthProviderPort {
   refreshAccessToken(input: {
     readonly product: MetaOAuthProduct;
     readonly authorizationMode: MetaAuthorizationMode;
-    readonly refreshToken: string;
+    readonly accessToken: string;
     readonly grantedScopes: readonly string[];
     readonly providerUserId: string;
   }): Promise<MetaOAuthTokenSet>;
