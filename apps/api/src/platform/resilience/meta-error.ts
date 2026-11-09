@@ -49,22 +49,22 @@ export function parseRetryAfter(value: string | undefined, now = Date.now()): nu
 }
 
 export function createMetaApiError(status: number, body: unknown, headers: HeaderCollection, now = Date.now()): MetaApiError {
-  const payload = isRecord(body) && isRecord(body.error) ? body.error : {};
-  const code = typeof payload.code === "number" ? payload.code : undefined;
+  const payload = isRecord(body) && isRecord(body["error"]) ? body["error"] : {};
+  const code = typeof payload["code"] === "number" ? payload["code"] : undefined;
   const usage = new MetaUsageHeaders().parse(headers);
   const estimated = Math.max(0, ...usage.businessUseCases.flatMap(item =>
     item.samples.map(metrics => (metrics.estimated_time_to_regain_access ?? 0) * 60_000)));
   const retryAfterMs = Math.max(parseRetryAfter(readHeader(headers, "retry-after"), now) ?? 0, estimated) || undefined;
   return new MetaApiError({
     status, code,
-    subcode: typeof payload.error_subcode === "number" ? payload.error_subcode : undefined,
-    isTransient: payload.is_transient === true || (code !== undefined && RATE_LIMIT_CODES.has(code))
+    subcode: typeof payload["error_subcode"] === "number" ? payload["error_subcode"] : undefined,
+    isTransient: payload["is_transient"] === true || (code !== undefined && RATE_LIMIT_CODES.has(code))
       || status === 408 || status === 425 || status === 429 || status >= 500,
     retryAfterMs,
     requestId: readHeader(headers, "x-fb-request-id") ?? readHeader(headers, "x-request-id"),
-    fbtraceId: typeof payload.fbtrace_id === "string" ? payload.fbtrace_id : readHeader(headers, "x-fb-trace-id"),
-    errorType: typeof payload.type === "string" ? payload.type : undefined,
-  }, typeof payload.message === "string" ? payload.message : `Meta API request failed with HTTP ${status}.`);
+    fbtraceId: typeof payload["fbtrace_id"] === "string" ? payload["fbtrace_id"] : readHeader(headers, "x-fb-trace-id"),
+    errorType: typeof payload["type"] === "string" ? payload["type"] : undefined,
+  }, typeof payload["message"] === "string" ? payload["message"] : `Meta API request failed with HTTP ${status}.`);
 }
 
 /** Do not retry quota errors blindly; Meta must provide a cooldown signal. */

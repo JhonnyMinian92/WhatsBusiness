@@ -63,8 +63,8 @@ export class MetaUsageHeaders {
 }
 
 function sample(scope: UsageScopeKind, key: string, metrics: UsageMetrics): ScopedUsageSample {
-  const minutes = metrics.estimated_time_to_regain_access ?? 0;
-  const seconds = metrics.reset_time_duration ?? 0;
+  const minutes = metrics["estimated_time_to_regain_access"] ?? 0;
+  const seconds = metrics["reset_time_duration"] ?? 0;
   return Object.freeze({
     scope, key, metrics,
     estimatedCooldownMs: Math.ceil(Math.max(minutes * 60_000, seconds * 1_000)),
@@ -99,7 +99,7 @@ function parseBusinessUseCases(raw: string | undefined, warnings: string[]): rea
     if (!Array.isArray(entries)) { warnings.push(`${BUC} entry for ${businessId} is not an array.`); continue; }
     for (const item of entries) {
       if (!isRecord(item)) continue;
-      const type = typeof item.type === "string" && item.type.trim() ? item.type : "unknown";
+      const type = typeof item["type"] === "string" && item["type"].trim() ? item["type"] : "unknown";
       const metrics: Record<string, number> = {};
       for (const [field, metric] of Object.entries(item)) {
         if (field !== "type" && field !== "business-id" && FIELDS.has(field)
