@@ -66,6 +66,10 @@
 ## Memoria de producto de origen
 [META_SERVICES.md](../META_SERVICES.md) conserva la investigación inicial. Es referencia histórica/técnica, no prueba de que una API siga vigente ni de que la cuenta tenga acceso. Validar todo dato volátil con fuentes oficiales antes de implementar.
 
+## Limpieza y gobierno del repositorio
+
+[94 — Estado de limpieza del repositorio](94-REPOSITORY-CLEANUP-STATUS.md) documenta la rama canónica, las referencias pendientes de retirar, el análisis de contenido y el bloqueo administrativo para cambiar la rama predeterminada y borrar referencias.
+
 ## Protocolo de mantenimiento
 - Al comenzar: leer AGENTS, revisar git status/branch/commit, sincronizar memoria y verificar código real.
 - Al planificar: localizar IDs existentes; crear REQ/US/TASK/BUG/CR/ADR solo si corresponde; actualizar grafo y matriz.
