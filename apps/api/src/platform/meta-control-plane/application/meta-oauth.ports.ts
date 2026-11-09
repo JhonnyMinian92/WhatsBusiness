@@ -78,7 +78,7 @@ export interface SaveMetaConnection {
 }
 export interface MetaOAuthRepositoryPort {
   createState(input: CreateMetaOAuthState): Promise<void>;
-  consumeState(stateHash: string): Promise<ConsumedMetaOAuthState | null>;
+  consumeState(input: { readonly stateHash: string; readonly tenantId: string; readonly actorUserId: string; readonly authzVersion: number }): Promise<ConsumedMetaOAuthState | null>;
   saveConnection(input: SaveMetaConnection): Promise<{ readonly connectionId: string }>;
 }
 export const META_OAUTH_REPOSITORY = Symbol("META_OAUTH_REPOSITORY");
