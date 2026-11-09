@@ -184,7 +184,7 @@ export class MetaOAuthService {
       throw new UnauthorizedException({code:"META_CONNECTION_NOT_REFRESHABLE",detail:"Una conexión pendiente de revocación no puede reactivarse mediante refresh."});
     }
     const associatedData = this.credentialAssociatedData(connection.tenantId, connection.product, connection.providerUserId);
-    const currentTokens = this.parseTokens(await this.vault.decryptSecret(connection.encryptedToken,associatedData));
+    const currentTokens = await this.decryptConnectionTokens(connection);
     const refreshed = await this.provider.refreshAccessToken({
       product: connection.product,
       authorizationMode: connection.authorizationMode,
@@ -224,8 +224,7 @@ export class MetaOAuthService {
     await this.repository.markRevocationPending({subject,connection});
     let remoteState: "confirmed" | "unknown" = "unknown";
     try {
-      const associatedData = this.credentialAssociatedData(connection.tenantId, connection.product, connection.providerUserId);
-      const currentTokens = this.parseTokens(await this.vault.decryptSecret(connection.encryptedToken,associatedData));
+      const currentTokens = await this.decryptConnectionTokens(connection);
       await this.provider.revokeAccessToken({
         product:connection.product,
         authorizationMode:connection.authorizationMode,
@@ -295,6 +294,41 @@ export class MetaOAuthService {
 
   private digest(value: string): string {
     return createHash("sha256").update(value,"utf8").digest("hex");
+  }
+
+  /**
+   * Compatibilidad de lectura para sobres creados antes del cambio de AAD.
+   * El refresh vuelve a cifrar con el AAD estable y migra cada credencial
+   * al nuevo formato sin una actualización masiva destructiva.
+   */
+  private async decryptConnectionTokens(
+    connection: MetaConnectionCredentialRecord,
+  ): Promise<StoredTokenPayload> {
+    const currentAad = this.credentialAssociatedData(
+      connection.tenantId,
+      connection.product,
+      connection.providerUserId,
+    );
+    try {
+      return this.parseTokens(await this.vault.decryptSecret(connection.encryptedToken, currentAad));
+    } catch (currentError) {
+      const legacyAad = this.legacyCredentialAssociatedData(
+        connection.tenantId,
+        connection.createdByUserId,
+        connection.product,
+      );
+      if (legacyAad === currentAad) throw currentError;
+      try {
+        return this.parseTokens(await this.vault.decryptSecret(connection.encryptedToken, legacyAad));
+      } catch {
+        // Mantener el error original y no filtrar detalles del KMS.
+        throw currentError;
+      }
+    }
+  }
+
+  private legacyCredentialAssociatedData(tenantId: string, actorUserId: string, product: string): string {
+    return ["whatsbusiness","meta-oauth",tenantId,actorUserId,product].join(":");
   }
 
   private stateAssociatedData(tenantId: string, actorUserId: string, product: string): string {
