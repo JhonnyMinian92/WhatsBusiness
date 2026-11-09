@@ -74,7 +74,7 @@ CREATE POLICY privacy_export_artifacts_insert ON platform.privacy_export_artifac
     AND created_by_user_id=NULLIF(current_setting('app.user_id',true),'')::uuid
     AND platform.has_permission(tenant_id,'privacy.export.request')
     AND EXISTS (SELECT 1 FROM platform.privacy_requests request
-      WHERE request.id=request_id AND request.tenant_id=tenant_id
+      WHERE request.id=privacy_export_artifacts.request_id AND request.tenant_id=privacy_export_artifacts.tenant_id
         AND request.action IN ('access','portability') AND request.status='in_progress'));
 CREATE POLICY privacy_export_artifacts_update ON platform.privacy_export_artifacts
   FOR UPDATE USING (tenant_id=NULLIF(current_setting('app.tenant_id',true),'')::uuid
@@ -182,26 +182,26 @@ RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER
 SET search_path=pg_catalog,platform,crm
 AS $function$
 DECLARE
-  tenant_id uuid := NULLIF(current_setting('app.tenant_id',true),'')::uuid;
-  actor_id uuid := NULLIF(current_setting('app.user_id',true),'')::uuid;
+  v_tenant_id uuid := NULLIF(current_setting('app.v_tenant_id',true),'')::uuid;
+  v_actor_id uuid := NULLIF(current_setting('app.user_id',true),'')::uuid;
 BEGIN
-  IF tenant_id IS NULL OR actor_id IS NULL
-     OR NOT platform.has_permission(tenant_id,'privacy.deletion.request') THEN
+  IF v_tenant_id IS NULL OR v_actor_id IS NULL
+     OR NOT platform.has_permission(v_tenant_id,'privacy.deletion.request') THEN
     RAISE EXCEPTION 'Contact erasure requires verified tenant privacy authority' USING ERRCODE='42501';
   END IF;
-  PERFORM 1 FROM crm.contacts WHERE crm.contacts.tenant_id=tenant_id AND crm.contacts.id=p_contact_id FOR UPDATE;
+  PERFORM 1 FROM crm.contacts WHERE crm.contacts.v_tenant_id=v_tenant_id AND crm.contacts.id=p_contact_id FOR UPDATE;
   IF NOT FOUND THEN RETURN false; END IF;
 
-  UPDATE crm.contacts SET
+  UPDATE crm.contacts AS contact SET
     display_name='Contacto anonimizado '||left(p_contact_id::text,8),
     first_name=NULL,last_name=NULL,source_reference=NULL,status='archived',
-    version=version+1,updated_by=actor_id,updated_at=clock_timestamp()
-  WHERE tenant_id=tenant_id AND id=p_contact_id;
+    version=version+1,updated_by=v_actor_id,updated_at=clock_timestamp()
+  WHERE contact.tenant_id=v_tenant_id AND contact.id=p_contact_id;
 
   UPDATE crm.contact_identities identity_record SET
-    external_id='redacted:'||md5(tenant_id::text||':'||p_contact_id::text||':'||identity_record.id::text),
+    external_id='redacted:'||md5(v_tenant_id::text||':'||p_contact_id::text||':'||identity_record.id::text),
     source_reference=NULL,verified_at=NULL,confidence=NULL
-  WHERE identity_record.tenant_id=tenant_id AND identity_record.contact_id=p_contact_id;
+  WHERE identity_record.v_tenant_id=v_tenant_id AND identity_record.contact_id=p_contact_id;
   RETURN true;
 END
 $function$;
@@ -213,15 +213,15 @@ RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER
 SET search_path=pg_catalog,platform,crm
 AS $function$
 DECLARE
-  tenant_id uuid := NULLIF(current_setting('app.tenant_id',true),'')::uuid;
+  v_tenant_id uuid := NULLIF(current_setting('app.v_tenant_id',true),'')::uuid;
 BEGIN
-  IF tenant_id IS NULL OR NOT platform.has_permission(tenant_id,'privacy.deletion.request') THEN
+  IF v_tenant_id IS NULL OR NOT platform.has_permission(v_tenant_id,'privacy.deletion.request') THEN
     RAISE EXCEPTION 'Contact identity erasure requires privacy deletion permission' USING ERRCODE='42501';
   END IF;
-  UPDATE crm.contact_identities SET
-    external_id='redacted:'||md5(tenant_id::text||':'||id::text),
+  UPDATE crm.contact_identities AS identity_record SET
+    external_id='redacted:'||md5(v_tenant_id::text||':'||identity_record.id::text),
     source_reference=NULL,verified_at=NULL,confidence=NULL
-  WHERE tenant_id=tenant_id AND id=p_identity_id;
+  WHERE identity_record.tenant_id=v_tenant_id AND identity_record.id=p_identity_id;
   RETURN FOUND;
 END
 $function$;
@@ -233,36 +233,36 @@ RETURNS integer LANGUAGE plpgsql SECURITY DEFINER
 SET search_path=pg_catalog,platform,crm
 AS $function$
 DECLARE
-  tenant_id uuid := NULLIF(current_setting('app.tenant_id',true),'')::uuid;
-  actor_id uuid := NULLIF(current_setting('app.user_id',true),'')::uuid;
+  v_tenant_id uuid := NULLIF(current_setting('app.v_tenant_id',true),'')::uuid;
+  v_actor_id uuid := NULLIF(current_setting('app.user_id',true),'')::uuid;
   affected integer := 0;
   contact_row record;
 BEGIN
-  IF tenant_id IS NULL OR actor_id IS NULL
-     OR NOT platform.has_permission(tenant_id,'privacy.retention.execute') THEN
+  IF v_tenant_id IS NULL OR v_actor_id IS NULL
+     OR NOT platform.has_permission(v_tenant_id,'privacy.retention.execute') THEN
     RAISE EXCEPTION 'Contact retention execution permission required' USING ERRCODE='42501';
   END IF;
   IF p_batch_size<1 OR p_batch_size>5000 THEN RAISE EXCEPTION 'Invalid batch size' USING ERRCODE='22023'; END IF;
   FOR contact_row IN
     SELECT contact.id FROM crm.contacts contact
-    WHERE contact.tenant_id=tenant_id AND contact.status='archived' AND contact.updated_at<=p_cutoff
+    WHERE contact.v_tenant_id=v_tenant_id AND contact.status='archived' AND contact.updated_at<=p_cutoff
       AND (NOT p_require_legal_hold_check OR NOT EXISTS (
         SELECT 1 FROM platform.privacy_legal_holds hold
-        WHERE hold.tenant_id=tenant_id AND hold.subject_id=contact.id
+        WHERE hold.v_tenant_id=v_tenant_id AND hold.subject_id=contact.id
           AND hold.data_category='contacts' AND hold.status='active'
       ))
     ORDER BY contact.updated_at,contact.id
     FOR UPDATE SKIP LOCKED LIMIT p_batch_size
   LOOP
-    UPDATE crm.contacts SET
+    UPDATE crm.contacts AS contact SET
       display_name='Contacto anonimizado '||left(contact_row.id::text,8),
       first_name=NULL,last_name=NULL,source_reference=NULL,
-      version=version+1,updated_by=actor_id,updated_at=clock_timestamp()
-    WHERE tenant_id=tenant_id AND id=contact_row.id;
-    UPDATE crm.contact_identities SET
-      external_id='redacted:'||md5(tenant_id::text||':'||contact_row.id::text||':'||id::text),
+      version=version+1,updated_by=v_actor_id,updated_at=clock_timestamp()
+    WHERE contact.tenant_id=v_tenant_id AND contact.id=contact_row.id;
+    UPDATE crm.contact_identities AS identity_record SET
+      external_id='redacted:'||md5(v_tenant_id::text||':'||contact_row.id::text||':'||identity_record.id::text),
       source_reference=NULL,verified_at=NULL,confidence=NULL
-    WHERE tenant_id=tenant_id AND contact_id=contact_row.id;
+    WHERE identity_record.tenant_id=v_tenant_id AND identity_record.contact_id=contact_row.id;
     affected:=affected+1;
   END LOOP;
   RETURN affected;
