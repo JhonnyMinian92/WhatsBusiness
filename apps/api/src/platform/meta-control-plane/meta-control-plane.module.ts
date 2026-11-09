@@ -7,6 +7,10 @@ import {
   META_OAUTH_REPOSITORY,
   META_OAUTH_SCOPE_POLICY,
 } from "./application/meta-oauth.ports.js";
+import { META_ASSET_DISCOVERY, META_ONBOARDING_REPOSITORY } from "./application/meta-onboarding.ports.js";
+import { MetaOnboardingService } from "./application/meta-onboarding.service.js";
+import { PostgresMetaOnboardingRepository } from "./infrastructure/postgres/postgres-meta-onboarding.repository.js";
+import { UnconfiguredMetaAssetDiscovery } from "./infrastructure/unconfigured-meta-asset-discovery.js";
 import { MetaCredentialVault } from "./application/meta-credential-vault.js";
 import { MetaOAuthService } from "./application/meta-oauth.service.js";
 import { MetaOAuthPolicy } from "./domain/meta-oauth.policy.js";
@@ -22,6 +26,10 @@ import {
   providers: [
     PostgresMetaOAuthRepository,
     { provide: META_OAUTH_REPOSITORY, useExisting: PostgresMetaOAuthRepository },
+    PostgresMetaOnboardingRepository,
+    { provide: META_ONBOARDING_REPOSITORY, useExisting: PostgresMetaOnboardingRepository },
+    { provide: META_ASSET_DISCOVERY, useClass: UnconfiguredMetaAssetDiscovery },
+    MetaOnboardingService,
     { provide: META_CREDENTIAL_ENVELOPE_PROVIDER, useClass: UnconfiguredCredentialEnvelopeProvider },
     { provide: META_OAUTH_PROVIDER, useClass: UnconfiguredMetaOAuthProvider },
     { provide: META_OAUTH_SCOPE_POLICY, useClass: UnverifiedMetaOAuthScopePolicy },
@@ -40,6 +48,6 @@ import {
     MetaCredentialVault,
     MetaOAuthService,
   ],
-  exports: [MetaCredentialVault, MetaOAuthService],
+  exports: [MetaCredentialVault, MetaOAuthService, MetaOnboardingService],
 })
 export class MetaControlPlaneModule {}
