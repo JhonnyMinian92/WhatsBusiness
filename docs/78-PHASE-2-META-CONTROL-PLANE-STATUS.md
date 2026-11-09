@@ -113,3 +113,22 @@ La migración `0040` superó instalación SQL e idempotencia, y el cambio super�
 La migración incremental `0041-platform-usage-ledger-returning-qualification.sql` vuelve a definir la función con alias `ledger_entry` y referencias calificadas en `RETURNING`. Se mantiene RLS para la aplicación, sin INSERT directo, la validación estricta de contexto y la resolución idempotente limitada al mismo actor.
 
 **Estado de evidencia:** nuevo Source CI pendiente. TASK-052, G1 y G2 continúan sin cierre ni aceptación. La integración real de Meta y los despliegues externos no se infieren de pruebas locales.
+
+
+## Actualización final de validación — HEAD 4ac3a950 (2026-11-09)
+
+La información de las secciones anteriores describe el diagnóstico histórico de los HEAD `a08bb535`, `f7e9704` y la primera ejecución correctiva `4ac3a950` antes de aplicar la migración 0041. **El resultado vigente es el siguiente:** Source workspace validation [42594886590](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42594886590) y CodeQL [42594886621](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42594886621) finalizaron SUCCESS sobre el mismo HEAD `4ac3a95009c2b29ca7963d79733206ba8079d0d4`.
+
+- Migraciones 0040 y 0041, incluida repetición idempotente: PASS.
+- Build y typecheck: PASS.
+- Inbox domain: 36/36 PASS.
+- API + PostgreSQL: 405/405 PASS (incluye Platform Administration y el control de no-INSERT directo).
+- Meta backend + PostgreSQL/RabbitMQ: 112/112 PASS.
+- Escaneo de secretos, auditoría de dependencias de alta severidad, validación de activos de observabilidad, provisioning least-privilege, DLX quorum y métricas RabbitMQ: PASS.
+- Agregador de suites independientes y CodeQL: SUCCESS.
+
+El run previo `42594594079` falló primero por SQLSTATE `42702` en la cláusula RETURNING. La migración incremental 0041 calificó los campos mediante el alias `ledger_entry`; no se alteró 0040 ni se excluyó ninguna prueba. El nuevo run demuestra el cierre de ese defecto en el HEAD actual.
+
+**Estado de la fase:** los slices de OAuth/state/PKCE, onboarding saga, persistencia de activos y catálogo/evaluación de capacidades siguen siendo parciales y `in_progress`. Los providers OAuth, envelope encryption y asset discovery permanecen fail-closed/unconfigured. META-010..015 permanecen catalog-only según docs/49; no se añadieron rutas públicas fuera del allowlist.
+
+**G2 sigue abierto:** faltan App ID/secret y configuración Meta por entorno, `config_id` de Embedded Signup v4, KMS/Secret Manager y rotación real, provider OAuth/Graph, revisión/accesos Meta y cuenta de negocio autorizada, discovery y pruebas end-to-end de activos/capabilities, contract freeze por operación, review independiente y aceptación del propietario. La ejecución verde no demuestra un alta ni una operación real en Meta.

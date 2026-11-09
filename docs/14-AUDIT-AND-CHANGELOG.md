@@ -845,3 +845,26 @@ El Source CI `42594594079` validó migraciones (incluida idempotencia), build y 
 Se añadió migración incremental `0041-platform-usage-ledger-returning-qualification.sql`. La función usa un alias explícito de tabla y retorna `ledger_entry.id` y `ledger_entry.payload_hash`, conservando las validaciones de actor/tenant/rol, la idempotencia y los privilegios mínimos de `0040`. No se reescribe la migración ya versionada.
 
 **Estado:** corrección publicada; nueva ejecución Source CI pendiente. La fase 1 no se declara aceptada hasta que el test de PostgreSQL y el agregador de suites pasen.
+
+
+## 62. Source CI y CodeQL verdes tras el cierre del Usage Ledger — 2026-11-09
+
+El HEAD `4ac3a95009c2b29ca7963d79733206ba8079d0d4` de `environment/local` pasó Source workspace validation [run 42594886590](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42594886590) y CodeQL [run 42594886621](https://github.com/JhonnyMinian92/WhatsBusiness/actions/runs/42594886621), ambos con conclusión SUCCESS.
+
+| Control | Resultado | Evidencia |
+|---|---:|---|
+| Frozen install / lockfile | PASS | Source run 42594886590 |
+| Secret scan / high-severity dependency audit | PASS | Source run 42594886590 |
+| Observability assets | PASS | Source run 42594886590 |
+| PostgreSQL versioned migrations + idempotency | PASS | Incluye 0040 y 0041 |
+| Least-privilege DB/job/webhook roles + RabbitMQ quorum DLX/metrics | PASS | Source run 42594886590 |
+| Build + typecheck | PASS | Source run 42594886590 |
+| Inbox domain suite | 36/36 PASS | Target independiente |
+| API unit + PostgreSQL integration | 405/405 PASS | Target independiente |
+| Meta backend + PostgreSQL/RabbitMQ integration | 112/112 PASS | Target independiente |
+| Independent suite aggregator | PASS | Los tres outcomes SUCCESS |
+| CodeQL TypeScript/JavaScript | PASS | Run 42594886621 |
+
+La causa anterior quedó resuelta mediante la función `platform.record_usage_entry`, con migraciones 0040 (frontera SQL/privilegios mínimos) y 0041 (calificación explícita de columnas de retorno). La aplicación ya no tiene INSERT directo en `platform.usage_ledger`; la integración verifica ese privilegio y prueba idempotencia, payload conflictivo y consulta bajo RLS.
+
+**Alcance de esta evidencia:** verifica el HEAD y las pruebas automatizadas indicadas. No equivale a review independiente, aceptación del Product Owner, despliegue productivo, prueba de restauración/DR ni aprobación G1/G2. Los checks exclusivos de Pull Request de sincronización/commit de lockfile aparecen skipped porque esta ejecución no es una PR; no son fallos del job.
