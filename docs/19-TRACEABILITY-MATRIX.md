@@ -590,3 +590,21 @@ Evidencia adicional: build/typecheck SUCCESS, CodeQL SUCCESS y suite Meta SUCCES
 | AC-030-06 — promoción/retirada protegida | Approval binding/snapshot y lifecycle de variante; recomendaciones generan solo drafts. | Parte de aplicación y workflow de aprobación incorporada. | Hardening de transición/reconciliación, review independiente y pruebas PostgreSQL de concurrencia/aprobación. |
 
 **Evidencia:** 26/26 pruebas específicas de las seis suites Creative Lab pasaron en run 42532889134 (commit 1dc4545); build/typecheck y migration replay/idempotency también pasaron en ese commit, y CodeQL 42532889226 pasó. El agregador global sigue rojo por el test Platform Administration sobre RLS de platform.usage_ledger, reproducido en el baseline previo a US-030 (run 42531885574). El HEAD compartido posterior e48b229 falla build por 63 errores TypeScript en Developer Platform (run 42533056750); no corresponden a esta historia. Sin live account/official capability runtime, preview, recomendaciones e insights permanecen bloqueados/desconocidos. No se declara lift causal, ganador automático, publicación ni aumento de presupuesto.
+
+
+
+## 16. US-033..036 — TikTok, OpenAI Ads and multichannel experimentation (2026-11-09)
+
+| Requisito | Historia | Tareas | Evidencia necesaria | Estado al documentar |
+|---|---|---|---|---|
+| Angular frontend renombrado sin mover NestJS API | US-033 | TASK-081 | Git rename, Angular/Nx/pnpm/CI config, frozen install, build/typecheck/E2E | proposed |
+| TikTok Marketing API, Organic API, Login Kit, Content Posting, Display, TTO y Business Messaging | US-034 | TASK-082,083 | Matriz oficial por endpoint/scope/version/país/cuenta, OAuth, contract/account tests, webhooks | proposed |
+| TikTok Leads/Insights/measurement conectados a CRM e Inbox | US-034 | TASK-084 | Event IDs, consent, dedupe, provider snapshot, freshness y business outcomes | proposed |
+| OpenAI Advertiser API completa de campaña, assets, feeds, review y reporting | US-035 | TASK-085 | Advertiser API contract, capability evidence, paused-first creation, preview, audit y reconciliation | proposed |
+| OpenAI Measurement Pixel y Conversions API | US-035 | TASK-086 | Credenciales separadas, consent, shared Pixel/event ID dedupe y attribution windows | proposed |
+| Pareja V1 original/V2 alternativa y assignment válido | US-036 | TASK-087 | Snapshot hashes, variable primaria, stable randomization/native split, SRM y stop rules | proposed |
+| Feature/event store con señales de delivery, creative, contexto y CRM | US-036 | TASK-088 | Provenance, normalized metrics, time/currency/attribution, retention and quality checks | proposed |
+| Recomendaciones y nuevas variantes draft con evidencia | US-036 | TASK-089 | Evaluation, confidence/uncertainty, model lineage, rights/brand/claim validation y approvals | proposed |
+| Capabilities/deprecations y hardening multicanal | US-034..036 | TASK-090,091 | API/policy source registry, spend ledger, observability, security/privacy and independent review | proposed |
+
+La especificación se encuentra en [docs/95](95-EXPANSION-TIKTOK-OPENAI-ADS-AND-AUTOMATED-LEARNING.md). La presencia de estas filas no declara endpoints implementados, cuenta conectada, evento recibido, A/B ejecutado ni producto aceptado.
