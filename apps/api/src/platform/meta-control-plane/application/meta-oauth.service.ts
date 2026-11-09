@@ -79,7 +79,7 @@ export class MetaOAuthService {
     const nonceHash = this.digest(nonce);
     const codeChallenge = createHash("sha256").update(verifier,"ascii").digest("base64url");
     const expiresAt = new Date(Date.now() + this.policy.stateLifetimeSeconds * 1000);
-    const associatedData = this.associatedData(subject.tenantId, subject.actorId, request.product);
+    const associatedData = this.stateAssociatedData(subject.tenantId, subject.actorId, request.product);
 
     const verifierEnvelope = await this.vault.encryptSecret(verifier, associatedData);
     const authorizationUrl = await this.provider.buildAuthorizationUrl({
@@ -135,8 +135,8 @@ export class MetaOAuthService {
       throw new UnauthorizedException({ code: "META_OAUTH_REDIRECT_MISMATCH", detail: "El callback no coincide con el actor, tenant, autorización o redirect URI original." });
     }
 
-    const associatedData = this.associatedData(state.tenantId, state.actorUserId, state.product);
-    const verifier = await this.vault.decryptSecret(state.verifierEnvelope, associatedData);
+    const stateAssociatedData = this.stateAssociatedData(state.tenantId, state.actorUserId, state.product);
+    const verifier = await this.vault.decryptSecret(state.verifierEnvelope, stateAssociatedData);
     const tokens = await this.provider.exchangeAuthorizationCode({
       product: state.product,
       authorizationMode: state.authorizationMode,
@@ -153,7 +153,8 @@ export class MetaOAuthService {
       });
     }
     const expiresAt = new Date(Date.now() + tokens.expiresInSeconds * 1000);
-    const envelope = await this.vault.encryptSecret(this.serializeTokens(tokens), associatedData);
+    const credentialAssociatedData = this.credentialAssociatedData(state.tenantId, state.product, tokens.providerUserId);
+    const envelope = await this.vault.encryptSecret(this.serializeTokens(tokens), credentialAssociatedData);
     const connection = await this.repository.saveConnection({
       tenantId: state.tenantId,
       actorUserId: state.actorUserId,
@@ -182,15 +183,12 @@ export class MetaOAuthService {
     if (connection.status !== "active") {
       throw new UnauthorizedException({code:"META_CONNECTION_NOT_REFRESHABLE",detail:"Una conexión pendiente de revocación no puede reactivarse mediante refresh."});
     }
-    const associatedData = this.associatedData(connection.tenantId,connection.createdByUserId,connection.product);
+    const associatedData = this.credentialAssociatedData(connection.tenantId, connection.product, connection.providerUserId);
     const currentTokens = this.parseTokens(await this.vault.decryptSecret(connection.encryptedToken,associatedData));
-    if (!currentTokens.refreshToken) {
-      throw new ServiceUnavailableException({code:"META_REFRESH_TOKEN_UNAVAILABLE",detail:"La credencial no contiene refresh token; debe ejecutarse una reautorización."});
-    }
     const refreshed = await this.provider.refreshAccessToken({
       product: connection.product,
       authorizationMode: connection.authorizationMode,
-      refreshToken: currentTokens.refreshToken,
+      accessToken: currentTokens.accessToken,
       grantedScopes: connection.grantedScopes,
       providerUserId: connection.providerUserId,
     });
@@ -295,8 +293,17 @@ export class MetaOAuthService {
     return createHash("sha256").update(value,"utf8").digest("hex");
   }
 
-  private associatedData(tenantId: string, actorUserId: string, product: string): string {
-    return ["whatsbusiness","meta-oauth",tenantId,actorUserId,product].join(":");
+  private stateAssociatedData(tenantId: string, actorUserId: string, product: string): string {
+    return JSON.stringify(["whatsbusiness","meta-oauth","state",tenantId,actorUserId,product]);
+  }
+
+  /**
+   * Las credenciales pertenecen al tenant/identidad del proveedor, no al
+   * administrador que inició la conexión. Esto permite rotación por otro
+   * administrador que tenga autorización actual en el mismo tenant.
+   */
+  private credentialAssociatedData(tenantId: string, product: string, providerUserId: string): string {
+    return JSON.stringify(["whatsbusiness","meta-oauth","credential",tenantId,product,providerUserId]);
   }
 }
 function sameSet(left: readonly string[], right: readonly string[]): boolean {
