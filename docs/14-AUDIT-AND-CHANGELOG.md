@@ -985,3 +985,7 @@ Se amplía docs/95, §§23–42, con el diseño del motor transversal de experim
 **Auditoría y controles:** opens de email son señal débil por MPP/bots; DLR de SMS no demuestra lectura; llamada completed no demuestra conversación humana; read/reach/impressions solo se reportan donde exista evidencia de proveedor. Se refuerza no sumar conversiones atribuidas por plataformas como ventas distintas; CRM/payment es fuente de outcomes. Consentimiento, preferencias y suppression se aplican inmediatamente antes del despacho y por canal/finalidad.
 
 Se proponen US-037..045 y TASK-092..106. Todos permanecen proposed; no se implementaron estos adapters, no se enviaron campañas ni se ejecutó experimento en este cambio documental. La elegibilidad de cada cuenta/API y el análisis legal por jurisdicción permanecen gates externos.
+
+## 76. Revisión e integración final de ramas — 2026-11-09
+
+Por instrucción del propietario se conservan solo `environment/local`, `environment/develop` y `master`. Se revisaron 23 ramas adicionales; solo `feature/us-018-crm-completion` aportaba código ausente (búsqueda en campos personalizados con control de visibilidad), integrado con corrección del placeholder SQL `$N` y prueba de regresión. El resto estaba integrado, sustituido o duplicado. Detalle en [docs/94](94-REPOSITORY-CLEANUP-STATUS.md).

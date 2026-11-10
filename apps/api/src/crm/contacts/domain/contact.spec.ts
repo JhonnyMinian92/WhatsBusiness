@@ -56,3 +56,8 @@ test("validates stable cursor paging and filter bounds", () => {
   assert.throws(() => parseContactListQuery({ pageSize: "101" }), ContactValidationError);
   assert.throws(() => parseContactListQuery({ cursor: "not-a-cursor" }), ContactValidationError);
 });
+
+test("restricted custom field search is opt-in and defaults to excluded", () => {
+  assert.equal(parseContactListQuery({ query: "vip" }).includeRestrictedFields, false);
+  assert.equal(parseContactListQuery({ query: "vip", includeRestrictedFields: true }).includeRestrictedFields, true);
+});

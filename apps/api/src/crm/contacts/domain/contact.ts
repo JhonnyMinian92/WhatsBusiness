@@ -42,6 +42,7 @@ export interface ContactCursor {
 
 export interface ContactListQuery {
   readonly query: string | null;
+  readonly includeRestrictedFields: boolean;
   readonly contactType: ContactType | null;
   readonly status: ContactStatus | null;
   readonly pageSize: number;
@@ -121,6 +122,7 @@ export function parseContactListQuery(input: {
   readonly status?: string;
   readonly pageSize?: string | number;
   readonly cursor?: string;
+  readonly includeRestrictedFields?: boolean;
 }): ContactListQuery {
   const query = input.query?.trim().normalize("NFC") ?? "";
   if (query.length > 100 || /[\u0000-\u001f\u007f]/.test(query)) {
@@ -138,6 +140,7 @@ export function parseContactListQuery(input: {
     : enumValue(input.status, CONTACT_STATUSES, "status");
   return Object.freeze({
     query: query.length === 0 ? null : query,
+    includeRestrictedFields: input.includeRestrictedFields === true,
     contactType,
     status,
     pageSize,

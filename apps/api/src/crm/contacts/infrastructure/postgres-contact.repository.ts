@@ -147,7 +147,25 @@ export class PostgresContactRepository {
       values.push(value);
       clauses.push(clause.replace("?", "$" + values.length));
     };
-    if (query.query) add("position(lower(?) in lower(display_name)) > 0", query.query);
+    if (query.query) {
+      values.push(query.query);
+      const queryParameter = values.length;
+      values.push(query.includeRestrictedFields);
+      const restrictedParameter = values.length;
+      clauses.push(`(position(lower($${queryParameter}) in lower(display_name)) > 0 OR EXISTS (
+        SELECT 1 FROM crm.contact_attribute_values attribute_value
+        JOIN crm.contact_attribute_definitions attribute_definition
+          ON attribute_definition.tenant_id = attribute_value.tenant_id
+         AND attribute_definition.id = attribute_value.field_definition_id
+        WHERE attribute_value.tenant_id = $1
+          AND attribute_value.contact_id = crm.contacts.id
+          AND attribute_value.is_active = true
+          AND attribute_definition.retired_at IS NULL
+          AND attribute_definition.searchable = true
+          AND (attribute_definition.visibility = 'tenant' OR $${restrictedParameter}::boolean)
+          AND position(lower($${queryParameter}) in lower(attribute_value.value_json::text)) > 0
+      ))`);
+    }
     if (query.contactType) add("contact_type = ?", query.contactType);
     if (query.status) add("status = ?", query.status);
     if (query.cursor) {

@@ -24,7 +24,10 @@ export class ContactService {
   }): Promise<ContactPage> {
     this.assertPermission(subject, "crm.contacts.read");
     let query: ContactListQuery;
-    try { query = parseContactListQuery(input); }
+    try { query = parseContactListQuery({
+      ...input,
+      includeRestrictedFields: subject.permissionKeys.includes("crm.contacts.custom_fields.read_restricted"),
+    }); }
     catch (error) { throw mapValidationError(error); }
 
     return this.database.withTenantContextAtVersion(

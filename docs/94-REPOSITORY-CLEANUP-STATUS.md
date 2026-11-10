@@ -88,3 +88,21 @@ Por esta limitación no se afirma que las ramas hayan sido borradas. No se elimi
 4. Volver a verificar que el repositorio muestre una sola rama: `environment/local`, y que `default_branch` apunte a ella.
 
 Hasta completar esos pasos, la limpieza del repositorio sigue **incompleta** aunque el código y la validación de la rama canónica estén consolidados.
+
+## Actualización — instrucción del propietario 2026-11-09 (sustituye la lista anterior)
+
+El propietario indicó conservar **solo** `environment/local`, `environment/develop` y `master`. `master` y `environment/develop` ya no se eliminan y no se modificaron.
+
+Revisión rama por rama contra `environment/local` (commits únicos, `git cherry` y comparación de blobs de cada archivo tocado):
+
+| Rama | Resultado |
+|---|---|
+| `feature/us-018-crm-completion` | **Integrada.** Faltaba la búsqueda de contactos en campos personalizados `searchable` con visibilidad restringida (`4a6ec5d`, `027f10f`, `d033102`). Se portó corrigiendo un defecto: el SQL usaba `lower(N)` en lugar del placeholder `$N`. Prueba añadida en `contact.spec.ts`. |
+| `feat/phase-1-foundations-meta-access` | No se integra: arquitectura alternativa antigua, sustituida por los módulos vigentes (ver arriba). |
+| `feat/us-015-resilience-performance` | No se integra: sustituida por migración 0045 y docs/user-stories/US-015. |
+| `feat/us-031-agent-tool-interoperability` | No se integra: código presente; migración 0032 sustituida por 0044. |
+| `feat/task-003-*`, `feat/task-031-*`, `feat/task-060-*`, `fix/task-006-*`, `fix/platform-source-typecheck-front-a` | Código ya presente y evolucionado; solo difieren notas de memoria ya cubiertas por docs/89–93. |
+| `feat/us-029-*`, `feature/us-016-*`, `feat/phase-2-*` | Contenido presente o rama sin commits propios. |
+| `feature/us-025-partner-access*` (12 variantes) | Duplicados del mismo paquete; política, pruebas y documentación vigente (docs/77) ya presentes. |
+
+Las 23 ramas no conservadas se eliminan del remoto. Antes de borrar se guardó un `git bundle` local con todas sus puntas como respaldo fuera del repositorio.
